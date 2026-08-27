@@ -14,32 +14,286 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components.css">
     
     <style>
-        /* Login Page Specific Styles */
-        .login-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        :root {
+            --primary: #e94560;
+            --primary-dark: #c62a47;
+            --secondary: #0f3460;
+            --accent: #d4af37;
+            --gold: #f0d060;
+            --dark: #0a0e27;
+            --dark-light: #1a1f4e;
+            --white: #ffffff;
+            --shadow-gold: 0 20px 60px rgba(212, 175, 55, 0.4);
+            --shadow-primary: 0 4px 15px rgba(233, 69, 96, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
             padding: 20px;
+            transition: background 0.5s ease;
+        }
+        
+        /* Dynamic wallpaper backgrounds */
+        body.wallpaper-none {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+        }
+        
+        body.wallpaper-library {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-classroom {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-bookshelf {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-graduation {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-lecture {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-computer {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-science {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-playground {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-campus {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-ocean {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-forest {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-mountain {
+            background: linear-gradient(rgba(10, 14, 39, 0.75), rgba(10, 14, 39, 0.85)), 
+                        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-galaxy {
+            background: linear-gradient(rgba(10, 14, 39, 0.65), rgba(10, 14, 39, 0.75)), 
+                        url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        body.wallpaper-abstract {
+            background: linear-gradient(rgba(10, 14, 39, 0.7), rgba(10, 14, 39, 0.8)), 
+                        url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80') center/cover no-repeat fixed;
+        }
+        
+        /* Wallpaper selector */
+        .wallpaper-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallpaper-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #d4af37;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .wallpaper-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .wallpaper-panel {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            display: none;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .wallpaper-panel.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .wallpaper-panel h3 {
+            color: #d4af37;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .wallpaper-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .wallpaper-option {
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .wallpaper-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(212, 175, 55, 0.3);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        
+        .wallpaper-option.active {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.15);
+            color: #d4af37;
+        }
+        
+        .wallpaper-option i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        /* Animated particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+        }
+        
+        /* Main container */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 950px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.8s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Brand panel */
+        .brand-panel {
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(26, 31, 78, 0.95));
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-right: 2px solid rgba(212, 175, 55, 0.3);
             position: relative;
             overflow: hidden;
         }
         
-        .login-screen::before {
+        .brand-panel::before {
             content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
             animation: rotate 30s linear infinite;
         }
         
@@ -48,50 +302,22 @@
             to { transform: rotate(360deg); }
         }
         
-        .login-card {
-            position: relative;
-            z-index: 1;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 50px 40px;
-            width: 100%;
-            max-width: 450px;
-            animation: slideUp 0.6s ease;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .logo-icon {
-            width: 100px;
-            height: 100px;
+        .brand-logo {
+            width: 120px;
+            height: 120px;
             background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
-            border-radius: 25px;
-            display: inline-flex;
+            border-radius: 30px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 50px;
             font-weight: 900;
             color: #0a0e27;
-            margin-bottom: 20px;
-            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.4);
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-gold);
             animation: pulse 2s infinite;
+            position: relative;
+            z-index: 1;
         }
         
         @keyframes pulse {
@@ -99,29 +325,87 @@
             50% { transform: scale(1.05); }
         }
         
-        .logo h1 {
-            font-size: 2.5em;
+        .brand-title {
+            font-size: 3em;
+            font-weight: 900;
             background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin: 10px 0;
-            font-weight: 900;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
         }
         
-        .logo p {
+        .brand-subtitle {
             color: rgba(255, 255, 255, 0.7);
             font-size: 1.1em;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
         }
         
-        .logo .by-line {
+        .brand-by {
             color: #d4af37;
             font-size: 0.9em;
-            margin-top: 10px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .brand-features {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .brand-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+        
+        .brand-feature i {
+            color: #d4af37;
+            font-size: 16px;
+            width: 20px;
+        }
+        
+        /* Form panel */
+        .form-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .form-header h2 {
+            color: #ffffff;
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .form-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             position: relative;
         }
         
@@ -129,8 +413,9 @@
             display: block;
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 8px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 14px;
+            letter-spacing: 0.5px;
         }
         
         .form-group label i {
@@ -140,12 +425,12 @@
         
         .form-group input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px 18px;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            color: white;
-            font-size: 16px;
+            color: #ffffff;
+            font-size: 15px;
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
         }
@@ -154,27 +439,28 @@
             outline: none;
             border-color: #d4af37;
             background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
         }
         
         .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.4);
         }
         
         .btn-login {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background: linear-gradient(135deg, #e94560, #c62a47);
             border: none;
             border-radius: 12px;
-            color: white;
+            color: #ffffff;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            box-shadow: var(--shadow-primary);
             font-family: 'Inter', sans-serif;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            margin-top: 10px;
         }
         
         .btn-login:hover {
@@ -186,26 +472,28 @@
             transform: scale(0.95);
         }
         
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
         .login-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .login-footer a {
             color: #d4af37;
             text-decoration: none;
             font-size: 14px;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .login-footer a:hover {
             color: #f0d060;
+            transform: translateY(-2px);
         }
         
         .error-message {
@@ -213,7 +501,7 @@
             border: 1px solid #dc3545;
             color: #ff4757;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 20px;
             display: none;
             font-size: 14px;
@@ -233,35 +521,121 @@
         }
         
         /* Responsive */
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 30px 20px;
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 450px;
             }
             
-            .logo-icon {
-                width: 80px;
-                height: 80px;
-                font-size: 32px;
+            .brand-panel {
+                display: none;
             }
             
-            .logo h1 {
-                font-size: 2em;
+            .form-panel {
+                padding: 40px 30px;
+            }
+            
+            .wallpaper-panel {
+                width: 250px;
             }
         }
     </style>
 </head>
-<body>
-    <!-- Login Screen -->
-    <div class="login-screen">
-        <div class="login-card">
-            <!-- Logo -->
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-school"></i>
+<body class="wallpaper-none">
+    <!-- Animated particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Wallpaper Selector -->
+    <div class="wallpaper-selector">
+        <button class="wallpaper-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
+            <i class="fas fa-image"></i>
+        </button>
+    </div>
+    
+    <!-- Wallpaper Panel -->
+    <div class="wallpaper-panel" id="wallpaperPanel">
+        <h3><i class="fas fa-palette"></i> Choose Wallpaper</h3>
+        <div class="wallpaper-grid">
+            <div class="wallpaper-option active" onclick="setWallpaper('none')">
+                <i class="fas fa-moon"></i> Dark Gradient
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('library')">
+                <i class="fas fa-book"></i> Library
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('classroom')">
+                <i class="fas fa-chalkboard"></i> Classroom
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('bookshelf')">
+                <i class="fas fa-layer-group"></i> Bookshelf
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('graduation')">
+                <i class="fas fa-graduation-cap"></i> Graduation
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('lecture')">
+                <i class="fas fa-university"></i> Lecture Hall
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('computer')">
+                <i class="fas fa-laptop"></i> Computer Lab
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('science')">
+                <i class="fas fa-flask"></i> Science Lab
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('playground')">
+                <i class="fas fa-futbol"></i> Playground
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('campus')">
+                <i class="fas fa-building"></i> Campus
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('ocean')">
+                <i class="fas fa-water"></i> Ocean
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('forest')">
+                <i class="fas fa-tree"></i> Forest
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('mountain')">
+                <i class="fas fa-mountain"></i> Mountain
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('galaxy')">
+                <i class="fas fa-star"></i> Galaxy
+            </div>
+            <div class="wallpaper-option" onclick="setWallpaper('abstract')">
+                <i class="fas fa-paint-brush"></i> Abstract
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Container -->
+    <div class="login-container">
+        <!-- Brand Panel -->
+        <div class="brand-panel">
+            <div class="brand-logo">
+                <i class="fas fa-school"></i>
+            </div>
+            <div class="brand-title">SRMS</div>
+            <div class="brand-subtitle">School Resource Management System</div>
+            <div class="brand-by">by <strong>WeGEM</strong></div>
+            
+            <div class="brand-features">
+                <div class="brand-feature">
+                    <i class="fas fa-check-circle"></i> Library Management
                 </div>
-                <h1>SRMS</h1>
-                <p>School Resource Management System</p>
-                <p class="by-line">by <strong>WeGEM</strong></p>
+                <div class="brand-feature">
+                    <i class="fas fa-check-circle"></i> Student Database
+                </div>
+                <div class="brand-feature">
+                    <i class="fas fa-check-circle"></i> Furniture Allocation
+                </div>
+                <div class="brand-feature">
+                    <i class="fas fa-check-circle"></i> Reports & Analytics
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="form-header">
+                <h2>Welcome Back!</h2>
+                <p>Login to your school account</p>
             </div>
             
             <!-- Error Message -->
@@ -276,39 +650,21 @@
                     <label for="schoolName">
                         <i class="fas fa-school"></i> School Name
                     </label>
-                    <input 
-                        type="text" 
-                        id="schoolName" 
-                        placeholder="Enter your school name"
-                        required
-                        autocomplete="organization"
-                    >
+                    <input type="text" id="schoolName" placeholder="Enter your school name" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="email">
                         <i class="fas fa-envelope"></i> Email Address
                     </label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        placeholder="Enter your email"
-                        required
-                        autocomplete="email"
-                    >
+                    <input type="email" id="email" placeholder="Enter your email" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">
                         <i class="fas fa-lock"></i> Password
                     </label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder="Enter your password"
-                        required
-                        autocomplete="current-password"
-                    >
+                    <input type="password" id="password" placeholder="Enter your password" required>
                 </div>
                 
                 <button type="submit" class="btn-login" id="loginBtn">
@@ -316,12 +672,13 @@
                 </button>
             </form>
             
-            <!-- Footer Links -->
             <div class="login-footer">
+                <a href="#" onclick="showSignup(event)">
+                    <i class="fas fa-user-plus"></i> New Staff? Sign Up
+                </a>
                 <a href="#" onclick="showForgotPassword(event)">
                     <i class="fas fa-key"></i> Forgot Password?
                 </a>
-                <br><br>
                 <a href="#" onclick="showCreateSchool(event)">
                     <i class="fas fa-plus-circle"></i> Create New School
                 </a>
@@ -333,5 +690,80 @@
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>
+    
+    <script>
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 10 + 10 + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+        
+        // Toggle wallpaper panel
+        function toggleWallpaperPanel() {
+            const panel = document.getElementById('wallpaperPanel');
+            panel.classList.toggle('active');
+        }
+        
+        // Set wallpaper
+        function setWallpaper(type) {
+            document.body.className = 'wallpaper-' + type;
+            
+            // Update active state
+            document.querySelectorAll('.wallpaper-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            event.target.closest('.wallpaper-option').classList.add('active');
+            
+            // Save to localStorage
+            localStorage.setItem('srms_wallpaper', type);
+            
+            // Close panel
+            setTimeout(() => {
+                document.getElementById('wallpaperPanel').classList.remove('active');
+            }, 300);
+        }
+        
+        // Load saved wallpaper
+        function loadWallpaper() {
+            const saved = localStorage.getItem('srms_wallpaper');
+            if (saved) {
+                document.body.className = 'wallpaper-' + saved;
+                document.querySelectorAll('.wallpaper-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                const options = document.querySelectorAll('.wallpaper-option');
+                const wallpaperTypes = ['none', 'library', 'classroom', 'bookshelf', 'graduation', 'lecture', 'computer', 'science', 'playground', 'campus', 'ocean', 'forest', 'mountain', 'galaxy', 'abstract'];
+                const index = wallpaperTypes.indexOf(saved);
+                if (index >= 0 && options[index]) {
+                    options[index].classList.add('active');
+                }
+            }
+        }
+        
+        // Close wallpaper panel on outside click
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('wallpaperPanel');
+            const btn = document.querySelector('.wallpaper-btn');
+            if (panel.classList.contains('active') && !panel.contains(event.target) && !btn.contains(event.target)) {
+                panel.classList.remove('active');
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            loadWallpaper();
+        });
+    </script>
 </body>
 </html>
