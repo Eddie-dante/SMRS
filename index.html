@@ -15,6 +15,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    
     <style>
         :root {
             --primary: #e94560;
@@ -27,8 +31,6 @@
             --white: #ffffff;
             --shadow-gold: 0 20px 60px rgba(212, 175, 55, 0.4);
             --shadow-primary: 0 4px 15px rgba(233, 69, 96, 0.4);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.15);
         }
         
         * {
@@ -49,112 +51,131 @@
             transition: background 0.5s ease;
         }
         
-        /* Dynamic wallpaper backgrounds */
-        body.wallpaper-none {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
-        }
-        
-        body.wallpaper-library {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-classroom {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-bookshelf {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-graduation {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-lecture {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-computer {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-science {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-playground {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-campus {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-ocean {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-forest {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-mountain {
-            background: linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), 
-                        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-galaxy {
-            background: linear-gradient(rgba(10, 14, 39, 0.5), rgba(10, 14, 39, 0.6)), 
-                        url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        body.wallpaper-abstract {
-            background: linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), 
-                        url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80') center/cover no-repeat fixed;
-        }
-        
-        /* Sidebar for wallpapers */
-        .wallpaper-sidebar {
+        /* ============ TASKBAR ============ */
+        .taskbar {
             position: fixed;
             top: 0;
-            left: -320px;
-            width: 320px;
-            height: 100%;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-right: 2px solid rgba(212, 175, 55, 0.3);
-            z-index: 1000;
-            transition: left 0.3s ease;
-            padding: 30px 20px;
-            overflow-y: auto;
-        }
-        
-        .wallpaper-sidebar.active {
             left: 0;
-        }
-        
-        .wallpaper-sidebar-header {
+            right: 0;
+            height: 60px;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
+            padding: 0 20px;
+        }
+        
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .taskbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #d4af37;
+            font-weight: 900;
+            font-size: 20px;
+        }
+        
+        .taskbar-logo i {
+            font-size: 24px;
+        }
+        
+        .taskbar-center {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .taskbar-btn {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .taskbar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .taskbar-btn.active {
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .taskbar-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #d4af37;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .taskbar-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* ============ WALLPAPER PANEL ============ */
+        .wallpaper-panel {
+            position: fixed;
+            top: 60px;
+            right: -400px;
+            width: 400px;
+            height: calc(100vh - 60px);
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-left: 2px solid rgba(212, 175, 55, 0.3);
+            z-index: 999;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .wallpaper-panel.active {
+            right: 0;
+        }
+        
+        .wallpaper-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .wallpaper-sidebar-header h3 {
+        .wallpaper-panel-header h3 {
             color: #d4af37;
             font-size: 18px;
             display: flex;
@@ -162,7 +183,7 @@
             gap: 10px;
         }
         
-        .wallpaper-sidebar-close {
+        .wallpaper-panel-close {
             width: 35px;
             height: 35px;
             background: rgba(255, 255, 255, 0.1);
@@ -176,15 +197,45 @@
             transition: all 0.3s ease;
         }
         
-        .wallpaper-sidebar-close:hover {
+        .wallpaper-panel-close:hover {
             background: rgba(220, 53, 69, 0.5);
             transform: rotate(90deg);
         }
         
-        .wallpaper-grid {
+        .wallpaper-panel-search {
+            margin: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        
+        .wallpaper-panel-search i {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .wallpaper-panel-search input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .wallpaper-panel-search input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .wallpaper-panel-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
+            padding: 0 20px 20px;
         }
         
         .wallpaper-option {
@@ -196,7 +247,7 @@
             text-align: center;
             transition: all 0.3s ease;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
         }
         
@@ -215,54 +266,11 @@
         
         .wallpaper-option i {
             display: block;
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 8px;
         }
         
-        /* Wallpaper toggle button */
-        .wallpaper-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 999;
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #d4af37;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .wallpaper-toggle:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.1);
-        }
-        
-        /* Overlay */
-        .wallpaper-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 998;
-            display: none;
-        }
-        
-        .wallpaper-overlay.active {
-            display: block;
-        }
-        
-        /* Animated particles */
+        /* ============ PARTICLES ============ */
         .particles {
             position: fixed;
             top: 0;
@@ -285,12 +293,12 @@
             50% { transform: translateY(-100px) rotate(180deg); }
         }
         
-        /* Main container */
+        /* ============ LOGIN CONTAINER ============ */
         .login-container {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 900px;
+            max-width: 850px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0;
@@ -298,6 +306,7 @@
             overflow: hidden;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.8s ease;
+            margin-top: 60px;
         }
         
         @keyframes slideUp {
@@ -305,54 +314,34 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Brand panel - More transparent */
+        /* Brand Panel */
         .brand-panel {
-            background: rgba(10, 14, 39, 0.4);
+            background: rgba(10, 14, 39, 0.5);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            padding: 50px 40px;
+            padding: 40px 35px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .brand-panel::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
-            animation: rotate 30s linear infinite;
-        }
-        
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
         
         .brand-logo {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
-            border-radius: 25px;
+            border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 35px;
             font-weight: 900;
             color: #0a0e27;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow-gold);
             animation: pulse 2s infinite;
-            position: relative;
-            z-index: 1;
         }
         
         @keyframes pulse {
@@ -361,78 +350,68 @@
         }
         
         .brand-title {
-            font-size: 2.8em;
+            font-size: 2.5em;
             font-weight: 900;
             background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 8px;
         }
         
         .brand-subtitle {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 1em;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
+            font-size: 0.9em;
+            margin-bottom: 12px;
         }
         
         .brand-by {
             color: #d4af37;
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: 600;
-            position: relative;
-            z-index: 1;
         }
         
         .brand-features {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            position: relative;
-            z-index: 1;
+            gap: 8px;
         }
         
         .brand-feature {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
         }
         
         .brand-feature i {
             color: #d4af37;
-            font-size: 14px;
-            width: 18px;
+            font-size: 13px;
         }
         
-        /* Form panel - More transparent glass */
+        /* Form Panel */
         .form-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            padding: 50px 40px;
+            padding: 40px 35px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .form-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         
         .form-header h2 {
             color: #ffffff;
-            font-size: 1.8em;
+            font-size: 1.7em;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .form-header p {
@@ -441,27 +420,25 @@
         }
         
         .form-group {
-            margin-bottom: 20px;
-            position: relative;
+            margin-bottom: 18px;
         }
         
         .form-group label {
             display: block;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
             font-size: 13px;
-            letter-spacing: 0.5px;
         }
         
         .form-group label i {
-            margin-right: 8px;
+            margin-right: 6px;
             color: #d4af37;
         }
         
         .form-group input {
             width: 100%;
-            padding: 13px 16px;
+            padding: 12px 15px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 10px;
@@ -484,7 +461,7 @@
         
         .btn-login {
             width: 100%;
-            padding: 14px;
+            padding: 13px;
             background: linear-gradient(135deg, #e94560, #c62a47);
             border: none;
             border-radius: 10px;
@@ -496,7 +473,7 @@
             box-shadow: var(--shadow-primary);
             font-family: 'Inter', sans-serif;
             letter-spacing: 1px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         
         .btn-login:hover {
@@ -504,32 +481,27 @@
             box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
         }
         
-        .btn-login:active {
-            transform: scale(0.95);
-        }
-        
         .login-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 18px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         
         .login-footer a {
             color: rgba(212, 175, 55, 0.8);
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
         }
         
         .login-footer a:hover {
             color: #f0d060;
-            transform: translateY(-2px);
         }
         
         .error-message {
@@ -560,92 +532,64 @@
         @media (max-width: 768px) {
             .login-container {
                 grid-template-columns: 1fr;
-                max-width: 450px;
+                max-width: 400px;
             }
             
             .brand-panel {
                 display: none;
             }
             
-            .form-panel {
-                padding: 35px 25px;
+            .taskbar-center {
+                display: none;
             }
             
-            .wallpaper-sidebar {
-                width: 280px;
+            .wallpaper-panel {
+                width: 100%;
+                right: -100%;
             }
         }
     </style>
 </head>
-<body class="wallpaper-none">
-    <!-- Animated particles -->
-    <div class="particles" id="particles"></div>
-    
-    <!-- Wallpaper Overlay -->
-    <div class="wallpaper-overlay" id="wallpaperOverlay" onclick="closeWallpaperSidebar()"></div>
-    
-    <!-- Wallpaper Toggle Button -->
-    <button class="wallpaper-toggle" onclick="toggleWallpaperSidebar()" title="Change Wallpaper">
-        <i class="fas fa-image"></i>
-    </button>
-    
-    <!-- Wallpaper Sidebar -->
-    <div class="wallpaper-sidebar" id="wallpaperSidebar">
-        <div class="wallpaper-sidebar-header">
-            <h3><i class="fas fa-palette"></i> Wallpapers</h3>
-            <button class="wallpaper-sidebar-close" onclick="closeWallpaperSidebar()">
-                <i class="fas fa-times"></i>
+<body>
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="taskbar-logo">
+                <i class="fas fa-school"></i>
+                <span>SRMS</span>
+            </div>
+        </div>
+        
+        <div class="taskbar-center">
+            <button class="taskbar-btn active" onclick="location.href='index.html'">
+                <i class="fas fa-home"></i> Home
+            </button>
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'">
+                <i class="fas fa-chart-bar"></i> Dashboard
+            </button>
+            <button class="taskbar-btn" onclick="location.href='library.html'">
+                <i class="fas fa-book"></i> Library
+            </button>
+            <button class="taskbar-btn" onclick="location.href='students.html'">
+                <i class="fas fa-users"></i> Students
+            </button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'">
+                <i class="fas fa-file-alt"></i> Reports
             </button>
         </div>
         
-        <div class="wallpaper-grid">
-            <div class="wallpaper-option active" onclick="setWallpaper('none')">
-                <i class="fas fa-moon"></i> Dark
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('library')">
-                <i class="fas fa-book"></i> Library
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('classroom')">
-                <i class="fas fa-chalkboard"></i> Classroom
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('bookshelf')">
-                <i class="fas fa-layer-group"></i> Bookshelf
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('graduation')">
-                <i class="fas fa-graduation-cap"></i> Graduation
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('lecture')">
-                <i class="fas fa-university"></i> Lecture
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('computer')">
-                <i class="fas fa-laptop"></i> Computer
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('science')">
-                <i class="fas fa-flask"></i> Science
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('playground')">
-                <i class="fas fa-futbol"></i> Playground
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('campus')">
-                <i class="fas fa-building"></i> Campus
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('ocean')">
-                <i class="fas fa-water"></i> Ocean
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('forest')">
-                <i class="fas fa-tree"></i> Forest
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('mountain')">
-                <i class="fas fa-mountain"></i> Mountain
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('galaxy')">
-                <i class="fas fa-star"></i> Galaxy
-            </div>
-            <div class="wallpaper-option" onclick="setWallpaper('abstract')">
-                <i class="fas fa-paint-brush"></i> Abstract
-            </div>
+        <div class="taskbar-right">
+            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
+                <i class="fas fa-image"></i>
+            </button>
+            <button class="taskbar-icon-btn" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
     </div>
+    
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
     
     <!-- Login Container -->
     <div class="login-container">
@@ -668,9 +612,6 @@
                 <div class="brand-feature">
                     <i class="fas fa-check-circle"></i> Furniture Allocation
                 </div>
-                <div class="brand-feature">
-                    <i class="fas fa-check-circle"></i> Reports & Analytics
-                </div>
             </div>
         </div>
         
@@ -678,36 +619,34 @@
         <div class="form-panel">
             <div class="form-header">
                 <h2>Welcome Back!</h2>
-                <p>Login to your school account</p>
+                <p>Login to your account</p>
             </div>
             
-            <!-- Error Message -->
             <div id="errorMessage" class="error-message">
                 <i class="fas fa-exclamation-circle"></i>
                 <span id="errorText"></span>
             </div>
             
-            <!-- Login Form -->
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label for="schoolName">
                         <i class="fas fa-school"></i> School Name
                     </label>
-                    <input type="text" id="schoolName" placeholder="Enter your school name" required>
+                    <input type="text" id="schoolName" placeholder="Enter school name" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="email">
                         <i class="fas fa-envelope"></i> Email Address
                     </label>
-                    <input type="email" id="email" placeholder="Enter your email" required>
+                    <input type="email" id="email" placeholder="Enter email" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">
                         <i class="fas fa-lock"></i> Password
                     </label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <input type="password" id="password" placeholder="Enter password" required>
                 </div>
                 
                 <button type="submit" class="btn-login" id="loginBtn">
@@ -722,9 +661,6 @@
                 <a href="#" onclick="showForgotPassword(event)">
                     <i class="fas fa-key"></i> Forgot Password?
                 </a>
-                <a href="#" onclick="showCreateSchool(event)">
-                    <i class="fas fa-plus-circle"></i> Create School
-                </a>
             </div>
         </div>
     </div>
@@ -732,11 +668,12 @@
     <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/wallpaper.js"></script>
     <script src="js/auth.js"></script>
     
     <script>
         // Create particles
-        function createParticles() {
+        document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('particles');
             for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
@@ -749,60 +686,6 @@
                 particle.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(particle);
             }
-        }
-        
-        // Toggle wallpaper sidebar
-        function toggleWallpaperSidebar() {
-            document.getElementById('wallpaperSidebar').classList.toggle('active');
-            document.getElementById('wallpaperOverlay').classList.toggle('active');
-        }
-        
-        // Close wallpaper sidebar
-        function closeWallpaperSidebar() {
-            document.getElementById('wallpaperSidebar').classList.remove('active');
-            document.getElementById('wallpaperOverlay').classList.remove('active');
-        }
-        
-        // Set wallpaper
-        function setWallpaper(type) {
-            document.body.className = 'wallpaper-' + type;
-            
-            // Update active state
-            document.querySelectorAll('.wallpaper-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            event.target.closest('.wallpaper-option').classList.add('active');
-            
-            // Save to localStorage
-            localStorage.setItem('srms_wallpaper', type);
-            
-            // Close sidebar
-            setTimeout(() => {
-                closeWallpaperSidebar();
-            }, 300);
-        }
-        
-        // Load saved wallpaper
-        function loadWallpaper() {
-            const saved = localStorage.getItem('srms_wallpaper');
-            if (saved) {
-                document.body.className = 'wallpaper-' + saved;
-                document.querySelectorAll('.wallpaper-option').forEach(opt => {
-                    opt.classList.remove('active');
-                });
-                const options = document.querySelectorAll('.wallpaper-option');
-                const wallpaperTypes = ['none', 'library', 'classroom', 'bookshelf', 'graduation', 'lecture', 'computer', 'science', 'playground', 'campus', 'ocean', 'forest', 'mountain', 'galaxy', 'abstract'];
-                const index = wallpaperTypes.indexOf(saved);
-                if (index >= 0 && options[index]) {
-                    options[index].classList.add('active');
-                }
-            }
-        }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            createParticles();
-            loadWallpaper();
         });
     </script>
 </body>

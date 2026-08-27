@@ -1,14 +1,15 @@
 // ============================================
-// SRMS - Utility Functions
+// SRMS - Complete Utility Functions
+// Version 2.0 - Full Featured
 // ============================================
 
 // ============ GENERATION FUNCTIONS ============
 
 // Generate random invite code
-function generateInviteCode() {
+function generateInviteCode(length = 8) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < length; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return code;
@@ -25,24 +26,29 @@ function generateStaffId() {
 }
 
 // Generate random code
-function generateCode(length = 8) {
+function generateCode(prefix = '', length = 8) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
     for (let i = 0; i < length; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return code;
+    return prefix + code;
+}
+
+// Generate unique ID
+function generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
 }
 
 // ============ HASHING FUNCTIONS ============
 
-// Simple password hash (for demo - use bcrypt in production)
+// Simple password hash
 function hashPassword(password) {
     let hash = 0;
     for (let i = 0; i < password.length; i++) {
         const char = password.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash;
     }
     return hash.toString();
 }
@@ -53,6 +59,7 @@ function hashPassword(password) {
 function formatDate(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -64,10 +71,22 @@ function formatDate(dateString) {
 function formatDateTime(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Format time only
+function formatTime(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
+    return date.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit'
     });
@@ -99,16 +118,21 @@ function getDateDisplay() {
 function daysBetween(date1, date2) {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
+    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return 0;
     const diffTime = Math.abs(d2 - d1);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
 // Calculate days overdue
 function daysOverdue(returnDate) {
+    if (!returnDate) return 0;
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const dueDate = new Date(returnDate);
+    dueDate.setHours(0, 0, 0, 0);
     const diffTime = today - dueDate;
-    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 0;
 }
 
 // Check if date is overdue
@@ -123,19 +147,51 @@ function addDays(dateString, days) {
     return date.toISOString().split('T')[0];
 }
 
+// Subtract days from date
+function subtractDays(dateString, days) {
+    return addDays(dateString, -days);
+}
+
 // Get month name
 function getMonthName(monthNumber) {
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    return months[monthNumber];
+    return months[monthNumber] || '';
+}
+
+// Get month short name
+function getMonthShortName(monthNumber) {
+    const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[monthNumber] || '';
+}
+
+// Get day name
+function getDayName(dayNumber) {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[dayNumber] || '';
+}
+
+// Get current academic year
+function getCurrentAcademicYear() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    return month >= 9 ? `${year}/${year + 1}` : `${year - 1}/${year}`;
 }
 
 // ============ NOTIFICATION FUNCTIONS ============
 
 // Show notification
-function showNotification(message, type = 'success') {
+function showNotification(message, type = 'success', duration = 3000) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notif => notif.remove());
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     
@@ -149,6 +205,9 @@ function showNotification(message, type = 'success') {
     notification.innerHTML = `
         <i class="fas ${icons[type] || icons.success}"></i>
         <span>${message}</span>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
     `;
     
     document.body.appendChild(notification);
@@ -162,7 +221,7 @@ function showNotification(message, type = 'success') {
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    }, duration);
 }
 
 // ============ AUTH FUNCTIONS ============
@@ -177,13 +236,26 @@ function checkAuth() {
         return null;
     }
     
-    return JSON.parse(user);
+    try {
+        return JSON.parse(user);
+    } catch (error) {
+        localStorage.removeItem('srms_user');
+        localStorage.removeItem('srms_school');
+        window.location.href = 'index.html';
+        return null;
+    }
 }
 
 // Get current user
 function getCurrentUser() {
     const user = localStorage.getItem('srms_user');
-    return user ? JSON.parse(user) : null;
+    if (!user) return null;
+    
+    try {
+        return JSON.parse(user);
+    } catch (error) {
+        return null;
+    }
 }
 
 // Get current school
@@ -191,11 +263,20 @@ function getCurrentSchool() {
     return localStorage.getItem('srms_school');
 }
 
+// Check if user is admin
+function isAdmin() {
+    const user = getCurrentUser();
+    return user && user.role === 'admin';
+}
+
 // Logout user
 function logout() {
     localStorage.removeItem('srms_user');
     localStorage.removeItem('srms_school');
-    window.location.href = 'index.html';
+    showNotification('Logged out successfully!', 'success');
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1000);
 }
 
 // ============ VALIDATION FUNCTIONS ============
@@ -217,6 +298,13 @@ function validateRequired(value) {
     return value && value.trim().length > 0;
 }
 
+// Validate password strength
+function validatePassword(password) {
+    if (password.length < 6) return { valid: false, message: 'Password must be at least 6 characters' };
+    if (password.length > 50) return { valid: false, message: 'Password must be less than 50 characters' };
+    return { valid: true, message: '' };
+}
+
 // ============ FORMATTING FUNCTIONS ============
 
 // Format currency
@@ -224,23 +312,39 @@ function formatCurrency(amount) {
     return new Intl.NumberFormat('en-KE', {
         style: 'currency',
         currency: 'KES'
-    }).format(amount);
+    }).format(amount || 0);
 }
 
 // Format number with commas
 function formatNumber(number) {
-    return new Intl.NumberFormat('en-US').format(number);
+    return new Intl.NumberFormat('en-US').format(number || 0);
 }
 
 // Capitalize first letter
 function capitalizeFirst(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
+// Capitalize all words
+function capitalizeWords(string) {
+    if (!string) return '';
+    return string.replace(/\b\w/g, char => char.toUpperCase());
 }
 
 // Truncate text
 function truncateText(text, length = 50) {
+    if (!text) return '';
     if (text.length <= length) return text;
     return text.substring(0, length) + '...';
+}
+
+// Get initials from name
+function getInitials(name) {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
 // ============ MODAL FUNCTIONS ============
@@ -287,21 +391,12 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-// ============ SIDEBAR FUNCTIONS ============
-
-// Toggle sidebar
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-    }
-}
-
 // ============ TABLE FUNCTIONS ============
 
 // Filter table rows
 function filterTable(searchInput, tableBody) {
-    const filter = searchInput.toLowerCase();
+    if (!searchInput || !tableBody) return;
+    const filter = searchInput.value.toLowerCase();
     const rows = tableBody.getElementsByTagName('tr');
     
     for (let i = 0; i < rows.length; i++) {
@@ -338,19 +433,35 @@ function exportToCSV(data, filename = 'export.csv') {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    showNotification('Export successful!', 'success');
 }
 
 // ============ LOADING FUNCTIONS ============
 
 // Show loading spinner
-function showLoading() {
+function showLoading(message = 'Loading...') {
+    const existingLoader = document.getElementById('globalLoader');
+    if (existingLoader) existingLoader.remove();
+    
     const loader = document.createElement('div');
     loader.id = 'globalLoader';
+    loader.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    `;
     loader.innerHTML = `
-        <div class="loader-overlay">
-            <div class="loader-spinner"></div>
-            <p>Loading...</p>
-        </div>
+        <div style="width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="color: #ffffff; margin-top: 20px; font-size: 16px;">${message}</p>
     `;
     document.body.appendChild(loader);
 }
@@ -399,14 +510,6 @@ function generateRandomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// Get initials from name
-function getInitials(name) {
-    if (!name) return 'U';
-    const parts = name.split(' ');
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-}
-
 // Check if string is empty
 function isEmpty(str) {
     return !str || str.trim().length === 0;
@@ -425,14 +528,61 @@ function setQueryParam(param, value) {
     window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
 }
 
-// Export functions for use in other files
+// Copy to clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('Copied to clipboard!', 'success');
+    });
+}
+
+// Scroll to element
+function scrollToElement(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Get file extension
+function getFileExtension(filename) {
+    return filename.split('.').pop().toLowerCase();
+}
+
+// Check if file is image
+function isImageFile(filename) {
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+    return imageExtensions.includes(getFileExtension(filename));
+}
+
+// Convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Export all functions to window
 window.utils = {
     generateInviteCode,
     generateStaffId,
     generateCode,
+    generateUniqueId,
     hashPassword,
     formatDate,
     formatDateTime,
+    formatTime,
     getCurrentDate,
     getCurrentDateTime,
     getDateDisplay,
@@ -440,23 +590,30 @@ window.utils = {
     daysOverdue,
     isOverdue,
     addDays,
+    subtractDays,
     getMonthName,
+    getMonthShortName,
+    getDayName,
+    getCurrentAcademicYear,
     showNotification,
     checkAuth,
     getCurrentUser,
     getCurrentSchool,
+    isAdmin,
     logout,
     validateEmail,
     validatePhone,
     validateRequired,
+    validatePassword,
     formatCurrency,
     formatNumber,
     capitalizeFirst,
+    capitalizeWords,
     truncateText,
+    getInitials,
     openModal,
     closeModal,
     closeAllModals,
-    toggleSidebar,
     filterTable,
     exportToCSV,
     showLoading,
@@ -464,8 +621,12 @@ window.utils = {
     debounce,
     throttle,
     generateRandomColor,
-    getInitials,
     isEmpty,
     getQueryParam,
-    setQueryParam
+    setQueryParam,
+    copyToClipboard,
+    scrollToElement,
+    getFileExtension,
+    isImageFile,
+    fileToBase64
 };
