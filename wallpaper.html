@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRMS - Wallpapers</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            color: #ffffff;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .wallpaper-page {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #ffffff;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .wallpaper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .wallpaper-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .wallpaper-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .wallpaper-card.active {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .wallpaper-preview {
+            width: 100%;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .wallpaper-info {
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .wallpaper-info h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .wallpaper-info p {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .wallpaper-card.active .wallpaper-info h3 {
+            color: #d4af37;
+        }
+        
+        .check-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #d4af37;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #0a0e27;
+            font-weight: 900;
+        }
+        
+        .wallpaper-card.active .check-badge {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="dashboard.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+    
+    <div class="wallpaper-page">
+        <div class="page-header">
+            <h1>Choose Wallpaper</h1>
+            <p>Select a beautiful background for your SRMS experience</p>
+        </div>
+        
+        <div class="wallpaper-grid" id="wallpaperGrid">
+            <!-- Wallpapers will be loaded here -->
+        </div>
+    </div>
+    
+    <script>
+        // Wallpaper data
+        const WALLPAPERS = {
+            none: {
+                name: 'Dark Gradient',
+                icon: 'fa-moon',
+                type: 'gradient',
+                css: 'linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%)'
+            },
+            library: {
+                name: 'Library Classic',
+                icon: 'fa-book',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80&auto=format&fit=crop'
+            },
+            classroom: {
+                name: 'Modern Classroom',
+                icon: 'fa-chalkboard',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&q=80&auto=format&fit=crop'
+            },
+            bookshelf: {
+                name: 'Bookshelf Heaven',
+                icon: 'fa-layer-group',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&q=80&auto=format&fit=crop'
+            },
+            graduation: {
+                name: 'Graduation Day',
+                icon: 'fa-graduation-cap',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=400&q=80&auto=format&fit=crop'
+            },
+            lecture: {
+                name: 'Lecture Hall',
+                icon: 'fa-university',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80&auto=format&fit=crop'
+            },
+            computer: {
+                name: 'Computer Lab',
+                icon: 'fa-laptop',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=400&q=80&auto=format&fit=crop'
+            },
+            science: {
+                name: 'Science Lab',
+                icon: 'fa-flask',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&q=80&auto=format&fit=crop'
+            },
+            playground: {
+                name: 'Playground Fun',
+                icon: 'fa-futbol',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=400&q=80&auto=format&fit=crop'
+            },
+            campus: {
+                name: 'Sunset Campus',
+                icon: 'fa-building',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=400&q=80&auto=format&fit=crop'
+            },
+            ocean: {
+                name: 'Ocean View',
+                icon: 'fa-water',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80&auto=format&fit=crop'
+            },
+            forest: {
+                name: 'Forest Path',
+                icon: 'fa-tree',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80&auto=format&fit=crop'
+            },
+            mountain: {
+                name: 'Mountain Peak',
+                icon: 'fa-mountain',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80&auto=format&fit=crop'
+            },
+            galaxy: {
+                name: 'Galaxy Stars',
+                icon: 'fa-star',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=80&auto=format&fit=crop'
+            },
+            abstract: {
+                name: 'Abstract Art',
+                icon: 'fa-paint-brush',
+                type: 'image',
+                url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&q=80&auto=format&fit=crop'
+            }
+        };
+        
+        // Load wallpapers
+        function loadWallpapers() {
+            const grid = document.getElementById('wallpaperGrid');
+            const currentWallpaper = localStorage.getItem('srms_wallpaper') || 'none';
+            
+            grid.innerHTML = Object.entries(WALLPAPERS).map(([key, wallpaper]) => {
+                const isActive = key === currentWallpaper;
+                const previewStyle = wallpaper.type === 'gradient' 
+                    ? `background: ${wallpaper.css};`
+                    : `background-image: url('${wallpaper.url}');`;
+                
+                return `
+                    <div class="wallpaper-card ${isActive ? 'active' : ''}" onclick="selectWallpaper('${key}')">
+                        <div class="check-badge">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="wallpaper-preview" style="${previewStyle}">
+                            <i class="fas ${wallpaper.icon}"></i>
+                        </div>
+                        <div class="wallpaper-info">
+                            <h3>${wallpaper.name}</h3>
+                            <p>${wallpaper.type === 'gradient' ? 'Built-in Gradient' : 'Unsplash Photo'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Select wallpaper
+        function selectWallpaper(key) {
+            localStorage.setItem('srms_wallpaper', key);
+            
+            // Update active state
+            document.querySelectorAll('.wallpaper-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.wallpaper-card').classList.add('active');
+            
+            // Show confirmation
+            alert('Wallpaper applied! It will show on all pages.');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadWallpapers);
+    </script>
+</body>
+</html>
