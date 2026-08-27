@@ -5,17 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRMS - Student Management</title>
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     
@@ -24,383 +19,91 @@
             padding: 30px;
             margin-top: 60px;
             animation: fadeIn 0.5s ease;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .page-title h1 {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-        
-        .page-title p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
-        }
-        
-        .filters-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        
-        .filter-select {
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            color: #ffffff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            min-width: 150px;
-        }
-        
-        .filter-select option {
-            background: #1a1f4e;
-        }
-        
-        .student-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-        
-        .student-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: rgba(212, 175, 55, 0.3);
-        }
-        
-        .student-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .student-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .student-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #d4af37, #f0d060);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-            color: #0a0e27;
-        }
-        
-        .student-name {
-            font-weight: 700;
-            font-size: 16px;
-            color: #ffffff;
-        }
-        
-        .student-adm {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-        }
-        
-        .student-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .student-detail-item {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-        }
-        
-        .student-detail-item .label {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .student-detail-item .value {
-            font-size: 14px;
-            color: #ffffff;
-            font-weight: 500;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .btn-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-        
-        .btn-view {
-            background: rgba(23, 162, 184, 0.2);
-            color: #17a2b8;
-            border: 1px solid rgba(23, 162, 184, 0.3);
-        }
-        
-        .btn-view:hover {
-            background: rgba(23, 162, 184, 0.4);
-        }
-        
-        .btn-edit {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-            border: 1px solid rgba(255, 193, 7, 0.3);
-        }
-        
-        .btn-edit:hover {
-            background: rgba(255, 193, 7, 0.4);
-        }
-        
-        .btn-delete {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-            border: 1px solid rgba(220, 53, 69, 0.3);
-        }
-        
-        .btn-delete:hover {
-            background: rgba(220, 53, 69, 0.4);
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .page-title h1 { font-size: 2em; margin-bottom: 5px; }
+        .page-title p { color: rgba(255,255,255,0.6); font-size: 14px; }
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo">
-                <i class="fas fa-school"></i>
-                <span>SRMS</span>
-            </div>
+            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
         </div>
         <div class="taskbar-center">
-            <button class="taskbar-btn" onclick="location.href='dashboard.html'">
-                <i class="fas fa-home"></i> Dashboard
-            </button>
-            <button class="taskbar-btn" onclick="location.href='library.html'">
-                <i class="fas fa-book"></i> Library
-            </button>
-            <button class="taskbar-btn active" onclick="location.href='students.html'">
-                <i class="fas fa-users"></i> Students
-            </button>
-            <button class="taskbar-btn" onclick="location.href='furniture.html'">
-                <i class="fas fa-chair"></i> Furniture
-            </button>
-            <button class="taskbar-btn" onclick="location.href='reports.html'">
-                <i class="fas fa-file-alt"></i> Reports
-            </button>
-            <button class="taskbar-btn" onclick="location.href='settings.html'">
-                <i class="fas fa-cog"></i> Settings
-            </button>
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button>
+            <button class="taskbar-btn" onclick="location.href='library.html'"><i class="fas fa-book"></i> Library</button>
+            <button class="taskbar-btn active" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
+            <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
+            <button class="taskbar-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
-                <i class="fas fa-image"></i>
-            </button>
-            <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
-    <!-- Main Content -->
     <div class="content-section">
-        <!-- Page Header -->
         <div class="page-header">
             <div class="page-title">
                 <h1>Student Management</h1>
                 <p>Manage student database</p>
             </div>
-            <button class="btn btn-primary" onclick="openAddStudentModal()">
-                <i class="fas fa-plus"></i> Add Student
-            </button>
+            <button class="btn btn-primary" onclick="openAddStudentModal()"><i class="fas fa-plus"></i> Add Student</button>
         </div>
         
-        <!-- Search and Filters -->
-        <div class="search-bar glass" style="margin-bottom: 20px;">
+        <div class="search-bar glass">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchStudents" placeholder="Search by name, ADM, or parent..." onkeyup="filterStudents()">
+            <input type="text" id="searchStudents" placeholder="Search students..." onkeyup="filterStudents()">
         </div>
         
-        <div class="filters-container">
-            <select class="filter-select" id="filterForm" onchange="filterStudents()">
-                <option value="">All Forms</option>
-                <option value="Form 1">Form 1</option>
-                <option value="Form 2">Form 2</option>
-                <option value="Form 3">Form 3</option>
-                <option value="Form 4">Form 4</option>
-            </select>
-            
-            <select class="filter-select" id="filterStream" onchange="filterStudents()">
-                <option value="">All Streams</option>
-                <option value="East">East</option>
-                <option value="West">West</option>
-                <option value="North">North</option>
-                <option value="South">South</option>
-            </select>
-            
-            <select class="filter-select" id="filterGender" onchange="filterStudents()">
-                <option value="">All Genders</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-            </select>
-        </div>
-        
-        <!-- Students List -->
-        <div id="studentsList">
-            <!-- Students will be loaded here -->
+        <div class="table-container glass">
+            <table class="data-table">
+                <thead><tr><th>Name</th><th>ADM</th><th>Form</th><th>Stream</th><th>Gender</th><th>Parent Phone</th><th>Actions</th></tr></thead>
+                <tbody id="studentsTableBody"></tbody>
+            </table>
         </div>
     </div>
     
-    <!-- Add Student Modal -->
     <div class="modal" id="addStudentModal">
         <div class="modal-content glass">
             <div class="modal-header">
-                <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
-                <button class="modal-close" onclick="closeModal('addStudentModal')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h2>Add New Student</h2>
+                <button class="modal-close" onclick="closeModal('addStudentModal')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="addStudentForm" onsubmit="addStudent(event)">
-                <h3 style="margin-bottom: 15px;">Basic Information</h3>
+            <form onsubmit="addStudent(event)">
+                <h3 style="margin-bottom:15px;">Basic Information</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" id="studentName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>ADM Number *</label>
-                        <input type="text" id="studentADM" required>
-                    </div>
+                    <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" required></div>
+                    <div class="form-group"><label>ADM Number *</label><input type="text" id="studentADM" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Form</label>
-                        <select id="studentForm">
-                            <option value="Form 1">Form 1</option>
-                            <option value="Form 2">Form 2</option>
-                            <option value="Form 3">Form 3</option>
-                            <option value="Form 4">Form 4</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Stream</label>
-                        <select id="studentStream">
-                            <option value="East">East</option>
-                            <option value="West">West</option>
-                            <option value="North">North</option>
-                            <option value="South">South</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label>Form</label><select id="studentForm"><option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option></select></div>
+                    <div class="form-group"><label>Stream</label><select id="studentStream"><option>East</option><option>West</option><option>North</option><option>South</option></select></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <select id="studentGender">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Date of Birth</label>
-                        <input type="date" id="studentDOB">
-                    </div>
+                    <div class="form-group"><label>Gender</label><select id="studentGender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+                    <div class="form-group"><label>Date of Birth</label><input type="date" id="studentDOB"></div>
                 </div>
-                
-                <h3 style="margin: 20px 0 15px;">Parent/Guardian Information</h3>
+                <h3 style="margin:20px 0 15px;">Parent Information</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Parent Name</label>
-                        <input type="text" id="studentParentName">
-                    </div>
-                    <div class="form-group">
-                        <label>Parent Phone</label>
-                        <input type="tel" id="studentParentPhone">
-                    </div>
+                    <div class="form-group"><label>Parent Name</label><input type="text" id="studentParentName"></div>
+                    <div class="form-group"><label>Parent Phone</label><input type="tel" id="studentParentPhone"></div>
                 </div>
-                <div class="form-group">
-                    <label>Parent Email</label>
-                    <input type="email" id="studentParentEmail">
-                </div>
-                
-                <h3 style="margin: 20px 0 15px;">Additional Information</h3>
-                <div class="form-group">
-                    <label>Address</label>
-                    <textarea id="studentAddress" rows="2"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Medical Info</label>
-                        <textarea id="studentMedical" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Special Needs</label>
-                        <textarea id="studentSpecialNeeds" rows="2"></textarea>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">
-                    <i class="fas fa-plus"></i> Add Student
-                </button>
+                <div class="form-group"><label>Parent Email</label><input type="email" id="studentParentEmail"></div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-plus"></i> Add Student</button>
             </form>
         </div>
     </div>
     
-    <!-- View Student Modal -->
-    <div class="modal" id="viewStudentModal">
-        <div class="modal-content glass">
-            <div class="modal-header">
-                <h2 id="viewStudentTitle">Student Details</h2>
-                <button class="modal-close" onclick="closeModal('viewStudentModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="viewStudentContent"></div>
-        </div>
-    </div>
-    
-    <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/wallpaper.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
