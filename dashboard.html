@@ -14,7 +14,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
@@ -36,7 +35,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Welcome Banner */
         .welcome-banner {
             background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(233,69,96,0.15));
             border: 2px solid rgba(212, 175, 55, 0.3);
@@ -46,43 +44,17 @@
             text-align: center;
             animation: slideDown 0.6s ease;
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
         }
         
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .welcome-banner h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
+        .welcome-banner h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .welcome-banner .school-name { font-size: 1.5em; color: #d4af37; font-weight: 700; margin-bottom: 10px; }
+        .welcome-banner .user-greeting { color: rgba(255, 255, 255, 0.8); font-size: 1.1em; }
         
-        .welcome-banner .school-name {
-            font-size: 1.5em;
-            color: #d4af37;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        
-        .welcome-banner .user-greeting {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1em;
-        }
-        
-        .welcome-banner .user-greeting i {
-            margin-right: 5px;
-            color: #d4af37;
-        }
-        
-        /* Invite Code Banner */
         .invite-code-banner {
             background: rgba(212, 175, 55, 0.1);
             border: 2px dashed rgba(212, 175, 55, 0.4);
@@ -90,8 +62,6 @@
             padding: 20px;
             text-align: center;
             margin-bottom: 30px;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
         }
         
         .invite-code-banner .code {
@@ -100,20 +70,8 @@
             font-weight: 800;
             letter-spacing: 8px;
             color: #f0d060;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
-        .invite-code-banner .label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-        
-        .invite-code-banner .copy-btn {
-            margin-top: 10px;
-        }
-        
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -124,93 +82,29 @@
         .stat-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 25px;
             position: relative;
-            overflow: hidden;
             transition: all 0.3s ease;
         }
         
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: rgba(212, 175, 55, 0.3);
-        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px; }
+        .stat-value { font-size: 2.2em; font-weight: 900; color: #fff; margin: 10px 0; }
+        .stat-label { color: rgba(255,255,255,0.5); font-size: 13px; }
         
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #e94560, #c62a47);
-        }
-        
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-bottom: 15px;
-        }
-        
-        .stat-value {
-            font-size: 2.2em;
-            font-weight: 900;
-            color: #ffffff;
-            margin: 10px 0;
-            line-height: 1;
-        }
-        
-        .stat-label {
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 500;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .stat-trend {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        
-        .trend-up { color: #34ce57; }
-        .trend-down { color: #ff4757; }
-        
-        /* Quick Actions */
         .quick-actions {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 30px;
         }
         
-        .section-title {
-            font-size: 1.2em;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .section-title i {
-            color: #d4af37;
-        }
+        .section-title { font-size: 1.2em; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: #d4af37; }
         
         .quick-actions-grid {
             display: grid;
@@ -222,51 +116,26 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 10px;
             padding: 25px 15px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            color: #ffffff;
+            color: #fff;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-align: center;
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
         }
         
-        .btn-action i {
-            font-size: 28px;
-            color: #d4af37;
-            transition: all 0.3s ease;
-        }
+        .btn-action i { font-size: 28px; color: #d4af37; }
+        .btn-action:hover { background: rgba(255,255,255,0.08); transform: translateY(-3px); }
         
-        .btn-action:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-3px);
-            border-color: rgba(212, 175, 55, 0.3);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn-action:hover i {
-            transform: scale(1.2);
-        }
-        
-        /* Recent Activity */
         .recent-activity {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .activity-list {
-            padding: 10px 0;
         }
         
         .activity-item {
@@ -275,16 +144,6 @@
             gap: 15px;
             padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-            border-radius: 8px;
-        }
-        
-        .activity-item:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-        
-        .activity-item:last-child {
-            border-bottom: none;
         }
         
         .activity-icon {
@@ -294,54 +153,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            font-size: 16px;
         }
         
-        .activity-details {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .activity-text {
-            font-weight: 500;
-            color: #ffffff;
-            font-size: 14px;
-        }
-        
-        .activity-time {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.4);
-            margin-top: 3px;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .content-section {
-                padding: 20px 15px;
-            }
-            
-            .welcome-banner h1 {
-                font-size: 1.8em;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            
-            .stat-card {
-                padding: 15px;
-            }
-            
-            .stat-value {
-                font-size: 1.5em;
-            }
-            
-            .quick-actions-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
+        .activity-time { font-size: 12px; color: rgba(255,255,255,0.4); }
     </style>
 </head>
 <body>
@@ -374,7 +188,7 @@
             </button>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper">
                 <i class="fas fa-image"></i>
             </button>
             <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
@@ -385,29 +199,23 @@
     
     <!-- Main Content -->
     <div class="content-section">
-        <!-- Welcome Banner -->
         <div class="welcome-banner">
             <h1>Welcome Back!</h1>
             <div class="school-name" id="welcomeSchoolName">School Name</div>
             <p class="user-greeting">
                 <i class="fas fa-user-circle"></i> 
                 <span id="welcomeUserName">User</span> | 
-                <span id="welcomeUserRole" style="text-transform: uppercase;">Role</span>
+                <span id="welcomeUserRole">Role</span>
             </p>
         </div>
         
-        <!-- Invite Code Banner (Admin Only) -->
         <div class="invite-code-banner" id="inviteCodeBanner" style="display: none;">
-            <p class="label">
-                <i class="fas fa-key"></i> School Invite Code - Share with Staff
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                <i class="fas fa-key"></i> School Invite Code
             </p>
             <div class="code" id="inviteCode">CODE</div>
-            <button class="btn btn-gold copy-btn" onclick="copyInviteCode()">
-                <i class="fas fa-copy"></i> Copy Code
-            </button>
         </div>
         
-        <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon" style="background: rgba(233, 69, 96, 0.15); color: #e94560;">
@@ -415,9 +223,6 @@
                 </div>
                 <div class="stat-value" id="totalBooks">0</div>
                 <div class="stat-label">Total Books</div>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i>
-                </div>
             </div>
             
             <div class="stat-card">
@@ -450,9 +255,6 @@
                 </div>
                 <div class="stat-value" id="overdueBooks">0</div>
                 <div class="stat-label">Overdue Books</div>
-                <div class="stat-trend trend-down">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
             </div>
             
             <div class="stat-card">
@@ -464,88 +266,37 @@
             </div>
         </div>
         
-        <!-- Quick Actions -->
         <div class="quick-actions">
-            <div class="section-title">
-                <i class="fas fa-bolt"></i> Quick Actions
-            </div>
+            <div class="section-title"><i class="fas fa-bolt"></i> Quick Actions</div>
             <div class="quick-actions-grid">
                 <button class="btn-action" onclick="location.href='library.html'">
-                    <i class="fas fa-book"></i>
-                    <span>Issue Book</span>
+                    <i class="fas fa-book"></i><span>Issue Book</span>
                 </button>
                 <button class="btn-action" onclick="location.href='students.html'">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Add Student</span>
+                    <i class="fas fa-user-plus"></i><span>Add Student</span>
                 </button>
                 <button class="btn-action" onclick="location.href='furniture.html'">
-                    <i class="fas fa-chair"></i>
-                    <span>Allocate Furniture</span>
+                    <i class="fas fa-chair"></i><span>Allocate Furniture</span>
                 </button>
                 <button class="btn-action" onclick="location.href='reports.html'">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>View Reports</span>
-                </button>
-                <button class="btn-action" onclick="location.href='settings.html'">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
+                    <i class="fas fa-chart-bar"></i><span>View Reports</span>
                 </button>
             </div>
         </div>
         
-        <!-- Recent Activity -->
         <div class="recent-activity">
-            <div class="section-title">
-                <i class="fas fa-history"></i> Recent Activity
-            </div>
-            <div id="recentActivity" class="activity-list">
+            <div class="section-title"><i class="fas fa-history"></i> Recent Activity</div>
+            <div id="recentActivity">
                 <p style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">
-                    <i class="fas fa-spinner fa-spin"></i> Loading recent activity...
+                    Loading...
                 </p>
             </div>
         </div>
     </div>
     
-    <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/wallpaper.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
     <script src="js/dashboard.js"></script>
-    
-    <script>
-        // Copy invite code to clipboard
-        function copyInviteCode() {
-            const code = document.getElementById('inviteCode').textContent;
-            copyToClipboard(code);
-            showNotification('Invite code copied to clipboard!', 'success');
-        }
-        
-        // Initialize dashboard on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check authentication
-            const user = checkAuth();
-            if (!user) return;
-            
-            // Update date display
-            updateDateDisplay();
-            
-            // Set user information
-            setUserInfo(user);
-            
-            // Load school info
-            loadSchoolInfo();
-            
-            // Load dashboard data
-            loadDashboardData();
-            
-            // Set up real-time listeners
-            setupRealTimeListeners();
-            
-            // Initialize wallpaper system
-            if (typeof WallpaperManager !== 'undefined') {
-                wallpaperManager = new WallpaperManager();
-            }
-        });
-    </script>
 </body>
 </html>
