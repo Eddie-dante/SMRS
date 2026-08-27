@@ -17,82 +17,183 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        .content-section {
+            padding: 30px;
+            margin-top: 60px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .page-title h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .page-title p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .furniture-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .furniture-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        
+        .furniture-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .furniture-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 193, 7, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #ffc107;
+        }
+        
+        .furniture-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #ffffff;
+        }
+        
+        .furniture-details {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+        
+        .furniture-items {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .furniture-item {
+            text-align: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            min-width: 80px;
+        }
+        
+        .furniture-item .label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+        }
+        
+        .furniture-item .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #d4af37;
+        }
+    </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="taskbar-logo">
                 <i class="fas fa-school"></i>
                 <span>SRMS</span>
             </div>
-            <button class="sidebar-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
+        </div>
+        <div class="taskbar-center">
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'">
+                <i class="fas fa-home"></i> Dashboard
+            </button>
+            <button class="taskbar-btn" onclick="location.href='library.html'">
+                <i class="fas fa-book"></i> Library
+            </button>
+            <button class="taskbar-btn" onclick="location.href='students.html'">
+                <i class="fas fa-users"></i> Students
+            </button>
+            <button class="taskbar-btn active" onclick="location.href='furniture.html'">
+                <i class="fas fa-chair"></i> Furniture
+            </button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'">
+                <i class="fas fa-file-alt"></i> Reports
+            </button>
+            <button class="taskbar-btn" onclick="location.href='settings.html'">
+                <i class="fas fa-cog"></i> Settings
             </button>
         </div>
-        
-        <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="library.html" class="nav-item">
-                <i class="fas fa-book"></i>
-                <span>Library</span>
-            </a>
-            <a href="students.html" class="nav-item">
-                <i class="fas fa-users"></i>
-                <span>Students</span>
-            </a>
-            <a href="furniture.html" class="nav-item active">
-                <i class="fas fa-chair"></i>
-                <span>Furniture</span>
-            </a>
-            <a href="reports.html" class="nav-item">
-                <i class="fas fa-chart-bar"></i>
-                <span>Reports</span>
-            </a>
-            <a href="settings.html" class="nav-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">U</div>
-                <div class="user-details">
-                    <div class="user-name" id="userName">User</div>
-                    <div class="user-role" id="userRole">Role</div>
-                </div>
-            </div>
-            <button class="btn-logout" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
+        <div class="taskbar-right">
+            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
+                <i class="fas fa-image"></i>
+            </button>
+            <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
     </div>
     
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="top-bar-left">
+    <div class="content-section">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
                 <h1>Furniture Allocation</h1>
-                <p class="date-display" id="dateDisplay"></p>
+                <p>Manage chairs and lockers</p>
             </div>
-            <div class="top-bar-right">
-                <button class="btn btn-primary" onclick="openAllocateModal()">
-                    <i class="fas fa-plus"></i> Allocate Furniture
-                </button>
-            </div>
+            <button class="btn btn-primary" onclick="openAllocateModal()">
+                <i class="fas fa-plus"></i> Allocate Furniture
+            </button>
         </div>
         
         <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="switchFurnitureTab('active')">
-                <i class="fas fa-chair"></i> Active Allocations
+                <i class="fas fa-chair"></i> Active
             </button>
             <button class="tab" onclick="switchFurnitureTab('returned')">
                 <i class="fas fa-undo"></i> Returned
@@ -102,75 +203,23 @@
             </button>
         </div>
         
-        <!-- Active Allocations -->
+        <!-- Active Tab -->
         <div id="activeFurnitureTab" class="tab-content active">
-            <div class="search-bar glass">
+            <div class="search-bar glass" style="margin-bottom: 20px;">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchActiveFurniture" placeholder="Search by student name or ADM..." onkeyup="filterActiveFurniture()">
+                <input type="text" id="searchActiveFurniture" placeholder="Search active allocations..." onkeyup="filterActiveFurniture()">
             </div>
-            
-            <div class="table-container glass">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>ADM</th>
-                            <th>Form</th>
-                            <th>Stream</th>
-                            <th>Chair No</th>
-                            <th>Locker No</th>
-                            <th>Allocation Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="activeFurnitureTableBody">
-                        <!-- Active allocations will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
+            <div id="activeFurnitureList"></div>
         </div>
         
-        <!-- Returned -->
+        <!-- Returned Tab -->
         <div id="returnedFurnitureTab" class="tab-content">
-            <div class="table-container glass">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>ADM</th>
-                            <th>Chair No</th>
-                            <th>Locker No</th>
-                            <th>Allocation Date</th>
-                            <th>Return Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="returnedFurnitureTableBody">
-                        <!-- Returned allocations will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
+            <div id="returnedFurnitureList"></div>
         </div>
         
-        <!-- All Records -->
+        <!-- All Tab -->
         <div id="allFurnitureTab" class="tab-content">
-            <div class="table-container glass">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>ADM</th>
-                            <th>Chair No</th>
-                            <th>Locker No</th>
-                            <th>Status</th>
-                            <th>Allocation Date</th>
-                            <th>Return Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="allFurnitureTableBody">
-                        <!-- All records will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
+            <div id="allFurnitureList"></div>
         </div>
     </div>
     
@@ -178,20 +227,19 @@
     <div class="modal" id="allocateFurnitureModal">
         <div class="modal-content glass">
             <div class="modal-header">
-                <h2>Allocate Furniture</h2>
+                <h2><i class="fas fa-chair"></i> Allocate Furniture</h2>
                 <button class="modal-close" onclick="closeModal('allocateFurnitureModal')">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form id="allocateFurnitureForm" onsubmit="allocateFurniture(event)">
                 <div class="form-group">
-                    <label>Student Name</label>
+                    <label>Student Name *</label>
                     <input type="text" id="furnitureStudentName" required>
                 </div>
-                
                 <div class="form-row">
                     <div class="form-group">
-                        <label>ADM Number</label>
+                        <label>ADM Number *</label>
                         <input type="text" id="furnitureADM" required>
                     </div>
                     <div class="form-group">
@@ -204,7 +252,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label>Stream</label>
@@ -220,11 +267,10 @@
                         <input type="date" id="furnitureAllocationDate" required>
                     </div>
                 </div>
-                
-                <h3>Furniture Details</h3>
+                <h3 style="margin: 20px 0 15px;">Furniture Details</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Chair Number</label>
+                        <label>Chair Number *</label>
                         <input type="text" id="chairNumber" placeholder="e.g., CH-001" required>
                     </div>
                     <div class="form-group">
@@ -232,7 +278,6 @@
                         <input type="text" id="lockerNumber" placeholder="e.g., LK-001">
                     </div>
                 </div>
-                
                 <button type="submit" class="btn btn-primary btn-block">
                     <i class="fas fa-chair"></i> Allocate Furniture
                 </button>
@@ -243,6 +288,7 @@
     <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/wallpaper.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
