@@ -1,0 +1,7 @@
+<!-- assets/images/favicon.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+    <rect width="32" height="32" rx="8" fill="#0a0e27"/>
+    <text x="16" y="22" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#d4af37">
+        SR
+    </text>
+</svg>

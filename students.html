@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRMS - Student Management</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-school"></i>
+                <span>SRMS</span>
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="library.html" class="nav-item">
+                <i class="fas fa-book"></i>
+                <span>Library</span>
+            </a>
+            <a href="students.html" class="nav-item active">
+                <i class="fas fa-users"></i>
+                <span>Students</span>
+            </a>
+            <a href="furniture.html" class="nav-item">
+                <i class="fas fa-chair"></i>
+                <span>Furniture</span>
+            </a>
+            <a href="reports.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Role</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <h1>Student Management</h1>
+                <p class="date-display" id="dateDisplay"></p>
+            </div>
+            <div class="top-bar-right">
+                <button class="btn btn-primary" onclick="openAddStudentModal()">
+                    <i class="fas fa-plus"></i> Add Student
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters glass">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchStudents" placeholder="Search by name, ADM, or parent..." onkeyup="filterStudents()">
+            </div>
+            <div class="filter-group">
+                <select id="filterForm" onchange="filterStudents()">
+                    <option value="">All Forms</option>
+                    <option value="Form 1">Form 1</option>
+                    <option value="Form 2">Form 2</option>
+                    <option value="Form 3">Form 3</option>
+                    <option value="Form 4">Form 4</option>
+                </select>
+                
+                <select id="filterStream" onchange="filterStudents()">
+                    <option value="">All Streams</option>
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Students Table -->
+        <div class="table-container glass">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ADM</th>
+                        <th>Form</th>
+                        <th>Stream</th>
+                        <th>Gender</th>
+                        <th>Parent Name</th>
+                        <th>Parent Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <!-- Students will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Add Student Modal -->
+    <div class="modal" id="addStudentModal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>Add New Student</h2>
+                <button class="modal-close" onclick="closeModal('addStudentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addStudentForm" onsubmit="addStudent(event)">
+                <h3>Basic Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ADM Number</label>
+                        <input type="text" id="studentADM" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Form</label>
+                        <select id="studentForm">
+                            <option value="Form 1">Form 1</option>
+                            <option value="Form 2">Form 2</option>
+                            <option value="Form 3">Form 3</option>
+                            <option value="Form 4">Form 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stream</label>
+                        <select id="studentStream">
+                            <option value="East">East</option>
+                            <option value="West">West</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="studentGender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" id="studentDOB">
+                    </div>
+                </div>
+                
+                <h3>Parent/Guardian Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Parent Name</label>
+                        <input type="text" id="studentParentName">
+                    </div>
+                    <div class="form-group">
+                        <label>Parent Phone</label>
+                        <input type="tel" id="studentParentPhone">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Parent Email</label>
+                    <input type="email" id="studentParentEmail">
+                </div>
+                
+                <h3>Additional Information</h3>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="studentAddress" rows="3"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Medical Info</label>
+                        <textarea id="studentMedical" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Needs</label>
+                        <textarea id="studentSpecialNeeds" rows="2"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-plus"></i> Add Student
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Student Details Modal -->
+    <div class="modal" id="studentDetailsModal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2 id="studentDetailsTitle">Student Details</h2>
+                <button class="modal-close" onclick="closeModal('studentDetailsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="studentDetailsContent">
+                <!-- Student details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

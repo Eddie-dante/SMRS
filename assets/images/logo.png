@@ -1,0 +1,45 @@
+<!-- assets/images/logo.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+    <defs>
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#f0d060;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#b8941f;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="darkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0a0e27;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1a1f4e;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="200" height="200" rx="50" fill="url(#darkGradient)"/>
+    
+    <!-- Gold border -->
+    <rect x="10" y="10" width="180" height="180" rx="40" fill="none" stroke="url(#goldGradient)" stroke-width="3"/>
+    
+    <!-- School icon -->
+    <g transform="translate(100,100)">
+        <!-- Building -->
+        <rect x="-40" y="-30" width="80" height="60" rx="5" fill="url(#goldGradient)"/>
+        
+        <!-- Roof -->
+        <polygon points="-50,-30 0,-60 50,-30" fill="#f0d060"/>
+        
+        <!-- Door -->
+        <rect x="-10" y="0" width="20" height="30" rx="3" fill="#0a0e27"/>
+        
+        <!-- Windows -->
+        <rect x="-30" y="-20" width="12" height="12" rx="2" fill="#0a0e27"/>
+        <rect x="18" y="-20" width="12" height="12" rx="2" fill="#0a0e27"/>
+        
+        <!-- Flag -->
+        <line x1="0" y1="-60" x2="0" y2="-80" stroke="#d4af37" stroke-width="2"/>
+        <polygon points="0,-80 15,-75 0,-70" fill="#e94560"/>
+    </g>
+    
+    <!-- Text -->
+    <text x="100" y="175" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#d4af37">
+        SRMS
+    </text>
+</svg>
