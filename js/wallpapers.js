@@ -1,11 +1,10 @@
 // ============================================
 // SRMS - Complete Wallpaper Management System
-// Version 2.0 - With 60+ Unsplash Wallpapers
+// Fixed Version - Working
 // ============================================
 
-// Complete Wallpaper Collection
+// Wallpaper Collection
 const WALLPAPERS = {
-    // ============ DEFAULT ============
     none: {
         name: 'Dark Gradient',
         icon: 'fa-moon',
@@ -14,8 +13,6 @@ const WALLPAPERS = {
         category: 'Default',
         credit: 'SRMS Default'
     },
-    
-    // ============ SCHOOL & EDUCATION ============
     library: {
         name: 'Library Classic',
         icon: 'fa-book',
@@ -232,8 +229,6 @@ const WALLPAPERS = {
         category: 'School',
         credit: 'USGS'
     },
-    
-    // ============ NATURE ============
     ocean: {
         name: 'Ocean View',
         icon: 'fa-water',
@@ -394,56 +389,6 @@ const WALLPAPERS = {
         category: 'Nature',
         credit: 'Bailey Zindel'
     },
-    coral: {
-        name: 'Coral Reef',
-        icon: 'fa-fish',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop',
-        category: 'Nature',
-        credit: 'Sean Oulashin'
-    },
-    underwater: {
-        name: 'Underwater',
-        icon: 'fa-water',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop',
-        category: 'Nature',
-        credit: 'Sean Oulashin'
-    },
-    tropical: {
-        name: 'Tropical Island',
-        icon: 'fa-palm-tree',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop',
-        category: 'Nature',
-        credit: 'Sean Oulashin'
-    },
-    bamboo: {
-        name: 'Bamboo Forest',
-        icon: 'fa-tree',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop',
-        category: 'Nature',
-        credit: 'Lukasz Szmigiel'
-    },
-    pineforest: {
-        name: 'Pine Forest',
-        icon: 'fa-tree',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop',
-        category: 'Nature',
-        credit: 'Lukasz Szmigiel'
-    },
-    meadow: {
-        name: 'Meadow Flowers',
-        icon: 'fa-flower',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80&auto=format&fit=crop',
-        category: 'Nature',
-        credit: 'Lukasz Szmigiel'
-    },
-    
-    // ============ CITY & ARCHITECTURE ============
     citynight: {
         name: 'City Lights',
         icon: 'fa-city',
@@ -508,8 +453,6 @@ const WALLPAPERS = {
         category: 'City',
         credit: 'Johannes Plenio'
     },
-    
-    // ============ ABSTRACT & ART ============
     abstract: {
         name: 'Abstract Art',
         icon: 'fa-paint-brush',
@@ -576,25 +519,19 @@ const WALLPAPERS = {
     }
 };
 
-// ============ WALLPAPER MANAGER CLASS ============
+// ============ WALLPAPER MANAGER ============
 class WallpaperManager {
     constructor() {
         this.currentWallpaper = localStorage.getItem('srms_wallpaper') || 'none';
-        this.currentCategory = 'All';
-        this.searchTerm = '';
         this.init();
     }
     
-    // Initialize wallpaper system
     init() {
         this.applyWallpaper(this.currentWallpaper);
-        this.createWallpaperPanel();
+        this.createPanel();
         this.createToggleButton();
-        this.bindEvents();
-        console.log('✅ Wallpaper system initialized');
     }
     
-    // Apply wallpaper to body
     applyWallpaper(type) {
         const wallpaper = WALLPAPERS[type] || WALLPAPERS['none'];
         
@@ -602,7 +539,6 @@ class WallpaperManager {
             document.body.style.background = wallpaper.css;
             document.body.style.backgroundImage = 'none';
         } else {
-            document.body.style.background = '';
             document.body.style.backgroundImage = `linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url('${wallpaper.url}')`;
             document.body.style.backgroundSize = 'cover';
             document.body.style.backgroundPosition = 'center';
@@ -612,45 +548,9 @@ class WallpaperManager {
         
         this.currentWallpaper = type;
         localStorage.setItem('srms_wallpaper', type);
-        
-        // Update UI
         this.updateActiveStates();
-        this.showWallpaperCredit(wallpaper);
     }
     
-    // Show wallpaper credit
-    showWallpaperCredit(wallpaper) {
-        // Remove existing credit
-        const existingCredit = document.getElementById('wallpaperCredit');
-        if (existingCredit) existingCredit.remove();
-        
-        if (wallpaper.credit && wallpaper.credit !== 'SRMS Default') {
-            const credit = document.createElement('div');
-            credit.id = 'wallpaperCredit';
-            credit.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: rgba(0, 0, 0, 0.6);
-                backdrop-filter: blur(10px);
-                padding: 8px 15px;
-                border-radius: 20px;
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 12px;
-                z-index: 999;
-                animation: fadeIn 0.5s ease;
-            `;
-            credit.innerHTML = `📸 Photo by ${wallpaper.credit} on Unsplash`;
-            document.body.appendChild(credit);
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (credit.parentNode) credit.remove();
-            }, 5000);
-        }
-    }
-    
-    // Update active states in UI
     updateActiveStates() {
         document.querySelectorAll('.wallpaper-option').forEach(opt => {
             opt.classList.remove('active');
@@ -658,19 +558,9 @@ class WallpaperManager {
                 opt.classList.add('active');
             }
         });
-        
-        // Update category buttons
-        document.querySelectorAll('.wallpaper-category-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.category === this.currentCategory) {
-                btn.classList.add('active');
-            }
-        });
     }
     
-    // Create wallpaper panel
-    createWallpaperPanel() {
-        // Remove existing panel
+    createPanel() {
         const existingPanel = document.getElementById('wallpaperPanel');
         if (existingPanel) existingPanel.remove();
         
@@ -685,63 +575,23 @@ class WallpaperManager {
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
-            <div class="wallpaper-panel-search">
-                <i class="fas fa-search"></i>
-                <input type="text" id="wallpaperSearch" placeholder="Search wallpapers..." onkeyup="searchWallpapers()">
-            </div>
-            
-            <div class="wallpaper-categories">
-                ${this.createCategoryButtons()}
-            </div>
-            
-            <div class="wallpaper-panel-grid" id="wallpaperGrid">
-                ${this.createWallpaperOptions()}
+            <div class="wallpaper-panel-grid">
+                ${Object.entries(WALLPAPERS).map(([key, wallpaper]) => `
+                    <div class="wallpaper-option ${key === this.currentWallpaper ? 'active' : ''}" 
+                         data-wallpaper="${key}" 
+                         onclick="setWallpaper('${key}')"
+                         title="${wallpaper.name}">
+                        <i class="fas ${wallpaper.icon}"></i>
+                        <span>${wallpaper.name}</span>
+                    </div>
+                `).join('')}
             </div>
         `;
         
         document.body.appendChild(panel);
     }
     
-    // Create category buttons
-    createCategoryButtons() {
-        const categories = ['All', 'School', 'Nature', 'City', 'Abstract'];
-        
-        return categories.map(category => `
-            <button class="wallpaper-category-btn ${category === this.currentCategory ? 'active' : ''}" 
-                    data-category="${category}" 
-                    onclick="filterWallpapersByCategory('${category}')">
-                ${category}
-            </button>
-        `).join('');
-    }
-    
-    // Create wallpaper options
-    createWallpaperOptions() {
-        return Object.entries(WALLPAPERS)
-            .filter(([key, wallpaper]) => {
-                if (this.currentCategory === 'All') return true;
-                return wallpaper.category === this.currentCategory;
-            })
-            .filter(([key, wallpaper]) => {
-                if (!this.searchTerm) return true;
-                return wallpaper.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-            })
-            .map(([key, wallpaper]) => `
-                <div class="wallpaper-option ${key === this.currentWallpaper ? 'active' : ''}" 
-                     data-wallpaper="${key}" 
-                     onclick="setWallpaper('${key}')"
-                     title="${wallpaper.name} - Photo by ${wallpaper.credit}">
-                    <i class="fas ${wallpaper.icon}"></i>
-                    <span>${wallpaper.name}</span>
-                    <small>${wallpaper.category}</small>
-                </div>
-            `).join('');
-    }
-    
-    // Create toggle button
     createToggleButton() {
-        // Remove existing button
         const existingBtn = document.getElementById('wallpaperToggle');
         if (existingBtn) existingBtn.remove();
         
@@ -750,71 +600,18 @@ class WallpaperManager {
         button.className = 'wallpaper-toggle';
         button.title = 'Change Wallpaper';
         button.innerHTML = '<i class="fas fa-image"></i>';
-        button.onclick = toggleWallpaperPanel;
+        button.onclick = function() {
+            toggleWallpaperPanel();
+        };
         
         document.body.appendChild(button);
     }
-    
-    // Bind events
-    bindEvents() {
-        // Close panel on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeWallpaperPanel();
-            }
-        });
-        
-        // Close panel on outside click
-        document.addEventListener('click', (e) => {
-            const panel = document.getElementById('wallpaperPanel');
-            const toggleBtn = document.getElementById('wallpaperToggle');
-            
-            if (panel && panel.classList.contains('active')) {
-                if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
-                    closeWallpaperPanel();
-                }
-            }
-        });
-    }
-    
-    // Filter wallpapers by category
-    filterByCategory(category) {
-        this.currentCategory = category;
-        this.updateWallpaperGrid();
-    }
-    
-    // Search wallpapers
-    search(searchTerm) {
-        this.searchTerm = searchTerm;
-        this.updateWallpaperGrid();
-    }
-    
-    // Update wallpaper grid
-    updateWallpaperGrid() {
-        const grid = document.getElementById('wallpaperGrid');
-        if (grid) {
-            grid.innerHTML = this.createWallpaperOptions();
-        }
-        
-        // Update category buttons
-        document.querySelectorAll('.wallpaper-category-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.category === this.currentCategory) {
-                btn.classList.add('active');
-            }
-        });
-    }
 }
 
+// ============ GLOBAL VARIABLES ============
+let wallpaperManager = null;
+
 // ============ GLOBAL FUNCTIONS ============
-let wallpaperManager;
-
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', function() {
-    wallpaperManager = new WallpaperManager();
-});
-
-// Toggle wallpaper panel
 function toggleWallpaperPanel() {
     const panel = document.getElementById('wallpaperPanel');
     if (panel) {
@@ -822,7 +619,6 @@ function toggleWallpaperPanel() {
     }
 }
 
-// Close wallpaper panel
 function closeWallpaperPanel() {
     const panel = document.getElementById('wallpaperPanel');
     if (panel) {
@@ -830,7 +626,6 @@ function closeWallpaperPanel() {
     }
 }
 
-// Set wallpaper
 function setWallpaper(type) {
     if (wallpaperManager) {
         wallpaperManager.applyWallpaper(type);
@@ -838,26 +633,36 @@ function setWallpaper(type) {
     closeWallpaperPanel();
 }
 
-// Search wallpapers
-function searchWallpapers() {
-    const searchInput = document.getElementById('wallpaperSearch');
-    if (searchInput && wallpaperManager) {
-        wallpaperManager.search(searchInput.value);
-    }
-}
+// ============ INITIALIZE ON DOM READY ============
+document.addEventListener('DOMContentLoaded', function() {
+    wallpaperManager = new WallpaperManager();
+    console.log('✅ Wallpaper system initialized');
+});
 
-// Filter wallpapers by category
-function filterWallpapersByCategory(category) {
-    if (wallpaperManager) {
-        wallpaperManager.filterByCategory(category);
+// Close panel on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeWallpaperPanel();
     }
-}
+});
 
-// Export
+// Close panel on outside click
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('wallpaperPanel');
+    const toggleBtn = document.getElementById('wallpaperToggle');
+    const taskbarBtn = document.querySelector('.taskbar-icon-btn[title="Change Wallpaper"]');
+    
+    if (panel && panel.classList.contains('active')) {
+        if (!panel.contains(e.target) && 
+            !toggleBtn?.contains(e.target) && 
+            !taskbarBtn?.contains(e.target)) {
+            closeWallpaperPanel();
+        }
+    }
+});
+
+// Export to window
 window.WALLPAPERS = WALLPAPERS;
-window.WallpaperManager = WallpaperManager;
 window.toggleWallpaperPanel = toggleWallpaperPanel;
 window.closeWallpaperPanel = closeWallpaperPanel;
 window.setWallpaper = setWallpaper;
-window.searchWallpapers = searchWallpapers;
-window.filterWallpapersByCategory = filterWallpapersByCategory;
