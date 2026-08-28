@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRMS - Login | School Resource Management System</title>
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -25,10 +21,6 @@
             --accent: #d4af37;
             --gold: #f0d060;
             --dark: #0a0e27;
-            --dark-light: #1a1f4e;
-            --white: #ffffff;
-            --shadow-gold: 0 20px 60px rgba(212, 175, 55, 0.4);
-            --shadow-primary: 0 4px 15px rgba(233, 69, 96, 0.4);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,13 +31,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
             position: relative;
             overflow: hidden;
             padding: 20px;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
         }
         
-        /* Particles */
         .particles {
             position: fixed;
             top: 0; left: 0;
@@ -66,7 +57,6 @@
             50% { transform: translateY(-100px) rotate(180deg); }
         }
         
-        /* Login Container */
         .login-container {
             position: relative;
             z-index: 1;
@@ -74,12 +64,10 @@
             max-width: 850px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0;
             border-radius: 24px;
             overflow: hidden;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.8s ease;
-            margin-top: 60px;
         }
         
         @keyframes slideUp {
@@ -87,11 +75,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Brand Panel */
         .brand-panel {
             background: rgba(10, 14, 39, 0.5);
             backdrop-filter: blur(10px);
-            padding: 40px 35px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -101,9 +88,8 @@
         }
         
         .brand-logo {
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
+            width: 90px; height: 90px;
+            background: linear-gradient(135deg, #d4af37, #f0d060);
             border-radius: 22px;
             display: flex;
             align-items: center;
@@ -112,7 +98,7 @@
             font-weight: 900;
             color: #0a0e27;
             margin-bottom: 18px;
-            box-shadow: var(--shadow-gold);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.4);
             animation: pulse 2s infinite;
         }
         
@@ -124,7 +110,7 @@
         .brand-title {
             font-size: 2.5em;
             font-weight: 900;
-            background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
+            background: linear-gradient(180deg, #f0d060, #d4af37);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -137,11 +123,7 @@
             margin-bottom: 12px;
         }
         
-        .brand-by {
-            color: #d4af37;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
+        .brand-by { color: #d4af37; font-size: 0.8em; font-weight: 600; }
         
         .brand-features {
             margin-top: 20px;
@@ -158,13 +140,12 @@
             font-size: 12px;
         }
         
-        .brand-feature i { color: #d4af37; font-size: 13px; }
+        .brand-feature i { color: #d4af37; }
         
-        /* Form Panel */
         .form-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
-            padding: 40px 35px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -182,10 +163,7 @@
             margin-bottom: 6px;
         }
         
-        .form-header p {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-        }
+        .form-header p { color: rgba(255, 255, 255, 0.5); font-size: 13px; }
         
         .form-group { margin-bottom: 18px; }
         
@@ -214,11 +192,8 @@
         .form-group input:focus {
             outline: none;
             border-color: rgba(212, 175, 55, 0.5);
-            background: rgba(255, 255, 255, 0.08);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
         }
-        
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
         
         .btn-login {
             width: 100%;
@@ -231,9 +206,7 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
             font-family: 'Inter', sans-serif;
-            letter-spacing: 1px;
             margin-top: 8px;
         }
         
@@ -254,13 +227,16 @@
             color: rgba(212, 175, 55, 0.8);
             text-decoration: none;
             font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
         }
         
-        .login-footer a:hover { color: #f0d060; }
+        .back-link {
+            position: fixed;
+            top: 20px; left: 20px;
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 14px;
+            z-index: 10;
+        }
         
         .error-message {
             background: rgba(220, 53, 69, 0.15);
@@ -271,147 +247,27 @@
             margin-bottom: 15px;
             display: none;
             font-size: 13px;
-            align-items: center;
-            gap: 8px;
         }
         
-        .error-message.show {
-            display: flex;
-            animation: shake 0.5s ease;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
-        }
-        
-        /* Taskbar */
-        .taskbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 60px;
-            background: rgba(10, 14, 39, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-        }
-        
-        .taskbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #d4af37;
-            font-weight: 900;
-            font-size: 20px;
-        }
-        
-        .taskbar-logo i { font-size: 24px; }
-        
-        .taskbar-center {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            flex: 1;
-            justify-content: center;
-        }
-        
-        .taskbar-btn {
-            padding: 10px 18px;
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
-        }
-        
-        .taskbar-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
-        
-        .taskbar-btn.active {
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            color: #ffffff;
-        }
-        
-        .taskbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .taskbar-icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #d4af37;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .taskbar-icon-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
+        .error-message.show { display: block; }
         
         @media (max-width: 768px) {
-            .login-container {
-                grid-template-columns: 1fr;
-                max-width: 400px;
-            }
+            .login-container { grid-template-columns: 1fr; }
             .brand-panel { display: none; }
-            .taskbar-center { display: none; }
         }
     </style>
 </head>
 <body>
-    <!-- Particles -->
+    <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    
     <div class="particles" id="particles"></div>
     
-    <!-- Taskbar -->
-    <div class="taskbar">
-        <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
-        </div>
-        <div class="taskbar-center">
-            <button class="taskbar-btn active"><i class="fas fa-home"></i> Home</button>
-            <button class="taskbar-btn" onclick="location.href='dashboard.html'"><i class="fas fa-chart-bar"></i> Dashboard</button>
-            <button class="taskbar-btn" onclick="location.href='library.html'"><i class="fas fa-book"></i> Library</button>
-            <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
-            <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
-            <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
-        </div>
-        <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
-        </div>
-    </div>
-    
-    <!-- Login Container -->
     <div class="login-container">
         <div class="brand-panel">
             <div class="brand-logo"><i class="fas fa-school"></i></div>
             <div class="brand-title">SRMS</div>
             <div class="brand-subtitle">School Resource Management System</div>
             <div class="brand-by">by <strong>WeGEM</strong></div>
-            
             <div class="brand-features">
                 <div class="brand-feature"><i class="fas fa-check-circle"></i> Library Management</div>
                 <div class="brand-feature"><i class="fas fa-check-circle"></i> Student Database</div>
@@ -430,13 +286,13 @@
                 <span id="errorText"></span>
             </div>
             
-            <form id="loginForm" onsubmit="handleLogin(event)">
+            <form onsubmit="return handleLogin(event)">
                 <div class="form-group">
                     <label><i class="fas fa-school"></i> School Name</label>
                     <input type="text" id="schoolName" placeholder="Enter school name" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <label><i class="fas fa-envelope"></i> Email</label>
                     <input type="email" id="email" placeholder="Enter email" required>
                 </div>
                 <div class="form-group">
@@ -463,9 +319,9 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
+            var container = document.getElementById('particles');
+            for (var i = 0; i < 30; i++) {
+                var particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.width = Math.random() * 4 + 1 + 'px';
                 particle.style.height = particle.style.width;

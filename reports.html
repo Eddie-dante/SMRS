@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - Reports & Analytics</title>
+    <title>SRMS - Reports & Analytics | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -15,9 +15,45 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%); color: #ffffff; overflow-x: hidden; }
+        
+        .taskbar { position: fixed; top: 0; left: 0; right: 0; height: 65px; background: rgba(10,14,39,0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+        .taskbar-left { display: flex; align-items: center; gap: 15px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: #f0d060; font-weight: 900; font-size: 22px; letter-spacing: 1px; }
+        .taskbar-logo i { font-size: 26px; }
+        .taskbar-center { display: flex; align-items: center; gap: 3px; flex: 1; justify-content: center; overflow-x: auto; scrollbar-width: none; }
+        .taskbar-center::-webkit-scrollbar { display: none; }
+        .taskbar-btn { padding: 10px 14px; background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; border-radius: 10px; transition: all 0.3s ease; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .taskbar-btn i { font-size: 13px; }
+        .taskbar-btn:hover { background: rgba(255,255,255,0.1); color: #ffffff; transform: translateY(-2px); }
+        .taskbar-btn.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #ffffff; box-shadow: 0 4px 15px rgba(233,69,96,0.4); }
+        .taskbar-right { display: flex; align-items: center; gap: 8px; }
+        .taskbar-icon-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #d4af37; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.3s ease; }
+        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        
+        .main-content { padding: 85px 25px 25px; max-width: 1400px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .page-header { margin-bottom: 25px; }
+        .page-header h1 { font-size: 2em; font-weight: 900; background: linear-gradient(180deg, #ffffff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 5px; }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 14px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; text-align: center; }
+        .stat-card .value { font-size: 2em; font-weight: 900; color: #d4af37; }
+        .stat-card .label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+        
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .chart-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; }
+        .chart-container h3 { margin-bottom: 15px; color: #d4af37; font-size: 1em; }
+        
+        @media (max-width: 768px) { .taskbar-center { display: none; } .main-content { padding: 75px 15px 15px; } .charts-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
@@ -28,6 +64,14 @@
             <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
             <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
             <button class="taskbar-btn" onclick="location.href='chat.html'"><i class="fas fa-comments"></i> Chat</button>
+            <button class="taskbar-btn" onclick="location.href='forum.html'"><i class="fas fa-bullhorn"></i> Forum</button>
+            <button class="taskbar-btn" onclick="location.href='notepad.html'"><i class="fas fa-sticky-note"></i> Notes</button>
+            <button class="taskbar-btn" onclick="location.href='events.html'"><i class="fas fa-calendar"></i> Events</button>
+            <button class="taskbar-btn" onclick="location.href='fees.html'"><i class="fas fa-money-bill"></i> Fees</button>
+            <button class="taskbar-btn" onclick="location.href='timetable.html'"><i class="fas fa-clock"></i> Timetable</button>
+            <button class="taskbar-btn" onclick="location.href='teachers.html'"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
+            <button class="taskbar-btn" onclick="location.href='classes.html'"><i class="fas fa-door-open"></i> Classes</button>
+            <button class="taskbar-btn" onclick="location.href='terms.html'"><i class="fas fa-calendar-alt"></i> Terms</button>
             <button class="taskbar-btn active" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
             <button class="taskbar-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
         </div>
@@ -37,51 +81,19 @@
         </div>
     </div>
     
-    <!-- Main Content -->
-    <div class="content-section">
+    <div class="main-content">
         <div class="page-header">
-            <div class="page-title">
-                <h1>Reports & Analytics</h1>
-                <p>View statistics and insights</p>
-            </div>
-            <button class="btn btn-primary" onclick="exportReport()">
-                <i class="fas fa-download"></i> Export Report
-            </button>
+            <h1>Reports & Analytics</h1>
+            <p>Visual insights and statistics</p>
         </div>
         
-        <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(220, 53, 69, 0.15); color: #dc3545;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-value" id="overdueCount">0</div>
-                <div class="stat-label">Overdue Books</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(23, 162, 184, 0.15); color: #17a2b8;">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
-                <div class="stat-value" id="activeLoansCount">0</div>
-                <div class="stat-label">Active Loans</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(40, 167, 69, 0.15); color: #28a745;">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-value" id="returnRate">0%</div>
-                <div class="stat-label">Return Rate</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(255, 193, 7, 0.15); color: #ffc107;">
-                    <i class="fas fa-chair"></i>
-                </div>
-                <div class="stat-value" id="furnitureCount">0</div>
-                <div class="stat-label">Active Furniture</div>
-            </div>
+            <div class="stat-card"><div class="value" id="overdueCount">0</div><div class="label">Overdue Books</div></div>
+            <div class="stat-card"><div class="value" id="activeLoansCount">0</div><div class="label">Active Loans</div></div>
+            <div class="stat-card"><div class="value" id="returnRate">0%</div><div class="label">Return Rate</div></div>
+            <div class="stat-card"><div class="value" id="furnitureCount">0</div><div class="label">Active Furniture</div></div>
         </div>
         
-        <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-container">
                 <h3><i class="fas fa-book"></i> Books by Type</h3>
@@ -106,11 +118,5 @@
     <script src="js/utils.js"></script>
     <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
-    
-    <script>
-        function exportReport() {
-            showNotification('Report exported successfully!', 'success');
-        }
-    </script>
 </body>
 </html>

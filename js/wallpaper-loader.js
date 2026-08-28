@@ -3,7 +3,7 @@
 // Applies saved wallpaper to all pages
 // ============================================
 
-const WALLPAPER_DATA = {
+var WALLPAPER_DATA = {
     none: {
         name: 'Dark Gradient',
         type: 'gradient',
@@ -133,14 +133,14 @@ const WALLPAPER_DATA = {
 
 // Apply wallpaper on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const savedWallpaper = localStorage.getItem('srms_wallpaper') || 'none';
-    const wallpaper = WALLPAPER_DATA[savedWallpaper] || WALLPAPER_DATA['none'];
+    var savedWallpaper = localStorage.getItem('srms_wallpaper') || 'none';
+    var wallpaper = WALLPAPER_DATA[savedWallpaper] || WALLPAPER_DATA['none'];
     
     if (wallpaper.type === 'gradient') {
         document.body.style.background = wallpaper.css;
         document.body.style.backgroundImage = 'none';
     } else {
-        document.body.style.backgroundImage = `linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url('${wallpaper.url}')`;
+        document.body.style.backgroundImage = 'linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url("' + wallpaper.url + '")';
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
         document.body.style.backgroundAttachment = 'fixed';

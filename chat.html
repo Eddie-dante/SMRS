@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - Private Chat</title>
+    <title>SRMS - Private Chat | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -14,9 +14,50 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%); color: #ffffff; overflow-x: hidden; }
+        
+        .taskbar { position: fixed; top: 0; left: 0; right: 0; height: 65px; background: rgba(10,14,39,0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+        .taskbar-left { display: flex; align-items: center; gap: 15px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: #f0d060; font-weight: 900; font-size: 22px; letter-spacing: 1px; }
+        .taskbar-logo i { font-size: 26px; }
+        .taskbar-center { display: flex; align-items: center; gap: 3px; flex: 1; justify-content: center; overflow-x: auto; scrollbar-width: none; }
+        .taskbar-center::-webkit-scrollbar { display: none; }
+        .taskbar-btn { padding: 10px 14px; background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; border-radius: 10px; transition: all 0.3s ease; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .taskbar-btn i { font-size: 13px; }
+        .taskbar-btn:hover { background: rgba(255,255,255,0.1); color: #ffffff; transform: translateY(-2px); }
+        .taskbar-btn.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #ffffff; box-shadow: 0 4px 15px rgba(233,69,96,0.4); }
+        .taskbar-right { display: flex; align-items: center; gap: 8px; }
+        .taskbar-icon-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #d4af37; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.3s ease; }
+        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        
+        .main-content { padding: 85px 25px 25px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .page-header { margin-bottom: 25px; }
+        .page-header h1 { font-size: 2em; font-weight: 900; background: linear-gradient(180deg, #ffffff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 5px; }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 14px; }
+        
+        .chat-container { display: grid; grid-template-columns: 280px 1fr; gap: 20px; height: calc(100vh - 180px); }
+        .chat-user-list { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; overflow-y: auto; }
+        .chat-user-list h4 { color: #d4af37; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .chat-user-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; cursor: pointer; transition: all 0.3s ease; margin-bottom: 8px; font-family: 'Inter', sans-serif; text-align: left; }
+        .chat-user-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        .chat-messages { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; }
+        #chatMessages { flex: 1; overflow-y: auto; margin-bottom: 15px; padding: 10px; }
+        .chat-input-container { display: flex; gap: 10px; }
+        .chat-input-container input { flex: 1; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .chat-input-container input:focus { outline: none; border-color: rgba(212,175,55,0.5); }
+        .chat-input-container button { padding: 12px 20px; background: linear-gradient(135deg, #e94560, #c62a47); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; font-size: 16px; transition: all 0.3s ease; }
+        .chat-input-container button:hover { transform: translateY(-2px); }
+        
+        @media (max-width: 768px) { .taskbar-center { display: none; } .chat-container { grid-template-columns: 1fr; height: auto; } .chat-user-list { max-height: 200px; } }
+    </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
@@ -27,6 +68,15 @@
             <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
             <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
             <button class="taskbar-btn active" onclick="location.href='chat.html'"><i class="fas fa-comments"></i> Chat</button>
+            <button class="taskbar-btn" onclick="location.href='forum.html'"><i class="fas fa-bullhorn"></i> Forum</button>
+            <button class="taskbar-btn" onclick="location.href='notepad.html'"><i class="fas fa-sticky-note"></i> Notes</button>
+            <button class="taskbar-btn" onclick="location.href='events.html'"><i class="fas fa-calendar"></i> Events</button>
+            <button class="taskbar-btn" onclick="location.href='fees.html'"><i class="fas fa-money-bill"></i> Fees</button>
+            <button class="taskbar-btn" onclick="location.href='timetable.html'"><i class="fas fa-clock"></i> Timetable</button>
+            <button class="taskbar-btn" onclick="location.href='teachers.html'"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
+            <button class="taskbar-btn" onclick="location.href='classes.html'"><i class="fas fa-door-open"></i> Classes</button>
+            <button class="taskbar-btn" onclick="location.href='terms.html'"><i class="fas fa-calendar-alt"></i> Terms</button>
+            <button class="taskbar-btn" onclick="location.href='qrcodes.html'"><i class="fas fa-qrcode"></i> QR</button>
             <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
             <button class="taskbar-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
         </div>
@@ -36,30 +86,27 @@
         </div>
     </div>
     
-    <!-- Main Content -->
-    <div class="content-section">
+    <div class="main-content">
         <div class="page-header">
-            <div class="page-title">
-                <h1>Private Chat</h1>
-                <p>Message staff members</p>
-            </div>
+            <h1>Private Chat</h1>
+            <p>Message staff members directly</p>
         </div>
         
         <div class="chat-container">
-            <!-- User List -->
-            <div class="chat-user-list glass">
-                <h4 style="margin-bottom: 15px;"><i class="fas fa-users"></i> Staff Members</h4>
-                <div id="chatUserList"></div>
+            <div class="chat-user-list">
+                <h4><i class="fas fa-users"></i> Staff Members</h4>
+                <div id="chatUserList">
+                    <p style="color:rgba(255,255,255,0.5);text-align:center;">Loading...</p>
+                </div>
             </div>
-            
-            <!-- Messages -->
-            <div class="chat-messages glass">
-                <h4 id="chatWithName" style="margin-bottom: 15px;">Select a user to chat</h4>
-                <div id="chatMessages" style="flex: 1; overflow-y: auto;"></div>
-                
-                <form class="chat-input-container" onsubmit="sendMessage(event)">
+            <div class="chat-messages">
+                <h4 id="chatWithName" style="margin-bottom:15px;color:#d4af37;">Select a user to chat</h4>
+                <div id="chatMessages">
+                    <p style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">No messages yet</p>
+                </div>
+                <form class="chat-input-container" onsubmit="return sendMessage(event)">
                     <input type="text" id="messageInput" placeholder="Type a message..." required>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
                 </form>
             </div>
         </div>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRMS - School Resource Management System</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #e94560;
+            --primary-dark: #c62a47;
+            --accent: #d4af37;
+            --gold: #f0d060;
+            --dark: #0a0e27;
+            --dark-light: #1a1f4e;
+            --white: #ffffff;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: var(--white);
+            overflow-x: hidden;
+        }
+        
+        /* ============ LOADER ============ */
+        #loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a0e27, #1a1f4e, #0f3460);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-logo {
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 900;
+            color: #0a0e27;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.4);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .loader-title {
+            font-size: 2em;
+            font-weight: 900;
+            background: linear-gradient(180deg, #f0d060, #d4af37);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+        
+        .loader-bar-container {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .loader-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+            border-radius: 10px;
+            width: 0%;
+            animation: loadBar 3s ease forwards;
+        }
+        
+        @keyframes loadBar {
+            0% { width: 0%; }
+            50% { width: 60%; }
+            100% { width: 100%; }
+        }
+        
+        .loader-percentage {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+        
+        /* ============ PARTICLES ============ */
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+        }
+        
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 900;
+            font-size: 22px;
+            color: #d4af37;
+        }
+        
+        .navbar-logo i { font-size: 28px; }
+        
+        .navbar-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .navbar-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-link:hover { color: #d4af37; }
+        
+        .btn-login-nav {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-login-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
+        }
+        
+        /* ============ HERO ============ */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 20px 50px;
+        }
+        
+        .hero-logo {
+            width: 150px; height: 150px;
+            background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            font-weight: 900;
+            color: #0a0e27;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        .hero-title {
+            font-size: 4em;
+            font-weight: 900;
+            background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+        
+        .hero-by {
+            font-size: 1em;
+            color: #d4af37;
+            margin-bottom: 40px;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn-primary-hero {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn-primary-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
+        }
+        
+        .btn-secondary-hero {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-secondary-hero:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        /* ============ FEATURES ============ */
+        .features-section {
+            position: relative;
+            z-index: 1;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        .features-title {
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 40px;
+            background: linear-gradient(180deg, #ffffff, #d4af37);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .feature-icon {
+            width: 70px; height: 70px;
+            background: rgba(212, 175, 55, 0.15);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #d4af37;
+            margin: 0 auto 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card p {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 20px; }
+            .navbar-links { display: none; }
+            .hero-title { font-size: 2.5em; }
+            .hero-logo { width: 100px; height: 100px; font-size: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loader">
+        <div class="loader-logo"><i class="fas fa-school"></i></div>
+        <div class="loader-title">SRMS</div>
+        <div class="loader-bar-container"><div class="loader-bar"></div></div>
+        <div class="loader-percentage" id="loaderPercentage">0%</div>
+    </div>
+    
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+        <div class="navbar-links">
+            <a href="#features" class="navbar-link">Features</a>
+            <a href="index.html" class="navbar-link">Login</a>
+            <button class="btn-login-nav" onclick="location.href='index.html'"><i class="fas fa-sign-in-alt"></i> Get Started</button>
+        </div>
+    </div>
+    
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-logo"><i class="fas fa-school"></i></div>
+        <div class="hero-title">SRMS</div>
+        <div class="hero-subtitle">School Resource Management System</div>
+        <div class="hero-by">by <strong>WeGEM</strong> (Edwin)</div>
+        <div class="hero-buttons">
+            <button class="btn-primary-hero" onclick="location.href='index.html'"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button class="btn-secondary-hero" onclick="location.href='index.html'"><i class="fas fa-user-plus"></i> Sign Up</button>
+        </div>
+    </div>
+    
+    <!-- Features -->
+    <div class="features-section" id="features">
+        <div class="features-title">Features</div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-book"></i></div>
+                <h3>Library Management</h3>
+                <p>Track books, issue, returns, and manage your catalog</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Student Database</h3>
+                <p>Comprehensive student records with parent info</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-chair"></i></div>
+                <h3>Furniture Allocation</h3>
+                <p>Manage chairs and lockers allocation</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-comments"></i></div>
+                <h3>Communication</h3>
+                <p>Private chat and group forum for staff</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                <h3>Reports & Analytics</h3>
+                <p>Visual insights and statistics</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-calendar"></i></div>
+                <h3>Events & Timetable</h3>
+                <p>School calendar and class schedules</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>SRMS v1.0 | School Resource Management System | © 2026 WeGEM | Edwin</p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create particles
+            var container = document.getElementById('particles');
+            for (var i = 0; i < 40; i++) {
+                var particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 15 + 10 + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+            
+            // Loader percentage
+            var percent = 0;
+            var percentEl = document.getElementById('loaderPercentage');
+            var interval = setInterval(function() {
+                percent += Math.floor(Math.random() * 15) + 5;
+                if (percent > 100) percent = 100;
+                percentEl.textContent = percent + '%';
+                if (percent >= 100) clearInterval(interval);
+            }, 200);
+            
+            // Hide loader after 3 seconds
+            setTimeout(function() {
+                document.getElementById('loader').classList.add('hidden');
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
