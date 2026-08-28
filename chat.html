@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRMS - Private Chat</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+        </div>
+        <div class="taskbar-center">
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button>
+            <button class="taskbar-btn" onclick="location.href='library.html'"><i class="fas fa-book"></i> Library</button>
+            <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
+            <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
+            <button class="taskbar-btn active" onclick="location.href='chat.html'"><i class="fas fa-comments"></i> Chat</button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
+            <button class="taskbar-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
+        </div>
+        <div class="taskbar-right">
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="content-section">
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Private Chat</h1>
+                <p>Message staff members</p>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <!-- User List -->
+            <div class="chat-user-list glass">
+                <h4 style="margin-bottom: 15px;"><i class="fas fa-users"></i> Staff Members</h4>
+                <div id="chatUserList"></div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="chat-messages glass">
+                <h4 id="chatWithName" style="margin-bottom: 15px;">Select a user to chat</h4>
+                <div id="chatMessages" style="flex: 1; overflow-y: auto;"></div>
+                
+                <form class="chat-input-container" onsubmit="sendMessage(event)">
+                    <input type="text" id="messageInput" placeholder="Type a message..." required>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

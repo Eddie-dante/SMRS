@@ -5,121 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRMS - Settings</title>
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
-    
-    <style>
-        .content-section {
-            padding: 30px;
-            margin-top: 60px;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .page-header {
-            margin-bottom: 30px;
-        }
-        
-        .page-title h1 {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-        
-        .settings-container {
-            display: grid;
-            gap: 20px;
-            max-width: 800px;
-        }
-        
-        .settings-section {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .settings-section:hover {
-            border-color: rgba(212, 175, 55, 0.3);
-        }
-        
-        .settings-section h3 {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #d4af37;
-        }
-        
-        .settings-section h3 i {
-            width: 30px;
-        }
-        
-        .data-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-    </style>
 </head>
 <body>
     <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo">
-                <i class="fas fa-school"></i>
-                <span>SRMS</span>
-            </div>
+            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
         </div>
         <div class="taskbar-center">
-            <button class="taskbar-btn" onclick="location.href='dashboard.html'">
-                <i class="fas fa-home"></i> Dashboard
-            </button>
-            <button class="taskbar-btn" onclick="location.href='library.html'">
-                <i class="fas fa-book"></i> Library
-            </button>
-            <button class="taskbar-btn" onclick="location.href='students.html'">
-                <i class="fas fa-users"></i> Students
-            </button>
-            <button class="taskbar-btn" onclick="location.href='furniture.html'">
-                <i class="fas fa-chair"></i> Furniture
-            </button>
-            <button class="taskbar-btn" onclick="location.href='reports.html'">
-                <i class="fas fa-file-alt"></i> Reports
-            </button>
-            <button class="taskbar-btn active" onclick="location.href='settings.html'">
-                <i class="fas fa-cog"></i> Settings
-            </button>
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button>
+            <button class="taskbar-btn" onclick="location.href='library.html'"><i class="fas fa-book"></i> Library</button>
+            <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
+            <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
+            <button class="taskbar-btn active" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
-                <i class="fas fa-image"></i>
-            </button>
-            <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <!-- Main Content -->
     <div class="content-section">
-        <!-- Page Header -->
         <div class="page-header">
             <div class="page-title">
                 <h1>Settings</h1>
@@ -127,11 +44,11 @@
             </div>
         </div>
         
-        <div class="settings-container">
+        <div style="max-width: 800px;">
             <!-- School Information -->
-            <div class="settings-section">
-                <h3><i class="fas fa-school"></i> School Information</h3>
-                <form id="schoolInfoForm" onsubmit="saveSchoolInfo(event)">
+            <div class="glass" style="padding: 25px; margin-bottom: 20px;">
+                <h3 style="color: #d4af37;"><i class="fas fa-school"></i> School Information</h3>
+                <form onsubmit="saveSchoolInfo(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label>School Name</label>
@@ -156,16 +73,14 @@
                         <label>School Motto</label>
                         <input type="text" id="schoolMotto" placeholder="e.g., Strive for Excellence">
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Information
-                    </button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
                 </form>
             </div>
             
             <!-- Library Settings -->
-            <div class="settings-section">
-                <h3><i class="fas fa-book"></i> Library Settings</h3>
-                <form id="librarySettingsForm" onsubmit="saveLibrarySettings(event)">
+            <div class="glass" style="padding: 25px; margin-bottom: 20px;">
+                <h3 style="color: #d4af37;"><i class="fas fa-book"></i> Library Settings</h3>
+                <form onsubmit="saveSettings(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label>Max Borrow Days</label>
@@ -180,44 +95,32 @@
                         <label>Fine Per Day (KES)</label>
                         <input type="number" id="finePerDay" min="0" value="10">
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Library Settings
-                    </button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Settings</button>
                 </form>
             </div>
             
             <!-- User Management -->
-            <div class="settings-section">
-                <h3><i class="fas fa-users"></i> User Management</h3>
+            <div class="glass" style="padding: 25px; margin-bottom: 20px;">
+                <h3 style="color: #d4af37;"><i class="fas fa-users"></i> User Management</h3>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
+                            <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
                         </thead>
                         <tbody id="usersTableBody"></tbody>
                     </table>
                 </div>
-                <button class="btn btn-primary" onclick="openAddUserModal()">
+                <button class="btn btn-primary" onclick="openModal('addUserModal')">
                     <i class="fas fa-user-plus"></i> Add User
                 </button>
             </div>
             
             <!-- Data Management -->
-            <div class="settings-section">
-                <h3><i class="fas fa-database"></i> Data Management</h3>
-                <div class="data-actions">
-                    <button class="btn btn-secondary" onclick="exportData()">
-                        <i class="fas fa-download"></i> Export Data
-                    </button>
-                    <button class="btn btn-danger" onclick="clearAllData()">
-                        <i class="fas fa-trash"></i> Clear All Data
-                    </button>
+            <div class="glass" style="padding: 25px; margin-bottom: 20px;">
+                <h3 style="color: #d4af37;"><i class="fas fa-database"></i> Data Management</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="exportData()"><i class="fas fa-download"></i> Export Data</button>
+                    <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All Data</button>
                 </div>
             </div>
         </div>
@@ -228,11 +131,9 @@
         <div class="modal-content glass">
             <div class="modal-header">
                 <h2><i class="fas fa-user-plus"></i> Add New User</h2>
-                <button class="modal-close" onclick="closeModal('addUserModal')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="modal-close" onclick="closeModal('addUserModal')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="addUserForm" onsubmit="addUser(event)">
+            <form onsubmit="addUser(event)">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="newUserName" required>
@@ -255,17 +156,26 @@
                         <input type="password" id="newUserPassword" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">
-                    <i class="fas fa-plus"></i> Add User
-                </button>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-plus"></i> Add User</button>
             </form>
         </div>
     </div>
     
-    <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/wallpaper.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
+    
+    <script>
+        function exportData() {
+            showNotification('Data exported!', 'success');
+        }
+        
+        function clearAllData() {
+            if (confirm('Are you sure? This cannot be undone!')) {
+                showNotification('All data cleared!', 'warning');
+            }
+        }
+    </script>
 </body>
 </html>

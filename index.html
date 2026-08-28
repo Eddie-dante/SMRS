@@ -15,7 +15,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     
@@ -23,7 +22,6 @@
         :root {
             --primary: #e94560;
             --primary-dark: #c62a47;
-            --secondary: #0f3460;
             --accent: #d4af37;
             --gold: #f0d060;
             --dark: #0a0e27;
@@ -33,11 +31,7 @@
             --shadow-primary: 0 4px 15px rgba(233, 69, 96, 0.4);
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Inter', sans-serif;
@@ -48,235 +42,14 @@
             position: relative;
             overflow: hidden;
             padding: 20px;
-            transition: background 0.5s ease;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
         }
         
-        /* ============ TASKBAR ============ */
-        .taskbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: rgba(10, 14, 39, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-        }
-        
-        .taskbar-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .taskbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #d4af37;
-            font-weight: 900;
-            font-size: 20px;
-        }
-        
-        .taskbar-logo i {
-            font-size: 24px;
-        }
-        
-        .taskbar-center {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .taskbar-btn {
-            padding: 10px 15px;
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .taskbar-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
-        
-        .taskbar-btn.active {
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            color: #ffffff;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
-        }
-        
-        .taskbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .taskbar-icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #d4af37;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .taskbar-icon-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-        
-        /* ============ WALLPAPER PANEL ============ */
-        .wallpaper-panel {
-            position: fixed;
-            top: 60px;
-            right: -400px;
-            width: 400px;
-            height: calc(100vh - 60px);
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-left: 2px solid rgba(212, 175, 55, 0.3);
-            z-index: 999;
-            transition: right 0.3s ease;
-            overflow-y: auto;
-        }
-        
-        .wallpaper-panel.active {
-            right: 0;
-        }
-        
-        .wallpaper-panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .wallpaper-panel-header h3 {
-            color: #d4af37;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .wallpaper-panel-close {
-            width: 35px;
-            height: 35px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 50%;
-            color: #ffffff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .wallpaper-panel-close:hover {
-            background: rgba(220, 53, 69, 0.5);
-            transform: rotate(90deg);
-        }
-        
-        .wallpaper-panel-search {
-            margin: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-        
-        .wallpaper-panel-search i {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .wallpaper-panel-search input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .wallpaper-panel-search input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-        
-        .wallpaper-panel-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 0 20px 20px;
-        }
-        
-        .wallpaper-option {
-            padding: 15px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 11px;
-            font-weight: 500;
-        }
-        
-        .wallpaper-option:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(212, 175, 55, 0.3);
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-        
-        .wallpaper-option.active {
-            border-color: #d4af37;
-            background: rgba(212, 175, 55, 0.15);
-            color: #d4af37;
-        }
-        
-        .wallpaper-option i {
-            display: block;
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
-        
-        /* ============ PARTICLES ============ */
+        /* Particles */
         .particles {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
             z-index: 0;
         }
@@ -293,7 +66,7 @@
             50% { transform: translateY(-100px) rotate(180deg); }
         }
         
-        /* ============ LOGIN CONTAINER ============ */
+        /* Login Container */
         .login-container {
             position: relative;
             z-index: 1;
@@ -318,7 +91,6 @@
         .brand-panel {
             background: rgba(10, 14, 39, 0.5);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             padding: 40px 35px;
             display: flex;
             flex-direction: column;
@@ -355,7 +127,6 @@
             background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
             margin-bottom: 8px;
         }
         
@@ -386,16 +157,12 @@
             font-size: 12px;
         }
         
-        .brand-feature i {
-            color: #d4af37;
-            font-size: 13px;
-        }
+        .brand-feature i { color: #d4af37; font-size: 13px; }
         
         /* Form Panel */
         .form-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             padding: 40px 35px;
             display: flex;
             flex-direction: column;
@@ -419,9 +186,7 @@
             font-size: 13px;
         }
         
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .form-group { margin-bottom: 18px; }
         
         .form-group label {
             display: block;
@@ -431,10 +196,7 @@
             font-size: 13px;
         }
         
-        .form-group label i {
-            margin-right: 6px;
-            color: #d4af37;
-        }
+        .form-group label i { margin-right: 6px; color: #d4af37; }
         
         .form-group input {
             width: 100%;
@@ -455,9 +217,7 @@
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
         }
         
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
+        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
         
         .btn-login {
             width: 100%;
@@ -493,16 +253,13 @@
             color: rgba(212, 175, 55, 0.8);
             text-decoration: none;
             font-size: 12px;
-            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
         }
         
-        .login-footer a:hover {
-            color: #f0d060;
-        }
+        .login-footer a:hover { color: #f0d060; }
         
         .error-message {
             background: rgba(220, 53, 69, 0.15);
@@ -528,95 +285,140 @@
             75% { transform: translateX(8px); }
         }
         
-        /* Responsive */
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        
+        .taskbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #d4af37;
+            font-weight: 900;
+            font-size: 20px;
+        }
+        
+        .taskbar-logo i { font-size: 24px; }
+        
+        .taskbar-center {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .taskbar-btn {
+            padding: 10px 18px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .taskbar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .taskbar-btn.active {
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            color: #ffffff;
+        }
+        
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .taskbar-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #d4af37;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .taskbar-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
         @media (max-width: 768px) {
             .login-container {
                 grid-template-columns: 1fr;
                 max-width: 400px;
             }
-            
-            .brand-panel {
-                display: none;
-            }
-            
-            .taskbar-center {
-                display: none;
-            }
-            
-            .wallpaper-panel {
-                width: 100%;
-                right: -100%;
-            }
+            .brand-panel { display: none; }
+            .taskbar-center { display: none; }
         }
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
-    <div class="taskbar">
-        <div class="taskbar-left">
-            <div class="taskbar-logo">
-                <i class="fas fa-school"></i>
-                <span>SRMS</span>
-            </div>
-        </div>
-        
-        <div class="taskbar-center">
-            <button class="taskbar-btn active" onclick="location.href='index.html'">
-                <i class="fas fa-home"></i> Home
-            </button>
-            <button class="taskbar-btn" onclick="location.href='dashboard.html'">
-                <i class="fas fa-chart-bar"></i> Dashboard
-            </button>
-            <button class="taskbar-btn" onclick="location.href='library.html'">
-                <i class="fas fa-book"></i> Library
-            </button>
-            <button class="taskbar-btn" onclick="location.href='students.html'">
-                <i class="fas fa-users"></i> Students
-            </button>
-            <button class="taskbar-btn" onclick="location.href='reports.html'">
-                <i class="fas fa-file-alt"></i> Reports
-            </button>
-        </div>
-        
-        <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
-                <i class="fas fa-image"></i>
-            </button>
-            <button class="taskbar-icon-btn" title="Settings">
-                <i class="fas fa-cog"></i>
-            </button>
-        </div>
-    </div>
-    
     <!-- Particles -->
     <div class="particles" id="particles"></div>
     
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+        </div>
+        <div class="taskbar-center">
+            <button class="taskbar-btn active"><i class="fas fa-home"></i> Home</button>
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'"><i class="fas fa-chart-bar"></i> Dashboard</button>
+            <button class="taskbar-btn" onclick="location.href='library.html'"><i class="fas fa-book"></i> Library</button>
+            <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
+            <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
+        </div>
+        <div class="taskbar-right">
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
+        </div>
+    </div>
+    
     <!-- Login Container -->
     <div class="login-container">
-        <!-- Brand Panel -->
         <div class="brand-panel">
-            <div class="brand-logo">
-                <i class="fas fa-school"></i>
-            </div>
+            <div class="brand-logo"><i class="fas fa-school"></i></div>
             <div class="brand-title">SRMS</div>
             <div class="brand-subtitle">School Resource Management System</div>
             <div class="brand-by">by <strong>WeGEM</strong></div>
             
             <div class="brand-features">
-                <div class="brand-feature">
-                    <i class="fas fa-check-circle"></i> Library Management
-                </div>
-                <div class="brand-feature">
-                    <i class="fas fa-check-circle"></i> Student Database
-                </div>
-                <div class="brand-feature">
-                    <i class="fas fa-check-circle"></i> Furniture Allocation
-                </div>
+                <div class="brand-feature"><i class="fas fa-check-circle"></i> Library Management</div>
+                <div class="brand-feature"><i class="fas fa-check-circle"></i> Student Database</div>
+                <div class="brand-feature"><i class="fas fa-check-circle"></i> Furniture Allocation</div>
             </div>
         </div>
         
-        <!-- Form Panel -->
-        <div class="form-panel">
+        <div class="form-panel" id="formPanel">
             <div class="form-header">
                 <h2>Welcome Back!</h2>
                 <p>Login to your account</p>
@@ -629,50 +431,36 @@
             
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="schoolName">
-                        <i class="fas fa-school"></i> School Name
-                    </label>
+                    <label><i class="fas fa-school"></i> School Name</label>
                     <input type="text" id="schoolName" placeholder="Enter school name" required>
                 </div>
-                
                 <div class="form-group">
-                    <label for="email">
-                        <i class="fas fa-envelope"></i> Email Address
-                    </label>
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
                     <input type="email" id="email" placeholder="Enter email" required>
                 </div>
-                
                 <div class="form-group">
-                    <label for="password">
-                        <i class="fas fa-lock"></i> Password
-                    </label>
+                    <label><i class="fas fa-lock"></i> Password</label>
                     <input type="password" id="password" placeholder="Enter password" required>
                 </div>
-                
                 <button type="submit" class="btn-login" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
             </form>
             
             <div class="login-footer">
-                <a href="#" onclick="showSignup(event)">
-                    <i class="fas fa-user-plus"></i> Sign Up
-                </a>
-                <a href="#" onclick="showForgotPassword(event)">
-                    <i class="fas fa-key"></i> Forgot Password?
-                </a>
+                <a href="#" onclick="showSignup(event)"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="#" onclick="showForgotPassword(event)"><i class="fas fa-key"></i> Forgot Password?</a>
+                <a href="#" onclick="showCreateSchool(event)"><i class="fas fa-plus-circle"></i> Create School</a>
             </div>
         </div>
     </div>
     
-    <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/wallpaper.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
     
     <script>
-        // Create particles
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('particles');
             for (let i = 0; i < 30; i++) {
@@ -683,7 +471,6 @@
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.top = Math.random() * 100 + '%';
                 particle.style.animationDuration = Math.random() * 10 + 10 + 's';
-                particle.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(particle);
             }
         });

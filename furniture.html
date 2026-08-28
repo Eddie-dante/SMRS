@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - Furniture Allocation</title>
+    <title>SRMS - Furniture Allocation | School Resource Management System</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,13 +17,133 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
     
     <style>
-        .content-section {
-            padding: 30px;
-            margin-top: 60px;
-            animation: fadeIn 0.5s ease;
+        :root {
+            --primary: #e94560;
+            --primary-dark: #c62a47;
+            --accent: #d4af37;
+            --gold: #f0d060;
+            --dark: #0a0e27;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        /* ============ TASKBAR ============ */
+        .taskbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 65px;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .taskbar-left { display: flex; align-items: center; gap: 15px; }
+        
+        .taskbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f0d060;
+            font-weight: 900;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+        
+        .taskbar-logo i { font-size: 26px; }
+        
+        .taskbar-center {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+        }
+        
+        .taskbar-btn {
+            padding: 10px 14px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: var(--transition);
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        
+        .taskbar-btn i { font-size: 13px; }
+        
+        .taskbar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        
+        .taskbar-btn.active {
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .taskbar-right { display: flex; align-items: center; gap: 8px; }
+        
+        .taskbar-icon-btn {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #d4af37;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .taskbar-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* ============ MAIN CONTENT ============ */
+        .main-content {
+            padding: 85px 25px 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease;
         }
         
         @keyframes fadeIn {
@@ -31,23 +151,107 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
+        /* ============ PAGE HEADER ============ */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
             gap: 15px;
         }
         
         .page-title h1 {
             font-size: 2em;
+            font-weight: 900;
             margin-bottom: 5px;
+            background: linear-gradient(180deg, #ffffff, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .page-title p {
             color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
+        }
+        
+        /* ============ STATS ============ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .mini-stat {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .mini-stat:hover {
+            transform: translateY(-3px);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        
+        .mini-stat i {
+            font-size: 28px;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+        
+        .mini-stat .value {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #ffffff;
+        }
+        
+        .mini-stat .label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* ============ TABS ============ */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            color: #ffffff;
+            border-color: #e94560;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
         }
         
         .tab-content {
@@ -59,19 +263,53 @@
             display: block;
         }
         
-        .furniture-card {
-            background: rgba(255, 255, 255, 0.03);
+        /* ============ SEARCH BAR ============ */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            background: var(--glass-bg);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+        }
+        
+        .search-bar i {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .search-bar input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* ============ FURNITURE CARDS ============ */
+        .furniture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .furniture-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
         
         .furniture-card:hover {
@@ -80,66 +318,216 @@
             border-color: rgba(212, 175, 55, 0.3);
         }
         
-        .furniture-info {
+        .furniture-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+        }
+        
+        .furniture-card-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            flex: 1;
-            min-width: 200px;
+            gap: 12px;
+            margin-bottom: 15px;
         }
         
         .furniture-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 193, 7, 0.2);
+            width: 45px; height: 45px;
+            background: rgba(255, 193, 7, 0.15);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 20px;
             color: #ffc107;
         }
         
-        .furniture-name {
+        .furniture-student-name {
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
             color: #ffffff;
         }
         
-        .furniture-details {
+        .furniture-adm {
+            font-size: 12px;
             color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
         }
         
-        .furniture-items {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
+        .furniture-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .furniture-item {
-            text-align: center;
-            padding: 10px 15px;
+        .furniture-detail-item {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            min-width: 80px;
+            padding: 10px;
+            border-radius: 8px;
         }
         
-        .furniture-item .label {
-            font-size: 11px;
+        .furniture-detail-label {
+            font-size: 10px;
             color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .furniture-detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #d4af37;
+        }
+        
+        .furniture-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-return {
+            flex: 1;
+            padding: 10px;
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.4);
+            border-radius: 8px;
+            color: #34ce57;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-return:hover {
+            background: rgba(40, 167, 69, 0.4);
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
         }
         
-        .furniture-item .value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #d4af37;
+        .status-active {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+        }
+        
+        .status-returned {
+            background: rgba(40, 167, 69, 0.2);
+            color: #34ce57;
+            border: 1px solid rgba(40, 167, 69, 0.4);
+        }
+        
+        /* ============ MODAL ============ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: rgba(26, 31, 78, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-close {
+            width: 35px; height: 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            background: rgba(220, 53, 69, 0.5);
+            transform: rotate(90deg);
+        }
+        
+        /* ============ NOTIFICATION ============ */
+        .notification {
+            position: fixed;
+            top: 80px; right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: #ffffff;
+            z-index: 2000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .notification.show { transform: translateX(0); }
+        .notification-success { background: linear-gradient(135deg, #28a745, #20c997); }
+        .notification-error { background: linear-gradient(135deg, #dc3545, #ff4757); }
+        
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .taskbar-center { display: none; }
+            .main-content { padding: 75px 15px 15px; }
+            .furniture-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
+    <!-- ============ TASKBAR ============ -->
     <div class="taskbar">
         <div class="taskbar-left">
             <div class="taskbar-logo">
@@ -147,6 +535,7 @@
                 <span>SRMS</span>
             </div>
         </div>
+        
         <div class="taskbar-center">
             <button class="taskbar-btn" onclick="location.href='dashboard.html'">
                 <i class="fas fa-home"></i> Dashboard
@@ -160,6 +549,42 @@
             <button class="taskbar-btn active" onclick="location.href='furniture.html'">
                 <i class="fas fa-chair"></i> Furniture
             </button>
+            <button class="taskbar-btn" onclick="location.href='chat.html'">
+                <i class="fas fa-comments"></i> Chat
+            </button>
+            <button class="taskbar-btn" onclick="location.href='forum.html'">
+                <i class="fas fa-bullhorn"></i> Forum
+            </button>
+            <button class="taskbar-btn" onclick="location.href='notepad.html'">
+                <i class="fas fa-sticky-note"></i> Notes
+            </button>
+            <button class="taskbar-btn" onclick="location.href='events.html'">
+                <i class="fas fa-calendar"></i> Events
+            </button>
+            <button class="taskbar-btn" onclick="location.href='fees.html'">
+                <i class="fas fa-money-bill"></i> Fees
+            </button>
+            <button class="taskbar-btn" onclick="location.href='timetable.html'">
+                <i class="fas fa-clock"></i> Timetable
+            </button>
+            <button class="taskbar-btn" onclick="location.href='teachers.html'">
+                <i class="fas fa-chalkboard-teacher"></i> Teachers
+            </button>
+            <button class="taskbar-btn" onclick="location.href='classes.html'">
+                <i class="fas fa-door-open"></i> Classes
+            </button>
+            <button class="taskbar-btn" onclick="location.href='terms.html'">
+                <i class="fas fa-calendar-alt"></i> Terms
+            </button>
+            <button class="taskbar-btn" onclick="location.href='qrcodes.html'">
+                <i class="fas fa-qrcode"></i> QR
+            </button>
+            <button class="taskbar-btn" onclick="location.href='auditlog.html'">
+                <i class="fas fa-history"></i> Audit
+            </button>
+            <button class="taskbar-btn" onclick="location.href='database.html'">
+                <i class="fas fa-database"></i> DB
+            </button>
             <button class="taskbar-btn" onclick="location.href='reports.html'">
                 <i class="fas fa-file-alt"></i> Reports
             </button>
@@ -167,8 +592,9 @@
                 <i class="fas fa-cog"></i> Settings
             </button>
         </div>
+        
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="toggleWallpaperPanel()" title="Change Wallpaper">
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper">
                 <i class="fas fa-image"></i>
             </button>
             <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
@@ -177,23 +603,47 @@
         </div>
     </div>
     
-    <!-- Main Content -->
-    <div class="content-section">
+    <!-- ============ MAIN CONTENT ============ -->
+    <div class="main-content">
         <!-- Page Header -->
         <div class="page-header">
             <div class="page-title">
                 <h1>Furniture Allocation</h1>
-                <p>Manage chairs and lockers</p>
+                <p>Manage chairs, lockers, and student allocations</p>
             </div>
-            <button class="btn btn-primary" onclick="openAllocateModal()">
+            <button class="btn btn-primary" onclick="openModal('allocateModal')">
                 <i class="fas fa-plus"></i> Allocate Furniture
             </button>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="mini-stat">
+                <i class="fas fa-chair"></i>
+                <div class="value" id="totalFurnitureStat">0</div>
+                <div class="label">Total Allocated</div>
+            </div>
+            <div class="mini-stat">
+                <i class="fas fa-check-circle"></i>
+                <div class="value" id="activeFurnitureStat">0</div>
+                <div class="label">Active</div>
+            </div>
+            <div class="mini-stat">
+                <i class="fas fa-undo"></i>
+                <div class="value" id="returnedFurnitureStat">0</div>
+                <div class="label">Returned</div>
+            </div>
+            <div class="mini-stat">
+                <i class="fas fa-lock"></i>
+                <div class="value" id="lockersStat">0</div>
+                <div class="label">Lockers</div>
+            </div>
         </div>
         
         <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="switchFurnitureTab('active')">
-                <i class="fas fa-chair"></i> Active
+                <i class="fas fa-chair"></i> Active Allocations
             </button>
             <button class="tab" onclick="switchFurnitureTab('returned')">
                 <i class="fas fa-undo"></i> Returned
@@ -205,45 +655,46 @@
         
         <!-- Active Tab -->
         <div id="activeFurnitureTab" class="tab-content active">
-            <div class="search-bar glass" style="margin-bottom: 20px;">
+            <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchActiveFurniture" placeholder="Search active allocations..." onkeyup="filterActiveFurniture()">
+                <input type="text" id="searchActiveFurniture" placeholder="Search by student name or ADM..." onkeyup="filterActiveFurniture()">
             </div>
-            <div id="activeFurnitureList"></div>
+            <div class="furniture-grid" id="activeFurnitureList"></div>
         </div>
         
         <!-- Returned Tab -->
         <div id="returnedFurnitureTab" class="tab-content">
-            <div id="returnedFurnitureList"></div>
+            <div class="furniture-grid" id="returnedFurnitureList"></div>
         </div>
         
         <!-- All Tab -->
         <div id="allFurnitureTab" class="tab-content">
-            <div id="allFurnitureList"></div>
+            <div class="furniture-grid" id="allFurnitureList"></div>
         </div>
     </div>
     
-    <!-- Allocate Furniture Modal -->
-    <div class="modal" id="allocateFurnitureModal">
-        <div class="modal-content glass">
+    <!-- ============ ALLOCATE MODAL ============ -->
+    <div class="modal" id="allocateModal">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-chair"></i> Allocate Furniture</h2>
-                <button class="modal-close" onclick="closeModal('allocateFurnitureModal')">
+                <button class="modal-close" onclick="closeModal('allocateModal')">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form id="allocateFurnitureForm" onsubmit="allocateFurniture(event)">
+            <form id="allocateForm" onsubmit="allocateFurniture(event)">
                 <div class="form-group">
-                    <label>Student Name *</label>
-                    <input type="text" id="furnitureStudentName" required>
+                    <label><i class="fas fa-user"></i> Student Name *</label>
+                    <input type="text" id="furnitureStudentName" placeholder="Enter student name" required>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label>ADM Number *</label>
-                        <input type="text" id="furnitureADM" required>
+                        <label><i class="fas fa-id-card"></i> ADM Number *</label>
+                        <input type="text" id="furnitureADM" placeholder="ADM-001" required>
                     </div>
                     <div class="form-group">
-                        <label>Form</label>
+                        <label><i class="fas fa-layer-group"></i> Form</label>
                         <select id="furnitureForm">
                             <option value="Form 1">Form 1</option>
                             <option value="Form 2">Form 2</option>
@@ -252,9 +703,10 @@
                         </select>
                     </div>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Stream</label>
+                        <label><i class="fas fa-stream"></i> Stream</label>
                         <select id="furnitureStream">
                             <option value="East">East</option>
                             <option value="West">West</option>
@@ -263,22 +715,25 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Allocation Date</label>
+                        <label><i class="fas fa-calendar"></i> Allocation Date</label>
                         <input type="date" id="furnitureAllocationDate" required>
                     </div>
                 </div>
-                <h3 style="margin: 20px 0 15px;">Furniture Details</h3>
+                
+                <h3 style="margin: 20px 0 15px; color: #d4af37;">Furniture Details</h3>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Chair Number *</label>
+                        <label><i class="fas fa-chair"></i> Chair Number *</label>
                         <input type="text" id="chairNumber" placeholder="e.g., CH-001" required>
                     </div>
                     <div class="form-group">
-                        <label>Locker Number</label>
+                        <label><i class="fas fa-lock"></i> Locker Number</label>
                         <input type="text" id="lockerNumber" placeholder="e.g., LK-001">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">
+                
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">
                     <i class="fas fa-chair"></i> Allocate Furniture
                 </button>
             </form>
@@ -288,7 +743,35 @@
     <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/wallpaper.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
+    
+    <script>
+        // Set default date
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('furnitureAllocationDate').value = getCurrentDate();
+        });
+        
+        // Switch tabs
+        function switchFurnitureTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchFurnitureTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}FurnitureTab`).classList.add('active');
+        }
+        
+        // Filter active furniture
+        function filterActiveFurniture() {
+            const searchInput = document.getElementById('searchActiveFurniture');
+            const cards = document.querySelectorAll('#activeFurnitureList .furniture-card');
+            const filter = searchInput.value.toLowerCase();
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>

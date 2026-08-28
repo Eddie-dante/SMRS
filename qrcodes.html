@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRMS - QR Codes</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+        </div>
+        <div class="taskbar-center">
+            <button class="taskbar-btn" onclick="location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button>
+            <button class="taskbar-btn" onclick="location.href='library.html'"><i class="fas fa-book"></i> Library</button>
+            <button class="taskbar-btn" onclick="location.href='students.html'"><i class="fas fa-users"></i> Students</button>
+            <button class="taskbar-btn" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i> Furniture</button>
+            <button class="taskbar-btn active" onclick="location.href='qrcodes.html'"><i class="fas fa-qrcode"></i> QR Codes</button>
+            <button class="taskbar-btn" onclick="location.href='reports.html'"><i class="fas fa-file-alt"></i> Reports</button>
+            <button class="taskbar-btn" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
+        </div>
+        <div class="taskbar-right">
+            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="content-section">
+        <div class="page-header">
+            <div class="page-title">
+                <h1>QR Codes</h1>
+                <p>Generate QR codes for items</p>
+            </div>
+        </div>
+        
+        <!-- QR Generator -->
+        <div class="glass" style="padding: 25px; margin-bottom: 20px;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="qrType">
+                        <option value="book">Book</option>
+                        <option value="chair">Chair</option>
+                        <option value="locker">Locker</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Start Number</label>
+                    <input type="number" id="qrStart" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>End Number</label>
+                    <input type="number" id="qrEnd" min="1" value="10">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="generateQRCodes()">
+                <i class="fas fa-qrcode"></i> Generate QR Codes
+            </button>
+        </div>
+        
+        <!-- QR Display -->
+        <div id="qrContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px;"></div>
+    </div>
+    
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
