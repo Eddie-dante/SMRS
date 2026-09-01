@@ -1,9 +1,7 @@
 // ============================================
 // SRMS - Complete Utility Functions
-// Error Free - All Functions Working
 // ============================================
 
-// ============ DATE FUNCTIONS ============
 function getCurrentDate() {
     var today = new Date();
     var year = today.getFullYear();
@@ -101,7 +99,6 @@ function getCurrentAcademicYear() {
     }
 }
 
-// ============ FORMATTING FUNCTIONS ============
 function formatNumber(number) {
     if (number === undefined || number === null) return '0';
     return new Intl.NumberFormat('en-US').format(number);
@@ -136,7 +133,6 @@ function getInitials(name) {
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-// ============ GENERATION FUNCTIONS ============
 function generateCode(prefix, length) {
     prefix = prefix || '';
     length = length || 8;
@@ -157,7 +153,6 @@ function generateRandomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// ============ VALIDATION FUNCTIONS ============
 function validateEmail(email) {
     var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return pattern.test(email);
@@ -176,14 +171,14 @@ function isEmpty(str) {
     return !str || str.trim().length === 0;
 }
 
-// ============ AUTH FUNCTIONS ============
 function checkAuth() {
     var user = localStorage.getItem('srms_user');
     var school = localStorage.getItem('srms_school');
     
     if (!user || !school) {
         if (window.location.pathname.indexOf('index.html') === -1 && 
-            window.location.pathname.indexOf('landing.html') === -1) {
+            window.location.pathname.indexOf('landing.html') === -1 &&
+            window.location.pathname.indexOf('wallpaper.html') === -1) {
             window.location.href = 'index.html';
         }
         return null;
@@ -226,12 +221,10 @@ function logout() {
     }, 1000);
 }
 
-// ============ NOTIFICATION FUNCTIONS ============
 function showNotification(message, type, duration) {
     type = type || 'success';
     duration = duration || 3000;
     
-    // Remove existing notifications
     var existingNotifications = document.querySelectorAll('.notification');
     for (var i = 0; i < existingNotifications.length; i++) {
         existingNotifications[i].remove();
@@ -263,7 +256,6 @@ function showNotification(message, type, duration) {
     }, duration);
 }
 
-// ============ MODAL FUNCTIONS ============
 function openModal(modalId) {
     var modal = document.getElementById(modalId);
     if (modal) {
@@ -288,7 +280,6 @@ function closeAllModals() {
     document.body.style.overflow = 'auto';
 }
 
-// Close modal on outside click
 document.addEventListener('click', function(event) {
     if (event.target.classList.contains('modal')) {
         event.target.classList.remove('active');
@@ -296,14 +287,12 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Close modal on Escape key
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeAllModals();
     }
 });
 
-// ============ TABLE FUNCTIONS ============
 function filterTable(searchInput, tableBody) {
     if (!searchInput || !tableBody) return;
     var filter = searchInput.value.toLowerCase();
@@ -347,7 +336,6 @@ function exportToCSV(data, filename) {
     showNotification('Export successful!', 'success');
 }
 
-// ============ LOADING FUNCTIONS ============
 function showLoading(message) {
     message = message || 'Loading...';
     var existing = document.getElementById('globalLoader');
@@ -365,7 +353,6 @@ function hideLoading() {
     if (loader) loader.remove();
 }
 
-// ============ MISC FUNCTIONS ============
 function copyToClipboard(text) {
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(function() {
@@ -435,14 +422,6 @@ function animateNumber(elementId, targetValue) {
     requestAnimationFrame(update);
 }
 
-function toggleSidebar() {
-    var sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-    }
-}
-
-// ============ EXPORT ALL TO WINDOW ============
 window.getCurrentDate = getCurrentDate;
 window.getCurrentDateTime = getCurrentDateTime;
 window.getDateDisplay = getDateDisplay;
@@ -487,4 +466,3 @@ window.copyToClipboard = copyToClipboard;
 window.debounce = debounce;
 window.throttle = throttle;
 window.animateNumber = animateNumber;
-window.toggleSidebar = toggleSidebar;

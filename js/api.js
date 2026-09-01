@@ -1,9 +1,7 @@
 // ============================================
 // SRMS - Complete Firebase API
-// All Database Operations - Error Free
 // ============================================
 
-// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyACefHWvbETo2siNZy4ETCWZVTwIrtaNMs",
     authDomain: "srms-fd318.firebaseapp.com",
@@ -14,46 +12,42 @@ const firebaseConfig = {
     appId: "1:828888967437:web:90461f6b1bc79854ea6844"
 };
 
-// Initialize Firebase
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
 const database = firebase.database();
 
-// ============ HELPER FUNCTIONS ============
 function generateInviteCode(length) {
     length = length || 8;
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < length; i++) {
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var code = '';
+    for (var i = 0; i < length; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return code;
 }
 
 function generateStaffId() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let id = 'STAFF-';
-    for (let i = 0; i < 4; i++) {
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var id = 'STAFF-';
+    for (var i = 0; i < 4; i++) {
         id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return id;
 }
 
 function hashPassword(password) {
-    let hash = 0;
-    for (let i = 0; i < password.length; i++) {
-        const char = password.charCodeAt(i);
+    var hash = 0;
+    for (var i = 0; i < password.length; i++) {
+        var char = password.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
         hash = hash & hash;
     }
     return hash.toString();
 }
 
-// ============ API OBJECT ============
 const API = {
-    // ============ SCHOOL OPERATIONS ============
     async getSchool(schoolName) {
         try {
             const snapshot = await database.ref('schools/' + schoolName).once('value');
@@ -114,7 +108,6 @@ const API = {
         }
     },
     
-    // ============ USER OPERATIONS ============
     async login(schoolName, email, password) {
         try {
             const emailKey = email.replace(/\./g, ',');
@@ -200,7 +193,6 @@ const API = {
         }
     },
     
-    // ============ BOOK OPERATIONS ============
     async addBook(schoolName, bookData) {
         try {
             const bookRef = database.ref('schools/' + schoolName + '/books').push();
@@ -255,7 +247,6 @@ const API = {
         }
     },
     
-    // ============ BORROWING OPERATIONS ============
     async issueBook(schoolName, borrowData) {
         try {
             const borrowRef = database.ref('schools/' + schoolName + '/borrowed').push();
@@ -313,7 +304,6 @@ const API = {
         }
     },
     
-    // ============ STUDENT OPERATIONS ============
     async addStudent(schoolName, studentData) {
         try {
             await database.ref('schools/' + schoolName + '/students/' + studentData.adm).set({
@@ -382,7 +372,6 @@ const API = {
         }
     },
     
-    // ============ FURNITURE OPERATIONS ============
     async allocateFurniture(schoolName, furnitureData) {
         try {
             const furnitureRef = database.ref('schools/' + schoolName + '/furniture').push();
@@ -436,7 +425,6 @@ const API = {
         }
     },
     
-    // ============ TEACHER OPERATIONS ============
     async addTeacher(schoolName, teacherData) {
         try {
             const teacherRef = database.ref('schools/' + schoolName + '/teachers').push();
@@ -480,7 +468,6 @@ const API = {
         }
     },
     
-    // ============ CLASS OPERATIONS ============
     async addClass(schoolName, classData) {
         try {
             const classRef = database.ref('schools/' + schoolName + '/classes').push();
@@ -512,7 +499,6 @@ const API = {
         }
     },
     
-    // ============ TERMS OPERATIONS ============
     async addTerm(schoolName, termData) {
         try {
             const termRef = database.ref('schools/' + schoolName + '/terms').push();
@@ -543,7 +529,6 @@ const API = {
         }
     },
     
-    // ============ CHAT OPERATIONS ============
     async sendChatMessage(schoolName, messageData) {
         try {
             const msgRef = database.ref('schools/' + schoolName + '/chat').push();
@@ -578,7 +563,6 @@ const API = {
         }
     },
     
-    // ============ FORUM OPERATIONS ============
     async postForumMessage(schoolName, messageData) {
         try {
             const msgRef = database.ref('schools/' + schoolName + '/forum').push();
@@ -609,7 +593,6 @@ const API = {
         }
     },
     
-    // ============ NOTEPAD OPERATIONS ============
     async saveNote(schoolName, noteData) {
         try {
             const noteRef = database.ref('schools/' + schoolName + '/notes').push();
@@ -641,7 +624,6 @@ const API = {
         }
     },
     
-    // ============ EVENTS OPERATIONS ============
     async addEvent(schoolName, eventData) {
         try {
             const eventRef = database.ref('schools/' + schoolName + '/events').push();
@@ -672,7 +654,6 @@ const API = {
         }
     },
     
-    // ============ FEES OPERATIONS ============
     async saveFee(schoolName, feeData) {
         try {
             const feeRef = database.ref('schools/' + schoolName + '/fees').push();
@@ -708,7 +689,6 @@ const API = {
         }
     },
     
-    // ============ TIMETABLE OPERATIONS ============
     async addTimetableEntry(schoolName, entryData) {
         try {
             const entryRef = database.ref('schools/' + schoolName + '/timetable').push();
@@ -739,7 +719,6 @@ const API = {
         }
     },
     
-    // ============ AUDIT LOG OPERATIONS ============
     async addAuditLog(schoolName, logData) {
         try {
             const logRef = database.ref('schools/' + schoolName + '/auditLog').push();
@@ -767,7 +746,6 @@ const API = {
         }
     },
     
-    // ============ SETTINGS OPERATIONS ============
     async getSettings(schoolName) {
         try {
             const snapshot = await database.ref('schools/' + schoolName + '/settings').once('value');
@@ -786,7 +764,6 @@ const API = {
         }
     },
     
-    // ============ DATABASE MANAGER ============
     async getTableData(schoolName, tableName) {
         try {
             const snapshot = await database.ref('schools/' + schoolName + '/' + tableName).once('value');
@@ -798,7 +775,6 @@ const API = {
         }
     },
     
-    // ============ REAL-TIME LISTENERS ============
     onBooksChange(schoolName, callback) {
         database.ref('schools/' + schoolName + '/books').on('value', function(snapshot) {
             const books = snapshot.val();
@@ -852,7 +828,6 @@ const API = {
     }
 };
 
-// Export to window
 window.API = API;
 window.generateInviteCode = generateInviteCode;
 window.generateStaffId = generateStaffId;
