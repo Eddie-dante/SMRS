@@ -1,19 +1,34 @@
 // ============================================
 // SRMS - Complete Application Logic
+// All Features and Functions
 // ============================================
 
+// ============ GLOBAL VARIABLES ============
 var selectedChatUser = null;
 var currentChatUserEmail = null;
 var currentChatUserName = null;
+var unreadMessagesCount = 0;
+var messageCheckInterval = null;
+var bulkFurnitureClass = null;
+var bulkBookClass = null;
+var currentNoteId = null;
 
+// ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', function() {
     var user = checkAuth();
     if (!user) return;
     
     var page = window.location.pathname.split('/').pop();
     loadPageData(page);
+    
+    // Start message checking
+    startMessageChecking();
+    
+    // Log page visit
+    logAction('Page Visit', 'Visited ' + page);
 });
 
+// ============ PAGE ROUTER ============
 function loadPageData(page) {
     switch(page) {
         case 'dashboard.html':
@@ -24,12 +39,14 @@ function loadPageData(page) {
             loadActiveReturns();
             loadAllBorrowed();
             loadBookOptions();
+            loadClassesForBulkBookIssue();
             break;
         case 'students.html':
             loadStudents();
             break;
         case 'furniture.html':
             loadFurniture();
+            loadClassesForBulkFurniture();
             break;
         case 'chat.html':
             loadChatUsers();
@@ -78,6 +95,72 @@ function loadPageData(page) {
     }
 }
 
+// ============ AUDIT LOGGING ============
+function logAction(action, details) {
+    var school = getCurrentSchool();
+    var user = getCurrentUser();
+    if (!school || !user) return;
+    
+    API.addAuditLog(school, {
+        user: user.name,
+        userEmail: user.email,
+        action: action,
+        details: details
+    }).then(function(result) {
+        if (result.success) {
+            console.log('Audit logged:', action, '-', details);
+        }
+    });
+}
+
+// ============ MESSAGE NOTIFICATIONS ============
+function startMessageChecking() {
+    if (messageCheckInterval) clearInterval(messageCheckInterval);
+    
+    // Check immediately
+    checkUnreadMessages();
+    
+    // Check every 5 seconds
+    messageCheckInterval = setInterval(function() {
+        checkUnreadMessages();
+    }, 5000);
+}
+
+function checkUnreadMessages() {
+    var school = getCurrentSchool();
+    var user = getCurrentUser();
+    if (!school || !user) return;
+    
+    API.getChatMessages(school, user.email, user.email).then(function(messages) {
+        unreadMessagesCount = messages.length;
+        updateMessageBadge(unreadMessagesCount);
+        
+        // Show notification if new messages arrive
+        if (unreadMessagesCount > 0) {
+            var lastBadgeCount = parseInt(localStorage.getItem('srms_unread_count') || '0');
+            if (unreadMessagesCount > lastBadgeCount) {
+                showNotification('You have ' + unreadMessagesCount + ' new message(s)!', 'info');
+            }
+            localStorage.setItem('srms_unread_count', unreadMessagesCount.toString());
+        } else {
+            localStorage.setItem('srms_unread_count', '0');
+        }
+    });
+}
+
+function updateMessageBadge(count) {
+    var badges = document.querySelectorAll('.message-badge, #communicationBadge');
+    for (var i = 0; i < badges.length; i++) {
+        if (count > 0) {
+            badges[i].textContent = count;
+            badges[i].style.display = 'flex';
+        } else {
+            badges[i].style.display = 'none';
+        }
+    }
+}
+
+// ============ DASHBOARD ============
 function loadDashboardData() {
     var school = getCurrentSchool();
     if (!school) return;
@@ -142,6 +225,35 @@ function loadDashboardData() {
         animateNumber('activeFurniture', activeFurniture);
     });
     
+    API.getTeachers(school).then(function(teachers) {
+        var totalTeachers = document.getElementById('totalTeachersStat');
+        if (totalTeachers) totalTeachers.textContent = teachers.length;
+    });
+    
+    API.getClasses(school).then(function(classes) {
+        var totalClasses = document.getElementById('totalClassesStat');
+        if (totalClasses) totalClasses.textContent = classes.length;
+    });
+    
+    API.getEvents(school).then(function(events) {
+        var today = new Date().toISOString().split('T')[0];
+        var upcoming = 0;
+        for (var i = 0; i < events.length; i++) {
+            if (events[i].eventDate >= today) upcoming++;
+        }
+        var upcomingEvents = document.getElementById('upcomingEventsStat');
+        if (upcomingEvents) upcomingEvents.textContent = upcoming;
+    });
+    
+    API.getFees(school).then(function(fees) {
+        var totalBalance = 0;
+        for (var i = 0; i < fees.length; i++) {
+            totalBalance += fees[i].balance || 0;
+        }
+        var outstandingFees = document.getElementById('outstandingFeesStat');
+        if (outstandingFees) outstandingFees.textContent = 'KES ' + formatNumber(totalBalance);
+    });
+    
     loadRecentActivity();
 }
 
@@ -201,6 +313,7 @@ function displayActivities(activities) {
     activityList.innerHTML = html;
 }
 
+// ============ LIBRARY FUNCTIONS ============
 function loadBooks() {
     var school = getCurrentSchool();
     API.getBooks(school).then(function(books) {
@@ -208,7 +321,7 @@ function loadBooks() {
         if (!tbody) return;
         
         if (books.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No books in catalog</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No books in catalog. Add books using the button above.</td></tr>';
             return;
         }
         
@@ -241,6 +354,18 @@ function loadBookOptions() {
             }
         }
         select.innerHTML = html;
+        
+        // Also populate bulk book title
+        var bulkSelect = document.getElementById('bulkBookTitle');
+        if (bulkSelect) {
+            var bulkHtml = '<option value="">Select Book</option>';
+            for (var j = 0; j < books.length; j++) {
+                if (books[j].available > 0) {
+                    bulkHtml += '<option value="' + books[j].title + '">' + books[j].title + ' (' + books[j].available + ' available)</option>';
+                }
+            }
+            bulkSelect.innerHTML = bulkHtml;
+        }
     });
 }
 
@@ -318,11 +443,14 @@ function addBook(event) {
         createdBy: user ? user.name : ''
     }).then(function(result) {
         if (result.success) {
-            showNotification('Book added!', 'success');
+            showNotification('Book added successfully!', 'success');
+            logAction('Book Added', document.getElementById('bookTitle').value);
             closeModal('addBookModal');
             document.getElementById('addBookForm').reset();
             loadBooks();
             loadBookOptions();
+        } else {
+            showNotification('Failed to add book', 'error');
         }
     });
     return false;
@@ -345,6 +473,7 @@ function issueBook(event) {
     }).then(function(result) {
         if (result.success) {
             showNotification('Book issued!', 'success');
+            logAction('Book Issued', document.getElementById('issueBookTitle').value + ' to ' + document.getElementById('issueStudentName').value);
             document.getElementById('issueBookForm').reset();
             loadBooks();
             loadActiveReturns();
@@ -361,6 +490,7 @@ function returnBook(borrowId) {
     API.returnBook(school, borrowId).then(function(result) {
         if (result.success) {
             showNotification('Book returned!', 'success');
+            logAction('Book Returned', 'Book ID: ' + borrowId);
             loadBooks();
             loadActiveReturns();
             loadAllBorrowed();
@@ -374,7 +504,9 @@ function deleteBook(bookId) {
     API.deleteBook(school, bookId).then(function(result) {
         if (result.success) {
             showNotification('Book deleted!', 'success');
+            logAction('Book Deleted', 'Book ID: ' + bookId);
             loadBooks();
+            loadBookOptions();
         }
     });
 }
@@ -385,6 +517,108 @@ function filterBooks() {
     filterTable(searchInput, tbody);
 }
 
+// ============ BULK BOOK ISSUE ============
+function loadClassesForBulkBookIssue() {
+    var school = getCurrentSchool();
+    API.getClasses(school).then(function(classes) {
+        var select = document.getElementById('bulkBookClass');
+        if (!select) return;
+        
+        var html = '<option value="">Select Class</option>';
+        for (var i = 0; i < classes.length; i++) {
+            html += '<option value="' + classes[i].id + '">' + classes[i].name + ' ' + (classes[i].stream || '') + ' (' + (classes[i].students ? classes[i].students.length : 0) + ' students)</option>';
+        }
+        select.innerHTML = html;
+    });
+}
+
+function loadClassStudentsForBooks() {
+    var school = getCurrentSchool();
+    var classId = document.getElementById('bulkBookClass').value;
+    if (!classId) return;
+    
+    API.getClasses(school).then(function(classes) {
+        var selectedClass = null;
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].id === classId) {
+                selectedClass = classes[i];
+                break;
+            }
+        }
+        
+        if (selectedClass && selectedClass.students) {
+            bulkBookClass = selectedClass;
+            var container = document.getElementById('bulkBookStudents');
+            var html = '<h4 style="color:#d4af37;margin-bottom:15px;">Students (' + selectedClass.students.length + ')</h4>';
+            
+            for (var i = 0; i < selectedClass.students.length; i++) {
+                var student = selectedClass.students[i];
+                var name = student.Name || student.name || student['Full Name'] || 'Unknown';
+                var adm = student.ADM || student.adm || student['ADM No'] || '';
+                
+                html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+                    '<span style="flex:1;">' + name + ' (' + adm + ')</span>' +
+                    '<input type="text" class="book-number-input" placeholder="Book No" data-adm="' + adm + '" data-name="' + name + '" style="width:120px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;">' +
+                    '</div>';
+            }
+            
+            html += '<button class="btn-primary" style="width:100%;margin-top:15px;" onclick="issueBulkBooks()"><i class="fas fa-book"></i> Issue to All Students</button>';
+            container.innerHTML = html;
+        }
+    });
+}
+
+function issueBulkBooks() {
+    var school = getCurrentSchool();
+    var user = getCurrentUser();
+    var bookTitle = document.getElementById('bulkBookTitle').value;
+    var borrowDate = document.getElementById('bulkBookBorrowDate').value || getCurrentDate();
+    var returnDate = document.getElementById('bulkBookReturnDate').value || addDays(getCurrentDate(), 14);
+    
+    if (!bookTitle) {
+        showNotification('Please select a book', 'error');
+        return false;
+    }
+    
+    var bookInputs = document.querySelectorAll('.book-number-input');
+    var issued = 0;
+    var promises = [];
+    
+    for (var i = 0; i < bookInputs.length; i++) {
+        var adm = bookInputs[i].dataset.adm;
+        var name = bookInputs[i].dataset.name;
+        var bookNo = bookInputs[i].value;
+        
+        if (bookNo) {
+            promises.push(API.issueBook(school, {
+                studentName: name,
+                adm: adm,
+                form: bulkBookClass ? bulkBookClass.name : '',
+                stream: bulkBookClass ? (bulkBookClass.stream || '') : '',
+                bookTitle: bookTitle,
+                bookNo: bookNo,
+                borrowDate: borrowDate,
+                returnDate: returnDate,
+                issuedBy: user ? user.name : '',
+                issuedByEmail: user ? user.email : ''
+            }));
+            issued++;
+        }
+    }
+    
+    Promise.all(promises).then(function() {
+        showNotification('Issued books to ' + issued + ' students!', 'success');
+        logAction('Bulk Book Issue', issued + ' students issued "' + bookTitle + '"');
+        closeModal('bulkBookModal');
+        loadBooks();
+        loadActiveReturns();
+        loadAllBorrowed();
+    });
+    
+    return false;
+}
+
+// ============ STUDENTS ============
 function loadStudents() {
     var school = getCurrentSchool();
     API.getStudents(school).then(function(students) {
@@ -428,10 +662,13 @@ function addStudent(event) {
         parentPhone: document.getElementById('studentParentPhone').value,
         parentEmail: document.getElementById('studentParentEmail').value,
         address: document.getElementById('studentAddress').value,
+        medicalInfo: document.getElementById('studentMedical').value,
+        specialNeeds: document.getElementById('studentSpecialNeeds').value,
         addedBy: user ? user.name : ''
     }).then(function(result) {
         if (result.success) {
             showNotification('Student added!', 'success');
+            logAction('Student Added', document.getElementById('studentName').value);
             closeModal('addStudentModal');
             document.getElementById('addStudentForm').reset();
             loadStudents();
@@ -446,6 +683,7 @@ function deleteStudent(adm) {
     API.deleteStudent(school, adm).then(function(result) {
         if (result.success) {
             showNotification('Student deleted!', 'success');
+            logAction('Student Deleted', adm);
             loadStudents();
         }
     });
@@ -457,6 +695,7 @@ function filterStudents() {
     filterTable(searchInput, tbody);
 }
 
+// ============ FURNITURE ============
 function loadFurniture() {
     var school = getCurrentSchool();
     API.getFurniture(school).then(function(furniture) {
@@ -476,75 +715,44 @@ function loadFurniture() {
         if (activeStat) activeStat.textContent = active.length;
         if (returnedStat) returnedStat.textContent = returned.length;
         
-        var activeList = document.getElementById('activeFurnitureList');
-        if (activeList) {
-            if (active.length === 0) {
-                activeList.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No active allocations</p>';
-            } else {
-                var html = '';
-                for (var i = 0; i < active.length; i++) {
-                    html += '<div class="furniture-card">' +
-                        '<span class="status-badge status-active">Active</span>' +
-                        '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
-                        '<div class="furniture-student-name">' + active[i].studentName + '</div>' +
-                        '<div class="furniture-adm">' + active[i].adm + '</div>' +
-                        '<div class="furniture-details">' +
-                        '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + active[i].chairNo + '</div></div>' +
-                        '<div class="furniture-detail-item"><div class="furniture-detail-label">Locker</div><div class="furniture-detail-value">' + (active[i].lockerNo || '-') + '</div></div>' +
-                        '</div>' +
-                        '<button class="btn-return" onclick="returnFurnitureItem(\'' + active[i].id + '\')"><i class="fas fa-undo"></i> Return</button>' +
-                        '</div>';
-                }
-                activeList.innerHTML = html;
-            }
-        }
-        
-        var returnedList = document.getElementById('returnedFurnitureList');
-        if (returnedList) {
-            if (returned.length === 0) {
-                returnedList.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No returned furniture</p>';
-            } else {
-                var html = '';
-                for (var i = 0; i < returned.length; i++) {
-                    html += '<div class="furniture-card">' +
-                        '<span class="status-badge status-returned">Returned</span>' +
-                        '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
-                        '<div class="furniture-student-name">' + returned[i].studentName + '</div>' +
-                        '<div class="furniture-adm">' + returned[i].adm + '</div>' +
-                        '<div class="furniture-details">' +
-                        '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + returned[i].chairNo + '</div></div>' +
-                        '<div class="furniture-detail-item"><div class="furniture-detail-label">Locker</div><div class="furniture-detail-value">' + (returned[i].lockerNo || '-') + '</div></div>' +
-                        '</div>' +
-                        '</div>';
-                }
-                returnedList.innerHTML = html;
-            }
-        }
-        
-        var allList = document.getElementById('allFurnitureList');
-        if (allList) {
-            if (furniture.length === 0) {
-                allList.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No furniture records</p>';
-            } else {
-                var html = '';
-                for (var i = 0; i < furniture.length; i++) {
-                    var statusClass = furniture[i].returned ? 'status-returned' : 'status-active';
-                    var statusText = furniture[i].returned ? 'Returned' : 'Active';
-                    html += '<div class="furniture-card">' +
-                        '<span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
-                        '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
-                        '<div class="furniture-student-name">' + furniture[i].studentName + '</div>' +
-                        '<div class="furniture-adm">' + furniture[i].adm + '</div>' +
-                        '<div class="furniture-details">' +
-                        '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + furniture[i].chairNo + '</div></div>' +
-                        '<div class="furniture-detail-item"><div class="furniture-detail-label">Date</div><div class="furniture-detail-value">' + furniture[i].allocationDate + '</div></div>' +
-                        '</div>' +
-                        '</div>';
-                }
-                allList.innerHTML = html;
-            }
-        }
+        renderFurnitureList('activeFurnitureList', active, true);
+        renderFurnitureList('returnedFurnitureList', returned, false);
+        renderFurnitureList('allFurnitureList', furniture, null);
     });
+}
+
+function renderFurnitureList(containerId, items, showReturnButton) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    
+    if (items.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">No records</p>';
+        return;
+    }
+    
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+        var isReturned = items[i].returned;
+        var statusClass = isReturned ? 'status-returned' : 'status-active';
+        var statusText = isReturned ? 'Returned' : 'Active';
+        
+        html += '<div class="furniture-card">' +
+            '<span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
+            '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
+            '<div class="furniture-student-name">' + items[i].studentName + '</div>' +
+            '<div class="furniture-adm">' + items[i].adm + '</div>' +
+            '<div class="furniture-details">' +
+            '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + items[i].chairNo + '</div></div>' +
+            '<div class="furniture-detail-item"><div class="furniture-detail-label">Locker</div><div class="furniture-detail-value">' + (items[i].lockerNo || '-') + '</div></div>' +
+            '</div>';
+        
+        if (showReturnButton === true && !isReturned) {
+            html += '<button class="btn-return" onclick="returnFurnitureItem(\'' + items[i].id + '\')"><i class="fas fa-undo"></i> Return</button>';
+        }
+        
+        html += '</div>';
+    }
+    container.innerHTML = html;
 }
 
 function allocateFurniture(event) {
@@ -565,6 +773,7 @@ function allocateFurniture(event) {
     }).then(function(result) {
         if (result.success) {
             showNotification('Furniture allocated!', 'success');
+            logAction('Furniture Allocated', document.getElementById('furnitureStudentName').value + ' - Chair: ' + document.getElementById('chairNumber').value);
             closeModal('allocateModal');
             document.getElementById('allocateForm').reset();
             document.getElementById('furnitureAllocationDate').value = getCurrentDate();
@@ -580,6 +789,7 @@ function returnFurnitureItem(furnitureId) {
     API.returnFurniture(school, furnitureId).then(function(result) {
         if (result.success) {
             showNotification('Furniture returned!', 'success');
+            logAction('Furniture Returned', 'ID: ' + furnitureId);
             loadFurniture();
         }
     });
@@ -600,6 +810,116 @@ function switchFurnitureTab(tabName) {
     document.getElementById(tabName + 'FurnitureTab').classList.add('active');
 }
 
+// ============ BULK FURNITURE ============
+function loadClassesForBulkFurniture() {
+    var school = getCurrentSchool();
+    API.getClasses(school).then(function(classes) {
+        var select = document.getElementById('bulkFurnitureClass');
+        if (!select) return;
+        
+        var html = '<option value="">Select Class</option>';
+        for (var i = 0; i < classes.length; i++) {
+            html += '<option value="' + classes[i].id + '">' + classes[i].name + ' ' + (classes[i].stream || '') + ' (' + (classes[i].students ? classes[i].students.length : 0) + ' students)</option>';
+        }
+        select.innerHTML = html;
+    });
+}
+
+function loadClassStudentsForFurniture() {
+    var school = getCurrentSchool();
+    var classId = document.getElementById('bulkFurnitureClass').value;
+    if (!classId) return;
+    
+    API.getClasses(school).then(function(classes) {
+        var selectedClass = null;
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].id === classId) {
+                selectedClass = classes[i];
+                break;
+            }
+        }
+        
+        if (selectedClass && selectedClass.students) {
+            bulkFurnitureClass = selectedClass;
+            var container = document.getElementById('bulkFurnitureStudents');
+            var html = '<h4 style="color:#d4af37;margin-bottom:15px;">Students (' + selectedClass.students.length + ')</h4>';
+            
+            for (var i = 0; i < selectedClass.students.length; i++) {
+                var student = selectedClass.students[i];
+                var name = student.Name || student.name || student['Full Name'] || 'Unknown';
+                var adm = student.ADM || student.adm || student['ADM No'] || '';
+                
+                html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+                    '<span style="flex:1;">' + name + ' (' + adm + ')</span>' +
+                    '<input type="text" class="furniture-chair-input" placeholder="Chair No" data-adm="' + adm + '" style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;">' +
+                    '<input type="text" class="furniture-locker-input" placeholder="Locker No" data-adm="' + adm + '" style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;">' +
+                    '</div>';
+            }
+            
+            html += '<button class="btn-primary" style="width:100%;margin-top:15px;" onclick="allocateBulkFurniture()"><i class="fas fa-chair"></i> Allocate to All</button>';
+            container.innerHTML = html;
+        }
+    });
+}
+
+function allocateBulkFurniture() {
+    var school = getCurrentSchool();
+    var user = getCurrentUser();
+    var allocationDate = document.getElementById('bulkFurnitureDate').value || getCurrentDate();
+    
+    var chairInputs = document.querySelectorAll('.furniture-chair-input');
+    var lockerInputs = document.querySelectorAll('.furniture-locker-input');
+    
+    var allocated = 0;
+    var promises = [];
+    
+    for (var i = 0; i < chairInputs.length; i++) {
+        var adm = chairInputs[i].dataset.adm;
+        var chairNo = chairInputs[i].value;
+        var lockerNo = lockerInputs[i] ? lockerInputs[i].value : '';
+        
+        if (chairNo) {
+            var student = null;
+            if (bulkFurnitureClass && bulkFurnitureClass.students) {
+                for (var j = 0; j < bulkFurnitureClass.students.length; j++) {
+                    var s = bulkFurnitureClass.students[j];
+                    var sAdm = s.ADM || s.adm || s['ADM No'] || '';
+                    if (sAdm === adm) {
+                        student = s;
+                        break;
+                    }
+                }
+            }
+            
+            if (student) {
+                var name = student.Name || student.name || student['Full Name'] || 'Unknown';
+                promises.push(API.allocateFurniture(school, {
+                    studentName: name,
+                    adm: adm,
+                    form: bulkFurnitureClass.name,
+                    stream: bulkFurnitureClass.stream || '',
+                    chairNo: chairNo,
+                    lockerNo: lockerNo,
+                    allocationDate: allocationDate,
+                    issuedBy: user ? user.name : '',
+                    issuedByEmail: user ? user.email : ''
+                }));
+                allocated++;
+            }
+        }
+    }
+    
+    Promise.all(promises).then(function() {
+        showNotification('Allocated furniture to ' + allocated + ' students!', 'success');
+        logAction('Bulk Furniture Allocation', allocated + ' students');
+        closeModal('bulkFurnitureModal');
+        loadFurniture();
+    });
+    
+    return false;
+}
+
+// ============ CHAT ============
 function loadChatUsers() {
     var school = getCurrentSchool();
     API.getUsers(school).then(function(users) {
@@ -626,6 +946,13 @@ function selectChatUser(email, name) {
     currentChatUserName = name;
     document.getElementById('chatWithName').textContent = name;
     loadChatMessages();
+    
+    // Mark messages as read
+    var school = getCurrentSchool();
+    var user = getCurrentUser();
+    API.markMessagesAsRead(school, user.email, email).then(function() {
+        checkUnreadMessages();
+    });
 }
 
 function loadChatMessages() {
@@ -636,6 +963,11 @@ function loadChatMessages() {
     API.getChatMessages(school, user.email, currentChatUserEmail).then(function(messages) {
         var container = document.getElementById('chatMessages');
         if (!container) return;
+        
+        if (messages.length === 0) {
+            container.innerHTML = '<p style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">No messages yet</p>';
+            return;
+        }
         
         var html = '';
         for (var i = 0; i < messages.length; i++) {
@@ -649,6 +981,7 @@ function loadChatMessages() {
                 '</div></div>';
         }
         container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
     });
 }
 
@@ -677,11 +1010,17 @@ function sendMessage(event) {
     return false;
 }
 
+// ============ FORUM ============
 function loadForumMessages() {
     var school = getCurrentSchool();
     API.getForumMessages(school).then(function(messages) {
         var container = document.getElementById('forumMessages');
         if (!container) return;
+        
+        if (messages.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No messages</p>';
+            return;
+        }
         
         var html = '';
         for (var i = 0; i < messages.length; i++) {
@@ -711,11 +1050,13 @@ function postForumMessage(event) {
             input.value = '';
             loadForumMessages();
             showNotification('Posted!', 'success');
+            logAction('Forum Post', 'Posted a message');
         }
     });
     return false;
 }
 
+// ============ NOTEPAD ============
 function loadNotes() {
     var school = getCurrentSchool();
     var user = getCurrentUser();
@@ -736,12 +1077,39 @@ function loadNotes() {
         
         var html = '';
         for (var i = 0; i < myNotes.length; i++) {
-            html += '<div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;margin:10px 0;">' +
-                '<h4 style="margin:0 0 5px;color:#d4af37;">' + (myNotes[i].title || 'Untitled') + '</h4>' +
-                '<p style="margin:0 0 8px;">' + myNotes[i].content + '</p>' +
-                '<small>' + formatDateTime(myNotes[i].timestamp) + '</small></div>';
+            var contentPreview = '';
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = myNotes[i].content || '';
+            contentPreview = tempDiv.textContent.substring(0, 100) + '...';
+            
+            html += '<div class="note-card">' +
+                '<h4>' + (myNotes[i].title || 'Untitled') + '</h4>' +
+                '<p>' + contentPreview + '</p>' +
+                '<small>' + formatDateTime(myNotes[i].timestamp) + '</small>' +
+                '<div style="margin-top:10px;display:flex;gap:8px;">' +
+                '<button class="btn btn-sm btn-primary" onclick="loadNoteForEdit(\'' + myNotes[i].id + '\')"><i class="fas fa-edit"></i> Edit</button>' +
+                '<button class="btn btn-sm btn-danger" onclick="deleteNote(\'' + myNotes[i].id + '\')"><i class="fas fa-trash"></i></button>' +
+                '</div></div>';
         }
         container.innerHTML = html;
+    });
+}
+
+function loadNoteForEdit(noteId) {
+    var school = getCurrentSchool();
+    var user = getCurrentUser();
+    
+    API.getNotes(school, user.email).then(function(notes) {
+        for (var i = 0; i < notes.length; i++) {
+            if (notes[i].id === noteId) {
+                currentNoteId = noteId;
+                document.getElementById('noteTitle').value = notes[i].title || '';
+                document.getElementById('noteContent').innerHTML = notes[i].content || '';
+                showNotification('Note loaded for editing', 'info');
+                window.scrollTo(0, 0);
+                break;
+            }
+        }
     });
 }
 
@@ -750,22 +1118,41 @@ function saveNote(event) {
     var school = getCurrentSchool();
     var user = getCurrentUser();
     
+    var title = document.getElementById('noteTitle').value;
+    var content = document.getElementById('noteContent').innerHTML;
+    
     API.saveNote(school, {
         author: user.name,
         authorEmail: user.email,
-        title: document.getElementById('noteTitle').value,
-        content: document.getElementById('noteContent').value
+        title: title || 'Untitled',
+        content: content
     }).then(function(result) {
         if (result.success) {
             showNotification('Note saved!', 'success');
+            logAction('Note Saved', title);
             document.getElementById('noteTitle').value = '';
-            document.getElementById('noteContent').value = '';
+            document.getElementById('noteContent').innerHTML = '';
+            currentNoteId = null;
             loadNotes();
         }
     });
     return false;
 }
 
+function deleteNote(noteId) {
+    if (!confirm('Delete this note?')) return;
+    var school = getCurrentSchool();
+    
+    API.deleteNote(school, noteId).then(function(result) {
+        if (result.success) {
+            showNotification('Note deleted!', 'success');
+            logAction('Note Deleted', 'Note ID: ' + noteId);
+            loadNotes();
+        }
+    });
+}
+
+// ============ EVENTS ============
 function loadEvents() {
     var school = getCurrentSchool();
     API.getEvents(school).then(function(events) {
@@ -808,6 +1195,7 @@ function addEvent(event) {
     }).then(function(result) {
         if (result.success) {
             showNotification('Event added!', 'success');
+            logAction('Event Added', document.getElementById('eventTitle').value);
             closeModal('addEventModal');
             loadEvents();
         }
@@ -815,6 +1203,7 @@ function addEvent(event) {
     return false;
 }
 
+// ============ FEES ============
 function loadFees() {
     var school = getCurrentSchool();
     
@@ -897,12 +1286,14 @@ function saveFee(event) {
     }).then(function(result) {
         if (result && result.success) {
             showNotification('Fee saved!', 'success');
+            logAction('Fee Recorded', 'Fee for student ADM: ' + studentAdm);
             loadFees();
         }
     });
     return false;
 }
 
+// ============ TIMETABLE ============
 function loadTimetable() {
     var school = getCurrentSchool();
     API.getTimetable(school).then(function(timetable) {
@@ -964,6 +1355,7 @@ function addTimetableEntry(event) {
     return false;
 }
 
+// ============ TEACHERS ============
 function loadTeachers() {
     var school = getCurrentSchool();
     API.getTeachers(school).then(function(teachers) {
@@ -1004,6 +1396,7 @@ function addTeacher(event) {
     }).then(function(result) {
         if (result.success) {
             showNotification('Teacher added!', 'success');
+            logAction('Teacher Added', document.getElementById('teacherName').value);
             closeModal('addTeacherModal');
             loadTeachers();
         }
@@ -1020,6 +1413,7 @@ function deleteTeacher(teacherId) {
     });
 }
 
+// ============ CLASSES ============
 function loadClasses() {
     var school = getCurrentSchool();
     API.getClasses(school).then(function(classes) {
@@ -1027,34 +1421,94 @@ function loadClasses() {
         if (!container) return;
         
         if (classes.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No classes</p>';
+            container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No classes yet</p>';
             return;
         }
         
         var html = '';
         for (var i = 0; i < classes.length; i++) {
+            var studentCount = classes[i].students ? classes[i].students.length : 0;
             html += '<div class="class-card">' +
                 '<h4>' + classes[i].name + ' ' + (classes[i].stream || '') + '</h4>' +
-                '<p>' + (classes[i].students ? classes[i].students.length : 0) + ' students</p>' +
-                '<p>Teacher: ' + (classes[i].teacher || 'Not assigned') + '</p></div>';
+                '<p>' + studentCount + ' students</p>' +
+                '<p>Teacher: ' + (classes[i].teacher || 'Not assigned') + '</p>' +
+                '<button class="btn btn-sm btn-primary" onclick="viewClassStudents(\'' + classes[i].id + '\')"><i class="fas fa-eye"></i> View Students</button>' +
+                '</div>';
         }
         container.innerHTML = html;
     });
 }
 
-function addClass(event) {
+function handleExcelUpload(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var data = e.target.result;
+        var workbook = XLSX.read(data, { type: 'binary' });
+        var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        var jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        
+        document.getElementById('excelStudentCount').textContent = jsonData.length + ' students loaded';
+        document.getElementById('excelStudentsData').value = JSON.stringify(jsonData);
+        document.getElementById('excelStudentsData').dataset.loaded = 'true';
+        
+        if (jsonData.length > 0) {
+            var columns = Object.keys(jsonData[0]);
+            var previewHtml = '<table class="data-table"><thead><tr>';
+            for (var i = 0; i < columns.length; i++) {
+                previewHtml += '<th>' + columns[i] + '</th>';
+            }
+            previewHtml += '</tr></thead><tbody>';
+            for (var i = 0; i < Math.min(jsonData.length, 5); i++) {
+                previewHtml += '<tr>';
+                for (var j = 0; j < columns.length; j++) {
+                    previewHtml += '<td>' + (jsonData[i][columns[j]] || '-') + '</td>';
+                }
+                previewHtml += '</tr>';
+            }
+            previewHtml += '</tbody></table>';
+            document.getElementById('excelPreview').innerHTML = previewHtml;
+        }
+    };
+    reader.readAsBinaryString(file);
+}
+
+function addClassWithExcel(event) {
     event.preventDefault();
     var school = getCurrentSchool();
     var user = getCurrentUser();
     
+    var className = document.getElementById('className').value;
+    var classStream = document.getElementById('classStream').value;
+    var classTeacher = document.getElementById('classTeacher').value;
+    var studentsData = document.getElementById('excelStudentsData').value;
+    
+    if (!className) {
+        showNotification('Class name is required', 'error');
+        return false;
+    }
+    
+    var students = [];
+    if (studentsData && document.getElementById('excelStudentsData').dataset.loaded === 'true') {
+        try {
+            students = JSON.parse(studentsData);
+        } catch (e) {
+            students = [];
+        }
+    }
+    
     API.addClass(school, {
-        name: document.getElementById('className').value,
-        stream: document.getElementById('classStream').value,
-        teacher: document.getElementById('classTeacher').value,
+        name: className,
+        stream: classStream,
+        teacher: classTeacher,
+        students: students,
         createdBy: user ? user.name : ''
     }).then(function(result) {
         if (result.success) {
-            showNotification('Class added!', 'success');
+            showNotification('Class added with ' + students.length + ' students!', 'success');
+            logAction('Class Added', className + ' with ' + students.length + ' students');
             closeModal('addClassModal');
             loadClasses();
         }
@@ -1062,6 +1516,50 @@ function addClass(event) {
     return false;
 }
 
+function viewClassStudents(classId) {
+    var school = getCurrentSchool();
+    API.getClasses(school).then(function(classes) {
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].id === classId) {
+                var cls = classes[i];
+                var students = cls.students || [];
+                
+                var existingModal = document.getElementById('viewStudentsModal');
+                if (existingModal) existingModal.remove();
+                
+                var modal = document.createElement('div');
+                modal.className = 'modal active';
+                modal.id = 'viewStudentsModal';
+                
+                var html = '<div class="modal-content">' +
+                    '<div class="modal-header">' +
+                    '<h3><i class="fas fa-users"></i> ' + cls.name + ' ' + (cls.stream || '') + ' Students</h3>' +
+                    '<button class="modal-close" onclick="closeModal(\'viewStudentsModal\')"><i class="fas fa-times"></i></button>' +
+                    '</div>';
+                
+                if (students.length === 0) {
+                    html += '<p style="text-align:center;">No students in this class</p>';
+                } else {
+                    html += '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Gender</th></tr></thead><tbody>';
+                    for (var j = 0; j < students.length; j++) {
+                        var name = students[j].Name || students[j].name || students[j]['Full Name'] || 'Unknown';
+                        var adm = students[j].ADM || students[j].adm || students[j]['ADM No'] || '-';
+                        var gender = students[j].Gender || students[j].gender || '-';
+                        html += '<tr><td>' + (j + 1) + '</td><td>' + name + '</td><td>' + adm + '</td><td>' + gender + '</td></tr>';
+                    }
+                    html += '</tbody></table>';
+                }
+                
+                html += '</div>';
+                modal.innerHTML = html;
+                document.body.appendChild(modal);
+                break;
+            }
+        }
+    });
+}
+
+// ============ TERMS ============
 function loadTerms() {
     var school = getCurrentSchool();
     API.getTerms(school).then(function(terms) {
@@ -1105,6 +1603,7 @@ function addTerm(event) {
     return false;
 }
 
+// ============ AUDIT LOG ============
 function loadAuditLog() {
     var school = getCurrentSchool();
     API.getAuditLog(school).then(function(logs) {
@@ -1112,7 +1611,7 @@ function loadAuditLog() {
         if (!tbody) return;
         
         if (logs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No audit log entries</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No audit log entries yet</td></tr>';
             return;
         }
         
@@ -1129,6 +1628,7 @@ function loadAuditLog() {
     });
 }
 
+// ============ SETTINGS ============
 function loadSettings() {
     var school = getCurrentSchool();
     
@@ -1167,18 +1667,44 @@ function loadUsersForSettings() {
         var tbody = document.getElementById('usersTableBody');
         if (!tbody) return;
         
+        var currentUser = getCurrentUser();
         var html = '';
+        
         for (var i = 0; i < users.length; i++) {
             var status = users[i].isActive !== false ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>';
-            var action = users[i].role !== 'admin' ? '<button class="btn btn-sm btn-danger" onclick="deleteUser(\'' + users[i].email + '\')"><i class="fas fa-trash"></i></button>' : '-';
+            var roleBadge = users[i].role === 'admin' ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-info">' + users[i].role + '</span>';
+            
+            var actions = '';
+            if (users[i].role !== 'admin') {
+                actions += '<button class="btn-promote" onclick="promoteToAdmin(\'' + users[i].email + '\')"><i class="fas fa-arrow-up"></i> Promote</button> ';
+            }
+            if (users[i].email !== currentUser.email) {
+                actions += '<button class="btn btn-sm btn-danger" onclick="deleteUser(\'' + users[i].email + '\')"><i class="fas fa-trash"></i></button>';
+            } else {
+                actions += '<span style="font-size:11px;color:rgba(255,255,255,0.4);">You</span>';
+            }
+            
             html += '<tr>' +
                 '<td>' + users[i].name + '</td>' +
                 '<td>' + users[i].email + '</td>' +
-                '<td>' + users[i].role + '</td>' +
+                '<td>' + roleBadge + '</td>' +
                 '<td>' + status + '</td>' +
-                '<td>' + action + '</td></tr>';
+                '<td>' + actions + '</td></tr>';
         }
         tbody.innerHTML = html;
+    });
+}
+
+function promoteToAdmin(email) {
+    if (!confirm('Promote this user to admin?')) return;
+    var school = getCurrentSchool();
+    
+    API.updateUser(school, email, { role: 'admin' }).then(function(result) {
+        if (result.success) {
+            showNotification('User promoted to admin!', 'success');
+            logAction('User Promoted', email + ' promoted to admin');
+            loadUsersForSettings();
+        }
     });
 }
 
@@ -1191,7 +1717,10 @@ function saveSettings(event) {
         maxBooksPerStudent: parseInt(document.getElementById('maxBooksPerStudent').value),
         finePerDay: parseInt(document.getElementById('finePerDay').value)
     }).then(function(result) {
-        if (result.success) showNotification('Settings saved!', 'success');
+        if (result.success) {
+            showNotification('Settings saved!', 'success');
+            logAction('Settings Updated', 'Library settings updated');
+        }
     });
     return false;
 }
@@ -1204,7 +1733,10 @@ function saveSchoolInfo(event) {
         address: document.getElementById('schoolAddress').value,
         motto: document.getElementById('schoolMotto').value
     }).then(function(result) {
-        if (result.success) showNotification('School info saved!', 'success');
+        if (result.success) {
+            showNotification('School info saved!', 'success');
+            logAction('School Info Updated', 'School information updated');
+        }
     });
     return false;
 }
@@ -1221,6 +1753,7 @@ function addUser(event) {
     }).then(function(result) {
         if (result.success) {
             showNotification('User added!', 'success');
+            logAction('User Added', document.getElementById('newUserName').value);
             closeModal('addUserModal');
             loadUsersForSettings();
         } else {
@@ -1235,10 +1768,12 @@ function deleteUser(email) {
     var school = getCurrentSchool();
     API.deleteUser(school, email).then(function() {
         showNotification('User deactivated!', 'success');
+        logAction('User Deactivated', email);
         loadUsersForSettings();
     });
 }
 
+// ============ DATABASE MANAGER ============
 function loadDatabaseTables() {
     var tables = ['books', 'borrowed', 'students', 'furniture', 'teachers', 'classes', 'terms', 'events', 'fees', 'timetable', 'auditLog', 'users', 'chat', 'forum', 'notes'];
     var select = document.getElementById('databaseTableSelect');
@@ -1263,11 +1798,11 @@ function loadDatabaseTable() {
         var tbody = document.getElementById('databaseTableBody');
         var thead = document.getElementById('databaseTableHead');
         
-        if (!tbody) return;
+        if (!tbody || !thead) return;
         
         if (data.length === 0) {
             thead.innerHTML = '';
-            tbody.innerHTML = '<tr><td>No data</td></tr>';
+            tbody.innerHTML = '<tr><td>No data in this table</td></tr>';
             return;
         }
         
@@ -1297,6 +1832,7 @@ function loadDatabaseTable() {
     });
 }
 
+// ============ WALLPAPER ============
 function loadWallpapers() {
     var grid = document.getElementById('wallpaperGrid');
     if (!grid) return;
@@ -1337,6 +1873,149 @@ function selectWallpaper(key) {
     showNotification('Wallpaper applied!', 'success');
 }
 
+// ============ REPORTS ============
+function loadReports() {
+    var school = getCurrentSchool();
+    var books = [], students = [], borrowed = [], furniture = [];
+    
+    Promise.all([
+        API.getBooks(school),
+        API.getStudents(school),
+        API.getBorrowed(school),
+        API.getFurniture(school)
+    ]).then(function(results) {
+        books = results[0];
+        students = results[1];
+        borrowed = results[2];
+        furniture = results[3];
+        
+        var activeLoans = borrowed.filter(function(b) { return !b.returned; });
+        var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
+        var returned = borrowed.filter(function(b) { return b.returned; });
+        var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
+        
+        document.getElementById('overdueCount').textContent = overdue.length;
+        document.getElementById('activeLoansCount').textContent = activeLoans.length;
+        document.getElementById('returnRate').textContent = returnRate + '%';
+        document.getElementById('furnitureCount').textContent = furniture.filter(function(f) { return !f.returned; }).length;
+        
+        createBooksByTypeChart(books);
+        createStudentsByFormChart(students);
+        createFurnitureChart(furniture);
+        createBorrowingTrendChart(borrowed);
+    });
+}
+
+function createBooksByTypeChart(books) {
+    var canvas = document.getElementById('booksByTypeChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    
+    var types = {};
+    for (var i = 0; i < books.length; i++) {
+        var type = books[i].type || 'Other';
+        types[type] = (types[type] || 0) + (books[i].quantity || 0);
+    }
+    
+    new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(types),
+            datasets: [{ data: Object.values(types), backgroundColor: ['#e94560', '#0f3460', '#d4af37', '#28a745', '#17a2b8', '#6f42c1'] }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
+        }
+    });
+}
+
+function createStudentsByFormChart(students) {
+    var canvas = document.getElementById('studentsByFormChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    
+    var forms = {};
+    for (var i = 0; i < students.length; i++) {
+        var form = students[i].form || 'Unknown';
+        forms[form] = (forms[form] || 0) + 1;
+    }
+    
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(forms),
+            datasets: [{ label: 'Students', data: Object.values(forms), backgroundColor: '#e94560' }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                x: { ticks: { color: 'white' } }
+            }
+        }
+    });
+}
+
+function createFurnitureChart(furniture) {
+    var canvas = document.getElementById('furnitureChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    
+    var active = furniture.filter(function(f) { return !f.returned; }).length;
+    var returned = furniture.filter(function(f) { return f.returned; }).length;
+    
+    new Chart(canvas, {
+        type: 'pie',
+        data: {
+            labels: ['Active', 'Returned'],
+            datasets: [{ data: [active, returned], backgroundColor: ['#ffc107', '#28a745'] }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
+        }
+    });
+}
+
+function createBorrowingTrendChart(borrowed) {
+    var canvas = document.getElementById('borrowingTrendChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    
+    var months = {};
+    for (var i = 0; i < borrowed.length; i++) {
+        var date = new Date(borrowed[i].borrowDate);
+        var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+        months[key] = (months[key] || 0) + 1;
+    }
+    
+    var sortedKeys = Object.keys(months).sort();
+    
+    new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: sortedKeys.map(function(k) {
+                var parts = k.split('-');
+                return getMonthShortName(parseInt(parts[1]) - 1) + ' ' + parts[0];
+            }),
+            datasets: [{
+                label: 'Books Borrowed',
+                data: sortedKeys.map(function(k) { return months[k]; }),
+                borderColor: '#d4af37',
+                backgroundColor: 'rgba(212,175,55,0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } },
+            scales: {
+                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                x: { ticks: { color: 'white' } }
+            }
+        }
+    });
+}
+
+// ============ EXPORT ALL FUNCTIONS ============
 window.loadDashboardData = loadDashboardData;
 window.loadBooks = loadBooks;
 window.loadBookOptions = loadBookOptions;
@@ -1362,6 +2041,8 @@ window.loadForumMessages = loadForumMessages;
 window.postForumMessage = postForumMessage;
 window.loadNotes = loadNotes;
 window.saveNote = saveNote;
+window.deleteNote = deleteNote;
+window.loadNoteForEdit = loadNoteForEdit;
 window.loadEvents = loadEvents;
 window.addEvent = addEvent;
 window.loadFees = loadFees;
@@ -1373,7 +2054,9 @@ window.loadTeachers = loadTeachers;
 window.addTeacher = addTeacher;
 window.deleteTeacher = deleteTeacher;
 window.loadClasses = loadClasses;
-window.addClass = addClass;
+window.addClassWithExcel = addClassWithExcel;
+window.handleExcelUpload = handleExcelUpload;
+window.viewClassStudents = viewClassStudents;
 window.loadTerms = loadTerms;
 window.addTerm = addTerm;
 window.loadAuditLog = loadAuditLog;
@@ -1383,7 +2066,17 @@ window.saveSchoolInfo = saveSchoolInfo;
 window.loadUsersForSettings = loadUsersForSettings;
 window.addUser = addUser;
 window.deleteUser = deleteUser;
+window.promoteToAdmin = promoteToAdmin;
 window.loadDatabaseTables = loadDatabaseTables;
 window.loadDatabaseTable = loadDatabaseTable;
 window.loadWallpapers = loadWallpapers;
 window.selectWallpaper = selectWallpaper;
+window.logAction = logAction;
+window.loadClassesForBulkFurniture = loadClassesForBulkFurniture;
+window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
+window.allocateBulkFurniture = allocateBulkFurniture;
+window.loadClassesForBulkBookIssue = loadClassesForBulkBookIssue;
+window.loadClassStudentsForBooks = loadClassStudentsForBooks;
+window.issueBulkBooks = issueBulkBooks;
+window.checkUnreadMessages = checkUnreadMessages;
+window.startMessageChecking = startMessageChecking;

@@ -1,7 +1,9 @@
 // ============================================
 // SRMS - Complete Firebase API
+// All Database Operations
 // ============================================
 
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyACefHWvbETo2siNZy4ETCWZVTwIrtaNMs",
     authDomain: "srms-fd318.firebaseapp.com",
@@ -12,12 +14,14 @@ const firebaseConfig = {
     appId: "1:828888967437:web:90461f6b1bc79854ea6844"
 };
 
+// Initialize Firebase
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
 const database = firebase.database();
 
+// ============ HELPER FUNCTIONS ============
 function generateInviteCode(length) {
     length = length || 8;
     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -47,7 +51,9 @@ function hashPassword(password) {
     return hash.toString();
 }
 
+// ============ API OBJECT ============
 const API = {
+    // ============ SCHOOL OPERATIONS ============
     async getSchool(schoolName) {
         try {
             const snapshot = await database.ref('schools/' + schoolName).once('value');
@@ -108,6 +114,7 @@ const API = {
         }
     },
     
+    // ============ USER OPERATIONS ============
     async login(schoolName, email, password) {
         try {
             const emailKey = email.replace(/\./g, ',');
@@ -193,6 +200,7 @@ const API = {
         }
     },
     
+    // ============ BOOK OPERATIONS ============
     async addBook(schoolName, bookData) {
         try {
             const bookRef = database.ref('schools/' + schoolName + '/books').push();
@@ -247,6 +255,7 @@ const API = {
         }
     },
     
+    // ============ BORROWING OPERATIONS ============
     async issueBook(schoolName, borrowData) {
         try {
             const borrowRef = database.ref('schools/' + schoolName + '/borrowed').push();
@@ -304,6 +313,7 @@ const API = {
         }
     },
     
+    // ============ STUDENT OPERATIONS ============
     async addStudent(schoolName, studentData) {
         try {
             await database.ref('schools/' + schoolName + '/students/' + studentData.adm).set({
@@ -372,6 +382,7 @@ const API = {
         }
     },
     
+    // ============ FURNITURE OPERATIONS ============
     async allocateFurniture(schoolName, furnitureData) {
         try {
             const furnitureRef = database.ref('schools/' + schoolName + '/furniture').push();
@@ -425,6 +436,7 @@ const API = {
         }
     },
     
+    // ============ TEACHER OPERATIONS ============
     async addTeacher(schoolName, teacherData) {
         try {
             const teacherRef = database.ref('schools/' + schoolName + '/teachers').push();
@@ -468,6 +480,7 @@ const API = {
         }
     },
     
+    // ============ CLASS OPERATIONS ============
     async addClass(schoolName, classData) {
         try {
             const classRef = database.ref('schools/' + schoolName + '/classes').push();
@@ -499,6 +512,7 @@ const API = {
         }
     },
     
+    // ============ TERMS OPERATIONS ============
     async addTerm(schoolName, termData) {
         try {
             const termRef = database.ref('schools/' + schoolName + '/terms').push();
@@ -529,6 +543,7 @@ const API = {
         }
     },
     
+    // ============ CHAT OPERATIONS ============
     async sendChatMessage(schoolName, messageData) {
         try {
             const msgRef = database.ref('schools/' + schoolName + '/chat').push();
@@ -552,6 +567,13 @@ const API = {
             const messages = snapshot.val();
             if (!messages) return [];
             
+            if (otherEmail === userEmail) {
+                // Get all messages where user is recipient (for unread count)
+                return Object.values(messages).filter(function(msg) {
+                    return msg.toEmail === userEmail && !msg.readStatus;
+                });
+            }
+            
             return Object.values(messages).filter(function(msg) {
                 return (msg.fromEmail === userEmail && msg.toEmail === otherEmail) ||
                        (msg.fromEmail === otherEmail && msg.toEmail === userEmail);
@@ -563,6 +585,28 @@ const API = {
         }
     },
     
+    async markMessagesAsRead(schoolName, userEmail, otherEmail) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/chat').once('value');
+            const messages = snapshot.val();
+            if (!messages) return { success: true };
+            
+            var promises = [];
+            Object.entries(messages).forEach(function(entry) {
+                var msg = entry[1];
+                if (msg.fromEmail === otherEmail && msg.toEmail === userEmail && !msg.readStatus) {
+                    promises.push(database.ref('schools/' + schoolName + '/chat/' + entry[0]).update({ readStatus: true }));
+                }
+            });
+            
+            await Promise.all(promises);
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // ============ FORUM OPERATIONS ============
     async postForumMessage(schoolName, messageData) {
         try {
             const msgRef = database.ref('schools/' + schoolName + '/forum').push();
@@ -593,6 +637,7 @@ const API = {
         }
     },
     
+    // ============ NOTEPAD OPERATIONS ============
     async saveNote(schoolName, noteData) {
         try {
             const noteRef = database.ref('schools/' + schoolName + '/notes').push();
@@ -616,7 +661,9 @@ const API = {
             const snapshot = await database.ref('schools/' + schoolName + '/notes').once('value');
             const notes = snapshot.val();
             if (!notes) return [];
-            return Object.values(notes).filter(function(note) {
+            return Object.entries(notes).map(function(entry) {
+                return Object.assign({ id: entry[0] }, entry[1]);
+            }).filter(function(note) {
                 return !note.isDeleted && (note.authorEmail === userEmail || !note.isPrivate);
             });
         } catch (error) {
@@ -624,6 +671,16 @@ const API = {
         }
     },
     
+    async deleteNote(schoolName, noteId) {
+        try {
+            await database.ref('schools/' + schoolName + '/notes/' + noteId).update({ isDeleted: true });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // ============ EVENTS OPERATIONS ============
     async addEvent(schoolName, eventData) {
         try {
             const eventRef = database.ref('schools/' + schoolName + '/events').push();
@@ -654,6 +711,7 @@ const API = {
         }
     },
     
+    // ============ FEES OPERATIONS ============
     async saveFee(schoolName, feeData) {
         try {
             const feeRef = database.ref('schools/' + schoolName + '/fees').push();
@@ -689,6 +747,7 @@ const API = {
         }
     },
     
+    // ============ TIMETABLE OPERATIONS ============
     async addTimetableEntry(schoolName, entryData) {
         try {
             const entryRef = database.ref('schools/' + schoolName + '/timetable').push();
@@ -719,6 +778,7 @@ const API = {
         }
     },
     
+    // ============ AUDIT LOG OPERATIONS ============
     async addAuditLog(schoolName, logData) {
         try {
             const logRef = database.ref('schools/' + schoolName + '/auditLog').push();
@@ -746,6 +806,7 @@ const API = {
         }
     },
     
+    // ============ SETTINGS OPERATIONS ============
     async getSettings(schoolName) {
         try {
             const snapshot = await database.ref('schools/' + schoolName + '/settings').once('value');
@@ -764,6 +825,7 @@ const API = {
         }
     },
     
+    // ============ DATABASE MANAGER ============
     async getTableData(schoolName, tableName) {
         try {
             const snapshot = await database.ref('schools/' + schoolName + '/' + tableName).once('value');
@@ -775,6 +837,7 @@ const API = {
         }
     },
     
+    // ============ REAL-TIME LISTENERS ============
     onBooksChange(schoolName, callback) {
         database.ref('schools/' + schoolName + '/books').on('value', function(snapshot) {
             const books = snapshot.val();
@@ -825,9 +888,23 @@ const API = {
                 callback([]);
             }
         });
+    },
+    
+    onChatChange(schoolName, callback) {
+        database.ref('schools/' + schoolName + '/chat').on('value', function(snapshot) {
+            const messages = snapshot.val();
+            if (messages) {
+                callback(Object.entries(messages).map(function(entry) {
+                    return Object.assign({ id: entry[0] }, entry[1]);
+                }));
+            } else {
+                callback([]);
+            }
+        });
     }
 };
 
+// Export to window
 window.API = API;
 window.generateInviteCode = generateInviteCode;
 window.generateStaffId = generateStaffId;
