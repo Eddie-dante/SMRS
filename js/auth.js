@@ -1,9 +1,7 @@
 // ============================================
 // SRMS - Complete Authentication Logic
-// Error Free - All Functions Working
 // ============================================
 
-// Handle Login
 function handleLogin(event) {
     event.preventDefault();
     
@@ -46,7 +44,6 @@ function handleLogin(event) {
     return false;
 }
 
-// Handle Signup
 function handleSignup(event) {
     event.preventDefault();
     
@@ -92,7 +89,6 @@ function handleSignup(event) {
     return false;
 }
 
-// Handle Create School
 function handleCreateSchool(event) {
     event.preventDefault();
     
@@ -139,7 +135,6 @@ function handleCreateSchool(event) {
     return false;
 }
 
-// Show Signup Form
 function showSignup(event) {
     if (event) event.preventDefault();
     
@@ -162,7 +157,6 @@ function showSignup(event) {
         '<div class="login-footer"><a href="#" onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a></div>';
 }
 
-// Show Create School Form
 function showCreateSchool(event) {
     if (event) event.preventDefault();
     
@@ -185,7 +179,6 @@ function showCreateSchool(event) {
         '<div class="login-footer"><a href="#" onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a></div>';
 }
 
-// Show Forgot Password
 function showForgotPassword(event) {
     if (event) event.preventDefault();
     
@@ -201,13 +194,11 @@ function showForgotPassword(event) {
         '<div class="login-footer"><a href="#" onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a></div>';
 }
 
-// Show Login Form
 function showLoginForm(event) {
     if (event) event.preventDefault();
     window.location.reload();
 }
 
-// Show Error
 function showError(message) {
     var errorMessage = document.getElementById('errorMessage');
     var errorText = document.getElementById('errorText');
@@ -223,7 +214,6 @@ function showError(message) {
     }
 }
 
-// Export functions
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
 window.handleCreateSchool = handleCreateSchool;

@@ -1,45 +1,18 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Error Free - All Functions Working
 // ============================================
 
-// ============ GLOBAL VARIABLES ============
 var selectedChatUser = null;
 var currentChatUserEmail = null;
 var currentChatUserName = null;
 
-// ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', function() {
     var user = checkAuth();
     if (!user) return;
     
-    // Set user info
-    setTaskbarUserInfo(user);
-    
-    // Load page-specific data
     var page = window.location.pathname.split('/').pop();
     loadPageData(page);
 });
-
-function setTaskbarUserInfo(user) {
-    if (!user) return;
-    
-    var userAvatar = document.getElementById('userAvatar');
-    var userName = document.getElementById('userName');
-    var userRole = document.getElementById('userRole');
-    var taskbarAvatar = document.getElementById('taskbarAvatar');
-    
-    if (userAvatar) userAvatar.textContent = getInitials(user.name);
-    if (userName) userName.textContent = user.name;
-    if (userRole) userRole.textContent = user.role;
-    if (taskbarAvatar) taskbarAvatar.textContent = getInitials(user.name);
-    
-    var school = getCurrentSchool();
-    var schoolNameDisplay = document.getElementById('schoolNameDisplay');
-    if (schoolNameDisplay && school) {
-        schoolNameDisplay.textContent = school;
-    }
-}
 
 function loadPageData(page) {
     switch(page) {
@@ -105,10 +78,33 @@ function loadPageData(page) {
     }
 }
 
-// ============ DASHBOARD ============
 function loadDashboardData() {
     var school = getCurrentSchool();
     if (!school) return;
+    
+    var user = getCurrentUser();
+    if (user) {
+        var welcomeUserName = document.getElementById('welcomeUserName');
+        var welcomeUserRole = document.getElementById('welcomeUserRole');
+        var welcomeSchoolName = document.getElementById('welcomeSchoolName');
+        var dateDisplay = document.getElementById('dateDisplay');
+        
+        if (welcomeUserName) welcomeUserName.textContent = user.name;
+        if (welcomeUserRole) welcomeUserRole.textContent = user.role;
+        if (welcomeSchoolName) welcomeSchoolName.textContent = school;
+        if (dateDisplay) dateDisplay.textContent = getDateDisplay();
+        
+        if (user.role === 'admin') {
+            API.getSchool(school).then(function(schoolInfo) {
+                if (schoolInfo && schoolInfo.inviteCode) {
+                    var inviteCode = document.getElementById('inviteCode');
+                    var inviteCodeBanner = document.getElementById('inviteCodeBanner');
+                    if (inviteCode) inviteCode.textContent = schoolInfo.inviteCode;
+                    if (inviteCodeBanner) inviteCodeBanner.style.display = 'block';
+                }
+            });
+        }
+    }
     
     API.getBooks(school).then(function(books) {
         var totalBooks = 0;
@@ -131,9 +127,7 @@ function loadDashboardData() {
         for (var i = 0; i < borrowed.length; i++) {
             if (!borrowed[i].returned) {
                 activeLoans++;
-                if (isOverdue(borrowed[i].returnDate)) {
-                    overdueBooks++;
-                }
+                if (isOverdue(borrowed[i].returnDate)) overdueBooks++;
             }
         }
         animateNumber('activeLoans', activeLoans);
@@ -148,33 +142,6 @@ function loadDashboardData() {
         animateNumber('activeFurniture', activeFurniture);
     });
     
-    // Set user info
-    var user = getCurrentUser();
-    if (user) {
-        var welcomeUserName = document.getElementById('welcomeUserName');
-        var welcomeUserRole = document.getElementById('welcomeUserRole');
-        var welcomeSchoolName = document.getElementById('welcomeSchoolName');
-        var dateDisplay = document.getElementById('dateDisplay');
-        
-        if (welcomeUserName) welcomeUserName.textContent = user.name;
-        if (welcomeUserRole) welcomeUserRole.textContent = user.role;
-        if (welcomeSchoolName) welcomeSchoolName.textContent = school;
-        if (dateDisplay) dateDisplay.textContent = getDateDisplay();
-        
-        // Load invite code for admin
-        if (user.role === 'admin') {
-            API.getSchool(school).then(function(schoolInfo) {
-                if (schoolInfo && schoolInfo.inviteCode) {
-                    var inviteCode = document.getElementById('inviteCode');
-                    var inviteCodeBanner = document.getElementById('inviteCodeBanner');
-                    if (inviteCode) inviteCode.textContent = schoolInfo.inviteCode;
-                    if (inviteCodeBanner) inviteCodeBanner.style.display = 'block';
-                }
-            });
-        }
-    }
-    
-    // Load recent activity
     loadRecentActivity();
 }
 
@@ -234,7 +201,6 @@ function displayActivities(activities) {
     activityList.innerHTML = html;
 }
 
-// ============ LIBRARY ============
 function loadBooks() {
     var school = getCurrentSchool();
     API.getBooks(school).then(function(books) {
@@ -419,7 +385,6 @@ function filterBooks() {
     filterTable(searchInput, tbody);
 }
 
-// ============ STUDENTS ============
 function loadStudents() {
     var school = getCurrentSchool();
     API.getStudents(school).then(function(students) {
@@ -463,8 +428,6 @@ function addStudent(event) {
         parentPhone: document.getElementById('studentParentPhone').value,
         parentEmail: document.getElementById('studentParentEmail').value,
         address: document.getElementById('studentAddress').value,
-        medicalInfo: document.getElementById('studentMedical').value,
-        specialNeeds: document.getElementById('studentSpecialNeeds').value,
         addedBy: user ? user.name : ''
     }).then(function(result) {
         if (result.success) {
@@ -494,7 +457,6 @@ function filterStudents() {
     filterTable(searchInput, tbody);
 }
 
-// ============ FURNITURE ============
 function loadFurniture() {
     var school = getCurrentSchool();
     API.getFurniture(school).then(function(furniture) {
@@ -502,14 +464,10 @@ function loadFurniture() {
         var returned = [];
         
         for (var i = 0; i < furniture.length; i++) {
-            if (furniture[i].returned) {
-                returned.push(furniture[i]);
-            } else {
-                active.push(furniture[i]);
-            }
+            if (furniture[i].returned) returned.push(furniture[i]);
+            else active.push(furniture[i]);
         }
         
-        // Update stats
         var totalStat = document.getElementById('totalFurnitureStat');
         var activeStat = document.getElementById('activeFurnitureStat');
         var returnedStat = document.getElementById('returnedFurnitureStat');
@@ -518,7 +476,6 @@ function loadFurniture() {
         if (activeStat) activeStat.textContent = active.length;
         if (returnedStat) returnedStat.textContent = returned.length;
         
-        // Active list
         var activeList = document.getElementById('activeFurnitureList');
         if (activeList) {
             if (active.length === 0) {
@@ -528,11 +485,9 @@ function loadFurniture() {
                 for (var i = 0; i < active.length; i++) {
                     html += '<div class="furniture-card">' +
                         '<span class="status-badge status-active">Active</span>' +
-                        '<div class="furniture-card-header">' +
                         '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
-                        '<div><div class="furniture-student-name">' + active[i].studentName + '</div>' +
-                        '<div class="furniture-adm">' + active[i].adm + '</div></div>' +
-                        '</div>' +
+                        '<div class="furniture-student-name">' + active[i].studentName + '</div>' +
+                        '<div class="furniture-adm">' + active[i].adm + '</div>' +
                         '<div class="furniture-details">' +
                         '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + active[i].chairNo + '</div></div>' +
                         '<div class="furniture-detail-item"><div class="furniture-detail-label">Locker</div><div class="furniture-detail-value">' + (active[i].lockerNo || '-') + '</div></div>' +
@@ -544,7 +499,6 @@ function loadFurniture() {
             }
         }
         
-        // Returned list
         var returnedList = document.getElementById('returnedFurnitureList');
         if (returnedList) {
             if (returned.length === 0) {
@@ -554,11 +508,9 @@ function loadFurniture() {
                 for (var i = 0; i < returned.length; i++) {
                     html += '<div class="furniture-card">' +
                         '<span class="status-badge status-returned">Returned</span>' +
-                        '<div class="furniture-card-header">' +
                         '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
-                        '<div><div class="furniture-student-name">' + returned[i].studentName + '</div>' +
-                        '<div class="furniture-adm">' + returned[i].adm + '</div></div>' +
-                        '</div>' +
+                        '<div class="furniture-student-name">' + returned[i].studentName + '</div>' +
+                        '<div class="furniture-adm">' + returned[i].adm + '</div>' +
                         '<div class="furniture-details">' +
                         '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + returned[i].chairNo + '</div></div>' +
                         '<div class="furniture-detail-item"><div class="furniture-detail-label">Locker</div><div class="furniture-detail-value">' + (returned[i].lockerNo || '-') + '</div></div>' +
@@ -569,7 +521,6 @@ function loadFurniture() {
             }
         }
         
-        // All list
         var allList = document.getElementById('allFurnitureList');
         if (allList) {
             if (furniture.length === 0) {
@@ -581,11 +532,9 @@ function loadFurniture() {
                     var statusText = furniture[i].returned ? 'Returned' : 'Active';
                     html += '<div class="furniture-card">' +
                         '<span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
-                        '<div class="furniture-card-header">' +
                         '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
-                        '<div><div class="furniture-student-name">' + furniture[i].studentName + '</div>' +
-                        '<div class="furniture-adm">' + furniture[i].adm + '</div></div>' +
-                        '</div>' +
+                        '<div class="furniture-student-name">' + furniture[i].studentName + '</div>' +
+                        '<div class="furniture-adm">' + furniture[i].adm + '</div>' +
                         '<div class="furniture-details">' +
                         '<div class="furniture-detail-item"><div class="furniture-detail-label">Chair</div><div class="furniture-detail-value">' + furniture[i].chairNo + '</div></div>' +
                         '<div class="furniture-detail-item"><div class="furniture-detail-label">Date</div><div class="furniture-detail-value">' + furniture[i].allocationDate + '</div></div>' +
@@ -639,7 +588,6 @@ function returnFurnitureItem(furnitureId) {
 function switchFurnitureTab(tabName) {
     var tabs = document.querySelectorAll('.tab');
     var contents = document.querySelectorAll('.tab-content');
-    
     for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
     for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
     
@@ -649,11 +597,9 @@ function switchFurnitureTab(tabName) {
             tabButtons[i].classList.add('active');
         }
     }
-    
     document.getElementById(tabName + 'FurnitureTab').classList.add('active');
 }
 
-// ============ CHAT ============
 function loadChatUsers() {
     var school = getCurrentSchool();
     API.getUsers(school).then(function(users) {
@@ -665,7 +611,7 @@ function loadChatUsers() {
         for (var i = 0; i < users.length; i++) {
             if (users[i].email !== currentUser.email) {
                 html += '<button class="chat-user-btn" onclick="selectChatUser(\'' + users[i].email + '\', \'' + users[i].name + '\')">' +
-                    '<div class="avatar" style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e27;">' + getInitials(users[i].name) + '</div>' +
+                    '<div style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e27;">' + getInitials(users[i].name) + '</div>' +
                     '<div style="flex:1;text-align:left;"><div style="font-weight:600;">' + users[i].name + '</div>' +
                     '<small style="color:rgba(255,255,255,0.5);">' + users[i].role + '</small></div>' +
                     '</button>';
@@ -731,7 +677,6 @@ function sendMessage(event) {
     return false;
 }
 
-// ============ FORUM ============
 function loadForumMessages() {
     var school = getCurrentSchool();
     API.getForumMessages(school).then(function(messages) {
@@ -771,7 +716,6 @@ function postForumMessage(event) {
     return false;
 }
 
-// ============ NOTEPAD ============
 function loadNotes() {
     var school = getCurrentSchool();
     var user = getCurrentUser();
@@ -793,7 +737,7 @@ function loadNotes() {
         var html = '';
         for (var i = 0; i < myNotes.length; i++) {
             html += '<div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;margin:10px 0;">' +
-                '<h4 style="margin:0 0 5px;">' + (myNotes[i].title || 'Untitled') + '</h4>' +
+                '<h4 style="margin:0 0 5px;color:#d4af37;">' + (myNotes[i].title || 'Untitled') + '</h4>' +
                 '<p style="margin:0 0 8px;">' + myNotes[i].content + '</p>' +
                 '<small>' + formatDateTime(myNotes[i].timestamp) + '</small></div>';
         }
@@ -822,7 +766,6 @@ function saveNote(event) {
     return false;
 }
 
-// ============ EVENTS ============
 function loadEvents() {
     var school = getCurrentSchool();
     API.getEvents(school).then(function(events) {
@@ -872,7 +815,6 @@ function addEvent(event) {
     return false;
 }
 
-// ============ FEES ============
 function loadFees() {
     var school = getCurrentSchool();
     
@@ -961,7 +903,6 @@ function saveFee(event) {
     return false;
 }
 
-// ============ TIMETABLE ============
 function loadTimetable() {
     var school = getCurrentSchool();
     API.getTimetable(school).then(function(timetable) {
@@ -1023,7 +964,6 @@ function addTimetableEntry(event) {
     return false;
 }
 
-// ============ TEACHERS ============
 function loadTeachers() {
     var school = getCurrentSchool();
     API.getTeachers(school).then(function(teachers) {
@@ -1031,7 +971,7 @@ function loadTeachers() {
         if (!tbody) return;
         
         if (teachers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No teachers</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No teachers</td></tr>';
             return;
         }
         
@@ -1040,6 +980,7 @@ function loadTeachers() {
             html += '<tr>' +
                 '<td>' + teachers[i].name + '</td>' +
                 '<td>' + (teachers[i].email || '-') + '</td>' +
+                '<td>' + (teachers[i].phone || '-') + '</td>' +
                 '<td>' + (teachers[i].subjects || '-') + '</td>' +
                 '<td>' + (teachers[i].classes || '-') + '</td>' +
                 '<td><button class="btn btn-sm btn-danger" onclick="deleteTeacher(\'' + teachers[i].id + '\')"><i class="fas fa-trash"></i></button></td></tr>';
@@ -1079,7 +1020,6 @@ function deleteTeacher(teacherId) {
     });
 }
 
-// ============ CLASSES ============
 function loadClasses() {
     var school = getCurrentSchool();
     API.getClasses(school).then(function(classes) {
@@ -1122,7 +1062,6 @@ function addClass(event) {
     return false;
 }
 
-// ============ TERMS ============
 function loadTerms() {
     var school = getCurrentSchool();
     API.getTerms(school).then(function(terms) {
@@ -1137,7 +1076,8 @@ function loadTerms() {
         var html = '';
         for (var i = 0; i < terms.length; i++) {
             var current = terms[i].isCurrent ? '✅ Current' : '';
-            html += '<div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;margin:10px 0;">' +
+            var borderStyle = terms[i].isCurrent ? 'border-left:4px solid #28a745;' : '';
+            html += '<div class="term-card" style="' + borderStyle + '">' +
                 '<h4>' + terms[i].name + ' ' + current + '</h4>' +
                 '<p>' + terms[i].startDate + ' → ' + terms[i].endDate + '</p></div>';
         }
@@ -1165,7 +1105,6 @@ function addTerm(event) {
     return false;
 }
 
-// ============ AUDIT LOG ============
 function loadAuditLog() {
     var school = getCurrentSchool();
     API.getAuditLog(school).then(function(logs) {
@@ -1190,7 +1129,6 @@ function loadAuditLog() {
     });
 }
 
-// ============ SETTINGS ============
 function loadSettings() {
     var school = getCurrentSchool();
     
@@ -1253,9 +1191,7 @@ function saveSettings(event) {
         maxBooksPerStudent: parseInt(document.getElementById('maxBooksPerStudent').value),
         finePerDay: parseInt(document.getElementById('finePerDay').value)
     }).then(function(result) {
-        if (result.success) {
-            showNotification('Settings saved!', 'success');
-        }
+        if (result.success) showNotification('Settings saved!', 'success');
     });
     return false;
 }
@@ -1268,9 +1204,7 @@ function saveSchoolInfo(event) {
         address: document.getElementById('schoolAddress').value,
         motto: document.getElementById('schoolMotto').value
     }).then(function(result) {
-        if (result.success) {
-            showNotification('School info saved!', 'success');
-        }
+        if (result.success) showNotification('School info saved!', 'success');
     });
     return false;
 }
@@ -1305,7 +1239,6 @@ function deleteUser(email) {
     });
 }
 
-// ============ DATABASE MANAGER ============
 function loadDatabaseTables() {
     var tables = ['books', 'borrowed', 'students', 'furniture', 'teachers', 'classes', 'terms', 'events', 'fees', 'timetable', 'auditLog', 'users', 'chat', 'forum', 'notes'];
     var select = document.getElementById('databaseTableSelect');
@@ -1364,7 +1297,6 @@ function loadDatabaseTable() {
     });
 }
 
-// ============ WALLPAPER ============
 function loadWallpapers() {
     var grid = document.getElementById('wallpaperGrid');
     if (!grid) return;
@@ -1387,11 +1319,8 @@ function loadWallpapers() {
 
 function selectWallpaper(key) {
     localStorage.setItem('srms_wallpaper', key);
-    
     var cards = document.querySelectorAll('.wallpaper-card');
-    for (var i = 0; i < cards.length; i++) {
-        cards[i].classList.remove('active');
-    }
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
     event.target.closest('.wallpaper-card').classList.add('active');
     
     var wallpaper = WALLPAPER_DATA[key];
@@ -1408,7 +1337,6 @@ function selectWallpaper(key) {
     showNotification('Wallpaper applied!', 'success');
 }
 
-// ============ EXPORT ALL FUNCTIONS ============
 window.loadDashboardData = loadDashboardData;
 window.loadBooks = loadBooks;
 window.loadBookOptions = loadBookOptions;

@@ -1,6 +1,5 @@
 // ============================================
 // SRMS - Wallpaper Loader
-// Applies saved wallpaper to all pages
 // ============================================
 
 var WALLPAPER_DATA = {
@@ -131,7 +130,6 @@ var WALLPAPER_DATA = {
     }
 };
 
-// Apply wallpaper on page load
 document.addEventListener('DOMContentLoaded', function() {
     var savedWallpaper = localStorage.getItem('srms_wallpaper') || 'none';
     var wallpaper = WALLPAPER_DATA[savedWallpaper] || WALLPAPER_DATA['none'];
@@ -148,5 +146,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Export
 window.WALLPAPER_DATA = WALLPAPER_DATA;
