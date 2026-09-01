@@ -1,6 +1,6 @@
 /* ============================================
    SRMS - Complete Component Styles
-   All Components Including Floating Navbar
+   With JavaScript-Controlled Dropdown Fix
    ============================================ */
 
 /* ============ HEADER BAR ============ */
@@ -99,8 +99,6 @@
 .nav-group {
   position: relative;
   display: inline-block;
-  padding-bottom: 15px;
-  margin-bottom: -15px;
 }
 
 .classy-btn {
@@ -205,15 +203,16 @@
   z-index: 1200;
 }
 
-/* Dropdown Menu - Fixed hover */
+/* ============ DROPDOWN MENU ============ */
 .dropdown-menu {
   display: none;
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% + 5px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(10, 14, 39, 0.98);
   backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(212, 175, 55, 0.4);
   border-radius: 14px;
   padding: 10px;
@@ -223,8 +222,12 @@
   pointer-events: auto;
 }
 
-.nav-group:hover .dropdown-menu,
-.dropdown-menu:hover {
+/* Show dropdown when JavaScript adds .open class OR on hover */
+.dropdown-menu.open {
+  display: block;
+}
+
+.nav-group:hover .dropdown-menu {
   display: block;
 }
 
