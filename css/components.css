@@ -1,5 +1,6 @@
 /* ============================================
    SRMS - Complete Component Styles
+   With Fixed Dropdown Hover
    ============================================ */
 
 /* ============ HEADER BAR ============ */
@@ -67,7 +68,7 @@
     transform: scale(1.1);
 }
 
-/* ============ FLOATING BOTTOM NAVBAR ============ */
+/* ============ FLOATING BOTTOM NAVBAR (FIXED DROPDOWN) ============ */
 .floating-navbar-container {
     position: fixed;
     bottom: 20px;
@@ -97,6 +98,17 @@
     display: inline-block;
 }
 
+/* INVISIBLE BRIDGE - Fixes dropdown disappearing */
+.nav-group::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: -20px;
+    right: -20px;
+    height: 45px;
+    z-index: 1099;
+}
+
 .classy-btn {
     font-family: 'Cinzel', 'Inter', serif;
     font-size: 14px;
@@ -114,6 +126,8 @@
     gap: 10px;
     transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 223, 138, 0.4), inset 0 -2px 6px rgba(0, 0, 0, 0.9);
+    position: relative;
+    z-index: 1100;
 }
 
 .classy-btn i {
@@ -155,12 +169,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .dropdown-menu {
     display: none;
     position: absolute;
-    bottom: 120%;
+    bottom: calc(100% + 5px);
     left: 50%;
     transform: translateX(-50%);
     background: rgba(10, 14, 39, 0.98);
@@ -169,12 +184,15 @@
     border-radius: 14px;
     padding: 10px;
     min-width: 200px;
-    z-index: 1100;
+    z-index: 1200;
     box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
     animation: fadeInUp 0.3s ease;
+    pointer-events: auto;
 }
 
-.nav-group:hover .dropdown-menu {
+/* FIX: Keep dropdown visible when hovering over it or the bridge */
+.nav-group:hover .dropdown-menu,
+.dropdown-menu:hover {
     display: block;
 }
 
@@ -194,6 +212,7 @@
     background: none;
     border: none;
     text-align: left;
+    white-space: nowrap;
 }
 
 .dropdown-item i {
@@ -229,7 +248,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 1100;
+    z-index: 1300;
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;
@@ -260,7 +279,8 @@
     margin-bottom: 20px;
 }
 
-.modal-header h2, .modal-header h3 {
+.modal-header h2,
+.modal-header h3 {
     margin: 0;
     color: #d4af37;
 }
