@@ -1,234 +1,708 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SRMS - Notepad | School Resource Management System</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/components.css">
-    
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/components.css" />
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%); color: #ffffff; overflow-x: hidden; padding-bottom: 120px; }
-        
-        .taskbar { position: fixed; top: 0; left: 0; right: 0; height: 65px; background: rgba(10,14,39,0.9); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
-        .taskbar-left { display: flex; align-items: center; gap: 15px; }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: #f0d060; font-weight: 900; font-size: 22px; letter-spacing: 1px; }
-        .taskbar-logo i { font-size: 26px; }
-        .taskbar-right { display: flex; align-items: center; gap: 8px; }
-        .taskbar-icon-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #d4af37; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.3s ease; }
-        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
-        
-        .floating-navbar-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: auto; max-width: 95vw; }
-        .floating-navbar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 24px; background: rgba(15, 18, 30, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 50px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
-        .nav-group { position: relative; display: inline-block; padding-bottom: 15px; margin-bottom: -15px; }
-        .classy-btn { font-family: 'Cinzel', 'Inter', serif; font-size: 14px; font-weight: 600; letter-spacing: 0.8px; color: #f0e6d2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); background: linear-gradient(135deg, rgba(35, 30, 25, 0.85) 0%, rgba(10, 8, 5, 0.95) 100%); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 30px; padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255, 223, 138, 0.4), inset 0 -2px 6px rgba(0,0,0,0.9); position: relative; z-index: 1100; }
-        .classy-btn i { color: #d4af37; font-size: 15px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: transform 0.3s ease; }
-        .classy-btn .fa-chevron-up { font-size: 9px; color: rgba(212,175,55,0.7); }
-        .classy-btn:hover { color: #ffffff; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.3), inset 0 1px 3px rgba(255, 255, 255, 0.6); border-color: rgba(240, 208, 96, 0.9); }
-        .classy-btn:hover i { transform: scale(1.15); color: #fff3c4; }
-        .classy-btn.active { background: linear-gradient(135deg, rgba(80, 60, 25, 0.9) 0%, rgba(30, 20, 5, 0.95) 100%); border-color: #f0d060; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5), inset 0 1px 3px rgba(255, 240, 180, 0.6); }
-        .btn-badge { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(0,0,0,0.4) 100%); border: 1px solid rgba(212,175,55,0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .dropdown-menu { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(10,14,39,0.98); backdrop-filter: blur(25px); border: 1px solid rgba(212,175,55,0.4); border-radius: 14px; padding: 10px; min-width: 200px; z-index: 1200; box-shadow: 0 -15px 40px rgba(0,0,0,0.6); }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block; }
-        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 8px; transition: all 0.3s ease; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; background: none; border: none; text-align: left; white-space: nowrap; }
-        .dropdown-item i { font-size: 14px; color: #d4af37; width: 20px; text-align: center; }
-        .dropdown-item:hover { background: rgba(212,175,55,0.15); color: #ffffff; transform: translateX(5px); }
-        .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
-        
-        .main-content { padding: 85px 25px 25px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .page-header { margin-bottom: 25px; }
-        .page-header h1 { font-size: 2em; font-weight: 900; background: linear-gradient(180deg, #ffffff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-        .page-header p { color: rgba(255,255,255,0.6); font-size: 14px; }
-        
-        .editor-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
-        .toolbar { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .toolbar-btn { width: 35px; height: 35px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.3s ease; }
-        .toolbar-btn:hover { background: rgba(212,175,55,0.3); }
-        .toolbar-btn.active { background: rgba(212,175,55,0.4); border-color: #d4af37; }
-        .toolbar-select { padding: 5px 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 12px; }
-        .toolbar-select option { background: #1a1f4e; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
-        .form-group input { width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 16px; }
-        #noteContent { width: 100%; min-height: 300px; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 14px; overflow-y: auto; outline: none; }
-        #noteContent:focus { border-color: rgba(212,175,55,0.5); }
-        .btn-primary { padding: 12px 20px; background: linear-gradient(135deg, #e94560, #c62a47); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); }
-        .note-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; }
-        .note-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.4); }
-        .note-card h4 { color: #d4af37; margin-bottom: 8px; }
-        .note-card p { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
-        .note-card small { color: rgba(255,255,255,0.4); }
-        
-        @media (max-width: 768px) { .floating-navbar { padding: 8px 12px; gap: 6px; } .classy-btn { padding: 8px 12px; font-size: 11px; } .main-content { padding: 75px 15px 15px; } }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #0a0e27 0%,
+          #1a1f4e 50%,
+          #0f3460 100%
+        );
+        color: #ffffff;
+        overflow-x: hidden;
+        padding-bottom: 120px;
+      }
+
+      .taskbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 65px;
+        background: rgba(10, 14, 39, 0.9);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+      }
+      .taskbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .taskbar-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #f0d060;
+        font-weight: 900;
+        font-size: 22px;
+        letter-spacing: 1px;
+      }
+      .taskbar-logo i {
+        font-size: 26px;
+      }
+      .taskbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .taskbar-icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #d4af37;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+      .taskbar-icon-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+
+      .floating-navbar-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: auto;
+        max-width: 95vw;
+      }
+      .floating-navbar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 12px 24px;
+        background: rgba(15, 18, 30, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50px;
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+      .nav-group {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 15px;
+        margin-bottom: -15px;
+      }
+      .classy-btn {
+        font-family: "Cinzel", "Inter", serif;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        color: #f0e6d2;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(
+          135deg,
+          rgba(35, 30, 25, 0.85) 0%,
+          rgba(10, 8, 5, 0.95) 100%
+        );
+        border: 1px solid rgba(212, 175, 55, 0.5);
+        border-radius: 30px;
+        padding: 10px 22px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow:
+          0 8px 20px rgba(0, 0, 0, 0.5),
+          inset 0 1px 2px rgba(255, 223, 138, 0.4),
+          inset 0 -2px 6px rgba(0, 0, 0, 0.9);
+        position: relative;
+        z-index: 1100;
+      }
+      .classy-btn i {
+        color: #d4af37;
+        font-size: 15px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        transition: transform 0.3s ease;
+      }
+      .classy-btn .fa-chevron-up {
+        font-size: 9px;
+        color: rgba(212, 175, 55, 0.7);
+      }
+      .classy-btn:hover {
+        color: #ffffff;
+        transform: translateY(-3px);
+        box-shadow:
+          0 12px 25px rgba(0, 0, 0, 0.6),
+          0 0 15px rgba(212, 175, 55, 0.3),
+          inset 0 1px 3px rgba(255, 255, 255, 0.6);
+        border-color: rgba(240, 208, 96, 0.9);
+      }
+      .classy-btn:hover i {
+        transform: scale(1.15);
+        color: #fff3c4;
+      }
+      .classy-btn.active {
+        background: linear-gradient(
+          135deg,
+          rgba(80, 60, 25, 0.9) 0%,
+          rgba(30, 20, 5, 0.95) 100%
+        );
+        border-color: #f0d060;
+        box-shadow:
+          0 0 20px rgba(212, 175, 55, 0.5),
+          inset 0 1px 3px rgba(255, 240, 180, 0.6);
+      }
+      .btn-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(212, 175, 55, 0.25) 0%,
+          rgba(0, 0, 0, 0.4) 100%
+        );
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(10, 14, 39, 0.98);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 14px;
+        padding: 10px;
+        min-width: 200px;
+        z-index: 1200;
+        box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
+      }
+      .nav-group:hover .dropdown-menu,
+      .dropdown-menu:hover {
+        display: block;
+      }
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 15px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 13px;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        white-space: nowrap;
+      }
+      .dropdown-item i {
+        font-size: 14px;
+        color: #d4af37;
+        width: 20px;
+        text-align: center;
+      }
+      .dropdown-item:hover {
+        background: rgba(212, 175, 55, 0.15);
+        color: #ffffff;
+        transform: translateX(5px);
+      }
+      .dropdown-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 5px 0;
+      }
+
+      .main-content {
+        padding: 85px 25px 25px;
+        max-width: 900px;
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .page-header {
+        margin-bottom: 25px;
+      }
+      .page-header h1 {
+        font-size: 2em;
+        font-weight: 900;
+        background: linear-gradient(180deg, #ffffff, #d4af37);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px;
+      }
+      .page-header p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+      }
+
+      .editor-container {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 20px;
+      }
+      .toolbar {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+      .toolbar-btn {
+        width: 35px;
+        height: 35px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: all 0.3s ease;
+      }
+      .toolbar-btn:hover {
+        background: rgba(212, 175, 55, 0.3);
+      }
+      .toolbar-btn.active {
+        background: rgba(212, 175, 55, 0.4);
+        border-color: #d4af37;
+      }
+      .toolbar-select {
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+      }
+      .toolbar-select option {
+        background: #1a1f4e;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 16px;
+      }
+      #noteContent {
+        width: 100%;
+        min-height: 300px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        overflow-y: auto;
+        outline: none;
+      }
+      #noteContent:focus {
+        border-color: rgba(212, 175, 55, 0.5);
+      }
+      .btn-primary {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #e94560, #c62a47);
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+      }
+      .note-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .note-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(212, 175, 55, 0.4);
+      }
+      .note-card h4 {
+        color: #d4af37;
+        margin-bottom: 8px;
+      }
+      .note-card p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 8px;
+      }
+      .note-card small {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      @media (max-width: 768px) {
+        .floating-navbar {
+          padding: 8px 12px;
+          gap: 6px;
+        }
+        .classy-btn {
+          padding: 8px 12px;
+          font-size: 11px;
+        }
+        .main-content {
+          padding: 75px 15px 15px;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="taskbar">
-        <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+      <div class="taskbar-left">
+        <div class="taskbar-logo">
+          <i class="fas fa-school"></i><span>SRMS</span>
         </div>
-        <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'" title="Change Wallpaper"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
+      </div>
+      <div class="taskbar-right">
+        <button
+          class="taskbar-icon-btn"
+          onclick="location.href = 'wallpaper.html'"
+          title="Change Wallpaper"
+        >
+          <i class="fas fa-image"></i>
+        </button>
+        <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
     </div>
-    
+
     <div class="main-content">
-        <div class="page-header">
-            <h1>Notepad</h1>
-            <p>Advanced document editor</p>
+      <div class="page-header">
+        <h1>Notepad</h1>
+        <p>Advanced document editor</p>
+      </div>
+
+      <div class="editor-container">
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="formatText('bold')" title="Bold">
+            <i class="fas fa-bold"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('italic')"
+            title="Italic"
+          >
+            <i class="fas fa-italic"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('underline')"
+            title="Underline"
+          >
+            <i class="fas fa-underline"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('strikeThrough')"
+            title="Strikethrough"
+          >
+            <i class="fas fa-strikethrough"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('insertUnorderedList')"
+            title="Bullet List"
+          >
+            <i class="fas fa-list-ul"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('insertOrderedList')"
+            title="Numbered List"
+          >
+            <i class="fas fa-list-ol"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('justifyLeft')"
+            title="Align Left"
+          >
+            <i class="fas fa-align-left"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('justifyCenter')"
+            title="Center"
+          >
+            <i class="fas fa-align-center"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('justifyRight')"
+            title="Align Right"
+          >
+            <i class="fas fa-align-right"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('formatBlock')"
+            title="Heading"
+          >
+            <i class="fas fa-heading"></i>
+          </button>
+          <select class="toolbar-select" onchange="changeFontSize(this.value)">
+            <option value="3">Normal</option>
+            <option value="1">Small</option>
+            <option value="5">Large</option>
+            <option value="7">Very Large</option>
+          </select>
+          <select class="toolbar-select" onchange="changeFontColor(this.value)">
+            <option value="#ffffff">White</option>
+            <option value="#d4af37">Gold</option>
+            <option value="#e94560">Red</option>
+            <option value="#28a745">Green</option>
+            <option value="#17a2b8">Blue</option>
+          </select>
         </div>
-        
-        <div class="editor-container">
-            <div class="toolbar">
-                <button class="toolbar-btn" onclick="formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
-                <button class="toolbar-btn" onclick="formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
-                <button class="toolbar-btn" onclick="formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
-                <button class="toolbar-btn" onclick="formatText('strikeThrough')" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
-                <button class="toolbar-btn" onclick="formatText('insertUnorderedList')" title="Bullet List"><i class="fas fa-list-ul"></i></button>
-                <button class="toolbar-btn" onclick="formatText('insertOrderedList')" title="Numbered List"><i class="fas fa-list-ol"></i></button>
-                <button class="toolbar-btn" onclick="formatText('justifyLeft')" title="Align Left"><i class="fas fa-align-left"></i></button>
-                <button class="toolbar-btn" onclick="formatText('justifyCenter')" title="Center"><i class="fas fa-align-center"></i></button>
-                <button class="toolbar-btn" onclick="formatText('justifyRight')" title="Align Right"><i class="fas fa-align-right"></i></button>
-                <button class="toolbar-btn" onclick="formatText('formatBlock')" title="Heading"><i class="fas fa-heading"></i></button>
-                <select class="toolbar-select" onchange="changeFontSize(this.value)">
-                    <option value="3">Normal</option>
-                    <option value="1">Small</option>
-                    <option value="5">Large</option>
-                    <option value="7">Very Large</option>
-                </select>
-                <select class="toolbar-select" onchange="changeFontColor(this.value)">
-                    <option value="#ffffff">White</option>
-                    <option value="#d4af37">Gold</option>
-                    <option value="#e94560">Red</option>
-                    <option value="#28a745">Green</option>
-                    <option value="#17a2b8">Blue</option>
-                </select>
-            </div>
-            
-            <form onsubmit="return saveNote(event)">
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="noteTitle" placeholder="Note title">
-                </div>
-                <div class="form-group">
-                    <label>Content</label>
-                    <div id="noteContent" contenteditable="true" placeholder="Write your note..."></div>
-                </div>
-                <div style="display:flex;gap:10px;">
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Note</button>
-                    <button type="button" class="btn-primary" style="background:rgba(255,255,255,0.1);" onclick="clearNote()"><i class="fas fa-eraser"></i> Clear</button>
-                </div>
-            </form>
-        </div>
-        
-        <div id="notesList">
-            <p style="text-align:center;color:rgba(255,255,255,0.5);">Loading notes...</p>
-        </div>
+
+        <form onsubmit="return saveNote(event);">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="noteTitle" placeholder="Note title" />
+          </div>
+          <div class="form-group">
+            <label>Content</label>
+            <div
+              id="noteContent"
+              contenteditable="true"
+              placeholder="Write your note..."
+            ></div>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-save"></i> Save Note
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              style="background: rgba(255, 255, 255, 0.1)"
+              onclick="clearNote()"
+            >
+              <i class="fas fa-eraser"></i> Clear
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="notesList">
+        <p style="text-align: center; color: rgba(255, 255, 255, 0.5)">
+          Loading notes...
+        </p>
+      </div>
     </div>
-    
+
     <!-- FLOATING BOTTOM NAVBAR -->
     <div class="floating-navbar-container">
-        <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span>
-                Dashboard
-            </button>
-            <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span>
-                    Resources <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
-                    <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
-                    <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
-                </div>
-            </div>
-            <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span>
-                    People <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
-                    <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
-                    <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
-                </div>
-            </div>
-            <div class="nav-group">
-                <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span>
-                    Communication <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Private Chat</a>
-                    <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Group Forum</a>
-                    <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
-                </div>
-            </div>
-            <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span>
-                    More <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
-                    <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
-                    <a class="dropdown-item" href="timetable.html"><i class="fas fa-clock"></i> Timetable</a>
-                    <a class="dropdown-item" href="terms.html"><i class="fas fa-calendar-alt"></i> Academic Terms</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="reports.html"><i class="fas fa-file-alt"></i> Reports</a>
-                    <a class="dropdown-item" href="auditlog.html"><i class="fas fa-history"></i> Audit Log</a>
-                    <a class="dropdown-item" href="database.html"><i class="fas fa-database"></i> Database</a>
-                    <a class="dropdown-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-                </div>
-            </div>
+      <div class="floating-navbar">
+        <button class="classy-btn" onclick="location.href = 'dashboard.html'">
+          <span class="btn-badge"><i class="fas fa-th-large"></i></span>
+          Dashboard
+        </button>
+        <div class="nav-group">
+          <button class="classy-btn">
+            <span class="btn-badge"><i class="fas fa-layer-group"></i></span>
+            Resources <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="library.html"
+              ><i class="fas fa-book"></i> Library</a
+            >
+            <a class="dropdown-item" href="furniture.html"
+              ><i class="fas fa-chair"></i> Furniture</a
+            >
+            <a class="dropdown-item" href="qrcodes.html"
+              ><i class="fas fa-qrcode"></i> QR Codes</a
+            >
+          </div>
         </div>
+        <div class="nav-group">
+          <button class="classy-btn">
+            <span class="btn-badge"><i class="fas fa-user-friends"></i></span>
+            People <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="students.html"
+              ><i class="fas fa-user-graduate"></i> Students</a
+            >
+            <a class="dropdown-item" href="teachers.html"
+              ><i class="fas fa-chalkboard-teacher"></i> Teachers</a
+            >
+            <a class="dropdown-item" href="classes.html"
+              ><i class="fas fa-door-open"></i> Classes</a
+            >
+          </div>
+        </div>
+        <div class="nav-group">
+          <button class="classy-btn active">
+            <span class="btn-badge"><i class="fas fa-comments"></i></span>
+            Communication <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="chat.html"
+              ><i class="fas fa-comment-dots"></i> Private Chat</a
+            >
+            <a class="dropdown-item" href="forum.html"
+              ><i class="fas fa-bullhorn"></i> Group Forum</a
+            >
+            <a class="dropdown-item" href="notepad.html"
+              ><i class="fas fa-sticky-note"></i> Notepad</a
+            >
+          </div>
+        </div>
+        <div class="nav-group">
+          <button class="classy-btn">
+            <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span>
+            More <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="events.html"
+              ><i class="fas fa-calendar"></i> Events</a
+            >
+            <a class="dropdown-item" href="fees.html"
+              ><i class="fas fa-money-bill"></i> Fees</a
+            >
+            <a class="dropdown-item" href="timetable.html"
+              ><i class="fas fa-clock"></i> Timetable</a
+            >
+            <a class="dropdown-item" href="terms.html"
+              ><i class="fas fa-calendar-alt"></i> Academic Terms</a
+            >
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="reports.html"
+              ><i class="fas fa-file-alt"></i> Reports</a
+            >
+            <a class="dropdown-item" href="auditlog.html"
+              ><i class="fas fa-history"></i> Audit Log</a
+            >
+            <a class="dropdown-item" href="database.html"
+              ><i class="fas fa-database"></i> Database</a
+            >
+            <a class="dropdown-item" href="settings.html"
+              ><i class="fas fa-cog"></i> Settings</a
+            >
+          </div>
+        </div>
+      </div>
     </div>
-    
+
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
-    
+
     <script>
-        function formatText(command) {
-            document.execCommand(command, false, null);
-            document.getElementById('noteContent').focus();
-        }
-        
-        function changeFontSize(size) {
-            document.execCommand('fontSize', false, size);
-            document.getElementById('noteContent').focus();
-        }
-        
-        function changeFontColor(color) {
-            document.execCommand('foreColor', false, color);
-            document.getElementById('noteContent').focus();
-        }
-        
-        function clearNote() {
-            document.getElementById('noteTitle').value = '';
-            document.getElementById('noteContent').innerHTML = '';
-            currentNoteId = null;
-        }
-        
-        window.formatText = formatText;
-        window.changeFontSize = changeFontSize;
-        window.changeFontColor = changeFontColor;
-        window.clearNote = clearNote;
+      function formatText(command) {
+        document.execCommand(command, false, null);
+        document.getElementById("noteContent").focus();
+      }
+
+      function changeFontSize(size) {
+        document.execCommand("fontSize", false, size);
+        document.getElementById("noteContent").focus();
+      }
+
+      function changeFontColor(color) {
+        document.execCommand("foreColor", false, color);
+        document.getElementById("noteContent").focus();
+      }
+
+      function clearNote() {
+        document.getElementById("noteTitle").value = "";
+        document.getElementById("noteContent").innerHTML = "";
+        currentNoteId = null;
+      }
+
+      window.formatText = formatText;
+      window.changeFontSize = changeFontSize;
+      window.changeFontColor = changeFontColor;
+      window.clearNote = clearNote;
     </script>
-</body>
+  </body>
 </html>
