@@ -1,6 +1,6 @@
 /* ============================================
    SRMS - Complete Component Styles
-   With JavaScript-Controlled Dropdown Fix
+   With All Fixes Applied
    ============================================ */
 
 /* ============ HEADER BAR ============ */
@@ -184,7 +184,6 @@
   flex-shrink: 0;
 }
 
-/* Message notification badge */
 .message-badge {
   position: absolute;
   top: -5px;
@@ -222,13 +221,13 @@
   pointer-events: auto;
 }
 
-/* Show dropdown when JavaScript adds .open class OR on hover */
 .dropdown-menu.open {
-  display: block;
+  display: block !important;
 }
 
-.nav-group:hover .dropdown-menu {
-  display: block;
+.nav-group:hover .dropdown-menu,
+.dropdown-menu:hover {
+  display: block !important;
 }
 
 .dropdown-item {
@@ -453,21 +452,6 @@
   letter-spacing: 0.5px;
 }
 
-.stat-trend {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.trend-up {
-  color: #34ce57;
-}
-.trend-down {
-  color: #ff4757;
-}
-
 /* ============ QUICK ACTIONS ============ */
 .quick-actions-grid {
   display: grid;
@@ -523,10 +507,6 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
-.activity-item:last-child {
-  border-bottom: none;
-}
-
 .activity-icon {
   width: 38px;
   height: 38px;
@@ -538,15 +518,9 @@
   font-size: 14px;
 }
 
-.activity-details {
-  flex: 1;
-  min-width: 0;
-}
-
 .activity-text {
   font-size: 13px;
   font-weight: 500;
-  color: #ffffff;
 }
 
 .activity-time {
@@ -569,14 +543,6 @@
   border-radius: 16px;
   padding: 15px;
   overflow-y: auto;
-}
-
-.chat-user-list h4 {
-  color: #d4af37;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .chat-user-btn {
@@ -609,13 +575,6 @@
   flex-direction: column;
 }
 
-#chatMessages {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 15px;
-  padding: 10px;
-}
-
 .chat-input-container {
   display: flex;
   gap: 10px;
@@ -630,12 +589,6 @@
   border-radius: 10px;
   color: #ffffff;
   font-family: "Inter", sans-serif;
-  font-size: 14px;
-}
-
-.chat-input-container input:focus {
-  outline: none;
-  border-color: rgba(212, 175, 55, 0.5);
 }
 
 .chat-input-container button {
@@ -645,12 +598,6 @@
   border-radius: 10px;
   color: #ffffff;
   cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.chat-input-container button:hover {
-  transform: translateY(-2px);
 }
 
 /* ============ FURNITURE CARDS ============ */
@@ -672,7 +619,6 @@
 .furniture-card:hover {
   transform: translateY(-3px);
   border-color: rgba(212, 175, 55, 0.4);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .status-badge {
@@ -689,13 +635,11 @@
 .status-active {
   background: rgba(255, 193, 7, 0.2);
   color: #ffc107;
-  border: 1px solid rgba(255, 193, 7, 0.4);
 }
 
 .status-returned {
   background: rgba(40, 167, 69, 0.2);
   color: #34ce57;
-  border: 1px solid rgba(40, 167, 69, 0.4);
 }
 
 .furniture-icon {
@@ -714,7 +658,6 @@
 .furniture-student-name {
   font-weight: 700;
   font-size: 15px;
-  color: #ffffff;
 }
 
 .furniture-adm {
@@ -757,11 +700,6 @@
   cursor: pointer;
   font-family: "Inter", sans-serif;
   font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-return:hover {
-  background: rgba(40, 167, 69, 0.4);
 }
 
 /* ============ CLASS CARDS ============ */
@@ -1050,10 +988,7 @@
     padding: 20px;
   }
 
-  .furniture-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .furniture-grid,
   .classes-grid {
     grid-template-columns: 1fr;
   }

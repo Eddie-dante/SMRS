@@ -6,7 +6,7 @@
     <title>SRMS - Notepad | School Resource Management System</title>
 
     <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Georgia&display=swap"
       rel="stylesheet"
     />
     <link
@@ -126,8 +126,6 @@
       .nav-group {
         position: relative;
         display: inline-block;
-        padding-bottom: 15px;
-        margin-bottom: -15px;
       }
       .classy-btn {
         font-family: "Cinzel", "Inter", serif;
@@ -159,7 +157,6 @@
       .classy-btn i {
         color: #d4af37;
         font-size: 15px;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
         transition: transform 0.3s ease;
       }
       .classy-btn .fa-chevron-up {
@@ -169,15 +166,6 @@
       .classy-btn:hover {
         color: #ffffff;
         transform: translateY(-3px);
-        box-shadow:
-          0 12px 25px rgba(0, 0, 0, 0.6),
-          0 0 15px rgba(212, 175, 55, 0.3),
-          inset 0 1px 3px rgba(255, 255, 255, 0.6);
-        border-color: rgba(240, 208, 96, 0.9);
-      }
-      .classy-btn:hover i {
-        transform: scale(1.15);
-        color: #fff3c4;
       }
       .classy-btn.active {
         background: linear-gradient(
@@ -186,9 +174,7 @@
           rgba(30, 20, 5, 0.95) 100%
         );
         border-color: #f0d060;
-        box-shadow:
-          0 0 20px rgba(212, 175, 55, 0.5),
-          inset 0 1px 3px rgba(255, 240, 180, 0.6);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
       }
       .btn-badge {
         width: 28px;
@@ -208,11 +194,10 @@
       .dropdown-menu {
         display: none;
         position: absolute;
-        bottom: 100%;
+        bottom: calc(100% + 5px);
         left: 50%;
         transform: translateX(-50%);
         background: rgba(10, 14, 39, 0.98);
-        backdrop-filter: blur(25px);
         border: 1px solid rgba(212, 175, 55, 0.4);
         border-radius: 14px;
         padding: 10px;
@@ -220,9 +205,12 @@
         z-index: 1200;
         box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
       }
+      .dropdown-menu.open {
+        display: block !important;
+      }
       .nav-group:hover .dropdown-menu,
       .dropdown-menu:hover {
-        display: block;
+        display: block !important;
       }
       .dropdown-item {
         display: flex;
@@ -261,7 +249,7 @@
 
       .main-content {
         padding: 85px 25px 25px;
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
         animation: fadeIn 0.5s ease;
       }
@@ -285,6 +273,7 @@
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        color: transparent;
         margin-bottom: 5px;
       }
       .page-header p {
@@ -292,56 +281,70 @@
         font-size: 14px;
       }
 
+      /* WHITE EDITOR AREA */
       .editor-container {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #ffffff;
+        border: 3px solid #d4af37;
         border-radius: 16px;
         padding: 25px;
         margin-bottom: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
       }
+
       .toolbar {
         display: flex;
         gap: 5px;
         margin-bottom: 15px;
         flex-wrap: wrap;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        background: #f5f5f5;
         border-radius: 10px;
+        border: 1px solid #ddd;
       }
+
       .toolbar-btn {
-        width: 35px;
-        height: 35px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        color: #ffffff;
+        width: 38px;
+        height: 38px;
+        background: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        color: #333;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
+        font-size: 14px;
         transition: all 0.3s ease;
       }
+
       .toolbar-btn:hover {
-        background: rgba(212, 175, 55, 0.3);
+        background: #e0e0e0;
+        border-color: #999;
       }
+
       .toolbar-btn.active {
-        background: rgba(212, 175, 55, 0.4);
+        background: #d4af37;
+        color: #ffffff;
         border-color: #d4af37;
       }
+
       .toolbar-select {
         padding: 5px 10px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        color: #ffffff;
+        background: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        color: #333;
         font-family: "Inter", sans-serif;
         font-size: 12px;
+        cursor: pointer;
       }
-      .toolbar-select option {
-        background: #1a1f4e;
+
+      .toolbar-divider {
+        width: 1px;
+        background: #ccc;
+        margin: 0 5px;
       }
+
       .form-group {
         margin-bottom: 15px;
       }
@@ -349,34 +352,67 @@
         display: block;
         margin-bottom: 5px;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.7);
+        color: #333;
+        font-weight: 600;
       }
       .form-group input {
         width: 100%;
         padding: 12px 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: #ffffff;
+        border: 1px solid #ddd;
         border-radius: 10px;
-        color: #ffffff;
+        color: #333;
         font-family: "Inter", sans-serif;
         font-size: 16px;
+        font-weight: 700;
       }
+      .form-group input:focus {
+        outline: none;
+        border-color: #d4af37;
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+      }
+
       #noteContent {
         width: 100%;
-        min-height: 300px;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        min-height: 400px;
+        padding: 20px;
+        background: #ffffff;
+        border: 1px solid #ddd;
         border-radius: 10px;
-        color: #ffffff;
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
+        color: #333;
+        font-family: "Georgia", "Times New Roman", serif;
+        font-size: 16px;
         overflow-y: auto;
         outline: none;
+        line-height: 1.8;
       }
+
       #noteContent:focus {
-        border-color: rgba(212, 175, 55, 0.5);
+        border-color: #d4af37;
+        box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
       }
+
+      #noteContent h1,
+      #noteContent h2,
+      #noteContent h3 {
+        color: #333;
+      }
+      #noteContent p {
+        color: #333;
+      }
+      #noteContent ul,
+      #noteContent ol {
+        color: #333;
+        padding-left: 25px;
+      }
+
+      .word-count {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+        text-align: right;
+      }
+
       .btn-primary {
         padding: 12px 20px;
         background: linear-gradient(135deg, #e94560, #c62a47);
@@ -391,6 +427,17 @@
       .btn-primary:hover {
         transform: translateY(-2px);
       }
+      .btn-secondary {
+        padding: 12px 20px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        color: #333;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+      }
+
       .note-card {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -455,11 +502,12 @@
 
     <div class="main-content">
       <div class="page-header">
-        <h1>Notepad</h1>
-        <p>Advanced document editor</p>
+        <h1>Advanced Notepad</h1>
+        <p>Microsoft Word-like document editor</p>
       </div>
 
       <div class="editor-container">
+        <!-- TOOLBAR -->
         <div class="toolbar">
           <button class="toolbar-btn" onclick="formatText('bold')" title="Bold">
             <i class="fas fa-bold"></i>
@@ -485,6 +533,9 @@
           >
             <i class="fas fa-strikethrough"></i>
           </button>
+
+          <div class="toolbar-divider"></div>
+
           <button
             class="toolbar-btn"
             onclick="formatText('insertUnorderedList')"
@@ -499,6 +550,9 @@
           >
             <i class="fas fa-list-ol"></i>
           </button>
+
+          <div class="toolbar-divider"></div>
+
           <button
             class="toolbar-btn"
             onclick="formatText('justifyLeft')"
@@ -520,52 +574,97 @@
           >
             <i class="fas fa-align-right"></i>
           </button>
+
+          <div class="toolbar-divider"></div>
+
           <button
             class="toolbar-btn"
             onclick="formatText('formatBlock')"
-            title="Heading"
+            title="Heading 1"
           >
-            <i class="fas fa-heading"></i>
+            <i class="fas fa-heading"></i> H1
           </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('formatBlock')"
+            title="Heading 2"
+          >
+            <i class="fas fa-heading"></i> H2
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('formatBlock')"
+            title="Heading 3"
+          >
+            <i class="fas fa-heading"></i> H3
+          </button>
+
+          <div class="toolbar-divider"></div>
+
           <select class="toolbar-select" onchange="changeFontSize(this.value)">
-            <option value="3">Normal</option>
+            <option value="3">Normal Size</option>
             <option value="1">Small</option>
+            <option value="2">Medium Small</option>
+            <option value="4">Medium Large</option>
             <option value="5">Large</option>
-            <option value="7">Very Large</option>
+            <option value="6">Very Large</option>
+            <option value="7">Huge</option>
           </select>
+
           <select class="toolbar-select" onchange="changeFontColor(this.value)">
-            <option value="#ffffff">White</option>
-            <option value="#d4af37">Gold</option>
+            <option value="#333333">Black</option>
             <option value="#e94560">Red</option>
             <option value="#28a745">Green</option>
-            <option value="#17a2b8">Blue</option>
+            <option value="#0f3460">Dark Blue</option>
+            <option value="#d4af37">Gold</option>
+            <option value="#17a2b8">Teal</option>
+            <option value="#6f42c1">Purple</option>
           </select>
+
+          <div class="toolbar-divider"></div>
+
+          <button class="toolbar-btn" onclick="formatText('undo')" title="Undo">
+            <i class="fas fa-undo"></i>
+          </button>
+          <button class="toolbar-btn" onclick="formatText('redo')" title="Redo">
+            <i class="fas fa-redo"></i>
+          </button>
+          <button
+            class="toolbar-btn"
+            onclick="formatText('removeFormat')"
+            title="Clear Formatting"
+          >
+            <i class="fas fa-eraser"></i>
+          </button>
         </div>
 
         <form onsubmit="return saveNote(event);">
           <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="noteTitle" placeholder="Note title" />
+            <label>Document Title</label>
+            <input
+              type="text"
+              id="noteTitle"
+              placeholder="Enter document title..."
+            />
           </div>
           <div class="form-group">
             <label>Content</label>
             <div
               id="noteContent"
               contenteditable="true"
-              placeholder="Write your note..."
+              placeholder="Start typing your document..."
             ></div>
+            <div class="word-count" id="wordCount">0 words</div>
           </div>
-          <div style="display: flex; gap: 10px">
+          <div style="display: flex; gap: 10px; margin-top: 15px">
             <button type="submit" class="btn-primary">
-              <i class="fas fa-save"></i> Save Note
+              <i class="fas fa-save"></i> Save Document
             </button>
-            <button
-              type="button"
-              class="btn-primary"
-              style="background: rgba(255, 255, 255, 0.1)"
-              onclick="clearNote()"
-            >
+            <button type="button" class="btn-secondary" onclick="clearNote()">
               <i class="fas fa-eraser"></i> Clear
+            </button>
+            <button type="button" class="btn-secondary" onclick="printNote()">
+              <i class="fas fa-print"></i> Print
             </button>
           </div>
         </form>
@@ -573,7 +672,7 @@
 
       <div id="notesList">
         <p style="text-align: center; color: rgba(255, 255, 255, 0.5)">
-          Loading notes...
+          Loading saved documents...
         </p>
       </div>
     </div>
@@ -678,9 +777,10 @@
     <script src="js/app.js"></script>
 
     <script>
-      function formatText(command) {
-        document.execCommand(command, false, null);
+      function formatText(command, value) {
+        document.execCommand(command, false, value);
         document.getElementById("noteContent").focus();
+        updateWordCount();
       }
 
       function changeFontSize(size) {
@@ -694,15 +794,46 @@
       }
 
       function clearNote() {
+        if (!confirm("Clear the document?")) return;
         document.getElementById("noteTitle").value = "";
         document.getElementById("noteContent").innerHTML = "";
         currentNoteId = null;
+        updateWordCount();
+        document.getElementById("noteContent").focus();
       }
+
+      function printNote() {
+        var content = document.getElementById("noteContent").innerHTML;
+        var title =
+          document.getElementById("noteTitle").value || "Untitled Document";
+        var printWindow = window.open("", "_blank");
+        printWindow.document.write(
+          "<html><head><title>" +
+            title +
+            "</title></head><body>" +
+            content +
+            "</body></html>",
+        );
+        printWindow.document.close();
+        printWindow.print();
+      }
+
+      function updateWordCount() {
+        var content = document.getElementById("noteContent").textContent;
+        var words = content.trim() ? content.trim().split(/\s+/).length : 0;
+        document.getElementById("wordCount").textContent = words + " words";
+      }
+
+      document
+        .getElementById("noteContent")
+        .addEventListener("input", updateWordCount);
 
       window.formatText = formatText;
       window.changeFontSize = changeFontSize;
       window.changeFontColor = changeFontColor;
       window.clearNote = clearNote;
+      window.printNote = printNote;
+      window.updateWordCount = updateWordCount;
     </script>
   </body>
 </html>
