@@ -8,6 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- QR Code Scanner Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -27,26 +33,34 @@
         .floating-navbar-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: auto; max-width: 95vw; }
         .floating-navbar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 24px; background: rgba(15, 18, 30, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 50px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
         .nav-group { position: relative; display: inline-block; }
-        .classy-btn { font-family: 'Cinzel', 'Inter', serif; font-size: 14px; font-weight: 600; letter-spacing: 0.8px; color: #f0e6d2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); background: linear-gradient(135deg, rgba(35, 30, 25, 0.85) 0%, rgba(10, 8, 5, 0.95) 100%); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 30px; padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255, 223, 138, 0.4), inset 0 -2px 6px rgba(0,0,0,0.9); }
-        .classy-btn i { color: #d4af37; font-size: 15px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: transform 0.3s ease; }
+        .classy-btn { font-family: 'Cinzel', 'Inter', serif; font-size: 14px; font-weight: 600; letter-spacing: 0.8px; color: #f0e6d2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); background: linear-gradient(135deg, rgba(35, 30, 25, 0.85) 0%, rgba(10, 8, 5, 0.95) 100%); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 30px; padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255, 223, 138, 0.4), inset 0 -2px 6px rgba(0,0,0,0.9); position: relative; z-index: 1100; }
+        .classy-btn i { color: #d4af37; font-size: 15px; transition: transform 0.3s ease; }
         .classy-btn .fa-chevron-up { font-size: 9px; color: rgba(212,175,55,0.7); }
-        .classy-btn:hover { color: #ffffff; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.3), inset 0 1px 3px rgba(255, 255, 255, 0.6); border-color: rgba(240, 208, 96, 0.9); }
-        .classy-btn:hover i { transform: scale(1.15); color: #fff3c4; }
-        .classy-btn.active { background: linear-gradient(135deg, rgba(80, 60, 25, 0.9) 0%, rgba(30, 20, 5, 0.95) 100%); border-color: #f0d060; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5), inset 0 1px 3px rgba(255, 240, 180, 0.6); }
-        .btn-badge { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(0,0,0,0.4) 100%); border: 1px solid rgba(212,175,55,0.4); display: flex; align-items: center; justify-content: center; }
-        .dropdown-menu { display: none; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: rgba(10,14,39,0.98); backdrop-filter: blur(25px); border: 1px solid rgba(212,175,55,0.4); border-radius: 14px; padding: 10px; min-width: 200px; z-index: 1100; box-shadow: 0 -15px 40px rgba(0,0,0,0.6); animation: fadeInUp 0.3s ease; }
-        .nav-group:hover .dropdown-menu { display: block; }
-        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 8px; transition: all 0.3s ease; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; background: none; border: none; text-align: left; }
+        .classy-btn:hover { color: #ffffff; transform: translateY(-3px); }
+        .classy-btn.active { background: linear-gradient(135deg, rgba(80, 60, 25, 0.9) 0%, rgba(30, 20, 5, 0.95) 100%); border-color: #f0d060; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+        .btn-badge { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(0,0,0,0.4) 100%); border: 1px solid rgba(212,175,55,0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .dropdown-menu { display: none; position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: rgba(10,14,39,0.98); border: 1px solid rgba(212,175,55,0.4); border-radius: 14px; padding: 10px; min-width: 200px; z-index: 1200; box-shadow: 0 -15px 40px rgba(0,0,0,0.6); }
+        .dropdown-menu.open { display: block !important; }
+        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 8px; transition: all 0.3s ease; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; background: none; border: none; text-align: left; white-space: nowrap; }
         .dropdown-item i { font-size: 14px; color: #d4af37; width: 20px; text-align: center; }
         .dropdown-item:hover { background: rgba(212,175,55,0.15); color: #ffffff; transform: translateX(5px); }
         .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
         
-        .main-content { padding: 85px 25px 25px; max-width: 1000px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+        .main-content { padding: 85px 25px 25px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .page-header { margin-bottom: 25px; }
         .page-header h1 { font-size: 2em; font-weight: 900; background: linear-gradient(180deg, #ffffff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 14px; }
+        
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 12px 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: rgba(255,255,255,0.7); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .tab:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
+        .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #ffffff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Generator */
         .generator-form { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
@@ -54,10 +68,48 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         .btn-primary { padding: 12px 20px; background: linear-gradient(135deg, #e94560, #c62a47); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-2px); }
+        .btn-success { padding: 12px 20px; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
+        
         .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
         .qr-item { background: #ffffff; border-radius: 12px; padding: 15px; text-align: center; }
         .qr-placeholder { width: 100px; height: 100px; margin: 0 auto; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #333; }
         .qr-item p { margin-top: 10px; font-weight: 700; color: #333; font-size: 12px; }
+        
+        /* Scanner */
+        .scanner-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 25px; margin-bottom: 20px; text-align: center; }
+        .scanner-container h3 { color: #d4af37; margin-bottom: 15px; }
+        
+        #scannerVideo {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #d4af37;
+            margin: 0 auto 15px;
+            display: none;
+        }
+        
+        #scannerCanvas {
+            display: none;
+        }
+        
+        .scan-result {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .scan-result .scanned-code {
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            font-weight: 800;
+            color: #34ce57;
+            letter-spacing: 3px;
+        }
+        
+        .btn-stop { padding: 12px 20px; background: linear-gradient(135deg, #dc3545, #ff4757); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
         
         @media (max-width: 768px) { .floating-navbar { padding: 8px 12px; gap: 6px; } .classy-btn { padding: 8px 12px; font-size: 11px; } .main-content { padding: 75px 15px 15px; } .form-row { grid-template-columns: 1fr; } }
     </style>
@@ -76,28 +128,66 @@
     <div class="main-content">
         <div class="page-header">
             <h1>QR Codes</h1>
-            <p>Generate QR codes for items</p>
+            <p>Generate and scan QR codes</p>
         </div>
         
-        <div class="generator-form">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Type</label>
-                    <select id="qrType"><option value="book">Book</option><option value="chair">Chair</option><option value="locker">Locker</option></select>
+        <div class="tabs">
+            <button class="tab active" onclick="switchQRTab('generate')"><i class="fas fa-qrcode"></i> Generate</button>
+            <button class="tab" onclick="switchQRTab('scan')"><i class="fas fa-camera"></i> Scan</button>
+        </div>
+        
+        <!-- GENERATE TAB -->
+        <div id="generateTab" class="tab-content active">
+            <div class="generator-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="qrType"><option value="book">Book</option><option value="chair">Chair</option><option value="locker">Locker</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Number</label>
+                        <input type="number" id="qrStart" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>End Number</label>
+                        <input type="number" id="qrEnd" min="1" value="10">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Start Number</label>
-                    <input type="number" id="qrStart" min="1" value="1">
+                <button class="btn-primary" onclick="generateQRCodes()"><i class="fas fa-qrcode"></i> Generate QR Codes</button>
+            </div>
+            
+            <div class="qr-grid" id="qrContainer"></div>
+        </div>
+        
+        <!-- SCAN TAB -->
+        <div id="scanTab" class="tab-content">
+            <div class="scanner-container">
+                <h3><i class="fas fa-camera"></i> Scan QR Code with Camera</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:15px;">
+                    Point your camera at a QR code. The scanner will automatically detect it.
+                </p>
+                
+                <video id="scannerVideo" autoplay playsinline></video>
+                <canvas id="scannerCanvas"></canvas>
+                
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn-success" id="startScanBtn" onclick="startScanner()">
+                        <i class="fas fa-camera"></i> Start Camera
+                    </button>
+                    <button class="btn-stop" id="stopScanBtn" onclick="stopScanner()" style="display:none;">
+                        <i class="fas fa-stop"></i> Stop Camera
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label>End Number</label>
-                    <input type="number" id="qrEnd" min="1" value="10">
+                
+                <div class="scan-result" id="scanResult">
+                    <p style="font-size:13px;color:rgba(255,255,255,0.7);">SCANNED CODE:</p>
+                    <div class="scanned-code" id="scannedCode"></div>
+                    <button class="btn-primary" style="margin-top:10px;" onclick="useScannedCode()">
+                        <i class="fas fa-check"></i> Use This Code
+                    </button>
                 </div>
             </div>
-            <button class="btn-primary" onclick="generateQRCodes()"><i class="fas fa-qrcode"></i> Generate QR Codes</button>
         </div>
-        
-        <div class="qr-grid" id="qrContainer"></div>
     </div>
     
     <!-- FLOATING BOTTOM NAVBAR -->
@@ -160,8 +250,236 @@
         </div>
     </div>
     
+    <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
+    
+    <script>
+        // ============ TAB SWITCHING ============
+        function switchQRTab(tabName) {
+            var tabs = document.querySelectorAll('.tab');
+            var contents = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+            for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+            
+            if (tabName === 'generate') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('generateTab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('scanTab').classList.add('active');
+            }
+        }
+        
+        // ============ QR CODE GENERATION ============
+        function generateQRCodes() {
+            var type = document.getElementById('qrType').value;
+            var start = parseInt(document.getElementById('qrStart').value);
+            var end = parseInt(document.getElementById('qrEnd').value);
+            var container = document.getElementById('qrContainer');
+            
+            container.innerHTML = '';
+            
+            for (var i = start; i <= Math.min(end, start + 20); i++) {
+                var code = type + '-' + i;
+                var qrData = generateQRData(code);
+                
+                var div = document.createElement('div');
+                div.className = 'qr-item';
+                div.innerHTML = '<div class="qr-placeholder">' + qrData + '</div><p>' + code + '</p>';
+                container.appendChild(div);
+            }
+        }
+        
+        function generateQRData(text) {
+            // Simple QR code representation using canvas
+            var canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            var ctx = canvas.getContext('2d');
+            
+            // Simple hash to create deterministic pattern
+            var hash = 0;
+            for (var i = 0; i < text.length; i++) {
+                hash = ((hash << 5) - hash) + text.charCodeAt(i);
+                hash = hash & hash;
+            }
+            
+            // Draw QR-like pattern
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#000000';
+            
+            var seed = Math.abs(hash);
+            for (var x = 0; x < 10; x++) {
+                for (var y = 0; y < 10; y++) {
+                    seed = (seed * 9301 + 49297) % 233280;
+                    if (seed % 2 === 0) {
+                        ctx.fillRect(x * 10, y * 10, 8, 8);
+                    }
+                }
+            }
+            
+            // Add corner markers
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, 30, 30);
+            ctx.fillRect(70, 0, 30, 30);
+            ctx.fillRect(0, 70, 30, 30);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(5, 5, 20, 20);
+            ctx.fillRect(75, 5, 20, 20);
+            ctx.fillRect(5, 75, 20, 20);
+            
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(10, 10, 10, 10);
+            ctx.fillRect(80, 10, 10, 10);
+            ctx.fillRect(10, 80, 10, 10);
+            
+            return '<img src="' + canvas.toDataURL() + '" style="width:100px;height:100px;">';
+        }
+        
+        // ============ QR CODE SCANNER ============
+        var scannerStream = null;
+        var scannerActive = false;
+        
+        async function startScanner() {
+            var video = document.getElementById('scannerVideo');
+            var startBtn = document.getElementById('startScanBtn');
+            var stopBtn = document.getElementById('stopScanBtn');
+            var resultDiv = document.getElementById('scanResult');
+            
+            resultDiv.style.display = 'none';
+            
+            try {
+                scannerStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
+                });
+                
+                video.srcObject = scannerStream;
+                video.style.display = 'block';
+                video.play();
+                
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                
+                scannerActive = true;
+                scanLoop();
+                
+                showNotification('Camera started! Point at a QR code.', 'success');
+            } catch (error) {
+                showNotification('Cannot access camera: ' + error.message, 'error');
+            }
+        }
+        
+        function stopScanner() {
+            if (scannerStream) {
+                scannerStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            }
+            
+            scannerActive = false;
+            
+            var video = document.getElementById('scannerVideo');
+            video.style.display = 'none';
+            video.srcObject = null;
+            
+            document.getElementById('startScanBtn').style.display = 'inline-block';
+            document.getElementById('stopScanBtn').style.display = 'none';
+            
+            showNotification('Camera stopped', 'info');
+        }
+        
+        function scanLoop() {
+            if (!scannerActive) return;
+            
+            var video = document.getElementById('scannerVideo');
+            var canvas = document.getElementById('scannerCanvas');
+            var ctx = canvas.getContext('2d');
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                if (window.jsQR) {
+                    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: 'dontInvert'
+                    });
+                    
+                    if (code && code.data) {
+                        scannerActive = false;
+                        stopScanner();
+                        
+                        document.getElementById('scannedCode').textContent = code.data;
+                        document.getElementById('scanResult').style.display = 'block';
+                        
+                        showNotification('QR code detected!', 'success');
+                        logAction('QR Code Scanned', code.data);
+                        return;
+                    }
+                }
+            }
+            
+            if (scannerActive) {
+                requestAnimationFrame(scanLoop);
+            }
+        }
+        
+        function useScannedCode() {
+            var code = document.getElementById('scannedCode').textContent;
+            showNotification('Code used: ' + code, 'success');
+            document.getElementById('scanResult').style.display = 'none';
+        }
+        
+        // ============ DROPDOWN CONTROLLER ============
+        document.addEventListener('DOMContentLoaded', function() {
+            var navGroups = document.querySelectorAll('.nav-group');
+            navGroups.forEach(function(group) {
+                var dropdown = group.querySelector('.dropdown-menu');
+                var button = group.querySelector('.classy-btn');
+                if (!dropdown || !button) return;
+                var closeTimeout = null;
+                
+                function openDropdown() {
+                    if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+                    document.querySelectorAll('.dropdown-menu.open').forEach(function(d) {
+                        if (d !== dropdown) d.classList.remove('open');
+                    });
+                    dropdown.classList.add('open');
+                }
+                
+                function closeDropdownDelayed() {
+                    closeTimeout = setTimeout(function() { dropdown.classList.remove('open'); }, 300);
+                }
+                
+                group.addEventListener('mouseenter', openDropdown);
+                group.addEventListener('mouseleave', closeDropdownDelayed);
+                dropdown.addEventListener('mouseenter', openDropdown);
+                dropdown.addEventListener('mouseleave', closeDropdownDelayed);
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (dropdown.classList.contains('open')) { dropdown.classList.remove('open'); } else { openDropdown(); }
+                });
+            });
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.nav-group')) {
+                    document.querySelectorAll('.dropdown-menu.open').forEach(function(d) { d.classList.remove('open'); });
+                }
+            });
+        });
+        
+        window.switchQRTab = switchQRTab;
+        window.generateQRCodes = generateQRCodes;
+        window.startScanner = startScanner;
+        window.stopScanner = stopScanner;
+        window.useScannedCode = useScannedCode;
+    </script>
 </body>
 </html>
