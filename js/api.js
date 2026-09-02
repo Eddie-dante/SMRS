@@ -1,9 +1,8 @@
 // ============================================
 // SRMS - Complete Firebase API
-// All Database Operations
+// With QR Scanning, Class Storage, Fee Editing, Timetable
 // ============================================
 
-// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyACefHWvbETo2siNZy4ETCWZVTwIrtaNMs",
     authDomain: "srms-fd318.firebaseapp.com",
@@ -14,14 +13,12 @@ const firebaseConfig = {
     appId: "1:828888967437:web:90461f6b1bc79854ea6844"
 };
 
-// Initialize Firebase
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
 const database = firebase.database();
 
-// ============ HELPER FUNCTIONS ============
 function generateInviteCode(length) {
     length = length || 8;
     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -51,7 +48,26 @@ function hashPassword(password) {
     return hash.toString();
 }
 
-// ============ API OBJECT ============
+// Generate unique QR code
+function generateUniqueQRCode(type, usedCodes) {
+    var code = '';
+    var unique = false;
+    var attempts = 0;
+    
+    while (!unique && attempts < 100) {
+        var number = Math.floor(10000 + Math.random() * 90000);
+        code = type.toUpperCase() + '-' + number;
+        
+        if (!usedCodes[code]) {
+            unique = true;
+            usedCodes[code] = true;
+        }
+        attempts++;
+    }
+    
+    return code;
+}
+
 const API = {
     // ============ SCHOOL OPERATIONS ============
     async getSchool(schoolName) {
@@ -59,7 +75,6 @@ const API = {
             const snapshot = await database.ref('schools/' + schoolName).once('value');
             return snapshot.val();
         } catch (error) {
-            console.error('Error getting school:', error);
             return null;
         }
     },
@@ -84,8 +99,7 @@ const API = {
             await database.ref('schools/' + schoolData.name + '/settings').set({
                 maxBorrowDays: 14,
                 maxBooksPerStudent: 3,
-                finePerDay: 10,
-                maintenanceMode: false
+                finePerDay: 10
             });
             
             await database.ref('schools/' + schoolData.name + '/users/' + emailKey).set({
@@ -100,7 +114,6 @@ const API = {
             
             return { success: true, inviteCode: inviteCode };
         } catch (error) {
-            console.error('Error creating school:', error);
             return { success: false, error: error.message };
         }
     },
@@ -134,7 +147,6 @@ const API = {
             }
             return { success: false, error: 'Invalid credentials' };
         } catch (error) {
-            console.error('Login error:', error);
             return { success: false, error: error.message };
         }
     },
@@ -143,7 +155,6 @@ const API = {
         try {
             const emailKey = userData.email.replace(/\./g, ',');
             const snapshot = await database.ref('schools/' + schoolName + '/users/' + emailKey).once('value');
-            
             if (snapshot.exists()) {
                 return { success: false, error: 'User already exists' };
             }
@@ -156,12 +167,10 @@ const API = {
                 phone: userData.phone || '',
                 password: hashPassword(userData.password),
                 createdAt: new Date().toISOString(),
-                lastLogin: null,
                 isActive: true
             });
             return { success: true };
         } catch (error) {
-            console.error('Create user error:', error);
             return { success: false, error: error.message };
         }
     },
@@ -175,7 +184,6 @@ const API = {
                 return Object.assign({ id: entry[0] }, entry[1]);
             });
         } catch (error) {
-            console.error('Get users error:', error);
             return [];
         }
     },
@@ -207,18 +215,15 @@ const API = {
             await bookRef.set({
                 title: bookData.title,
                 author: bookData.author || '',
-                isbn: bookData.isbn || '',
                 type: bookData.type || 'Textbook',
                 subject: bookData.subject || '',
                 quantity: bookData.quantity || 1,
                 available: bookData.quantity || 1,
-                location: bookData.location || '',
                 createdBy: bookData.createdBy || '',
                 createdAt: new Date().toISOString()
             });
             return { success: true, bookId: bookRef.key };
         } catch (error) {
-            console.error('Add book error:', error);
             return { success: false, error: error.message };
         }
     },
@@ -232,7 +237,6 @@ const API = {
                 return Object.assign({ id: entry[0] }, entry[1]);
             });
         } catch (error) {
-            console.error('Get books error:', error);
             return [];
         }
     },
@@ -255,6 +259,150 @@ const API = {
         }
     },
     
+    // ============ QR CODE OPERATIONS ============
+    async generateQRCodes(schoolName, type, start, end) {
+        try {
+            const qrRef = database.ref('schools/' + schoolName + '/qrcodes');
+            const snapshot = await qrRef.once('value');
+            const existingCodes = snapshot.val() || {};
+            const usedCodes = {};
+            
+            // Build used codes map
+            Object.values(existingCodes).forEach(function(qr) {
+                usedCodes[qr.code] = true;
+            });
+            
+            var generated = [];
+            for (var i = start; i <= end; i++) {
+                var code = generateUniqueQRCode(type, usedCodes);
+                var newQRRef = qrRef.push();
+                await newQRRef.set({
+                    code: code,
+                    type: type,
+                    assigned: false,
+                    assignedTo: null,
+                    assignedAt: null,
+                    returned: false,
+                    createdAt: new Date().toISOString()
+                });
+                generated.push(code);
+            }
+            
+            return { success: true, codes: generated };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getQRCodes(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/qrcodes').once('value');
+            const codes = snapshot.val();
+            if (!codes) return [];
+            return Object.entries(codes).map(function(entry) {
+                return Object.assign({ id: entry[0] }, entry[1]);
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    async scanQRCode(schoolName, code) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/qrcodes').once('value');
+            const codes = snapshot.val();
+            if (!codes) return { success: false, error: 'Code not found' };
+            
+            var foundQR = null;
+            var foundId = null;
+            Object.entries(codes).forEach(function(entry) {
+                if (entry[1].code === code) {
+                    foundQR = entry[1];
+                    foundId = entry[0];
+                }
+            });
+            
+            if (!foundQR) {
+                return { success: false, error: 'Code not found in database' };
+            }
+            
+            if (foundQR.assigned && !foundQR.returned) {
+                return { 
+                    success: true, 
+                    status: 'assigned', 
+                    qr: foundQR, 
+                    id: foundId 
+                };
+            }
+            
+            if (foundQR.returned) {
+                return { 
+                    success: true, 
+                    status: 'available', 
+                    qr: foundQR, 
+                    id: foundId 
+                };
+            }
+            
+            return { 
+                success: true, 
+                status: 'available', 
+                qr: foundQR, 
+                id: foundId 
+            };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async assignQRCode(schoolName, qrId, assignmentData) {
+        try {
+            await database.ref('schools/' + schoolName + '/qrcodes/' + qrId).update({
+                assigned: true,
+                assignedTo: assignmentData.studentName,
+                studentName: assignmentData.studentName,
+                className: assignmentData.className || '',
+                stream: assignmentData.stream || '',
+                adm: assignmentData.adm || '',
+                assignedAt: new Date().toISOString(),
+                returned: false
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async returnQRCode(schoolName, qrId) {
+        try {
+            await database.ref('schools/' + schoolName + '/qrcodes/' + qrId).update({
+                returned: true,
+                returnedAt: new Date().toISOString(),
+                assigned: false,
+                assignedTo: null,
+                studentName: null,
+                className: null,
+                stream: null,
+                adm: null
+            });
+            
+            // Also delete any borrow records associated with this QR
+            const borrowedSnapshot = await database.ref('schools/' + schoolName + '/borrowed').once('value');
+            const borrowed = borrowedSnapshot.val();
+            if (borrowed) {
+                Object.entries(borrowed).forEach(async function(entry) {
+                    if (entry[1].bookNo === qrId || entry[1].qrId === qrId) {
+                        await database.ref('schools/' + schoolName + '/borrowed/' + entry[0]).remove();
+                    }
+                });
+            }
+            
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
     // ============ BORROWING OPERATIONS ============
     async issueBook(schoolName, borrowData) {
         try {
@@ -264,23 +412,17 @@ const API = {
                 adm: borrowData.adm,
                 form: borrowData.form || '',
                 stream: borrowData.stream || '',
-                gender: borrowData.gender || '',
                 bookTitle: borrowData.bookTitle,
                 bookNo: borrowData.bookNo,
+                qrId: borrowData.qrId || null,
                 borrowDate: borrowData.borrowDate,
                 returnDate: borrowData.returnDate,
                 returned: false,
-                actualReturnDate: null,
                 issuedBy: borrowData.issuedBy || '',
-                issuedByEmail: borrowData.issuedByEmail || '',
-                academicYear: borrowData.academicYear || new Date().getFullYear(),
-                term: borrowData.term || 'Term 1',
-                status: 'active',
                 createdAt: new Date().toISOString()
             });
             return { success: true, borrowId: borrowRef.key };
         } catch (error) {
-            console.error('Issue book error:', error);
             return { success: false, error: error.message };
         }
     },
@@ -294,26 +436,31 @@ const API = {
                 return Object.assign({ id: entry[0] }, entry[1]);
             });
         } catch (error) {
-            console.error('Get borrowed error:', error);
             return [];
         }
     },
     
     async returnBook(schoolName, borrowId) {
         try {
-            await database.ref('schools/' + schoolName + '/borrowed/' + borrowId).update({
-                returned: true,
-                actualReturnDate: new Date().toISOString().split('T')[0],
-                status: 'returned'
-            });
+            // Get the borrow record first
+            const borrowSnapshot = await database.ref('schools/' + schoolName + '/borrowed/' + borrowId).once('value');
+            const borrowRecord = borrowSnapshot.val();
+            
+            // If there's a QR code, mark it as returned
+            if (borrowRecord && borrowRecord.qrId) {
+                await this.returnQRCode(schoolName, borrowRecord.qrId);
+            }
+            
+            // Delete the borrow record
+            await database.ref('schools/' + schoolName + '/borrowed/' + borrowId).remove();
+            
             return { success: true };
         } catch (error) {
-            console.error('Return book error:', error);
             return { success: false, error: error.message };
         }
     },
     
-    // ============ STUDENT OPERATIONS ============
+    // ============ STUDENT OPERATIONS (Stored in Classes) ============
     async addStudent(schoolName, studentData) {
         try {
             await database.ref('schools/' + schoolName + '/students/' + studentData.adm).set({
@@ -322,30 +469,14 @@ const API = {
                 form: studentData.form || '',
                 stream: studentData.stream || '',
                 gender: studentData.gender || '',
-                dob: studentData.dob || '',
                 parentName: studentData.parentName || '',
                 parentPhone: studentData.parentPhone || '',
                 parentEmail: studentData.parentEmail || '',
-                parentOccupation: studentData.parentOccupation || '',
-                address: studentData.address || '',
-                city: studentData.city || '',
-                postalCode: studentData.postalCode || '',
-                medicalInfo: studentData.medicalInfo || '',
-                enrollmentDate: studentData.enrollmentDate || new Date().toISOString().split('T')[0],
-                previousSchool: studentData.previousSchool || '',
-                religion: studentData.religion || '',
-                nationality: studentData.nationality || '',
-                kcpeMarks: studentData.kcpeMarks || '',
-                specialNeeds: studentData.specialNeeds || '',
-                emergencyContact: studentData.emergencyContact || '',
-                emergencyPhone: studentData.emergencyPhone || '',
                 addedBy: studentData.addedBy || '',
-                addedAt: new Date().toISOString(),
-                isActive: true
+                addedAt: new Date().toISOString()
             });
             return { success: true };
         } catch (error) {
-            console.error('Add student error:', error);
             return { success: false, error: error.message };
         }
     },
@@ -359,17 +490,7 @@ const API = {
                 return Object.assign({ adm: entry[0] }, entry[1]);
             });
         } catch (error) {
-            console.error('Get students error:', error);
             return [];
-        }
-    },
-    
-    async updateStudent(schoolName, adm, studentData) {
-        try {
-            await database.ref('schools/' + schoolName + '/students/' + adm).update(studentData);
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
         }
     },
     
@@ -382,53 +503,224 @@ const API = {
         }
     },
     
-    // ============ FURNITURE OPERATIONS ============
-    async allocateFurniture(schoolName, furnitureData) {
+    // ============ CLASS OPERATIONS ============
+    async addClass(schoolName, classData) {
         try {
-            const furnitureRef = database.ref('schools/' + schoolName + '/furniture').push();
-            await furnitureRef.set({
-                studentName: furnitureData.studentName,
-                adm: furnitureData.adm,
-                form: furnitureData.form || '',
-                stream: furnitureData.stream || '',
-                gender: furnitureData.gender || '',
-                chairNo: furnitureData.chairNo,
-                lockerNo: furnitureData.lockerNo || '',
-                allocationDate: furnitureData.allocationDate,
-                returned: false,
-                returnDate: null,
-                issuedBy: furnitureData.issuedBy || '',
-                issuedByEmail: furnitureData.issuedByEmail || '',
-                academicYear: furnitureData.academicYear || new Date().getFullYear(),
-                term: furnitureData.term || 'Term 1',
-                createdAt: new Date().toISOString()
+            const classRef = database.ref('schools/' + schoolName + '/classes').push();
+            await classRef.set({
+                name: classData.name,
+                stream: classData.stream || '',
+                teacher: classData.teacher || '',
+                students: classData.students || [],
+                createdBy: classData.createdBy || '',
+                createdAt: new Date().toISOString(),
+                isActive: true
             });
-            return { success: true, furnitureId: furnitureRef.key };
+            
+            // Also add students to students table
+            var students = classData.students || [];
+            for (var i = 0; i < students.length; i++) {
+                var student = students[i];
+                var adm = student.ADM || student.adm || student['ADM No'] || '';
+                var name = student.Name || student.name || student['Full Name'] || 'Unknown';
+                
+                if (adm) {
+                    await database.ref('schools/' + schoolName + '/students/' + adm).set({
+                        name: name,
+                        adm: adm,
+                        form: classData.name,
+                        stream: classData.stream || '',
+                        gender: student.Gender || student.gender || '',
+                        parentName: student['Parent Name'] || student.parentName || '',
+                        parentPhone: student['Parent Phone'] || student.parentPhone || '',
+                        parentEmail: student['Parent Email'] || student.parentEmail || '',
+                        addedBy: classData.createdBy || '',
+                        addedAt: new Date().toISOString()
+                    });
+                }
+            }
+            
+            return { success: true, classId: classRef.key };
         } catch (error) {
-            console.error('Allocate furniture error:', error);
             return { success: false, error: error.message };
         }
     },
     
-    async getFurniture(schoolName) {
+    async getClasses(schoolName) {
         try {
-            const snapshot = await database.ref('schools/' + schoolName + '/furniture').once('value');
-            const furniture = snapshot.val();
-            if (!furniture) return [];
-            return Object.entries(furniture).map(function(entry) {
+            const snapshot = await database.ref('schools/' + schoolName + '/classes').once('value');
+            const classes = snapshot.val();
+            if (!classes) return [];
+            return Object.entries(classes).map(function(entry) {
                 return Object.assign({ id: entry[0] }, entry[1]);
             });
         } catch (error) {
-            console.error('Get furniture error:', error);
             return [];
         }
     },
     
-    async returnFurniture(schoolName, furnitureId) {
+    async deleteClass(schoolName, classId) {
         try {
-            await database.ref('schools/' + schoolName + '/furniture/' + furnitureId).update({
-                returned: true,
-                returnDate: new Date().toISOString().split('T')[0]
+            // Delete the class
+            await database.ref('schools/' + schoolName + '/classes/' + classId).remove();
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // ============ FEES OPERATIONS ============
+    async saveFee(schoolName, feeData) {
+        try {
+            const balance = (feeData.amount || 0) - (feeData.paid || 0);
+            
+            if (feeData.id) {
+                // Update existing fee
+                await database.ref('schools/' + schoolName + '/fees/' + feeData.id).update({
+                    amount: feeData.amount || 0,
+                    paid: feeData.paid || 0,
+                    balance: balance,
+                    term: feeData.term || 'Term 1',
+                    lastPaymentDate: new Date().toISOString().split('T')[0],
+                    status: balance <= 0 ? 'completed' : 'partial'
+                });
+                return { success: true };
+            } else {
+                // Create new fee
+                const feeRef = database.ref('schools/' + schoolName + '/fees').push();
+                await feeRef.set({
+                    studentAdm: feeData.studentAdm,
+                    studentName: feeData.studentName,
+                    amount: feeData.amount || 0,
+                    paid: feeData.paid || 0,
+                    balance: balance,
+                    term: feeData.term || 'Term 1',
+                    lastPaymentDate: new Date().toISOString().split('T')[0],
+                    status: balance <= 0 ? 'completed' : 'partial',
+                    createdAt: new Date().toISOString()
+                });
+                return { success: true };
+            }
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getFees(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/fees').once('value');
+            const fees = snapshot.val();
+            if (!fees) return [];
+            return Object.entries(fees).map(function(entry) {
+                return Object.assign({ id: entry[0] }, entry[1]);
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    async deleteFee(schoolName, feeId) {
+        try {
+            await database.ref('schools/' + schoolName + '/fees/' + feeId).remove();
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // ============ TIMETABLE OPERATIONS (Per Class and Per Teacher) ============
+    async addTimetableEntry(schoolName, entryData) {
+        try {
+            // Store per class
+            const classEntryRef = database.ref('schools/' + schoolName + '/timetable/classes/' + entryData.className).push();
+            await classEntryRef.set({
+                day: entryData.day,
+                period: entryData.period,
+                subject: entryData.subject,
+                teacher: entryData.teacher || '',
+                room: entryData.room || '',
+                createdBy: entryData.createdBy || '',
+                createdAt: new Date().toISOString()
+            });
+            
+            // Store per teacher
+            if (entryData.teacher) {
+                const teacherEntryRef = database.ref('schools/' + schoolName + '/timetable/teachers/' + entryData.teacher.replace(/\./g, ',')).push();
+                await teacherEntryRef.set({
+                    day: entryData.day,
+                    period: entryData.period,
+                    subject: entryData.subject,
+                    className: entryData.className,
+                    room: entryData.room || '',
+                    createdAt: new Date().toISOString()
+                });
+            }
+            
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getTimetable(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/timetable/classes').once('value');
+            const timetable = snapshot.val();
+            if (!timetable) return [];
+            
+            var entries = [];
+            Object.entries(timetable).forEach(function(classEntry) {
+                var className = classEntry[0];
+                Object.entries(classEntry[1]).forEach(function(entry) {
+                    entries.push(Object.assign({ className: className }, entry[1]));
+                });
+            });
+            
+            return entries;
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    async getTeacherTimetable(schoolName, teacherName) {
+        try {
+            const teacherKey = teacherName.replace(/\./g, ',');
+            const snapshot = await database.ref('schools/' + schoolName + '/timetable/teachers/' + teacherKey).once('value');
+            const timetable = snapshot.val();
+            if (!timetable) return [];
+            return Object.values(timetable);
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    // ============ AUDIT LOG (Filtered) ============
+    async addAuditLog(schoolName, logData) {
+        try {
+            // Only log important actions
+            var importantActions = [
+                'Book Added', 'Book Issued', 'Book Returned', 'Book Deleted',
+                'Student Added', 'Student Deleted', 'Class Added', 'Class Deleted',
+                'Teacher Added', 'Teacher Deleted', 'Furniture Allocated', 'Furniture Returned',
+                'Fee Recorded', 'Fee Updated', 'Fee Deleted',
+                'User Added', 'User Deactivated', 'User Promoted',
+                'School Created', 'School Info Updated', 'Settings Updated',
+                'Bulk Book Issue', 'Bulk Furniture Allocation',
+                'QR Code Generated', 'QR Code Assigned', 'QR Code Returned',
+                'Event Added', 'Term Added', 'Timetable Added', 'Note Saved'
+            ];
+            
+            if (importantActions.indexOf(logData.action) === -1) {
+                return { success: true, skipped: true };
+            }
+            
+            const logRef = database.ref('schools/' + schoolName + '/auditLog').push();
+            await logRef.set({
+                timestamp: new Date().toISOString(),
+                user: logData.user || 'System',
+                userEmail: logData.userEmail || '',
+                action: logData.action,
+                details: logData.details || ''
             });
             return { success: true };
         } catch (error) {
@@ -436,7 +728,183 @@ const API = {
         }
     },
     
-    // ============ TEACHER OPERATIONS ============
+    async getAuditLog(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/auditLog').once('value');
+            const logs = snapshot.val();
+            if (!logs) return [];
+            return Object.values(logs).reverse();
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    // ============ SETTINGS ============
+    async getSettings(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/settings').once('value');
+            return snapshot.val();
+        } catch (error) {
+            return null;
+        }
+    },
+    
+    async updateSettings(schoolName, settingsData) {
+        try {
+            await database.ref('schools/' + schoolName + '/settings').update(settingsData);
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // ============ CHAT ============
+    async sendChatMessage(schoolName, messageData) {
+        try {
+            const msgRef = database.ref('schools/' + schoolName + '/chat').push();
+            await msgRef.set({
+                fromEmail: messageData.fromEmail,
+                fromName: messageData.fromName,
+                toEmail: messageData.toEmail,
+                message: messageData.message,
+                timestamp: new Date().toISOString(),
+                readStatus: false
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getChatMessages(schoolName, userEmail, otherEmail) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/chat').once('value');
+            const messages = snapshot.val();
+            if (!messages) return [];
+            
+            if (otherEmail === userEmail) {
+                return Object.values(messages).filter(function(msg) {
+                    return msg.toEmail === userEmail && !msg.readStatus;
+                });
+            }
+            
+            return Object.values(messages).filter(function(msg) {
+                return (msg.fromEmail === userEmail && msg.toEmail === otherEmail) ||
+                       (msg.fromEmail === otherEmail && msg.toEmail === userEmail);
+            }).sort(function(a, b) {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    // ============ FORUM ============
+    async postForumMessage(schoolName, messageData) {
+        try {
+            const msgRef = database.ref('schools/' + schoolName + '/forum').push();
+            await msgRef.set({
+                fromEmail: messageData.fromEmail,
+                fromName: messageData.fromName,
+                role: messageData.role || 'teacher',
+                message: messageData.message,
+                timestamp: new Date().toISOString(),
+                isDeleted: false
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getForumMessages(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/forum').once('value');
+            const messages = snapshot.val();
+            if (!messages) return [];
+            return Object.values(messages).filter(function(msg) {
+                return !msg.isDeleted;
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    // ============ NOTEPAD ============
+    async saveNote(schoolName, noteData) {
+        try {
+            const noteRef = database.ref('schools/' + schoolName + '/notes').push();
+            await noteRef.set({
+                author: noteData.author,
+                authorEmail: noteData.authorEmail,
+                title: noteData.title || 'Untitled',
+                content: noteData.content,
+                timestamp: new Date().toISOString(),
+                isPrivate: true,
+                isDeleted: false
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getNotes(schoolName, userEmail) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/notes').once('value');
+            const notes = snapshot.val();
+            if (!notes) return [];
+            return Object.entries(notes).map(function(entry) {
+                return Object.assign({ id: entry[0] }, entry[1]);
+            }).filter(function(note) {
+                return !note.isDeleted && note.authorEmail === userEmail;
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    async deleteNote(schoolName, noteId) {
+        try {
+            await database.ref('schools/' + schoolName + '/notes/' + noteId).update({ isDeleted: true });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // ============ EVENTS ============
+    async addEvent(schoolName, eventData) {
+        try {
+            const eventRef = database.ref('schools/' + schoolName + '/events').push();
+            await eventRef.set({
+                title: eventData.title,
+                description: eventData.description || '',
+                eventDate: eventData.eventDate,
+                eventType: eventData.eventType || 'Other',
+                createdBy: eventData.createdBy || '',
+                createdAt: new Date().toISOString()
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getEvents(schoolName) {
+        try {
+            const snapshot = await database.ref('schools/' + schoolName + '/events').once('value');
+            const events = snapshot.val();
+            if (!events) return [];
+            return Object.entries(events).map(function(entry) {
+                return Object.assign({ id: entry[0] }, entry[1]);
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+    
+    // ============ TEACHERS ============
     async addTeacher(schoolName, teacherData) {
         try {
             const teacherRef = database.ref('schools/' + schoolName + '/teachers').push();
@@ -446,8 +914,6 @@ const API = {
                 phone: teacherData.phone || '',
                 subjects: teacherData.subjects || '',
                 classes: teacherData.classes || '',
-                duty: teacherData.duty || '',
-                tscNo: teacherData.tscNo || '',
                 addedBy: teacherData.addedBy || '',
                 isActive: true,
                 createdAt: new Date().toISOString()
@@ -480,39 +946,7 @@ const API = {
         }
     },
     
-    // ============ CLASS OPERATIONS ============
-    async addClass(schoolName, classData) {
-        try {
-            const classRef = database.ref('schools/' + schoolName + '/classes').push();
-            await classRef.set({
-                name: classData.name,
-                stream: classData.stream || '',
-                teacher: classData.teacher || '',
-                students: classData.students || [],
-                createdBy: classData.createdBy || '',
-                createdAt: new Date().toISOString(),
-                isActive: true
-            });
-            return { success: true, classId: classRef.key };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getClasses(schoolName) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/classes').once('value');
-            const classes = snapshot.val();
-            if (!classes) return [];
-            return Object.entries(classes).map(function(entry) {
-                return Object.assign({ id: entry[0] }, entry[1]);
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    // ============ TERMS OPERATIONS ============
+    // ============ TERMS ============
     async addTerm(schoolName, termData) {
         try {
             const termRef = database.ref('schools/' + schoolName + '/terms').push();
@@ -543,167 +977,35 @@ const API = {
         }
     },
     
-    // ============ CHAT OPERATIONS ============
-    async sendChatMessage(schoolName, messageData) {
+    // ============ FURNITURE ============
+    async allocateFurniture(schoolName, furnitureData) {
         try {
-            const msgRef = database.ref('schools/' + schoolName + '/chat').push();
-            await msgRef.set({
-                fromEmail: messageData.fromEmail,
-                fromName: messageData.fromName,
-                toEmail: messageData.toEmail,
-                message: messageData.message,
-                timestamp: new Date().toISOString(),
-                readStatus: false
-            });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getChatMessages(schoolName, userEmail, otherEmail) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/chat').once('value');
-            const messages = snapshot.val();
-            if (!messages) return [];
-            
-            if (otherEmail === userEmail) {
-                // Get all messages where user is recipient (for unread count)
-                return Object.values(messages).filter(function(msg) {
-                    return msg.toEmail === userEmail && !msg.readStatus;
-                });
-            }
-            
-            return Object.values(messages).filter(function(msg) {
-                return (msg.fromEmail === userEmail && msg.toEmail === otherEmail) ||
-                       (msg.fromEmail === otherEmail && msg.toEmail === userEmail);
-            }).sort(function(a, b) {
-                return new Date(a.timestamp) - new Date(b.timestamp);
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    async markMessagesAsRead(schoolName, userEmail, otherEmail) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/chat').once('value');
-            const messages = snapshot.val();
-            if (!messages) return { success: true };
-            
-            var promises = [];
-            Object.entries(messages).forEach(function(entry) {
-                var msg = entry[1];
-                if (msg.fromEmail === otherEmail && msg.toEmail === userEmail && !msg.readStatus) {
-                    promises.push(database.ref('schools/' + schoolName + '/chat/' + entry[0]).update({ readStatus: true }));
-                }
-            });
-            
-            await Promise.all(promises);
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    // ============ FORUM OPERATIONS ============
-    async postForumMessage(schoolName, messageData) {
-        try {
-            const msgRef = database.ref('schools/' + schoolName + '/forum').push();
-            await msgRef.set({
-                fromEmail: messageData.fromEmail,
-                fromName: messageData.fromName,
-                role: messageData.role || 'teacher',
-                message: messageData.message,
-                timestamp: new Date().toISOString(),
-                isDeleted: false
-            });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getForumMessages(schoolName) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/forum').once('value');
-            const messages = snapshot.val();
-            if (!messages) return [];
-            return Object.values(messages).filter(function(msg) {
-                return !msg.isDeleted;
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    // ============ NOTEPAD OPERATIONS ============
-    async saveNote(schoolName, noteData) {
-        try {
-            const noteRef = database.ref('schools/' + schoolName + '/notes').push();
-            await noteRef.set({
-                author: noteData.author,
-                authorEmail: noteData.authorEmail,
-                title: noteData.title || 'Untitled',
-                content: noteData.content,
-                timestamp: new Date().toISOString(),
-                isPrivate: noteData.isPrivate !== false,
-                isDeleted: false
-            });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getNotes(schoolName, userEmail) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/notes').once('value');
-            const notes = snapshot.val();
-            if (!notes) return [];
-            return Object.entries(notes).map(function(entry) {
-                return Object.assign({ id: entry[0] }, entry[1]);
-            }).filter(function(note) {
-                return !note.isDeleted && (note.authorEmail === userEmail || !note.isPrivate);
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    async deleteNote(schoolName, noteId) {
-        try {
-            await database.ref('schools/' + schoolName + '/notes/' + noteId).update({ isDeleted: true });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    // ============ EVENTS OPERATIONS ============
-    async addEvent(schoolName, eventData) {
-        try {
-            const eventRef = database.ref('schools/' + schoolName + '/events').push();
-            await eventRef.set({
-                title: eventData.title,
-                description: eventData.description || '',
-                eventDate: eventData.eventDate,
-                eventType: eventData.eventType || 'Other',
-                createdBy: eventData.createdBy || '',
+            const furnitureRef = database.ref('schools/' + schoolName + '/furniture').push();
+            await furnitureRef.set({
+                studentName: furnitureData.studentName,
+                adm: furnitureData.adm,
+                form: furnitureData.form || '',
+                stream: furnitureData.stream || '',
+                chairNo: furnitureData.chairNo,
+                lockerNo: furnitureData.lockerNo || '',
+                allocationDate: furnitureData.allocationDate,
+                returned: false,
+                returnDate: null,
+                issuedBy: furnitureData.issuedBy || '',
                 createdAt: new Date().toISOString()
             });
-            return { success: true };
+            return { success: true, furnitureId: furnitureRef.key };
         } catch (error) {
             return { success: false, error: error.message };
         }
     },
     
-    async getEvents(schoolName) {
+    async getFurniture(schoolName) {
         try {
-            const snapshot = await database.ref('schools/' + schoolName + '/events').once('value');
-            const events = snapshot.val();
-            if (!events) return [];
-            return Object.entries(events).map(function(entry) {
+            const snapshot = await database.ref('schools/' + schoolName + '/furniture').once('value');
+            const furniture = snapshot.val();
+            if (!furniture) return [];
+            return Object.entries(furniture).map(function(entry) {
                 return Object.assign({ id: entry[0] }, entry[1]);
             });
         } catch (error) {
@@ -711,114 +1013,9 @@ const API = {
         }
     },
     
-    // ============ FEES OPERATIONS ============
-    async saveFee(schoolName, feeData) {
+    async returnFurniture(schoolName, furnitureId) {
         try {
-            const feeRef = database.ref('schools/' + schoolName + '/fees').push();
-            const balance = (feeData.amount || 0) - (feeData.paid || 0);
-            await feeRef.set({
-                studentAdm: feeData.studentAdm,
-                studentName: feeData.studentName,
-                form: feeData.form || '',
-                amount: feeData.amount || 0,
-                paid: feeData.paid || 0,
-                balance: balance,
-                term: feeData.term || 'Term 1',
-                lastPaymentDate: feeData.lastPaymentDate || new Date().toISOString().split('T')[0],
-                status: balance <= 0 ? 'completed' : 'partial',
-                createdAt: new Date().toISOString()
-            });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getFees(schoolName) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/fees').once('value');
-            const fees = snapshot.val();
-            if (!fees) return [];
-            return Object.entries(fees).map(function(entry) {
-                return Object.assign({ id: entry[0] }, entry[1]);
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    // ============ TIMETABLE OPERATIONS ============
-    async addTimetableEntry(schoolName, entryData) {
-        try {
-            const entryRef = database.ref('schools/' + schoolName + '/timetable').push();
-            await entryRef.set({
-                className: entryData.className,
-                day: entryData.day,
-                period: entryData.period,
-                subject: entryData.subject,
-                teacher: entryData.teacher || '',
-                room: entryData.room || '',
-                createdBy: entryData.createdBy || '',
-                createdAt: new Date().toISOString()
-            });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getTimetable(schoolName) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/timetable').once('value');
-            const timetable = snapshot.val();
-            if (!timetable) return [];
-            return Object.values(timetable);
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    // ============ AUDIT LOG OPERATIONS ============
-    async addAuditLog(schoolName, logData) {
-        try {
-            const logRef = database.ref('schools/' + schoolName + '/auditLog').push();
-            await logRef.set({
-                timestamp: new Date().toISOString(),
-                user: logData.user || 'System',
-                userEmail: logData.userEmail || '',
-                action: logData.action,
-                details: logData.details || ''
-            });
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    },
-    
-    async getAuditLog(schoolName) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/auditLog').once('value');
-            const logs = snapshot.val();
-            if (!logs) return [];
-            return Object.values(logs).reverse();
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    // ============ SETTINGS OPERATIONS ============
-    async getSettings(schoolName) {
-        try {
-            const snapshot = await database.ref('schools/' + schoolName + '/settings').once('value');
-            return snapshot.val();
-        } catch (error) {
-            return null;
-        }
-    },
-    
-    async updateSettings(schoolName, settingsData) {
-        try {
-            await database.ref('schools/' + schoolName + '/settings').update(settingsData);
+            await database.ref('schools/' + schoolName + '/furniture/' + furnitureId).remove();
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
@@ -888,24 +1085,11 @@ const API = {
                 callback([]);
             }
         });
-    },
-    
-    onChatChange(schoolName, callback) {
-        database.ref('schools/' + schoolName + '/chat').on('value', function(snapshot) {
-            const messages = snapshot.val();
-            if (messages) {
-                callback(Object.entries(messages).map(function(entry) {
-                    return Object.assign({ id: entry[0] }, entry[1]);
-                }));
-            } else {
-                callback([]);
-            }
-        });
     }
 };
 
-// Export to window
 window.API = API;
 window.generateInviteCode = generateInviteCode;
 window.generateStaffId = generateStaffId;
 window.hashPassword = hashPassword;
+window.generateUniqueQRCode = generateUniqueQRCode;

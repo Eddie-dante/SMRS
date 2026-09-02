@@ -5,18 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRMS - School Resource Management System</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         :root {
             --primary: #e94560;
-            --primary-dark: #c62a47;
             --accent: #d4af37;
             --gold: #f0d060;
             --dark: #0a0e27;
-            --dark-light: #1a1f4e;
-            --white: #ffffff;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,7 +22,7 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
             min-height: 100vh;
-            color: var(--white);
+            color: #ffffff;
             overflow-x: hidden;
         }
         
@@ -75,6 +72,7 @@
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            color: transparent;
             margin-bottom: 30px;
         }
         
@@ -151,21 +149,6 @@
         }
         
         .navbar-logo i { font-size: 28px; }
-        
-        .navbar-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        
-        .navbar-link {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        
-        .navbar-link:hover { color: #d4af37; }
         
         .btn-login-nav {
             padding: 10px 20px;
@@ -274,11 +257,6 @@
             font-family: 'Inter', sans-serif;
         }
         
-        .btn-secondary-hero:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-        }
-        
         /* ============ FEATURES ============ */
         .features-section {
             position: relative;
@@ -292,8 +270,8 @@
             font-weight: 900;
             margin-bottom: 40px;
             background: linear-gradient(180deg, #ffffff, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
@@ -342,7 +320,6 @@
             color: rgba(255, 255, 255, 0.6);
         }
         
-        /* ============ FOOTER ============ */
         .footer {
             text-align: center;
             padding: 30px;
@@ -354,14 +331,14 @@
         
         @media (max-width: 768px) {
             .navbar { padding: 15px 20px; }
-            .navbar-links { display: none; }
             .hero-title { font-size: 2.5em; }
             .hero-logo { width: 100px; height: 100px; font-size: 40px; }
+            .loader-bar-container { width: 250px; }
         }
     </style>
 </head>
 <body>
-    <!-- Loader -->
+    <!-- LOADER - Shows every time page loads -->
     <div id="loader">
         <div class="loader-logo"><i class="fas fa-school"></i></div>
         <div class="loader-title">SRMS</div>
@@ -369,20 +346,16 @@
         <div class="loader-percentage" id="loaderPercentage">0%</div>
     </div>
     
-    <!-- Particles -->
+    <!-- PARTICLES -->
     <div class="particles" id="particles"></div>
     
-    <!-- Navbar -->
+    <!-- NAVBAR -->
     <div class="navbar">
         <div class="navbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
-        <div class="navbar-links">
-            <a href="#features" class="navbar-link">Features</a>
-            <a href="index.html" class="navbar-link">Login</a>
-            <button class="btn-login-nav" onclick="location.href='index.html'"><i class="fas fa-sign-in-alt"></i> Get Started</button>
-        </div>
+        <button class="btn-login-nav" onclick="location.href='index.html'"><i class="fas fa-sign-in-alt"></i> Get Started</button>
     </div>
     
-    <!-- Hero -->
+    <!-- HERO -->
     <div class="hero">
         <div class="hero-logo"><i class="fas fa-school"></i></div>
         <div class="hero-title">SRMS</div>
@@ -394,24 +367,29 @@
         </div>
     </div>
     
-    <!-- Features -->
-    <div class="features-section" id="features">
+    <!-- FEATURES -->
+    <div class="features-section">
         <div class="features-title">Features</div>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-book"></i></div>
                 <h3>Library Management</h3>
-                <p>Track books, issue, returns, and manage your catalog</p>
+                <p>Track books, issue, returns with QR code scanning</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-users"></i></div>
                 <h3>Student Database</h3>
-                <p>Comprehensive student records with parent info</p>
+                <p>Students stored in classes with Excel upload</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-chair"></i></div>
                 <h3>Furniture Allocation</h3>
-                <p>Manage chairs and lockers allocation</p>
+                <p>Individual or bulk allocation to classes</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-qrcode"></i></div>
+                <h3>QR Code System</h3>
+                <p>Unique codes for books, chairs, and lockers</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-comments"></i></div>
@@ -421,23 +399,23 @@
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
                 <h3>Reports & Analytics</h3>
-                <p>Visual insights and statistics</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-calendar"></i></div>
-                <h3>Events & Timetable</h3>
-                <p>School calendar and class schedules</p>
+                <p>Visual insights with printable reports</p>
             </div>
         </div>
     </div>
     
-    <!-- Footer -->
+    <!-- FOOTER -->
     <div class="footer">
         <p>SRMS v1.0 | School Resource Management System | © 2026 WeGEM | Edwin</p>
     </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Always show loader (session-based)
+            var loader = document.getElementById('loader');
+            var percentEl = document.getElementById('loaderPercentage');
+            var percent = 0;
+            
             // Create particles
             var container = document.getElementById('particles');
             for (var i = 0; i < 40; i++) {
@@ -448,13 +426,10 @@
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.top = Math.random() * 100 + '%';
                 particle.style.animationDuration = Math.random() * 15 + 10 + 's';
-                particle.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(particle);
             }
             
             // Loader percentage
-            var percent = 0;
-            var percentEl = document.getElementById('loaderPercentage');
             var interval = setInterval(function() {
                 percent += Math.floor(Math.random() * 15) + 5;
                 if (percent > 100) percent = 100;
@@ -462,9 +437,9 @@
                 if (percent >= 100) clearInterval(interval);
             }, 200);
             
-            // Hide loader after 3 seconds
+            // Hide loader after 3 seconds (always shows)
             setTimeout(function() {
-                document.getElementById('loader').classList.add('hidden');
+                loader.classList.add('hidden');
             }, 3000);
         });
     </script>
