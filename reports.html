@@ -23,9 +23,8 @@
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.3s ease;
+            --transition: all 0.2s ease;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -56,7 +55,6 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 16px; transition: var(--transition);
         }
-        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
         
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -82,7 +80,7 @@
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-3px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -117,22 +115,19 @@
         .main-content {
             padding: 85px 25px 25px;
             max-width: 1400px; margin: 0 auto;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em; font-weight: 900;
+            font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .page-header p { color: rgba(255,255,255,0.6); }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
@@ -149,8 +144,8 @@
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 20px;
         }
         .stat-card {
             background: var(--glass-bg);
@@ -158,8 +153,8 @@
             border: 1px solid var(--glass-border);
             border-radius: 16px; padding: 20px; text-align: center;
         }
-        .stat-card .value { font-size: 2em; font-weight: 900; color: var(--gold); }
-        .stat-card .label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+        .stat-card .value { font-size: 1.8em; font-weight: 900; color: var(--gold); }
+        .stat-card .label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
         
         .charts-grid {
             display: grid;
@@ -174,23 +169,70 @@
         }
         .chart-container h3 { color: var(--accent); margin-bottom: 15px; font-size: 1em; }
         
+        /* Detailed Reports Section */
+        .report-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .report-section h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .table-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 15px;
+            overflow-x: auto;
+        }
+        .data-table { width: 100%; border-collapse: collapse; color: #fff; }
+        .data-table th {
+            background: rgba(233, 69, 96, 0.8);
+            padding: 12px; text-align: left;
+            font-weight: 700; font-size: 11px; text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+        }
+        .badge {
+            display: inline-block; padding: 4px 10px;
+            border-radius: 20px; font-size: 10px; font-weight: 600;
+        }
+        .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
+        .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
+        .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .badge-info { background: rgba(23,162,184,0.2); color: #17a2b8; }
+        
+        /* Print Styles */
+        @media print {
+            body { background: #fff; color: #000; padding: 0; }
+            .taskbar, .floating-navbar-container, .page-header .btn-primary, .page-header .btn-secondary {
+                display: none !important;
+            }
+            .main-content { padding: 20px; margin: 0; }
+            .stat-card, .chart-container, .report-section {
+                background: #f5f5f5; border: 1px solid #ddd;
+            }
+            .stat-card .value { color: #333; }
+            .stat-card .label { color: #666; }
+            .chart-container h3, .report-section h3 { color: #333; }
+            .data-table th { background: #e0e0e0; color: #333; }
+            .data-table td { color: #333; }
+            .badge { color: #333; background: #e0e0e0; }
+        }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
             .charts-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-        }
-        
-        /* Print Styles */
-        @media print {
-            body { background: #fff; color: #000; }
-            .taskbar, .floating-navbar-container { display: none; }
-            .main-content { padding: 0; }
-            .stat-card, .chart-container { background: #f5f5f5; border: 1px solid #ddd; }
-            .stat-card .value { color: #333; }
-            .stat-card .label { color: #666; }
-            .chart-container h3 { color: #333; }
         }
     </style>
 </head>
@@ -211,19 +253,38 @@
                 <h1>Reports & Analytics</h1>
                 <p>Visual insights and statistics</p>
             </div>
-            <div style="display:flex;gap:10px;">
-                <button class="btn-secondary" onclick="exportReport()"><i class="fas fa-download"></i> Export</button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn-secondary" onclick="exportReport()"><i class="fas fa-download"></i> Export PDF</button>
                 <button class="btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Print Report</button>
             </div>
         </div>
         
+        <!-- Summary Stats -->
         <div class="stats-grid">
-            <div class="stat-card"><div class="value" id="overdueCount">0</div><div class="label">Overdue Books</div></div>
+            <div class="stat-card"><div class="value" id="totalBooksCount">0</div><div class="label">Total Books</div></div>
+            <div class="stat-card"><div class="value" id="totalStudentsCount">0</div><div class="label">Total Students</div></div>
             <div class="stat-card"><div class="value" id="activeLoansCount">0</div><div class="label">Active Loans</div></div>
+            <div class="stat-card"><div class="value" id="overdueCount">0</div><div class="label">Overdue Books</div></div>
             <div class="stat-card"><div class="value" id="returnRate">0%</div><div class="label">Return Rate</div></div>
             <div class="stat-card"><div class="value" id="furnitureCount">0</div><div class="label">Active Furniture</div></div>
         </div>
         
+        <!-- Overdue Books Report -->
+        <div class="report-section">
+            <h3><i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Overdue Books Report</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Days Overdue</th></tr>
+                    </thead>
+                    <tbody id="overdueReportBody">
+                        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-container">
                 <h3><i class="fas fa-book"></i> Books by Type</h3>
@@ -242,18 +303,29 @@
                 <canvas id="borrowingTrendChart"></canvas>
             </div>
         </div>
+        
+        <!-- Monthly Summary -->
+        <div class="report-section">
+            <h3><i class="fas fa-chart-line"></i> Monthly Summary</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Month</th><th>Books Issued</th><th>Books Returned</th><th>Furniture Allocated</th></tr>
+                    </thead>
+                    <tbody id="monthlySummaryBody">
+                        <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
     
     <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
-            </button>
+            <button class="classy-btn" onclick="location.href='dashboard.html'"><span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard</button>
             <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
                     <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
@@ -261,9 +333,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
@@ -271,9 +341,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
                     <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Forum</a>
@@ -281,9 +349,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn active"><span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
                     <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
@@ -305,17 +371,257 @@
     <script src="js/app.js"></script>
     
     <script>
-        function exportReport() {
-            showNotification('Report exported!', 'success');
+        var reportData = {
+            books: [],
+            students: [],
+            borrowed: [],
+            furniture: [],
+            classes: []
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initDropdownController();
+            loadReportData();
+        });
+        
+        function loadReportData() {
+            var school = getCurrentSchool();
+            
+            Promise.all([
+                API.getBooks(school),
+                API.getStudents(school),
+                API.getBorrowed(school),
+                API.getFurniture(school),
+                API.getClasses(school)
+            ]).then(function(results) {
+                reportData.books = results[0];
+                reportData.students = results[1];
+                reportData.borrowed = results[2];
+                reportData.furniture = results[3];
+                reportData.classes = results[4];
+                
+                // Calculate total students (including from classes)
+                var totalStudents = reportData.students.length;
+                var seenAdms = {};
+                reportData.students.forEach(function(s) { seenAdms[s.adm] = true; });
+                reportData.classes.forEach(function(c) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = st.ADM || st.adm || '';
+                        if (adm && !seenAdms[adm]) { seenAdms[adm] = true; totalStudents++; }
+                    });
+                });
+                
+                // Update stats
+                document.getElementById('totalBooksCount').textContent = reportData.books.reduce(function(s, b) { return s + (b.quantity || 0); }, 0);
+                document.getElementById('totalStudentsCount').textContent = totalStudents;
+                
+                var activeLoans = reportData.borrowed.filter(function(b) { return !b.returned; });
+                document.getElementById('activeLoansCount').textContent = activeLoans.length;
+                
+                var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
+                document.getElementById('overdueCount').textContent = overdue.length;
+                
+                var returned = reportData.borrowed.filter(function(b) { return b.returned; });
+                var returnRate = reportData.borrowed.length > 0 ? Math.round((returned.length / reportData.borrowed.length) * 100) : 0;
+                document.getElementById('returnRate').textContent = returnRate + '%';
+                
+                document.getElementById('furnitureCount').textContent = reportData.furniture.length;
+                
+                // Render overdue report
+                renderOverdueReport(overdue);
+                
+                // Render monthly summary
+                renderMonthlySummary();
+                
+                // Create charts
+                if (typeof Chart !== 'undefined') {
+                    createBooksByTypeChart();
+                    createStudentsByFormChart();
+                    createFurnitureChart();
+                    createBorrowingTrendChart();
+                }
+            });
+        }
+        
+        function renderOverdueReport(overdue) {
+            var tbody = document.getElementById('overdueReportBody');
+            if (!tbody) return;
+            
+            if (overdue.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No overdue books 🎉</td></tr>';
+                return;
+            }
+            
+            var html = '';
+            overdue.forEach(function(b) {
+                html += '<tr>' +
+                    '<td>' + b.studentName + '</td>' +
+                    '<td>' + b.adm + '</td>' +
+                    '<td>' + b.bookTitle + '</td>' +
+                    '<td>' + b.bookNo + '</td>' +
+                    '<td>' + b.returnDate + '</td>' +
+                    '<td><span class="badge badge-danger">' + daysOverdue(b.returnDate) + ' days</span></td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function renderMonthlySummary() {
+            var tbody = document.getElementById('monthlySummaryBody');
+            if (!tbody) return;
+            
+            var monthlyData = {};
+            
+            reportData.borrowed.forEach(function(b) {
+                var date = new Date(b.borrowDate);
+                var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+                if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
+                monthlyData[key].issued++;
+                if (b.returned) monthlyData[key].returned++;
+            });
+            
+            reportData.furniture.forEach(function(f) {
+                var date = new Date(f.allocationDate);
+                var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+                if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
+                monthlyData[key].furniture++;
+            });
+            
+            var months = Object.keys(monthlyData).sort().reverse();
+            
+            if (months.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No data</td></tr>';
+                return;
+            }
+            
+            var html = '';
+            months.slice(0, 12).forEach(function(key) {
+                var parts = key.split('-');
+                var monthName = getMonthName(parseInt(parts[1]) - 1) + ' ' + parts[0];
+                var data = monthlyData[key];
+                html += '<tr>' +
+                    '<td>' + monthName + '</td>' +
+                    '<td>' + data.issued + '</td>' +
+                    '<td>' + data.returned + '</td>' +
+                    '<td>' + data.furniture + '</td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function createBooksByTypeChart() {
+            var canvas = document.getElementById('booksByTypeChart');
+            if (!canvas) return;
+            
+            var types = {};
+            reportData.books.forEach(function(b) {
+                var type = b.type || 'Other';
+                types[type] = (types[type] || 0) + (b.quantity || 0);
+            });
+            
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(types),
+                    datasets: [{ data: Object.values(types), backgroundColor: ['#e94560', '#0f3460', '#d4af37', '#28a745', '#17a2b8', '#6f42c1'] }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
+                }
+            });
+        }
+        
+        function createStudentsByFormChart() {
+            var canvas = document.getElementById('studentsByFormChart');
+            if (!canvas) return;
+            
+            var forms = {};
+            reportData.students.forEach(function(s) {
+                var form = s.form || 'Unknown';
+                forms[form] = (forms[form] || 0) + 1;
+            });
+            
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(forms),
+                    datasets: [{ label: 'Students', data: Object.values(forms), backgroundColor: '#e94560' }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
+        }
+        
+        function createFurnitureChart() {
+            var canvas = document.getElementById('furnitureChart');
+            if (!canvas) return;
+            
+            new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels: ['Allocated'],
+                    datasets: [{ data: [reportData.furniture.length], backgroundColor: ['#ffc107'] }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
+                }
+            });
+        }
+        
+        function createBorrowingTrendChart() {
+            var canvas = document.getElementById('borrowingTrendChart');
+            if (!canvas) return;
+            
+            var months = {};
+            reportData.borrowed.forEach(function(b) {
+                var date = new Date(b.borrowDate);
+                var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+                months[key] = (months[key] || 0) + 1;
+            });
+            
+            var sortedKeys = Object.keys(months).sort();
+            
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: sortedKeys.map(function(k) {
+                        var parts = k.split('-');
+                        return getMonthShortName(parseInt(parts[1]) - 1) + ' ' + parts[0];
+                    }),
+                    datasets: [{
+                        label: 'Books Borrowed',
+                        data: sortedKeys.map(function(k) { return months[k]; }),
+                        borderColor: '#d4af37',
+                        backgroundColor: 'rgba(212,175,55,0.2)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: 'white' } } },
+                    scales: {
+                        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
         }
         
         function printReport() {
             window.print();
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            initDropdownController();
-        });
+        function exportReport() {
+            showNotification('Report exported!', 'success');
+        }
         
         window.printReport = printReport;
         window.exportReport = exportReport;
