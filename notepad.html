@@ -829,7 +829,6 @@
             }
         }
 
-        /* Mobile detection - phone specific */
         @media (max-width: 480px) and (orientation: portrait) {
             .notepad-sidebar {
                 max-height: 120px;
@@ -891,7 +890,7 @@
             <button class="taskbar-icon-btn" onclick="location.href = 'wallpaper.html'" title="Change Wallpaper">
                 <i class="fas fa-image"></i>
             </button>
-            <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()" title="Logout">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
@@ -1339,15 +1338,12 @@
             populateSpecialChars();
             updateWordCount();
             
-            // Set default title placeholder
             document.getElementById('noteTitle').placeholder = 'Document Title...';
             
-            // Auto-focus on content
             setTimeout(function() {
                 document.getElementById('noteContent').focus();
             }, 500);
             
-            // Detect mobile and adjust
             if (window.innerWidth <= 480) {
                 document.querySelector('.notepad-editor').style.minHeight = '300px';
             }
@@ -2015,7 +2011,6 @@
             }
         });
 
-        // Detect mobile and adjust layout
         function detectMobile() {
             var isMobile = window.innerWidth <= 768;
             var sidebar = document.querySelector('.notepad-sidebar');
@@ -2034,7 +2029,6 @@
         window.addEventListener('resize', detectMobile);
         detectMobile();
 
-        // ============ NOTIFICATION FALLBACK ============
         function showNotification(message, type) {
             if (typeof window.showNotification === 'function') {
                 window.showNotification(message, type);
@@ -2043,7 +2037,23 @@
             }
         }
 
-        // ============ LOGOUT ============
+        function logoutWithConfirm() {
+            if (typeof DialogSystem !== 'undefined') {
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
+                    if (result === 'confirm') logout();
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) {
+                    logout();
+                }
+            }
+        }
+
         function logout() {
             if (typeof window.logout === 'function') {
                 window.logout();
@@ -2089,6 +2099,7 @@
         window.openModal = openModal;
         window.closeModal = closeModal;
         window.handleImageFileSelect = handleImageFileSelect;
+        window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
     </script>
 </body>

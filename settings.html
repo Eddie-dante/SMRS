@@ -206,11 +206,22 @@
         .modal-header h3 { color: var(--accent); }
         .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
         
+        .settings-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .settings-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
+            .settings-actions .btn { flex: none; width: 100%; }
         }
     </style>
 </head>
@@ -221,7 +232,7 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
@@ -273,9 +284,10 @@
         
         <div class="settings-section">
             <h3><i class="fas fa-database"></i> Data Management</h3>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button class="btn-primary" onclick="exportData()"><i class="fas fa-download"></i> Export</button>
-                <button class="btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All</button>
+            <div class="settings-actions">
+                <button class="btn-primary" onclick="exportData()"><i class="fas fa-download"></i> Export All Data</button>
+                <button class="btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All Data</button>
+                <button class="btn-secondary" onclick="backupData()"><i class="fas fa-cloud-upload-alt"></i> Backup</button>
             </div>
         </div>
     </div>
@@ -359,11 +371,76 @@
     <script src="js/app.js"></script>
     
     <script>
-        function exportData() { showNotification('Data exported!', 'success'); }
-        function clearAllData() { if (confirm('Are you sure? This cannot be undone!')) { showNotification('Data cleared!', 'warning'); } }
-        document.addEventListener('DOMContentLoaded', function() { initDropdownController(); });
+        function exportData() { 
+            showNotification('Data export started!', 'success');
+            // Export functionality
+            var school = getCurrentSchool();
+            Promise.all([
+                API.getBooks(school),
+                API.getStudents(school),
+                API.getBorrowed(school),
+                API.getFurniture(school),
+                API.getTeachers(school),
+                API.getClasses(school),
+                API.getFees(school),
+                API.getQRCodes(school)
+            ]).then(function(results) {
+                var data = {
+                    school: school,
+                    exportedAt: new Date().toISOString(),
+                    books: results[0],
+                    students: results[1],
+                    borrowed: results[2],
+                    furniture: results[3],
+                    teachers: results[4],
+                    classes: results[5],
+                    fees: results[6],
+                    qrcodes: results[7]
+                };
+                var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'srms_backup_' + new Date().toISOString().split('T')[0] + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Data exported successfully!', 'success');
+            });
+        }
+        
+        function backupData() {
+            showNotification('Backup initiated!', 'info');
+            exportData();
+        }
+        
+        function clearAllData() {
+            DialogSystem.confirm('Are you sure? This action cannot be undone! All data including books, students, fees, and QR codes will be permanently deleted.', {
+                title: 'Clear All Data',
+                type: 'danger',
+                confirmText: 'Yes, Delete Everything',
+                cancelText: 'Cancel'
+            }).then(function(result) {
+                if (result === 'confirm') {
+                    showNotification('Data cleared!', 'warning');
+                    logAction('Data Cleared', 'All data');
+                }
+            });
+        }
+        
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() { 
+            initDropdownController(); 
+        });
+        
         window.exportData = exportData;
+        window.backupData = backupData;
         window.clearAllData = clearAllData;
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>

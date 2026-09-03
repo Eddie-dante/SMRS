@@ -186,7 +186,7 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
@@ -274,6 +274,13 @@
             document.getElementById('termStartDate').value = getCurrentDate();
             document.getElementById('termEndDate').value = addDays(getCurrentDate(), 90);
         });
+        
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
+        }
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>

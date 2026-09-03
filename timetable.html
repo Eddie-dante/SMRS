@@ -164,7 +164,6 @@
             cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
         }
         
-        /* Full Timetable Grid */
         .timetable-grid {
             overflow-x: auto;
             background: var(--glass-bg);
@@ -248,7 +247,7 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
@@ -419,7 +418,6 @@
                 allClasses = results[1];
                 allTeachers = results[2];
                 
-                // Populate entry form selects
                 var classSelect = document.getElementById('ttClass');
                 if (classSelect) {
                     var classHtml = '';
@@ -467,7 +465,6 @@
             var container = document.getElementById('classTimetableContainer');
             if (!container || !className) return;
             
-            // Filter entries for this class
             var classEntries = allTimetableEntries.filter(function(e) { return e.className === className; });
             
             var html = '<div class="timetable-heading">📋 ' + className + ' Timetable</div>';
@@ -509,7 +506,6 @@
             var container = document.getElementById('teacherTimetableContainer');
             if (!container || !teacherName) return;
             
-            // Filter entries for this teacher
             var teacherEntries = allTimetableEntries.filter(function(e) { return e.teacher === teacherName; });
             
             var html = '<div class="timetable-heading">👨‍🏫 ' + teacherName + ' Timetable</div>';
@@ -563,14 +559,23 @@
                 showNotification('Entry added!', 'success');
                 logAction('Timetable Added', document.getElementById('ttSubject').value);
                 loadTimetableData();
+                document.getElementById('ttSubject').value = '';
+                document.getElementById('ttRoom').value = '';
             });
             return false;
+        }
+        
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
         }
         
         window.switchTTTab = switchTTTab;
         window.renderClassTimetable = renderClassTimetable;
         window.renderTeacherTimetable = renderTeacherTimetable;
         window.addTimetableEntry = addTimetableEntry;
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>

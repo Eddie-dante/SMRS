@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - QR Codes | School Resource Management System</title>
+    <title>SRMS - QR Codes & Student ID Cards | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -42,9 +42,7 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
         }
         .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
@@ -280,6 +278,7 @@
         .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
         .badge-info { background: rgba(23,162,184,0.2); color: #17a2b8; }
+        .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
         
         .modal {
             display: none; position: fixed;
@@ -317,12 +316,132 @@
             opacity: 0.5;
         }
         
+        /* Student ID Card */
+        .student-id-card {
+            background: linear-gradient(135deg, #0a0e27, #1a1f4e);
+            border: 2px solid #d4af37;
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 400px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .student-id-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+        }
+        .student-id-card .id-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .student-id-card .id-header .school-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #d4af37;
+            letter-spacing: 1px;
+        }
+        .student-id-card .id-header .id-type {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(212, 175, 55, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .student-id-card .id-body {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .student-id-card .id-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #f0d060);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 900;
+            color: #0a0e27;
+            flex-shrink: 0;
+            border: 3px solid #d4af37;
+        }
+        .student-id-card .id-details {
+            flex: 1;
+        }
+        .student-id-card .id-details .name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        .student-id-card .id-details .adm {
+            font-size: 12px;
+            color: #d4af37;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .student-id-card .id-details .info-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .student-id-card .id-footer {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-id-card .id-footer .qr-code {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .student-id-card .id-footer .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+        .student-id-card .id-footer .valid-date {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.3);
+            text-align: right;
+        }
+        
+        .id-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
             .qr-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+            .student-id-card { padding: 15px; max-width: 100%; }
+            .student-id-card .id-body { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -333,18 +452,19 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <div class="main-content">
         <div class="page-header">
-            <h1>QR Codes</h1>
-            <p>Generate, scan, and manage QR codes</p>
+            <h1>QR Codes & Student IDs</h1>
+            <p>Generate QR codes and Student ID cards with QR</p>
         </div>
         
         <div class="tabs">
             <button class="tab active" onclick="switchQRTab('generate')"><i class="fas fa-qrcode"></i> Generate</button>
+            <button class="tab" onclick="switchQRTab('studentid')"><i class="fas fa-id-card"></i> Student ID</button>
             <button class="tab" onclick="switchQRTab('scan')"><i class="fas fa-camera"></i> Scan</button>
             <button class="tab" onclick="switchQRTab('list')"><i class="fas fa-list"></i> All Codes</button>
         </div>
@@ -402,13 +522,42 @@
             </div>
         </div>
         
+        <!-- STUDENT ID TAB -->
+        <div id="studentidTab" class="tab-content">
+            <div class="generator-form">
+                <h3 style="color:var(--accent);margin-bottom:20px;"><i class="fas fa-id-card"></i> Generate Student ID Card</h3>
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <select id="studentIdSelect" onchange="loadStudentForID()">
+                        <option value="">Select a student...</option>
+                    </select>
+                </div>
+                <div id="studentIdContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-user-graduate"></i>
+                        <p>Select a student to generate their ID card.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- SCAN TAB -->
         <div id="scanTab" class="tab-content">
             <div class="scanner-container">
                 <h3><i class="fas fa-camera"></i> Scan QR Code</h3>
                 <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:15px;">
                     Point your camera at a QR code. The scanner will automatically detect it.
+                    <br><small>You can also upload an image containing a QR code.</small>
                 </p>
+                
+                <!-- File upload for scanning from image -->
+                <div style="margin-bottom:15px;">
+                    <button class="btn btn-secondary" onclick="document.getElementById('scanImageInput').click()">
+                        <i class="fas fa-image"></i> Upload Image to Scan
+                    </button>
+                    <input type="file" id="scanImageInput" accept="image/*" style="display:none;" onchange="scanImageFromFile(event)">
+                </div>
+                
                 <video id="scannerVideo" autoplay playsinline></video>
                 <canvas id="scannerCanvas"></canvas>
                 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
@@ -492,11 +641,11 @@
         var currentScannedQRId = null;
         var currentScannedQRCode = null;
         var generatedQRCodes = [];
+        var currentStudentForID = null;
         
         document.addEventListener('DOMContentLoaded', function() {
             initDropdownController();
             
-            // Listen for type change to show custom prefix
             document.getElementById('qrType').addEventListener('change', function() {
                 var customGroup = document.getElementById('customPrefixGroup');
                 if (this.value === 'custom') {
@@ -505,6 +654,8 @@
                     customGroup.style.display = 'none';
                 }
             });
+            
+            loadStudentsForID();
         });
         
         function switchQRTab(tabName) {
@@ -514,16 +665,300 @@
             if (tabName === 'generate') {
                 document.querySelectorAll('.tab')[0].classList.add('active');
                 document.getElementById('generateTab').classList.add('active');
-            } else if (tabName === 'scan') {
+            } else if (tabName === 'studentid') {
                 document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('studentidTab').classList.add('active');
+                loadStudentsForID();
+            } else if (tabName === 'scan') {
+                document.querySelectorAll('.tab')[2].classList.add('active');
                 document.getElementById('scanTab').classList.add('active');
             } else {
-                document.querySelectorAll('.tab')[2].classList.add('active');
+                document.querySelectorAll('.tab')[3].classList.add('active');
                 document.getElementById('listTab').classList.add('active');
                 loadQRCodeList();
             }
         }
         
+        // ============ STUDENT ID FUNCTIONS ============
+        function loadStudentsForID() {
+            var school = getCurrentSchool();
+            API.getStudents(school).then(function(students) {
+                var select = document.getElementById('studentIdSelect');
+                if (!select) return;
+                
+                var html = '<option value="">Select a student...</option>';
+                students.forEach(function(s) {
+                    html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
+                });
+                select.innerHTML = html;
+            });
+        }
+        
+        function loadStudentForID() {
+            var adm = document.getElementById('studentIdSelect').value;
+            var container = document.getElementById('studentIdContainer');
+            
+            if (!adm) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-user-graduate"></i><p>Select a student to generate their ID card.</p></div>';
+                return;
+            }
+            
+            var school = getCurrentSchool();
+            container.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i><p style="margin-top:10px;">Loading student data...</p></div>';
+            
+            API.getStudents(school).then(function(students) {
+                var student = null;
+                students.forEach(function(s) {
+                    if (s.adm === adm) student = s;
+                });
+                
+                if (!student) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Student not found.</p></div>';
+                    return;
+                }
+                
+                currentStudentForID = student;
+                
+                // Check if student has QR code
+                API.getQRCodes(school).then(function(codes) {
+                    var existingQR = null;
+                    codes.forEach(function(qr) {
+                        if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
+                            existingQR = qr;
+                        }
+                    });
+                    
+                    generateStudentIDCard(student, existingQR);
+                });
+            });
+        }
+        
+        function generateStudentIDCard(student, qrCode) {
+            var container = document.getElementById('studentIdContainer');
+            var schoolName = getCurrentSchool();
+            
+            var qrUrl = '';
+            if (qrCode) {
+                qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H';
+            }
+            
+            var initials = getInitials(student.name);
+            var today = new Date();
+            var expiryDate = new Date(today);
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+            
+            var html = `
+                <div class="student-id-card">
+                    <div class="id-header">
+                        <span class="school-name">${schoolName}</span>
+                        <span class="id-type">Student ID</span>
+                    </div>
+                    <div class="id-body">
+                        <div class="id-avatar">${initials}</div>
+                        <div class="id-details">
+                            <div class="name">${student.name}</div>
+                            <div class="adm">ADM: ${student.adm}</div>
+                            <div class="info-row">
+                                <span>${student.form || 'Form: -'}</span>
+                                <span>${student.stream || 'Stream: -'}</span>
+                            </div>
+                            <div class="info-row" style="font-size:10px;color:rgba(255,255,255,0.4);">
+                                <span>${student.gender || 'Gender: -'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="id-footer">
+                        <div class="qr-code">
+                            ${qrUrl ? '<img src="' + qrUrl + '" alt="QR Code">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#333;">No QR</div>'}
+                        </div>
+                        <div class="valid-date">
+                            <div>Valid Until</div>
+                            <div>${expiryDate.toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="id-actions">
+                    ${!qrCode ? '<button class="btn btn-primary" onclick="generateQRForStudent(\'' + student.adm + '\')"><i class="fas fa-qrcode"></i> Generate QR Code</button>' : ''}
+                    <button class="btn btn-secondary" onclick="printStudentID()"><i class="fas fa-print"></i> Print ID Card</button>
+                    <button class="btn btn-secondary" onclick="downloadStudentID()"><i class="fas fa-download"></i> Download ID Card</button>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function generateQRForStudent(adm) {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            
+            API.generateStudentID(school, adm).then(function(result) {
+                if (result.success) {
+                    showNotification('QR Code generated for student!', 'success');
+                    logAction('Student ID Generated', result.student.name + ' (' + adm + ')');
+                    loadStudentForID();
+                } else {
+                    showNotification('Error: ' + result.error, 'error');
+                }
+            });
+        }
+        
+        function printStudentID() {
+            var card = document.querySelector('.student-id-card');
+            if (!card) {
+                showNotification('No ID card to print', 'warning');
+                return;
+            }
+            
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Student ID Card</title>
+                        <style>
+                            body {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                height: 100vh;
+                                margin: 0;
+                                background: white;
+                            }
+                            .student-id-card {
+                                background: linear-gradient(135deg, #0a0e27, #1a1f4e);
+                                border: 2px solid #d4af37;
+                                border-radius: 16px;
+                                padding: 25px;
+                                max-width: 400px;
+                                position: relative;
+                                overflow: hidden;
+                                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                                color: white;
+                            }
+                            .student-id-card::before {
+                                content: '';
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                height: 6px;
+                                background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+                            }
+                            .id-header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 15px;
+                                padding-bottom: 10px;
+                                border-bottom: 1px solid rgba(255,255,255,0.1);
+                            }
+                            .id-header .school-name {
+                                font-size: 14px;
+                                font-weight: 700;
+                                color: #d4af37;
+                                letter-spacing: 1px;
+                            }
+                            .id-header .id-type {
+                                font-size: 10px;
+                                color: rgba(255,255,255,0.4);
+                                text-transform: uppercase;
+                                letter-spacing: 2px;
+                                background: rgba(212,175,55,0.15);
+                                padding: 4px 10px;
+                                border-radius: 20px;
+                            }
+                            .id-body {
+                                display: flex;
+                                gap: 15px;
+                                align-items: center;
+                            }
+                            .id-avatar {
+                                width: 80px;
+                                height: 80px;
+                                border-radius: 50%;
+                                background: linear-gradient(135deg, #d4af37, #f0d060);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 30px;
+                                font-weight: 900;
+                                color: #0a0e27;
+                                flex-shrink: 0;
+                                border: 3px solid #d4af37;
+                            }
+                            .id-details { flex: 1; }
+                            .id-details .name {
+                                font-size: 18px;
+                                font-weight: 700;
+                                color: #ffffff;
+                                margin-bottom: 2px;
+                            }
+                            .id-details .adm {
+                                font-size: 12px;
+                                color: #d4af37;
+                                font-weight: 600;
+                                letter-spacing: 1px;
+                            }
+                            .id-details .info-row {
+                                display: flex;
+                                gap: 15px;
+                                margin-top: 5px;
+                                font-size: 11px;
+                                color: rgba(255,255,255,0.6);
+                            }
+                            .id-footer {
+                                margin-top: 15px;
+                                padding-top: 10px;
+                                border-top: 1px solid rgba(255,255,255,0.1);
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            }
+                            .id-footer .qr-code {
+                                width: 60px;
+                                height: 60px;
+                                background: white;
+                                border-radius: 8px;
+                                padding: 5px;
+                            }
+                            .id-footer .qr-code img { width: 100%; height: 100%; }
+                            .id-footer .valid-date {
+                                font-size: 9px;
+                                color: rgba(255,255,255,0.3);
+                                text-align: right;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${card.outerHTML}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(function() {
+                printWindow.print();
+            }, 500);
+        }
+        
+        function downloadStudentID() {
+            var card = document.querySelector('.student-id-card');
+            if (!card) {
+                showNotification('No ID card to download', 'warning');
+                return;
+            }
+            
+            // Create a canvas from the card
+            html2canvas(card).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = 'student_id_card.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showNotification('ID Card downloaded!', 'success');
+            }).catch(function() {
+                showNotification('Download failed. Please use print instead.', 'warning');
+            });
+        }
+        
+        // ============ QR CODE GENERATION ============
         function generateQRCodes() {
             var school = getCurrentSchool();
             var type = document.getElementById('qrType').value;
@@ -606,22 +1041,21 @@
                     showNotification('Downloaded: ' + code, 'success');
                 })
                 .catch(function() {
-                    // Fallback: open in new tab
                     window.open(url, '_blank');
                     showNotification('Download started in new tab', 'info');
                 });
         }
         
         function downloadAllQRCodes() {
-            var codes = document.querySelectorAll('.qr-item');
-            if (codes.length === 0) {
+            var items = document.querySelectorAll('.qr-item');
+            if (items.length === 0) {
                 showNotification('No QR codes to download', 'warning');
                 return;
             }
             
-            showNotification('Downloading ' + codes.length + ' QR codes...', 'info');
+            showNotification('Downloading ' + items.length + ' QR codes...', 'info');
             
-            codes.forEach(function(item, index) {
+            items.forEach(function(item, index) {
                 setTimeout(function() {
                     var code = item.dataset.code;
                     if (code) {
@@ -639,7 +1073,7 @@
             
             setTimeout(function() {
                 showNotification('Download initiated for all QR codes', 'success');
-            }, codes.length * 500 + 500);
+            }, items.length * 500 + 500);
         }
         
         function printQR(code) {
@@ -792,7 +1226,7 @@
                         stopScanner();
                         document.getElementById('scannedCode').textContent = code.data;
                         document.getElementById('scanResult').style.display = 'block';
-                        document.getElementById('scanDetails').textContent = '✅ QR code detected! Type: ' + (code.data.includes('-') ? code.data.split('-')[0] : 'Unknown');
+                        document.getElementById('scanDetails').textContent = '✅ QR code detected!';
                         showNotification('QR code detected!', 'success');
                         return;
                     }
@@ -804,10 +1238,79 @@
             }
         }
         
+        // ============ SCAN FROM IMAGE ============
+        function scanImageFromFile(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.getElementById('scannerCanvas');
+                    var ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    if (window.jsQR) {
+                        var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: 'dontInvert'
+                        });
+                        
+                        if (code && code.data) {
+                            document.getElementById('scannedCode').textContent = code.data;
+                            document.getElementById('scanResult').style.display = 'block';
+                            document.getElementById('scanDetails').textContent = '✅ QR code detected from image!';
+                            showNotification('QR code detected from image!', 'success');
+                        } else {
+                            showNotification('No QR code found in the image', 'warning');
+                        }
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
         async function processScannedCode() {
             var code = document.getElementById('scannedCode').textContent;
             var school = getCurrentSchool();
             
+            // Check if this is a student ID QR code
+            var studentResult = await API.getStudentByQRCode(school, code);
+            
+            if (studentResult.success) {
+                // Show student details from QR scan
+                var student = studentResult.student;
+                var adm = studentResult.adm;
+                
+                var html = `
+                    <div style="background:rgba(212,175,55,0.15);border:1px solid var(--accent);border-radius:12px;padding:20px;margin-top:15px;">
+                        <h4 style="color:var(--accent);margin-bottom:10px;"><i class="fas fa-user-graduate"></i> Student Details</h4>
+                        <p><strong>Name:</strong> ${student.name}</p>
+                        <p><strong>ADM:</strong> ${adm}</p>
+                        <p><strong>Form:</strong> ${student.form || '-'}</p>
+                        <p><strong>Stream:</strong> ${student.stream || '-'}</p>
+                        <p><strong>Gender:</strong> ${student.gender || '-'}</p>
+                        <p><strong>Parent:</strong> ${student.parentName || '-'}</p>
+                        <p><strong>Parent Phone:</strong> ${student.parentPhone || '-'}</p>
+                        ${student.parentEmail ? '<p><strong>Parent Email:</strong> ' + student.parentEmail + '</p>' : ''}
+                        <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="printStudentDetails('${adm}')"><i class="fas fa-print"></i> Print Details</button>
+                            <button class="btn btn-secondary" onclick="location.href='students.html'"><i class="fas fa-edit"></i> Edit Student</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('scanDetails').innerHTML = html;
+                logAction('Student ID Scanned', student.name + ' (' + adm + ')');
+                return;
+            }
+            
+            // If not a student ID, process as regular QR code
             var result = await API.scanQRCode(school, code);
             
             if (!result.success) {
@@ -863,6 +1366,39 @@
             }
             
             document.getElementById('scanResult').style.display = 'none';
+        }
+        
+        function printStudentDetails(adm) {
+            var detailsDiv = document.querySelector('.scan-result .scan-details');
+            if (!detailsDiv) {
+                showNotification('No details to print', 'warning');
+                return;
+            }
+            
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Student Details</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; }
+                            h2 { color: #1a1f4e; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
+                            p { margin: 8px 0; }
+                            strong { color: #333; }
+                            .footer { margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 15px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Student Details</h2>
+                        ${detailsDiv.innerHTML}
+                        <div class="footer">Printed from SRMS on ${new Date().toLocaleString()}</div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(function() {
+                printWindow.print();
+            }, 500);
         }
         
         function assignScannedQR(event) {
@@ -937,6 +1473,17 @@
             });
         }
         
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { 
+                title: 'Logout', 
+                type: 'info', 
+                confirmText: 'Logout', 
+                cancelText: 'Cancel' 
+            }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
+        }
+        
         window.switchQRTab = switchQRTab;
         window.generateQRCodes = generateQRCodes;
         window.startScanner = startScanner;
@@ -951,6 +1498,14 @@
         window.downloadAllQRCodes = downloadAllQRCodes;
         window.clearQRCodes = clearQRCodes;
         window.copyQRCode = copyQRCode;
+        window.loadStudentsForID = loadStudentsForID;
+        window.loadStudentForID = loadStudentForID;
+        window.generateQRForStudent = generateQRForStudent;
+        window.printStudentID = printStudentID;
+        window.downloadStudentID = downloadStudentID;
+        window.scanImageFromFile = scanImageFromFile;
+        window.printStudentDetails = printStudentDetails;
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>

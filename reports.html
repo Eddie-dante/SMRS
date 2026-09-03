@@ -169,7 +169,6 @@
         }
         .chart-container h3 { color: var(--accent); margin-bottom: 15px; font-size: 1em; }
         
-        /* Detailed Reports Section */
         .report-section {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -209,7 +208,6 @@
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
         .badge-info { background: rgba(23,162,184,0.2); color: #17a2b8; }
         
-        /* Print Styles */
         @media print {
             body { background: #fff; color: #000; padding: 0; }
             .taskbar, .floating-navbar-container, .page-header .btn-primary, .page-header .btn-secondary {
@@ -243,7 +241,7 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
@@ -259,7 +257,6 @@
             </div>
         </div>
         
-        <!-- Summary Stats -->
         <div class="stats-grid">
             <div class="stat-card"><div class="value" id="totalBooksCount">0</div><div class="label">Total Books</div></div>
             <div class="stat-card"><div class="value" id="totalStudentsCount">0</div><div class="label">Total Students</div></div>
@@ -269,7 +266,6 @@
             <div class="stat-card"><div class="value" id="furnitureCount">0</div><div class="label">Active Furniture</div></div>
         </div>
         
-        <!-- Overdue Books Report -->
         <div class="report-section">
             <h3><i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Overdue Books Report</h3>
             <div class="table-container">
@@ -284,7 +280,6 @@
             </div>
         </div>
         
-        <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-container">
                 <h3><i class="fas fa-book"></i> Books by Type</h3>
@@ -304,7 +299,6 @@
             </div>
         </div>
         
-        <!-- Monthly Summary -->
         <div class="report-section">
             <h3><i class="fas fa-chart-line"></i> Monthly Summary</h3>
             <div class="table-container">
@@ -320,7 +314,6 @@
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'"><span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard</button>
@@ -400,7 +393,6 @@
                 reportData.furniture = results[3];
                 reportData.classes = results[4];
                 
-                // Calculate total students (including from classes)
                 var totalStudents = reportData.students.length;
                 var seenAdms = {};
                 reportData.students.forEach(function(s) { seenAdms[s.adm] = true; });
@@ -411,7 +403,6 @@
                     });
                 });
                 
-                // Update stats
                 document.getElementById('totalBooksCount').textContent = reportData.books.reduce(function(s, b) { return s + (b.quantity || 0); }, 0);
                 document.getElementById('totalStudentsCount').textContent = totalStudents;
                 
@@ -427,13 +418,9 @@
                 
                 document.getElementById('furnitureCount').textContent = reportData.furniture.length;
                 
-                // Render overdue report
                 renderOverdueReport(overdue);
-                
-                // Render monthly summary
                 renderMonthlySummary();
                 
-                // Create charts
                 if (typeof Chart !== 'undefined') {
                     createBooksByTypeChart();
                     createStudentsByFormChart();
@@ -563,11 +550,16 @@
             var canvas = document.getElementById('furnitureChart');
             if (!canvas) return;
             
+            var statuses = { 'Allocated': 0 };
+            reportData.furniture.forEach(function() {
+                statuses['Allocated']++;
+            });
+            
             new Chart(canvas, {
                 type: 'pie',
                 data: {
-                    labels: ['Allocated'],
-                    datasets: [{ data: [reportData.furniture.length], backgroundColor: ['#ffc107'] }]
+                    labels: Object.keys(statuses),
+                    datasets: [{ data: Object.values(statuses), backgroundColor: ['#ffc107'] }]
                 },
                 options: {
                     responsive: true,
@@ -623,8 +615,15 @@
             showNotification('Report exported!', 'success');
         }
         
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
+        }
+        
         window.printReport = printReport;
         window.exportReport = exportReport;
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>
