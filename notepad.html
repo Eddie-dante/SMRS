@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SRMS - Advanced Notepad | School Resource Management System</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Georgia&display=swap" rel="stylesheet" />
@@ -533,6 +533,7 @@
             font-weight: 700;
             font-family: "Inter", sans-serif;
             outline: none;
+            width: 100%;
         }
         .editor-title-input::placeholder {
             color: rgba(255, 255, 255, 0.3);
@@ -703,6 +704,38 @@
             gap: 15px;
         }
 
+        /* ========== FILE UPLOAD STYLES ========== */
+        .file-upload-area {
+            border: 2px dashed rgba(212, 175, 55, 0.4);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .file-upload-area:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+        .file-upload-area i {
+            font-size: 40px;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+        .file-upload-area p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+        .file-upload-area .file-name {
+            color: #34ce57;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
         /* ========== RESPONSIVE ========== */
         @media (max-width: 1024px) {
             .notepad-layout {
@@ -760,6 +793,15 @@
                 flex: 1;
                 justify-content: center;
             }
+            .editor-title-input {
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+            #noteContent {
+                font-size: 14px;
+                padding: 15px;
+                min-height: 200px;
+            }
         }
         @media (max-width: 480px) {
             .editor-toolbar .toolbar-group {
@@ -768,6 +810,72 @@
             .editor-toolbar .toolbar-select {
                 font-size: 10px;
                 padding: 2px 4px;
+            }
+            .editor-toolbar .toolbar-btn {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+            .modal-content {
+                padding: 20px;
+                margin: 10px;
+            }
+            .page-header h1 {
+                font-size: 1.5em;
+            }
+            .notepad-sidebar {
+                max-height: 150px;
+                padding: 12px;
+            }
+        }
+
+        /* Mobile detection - phone specific */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .notepad-sidebar {
+                max-height: 120px;
+            }
+            .notepad-editor {
+                min-height: 300px;
+            }
+            .editor-toolbar .toolbar-group {
+                padding: 0 2px;
+            }
+            .editor-toolbar .toolbar-btn {
+                width: 22px;
+                height: 22px;
+                font-size: 9px;
+            }
+            .editor-toolbar .toolbar-select {
+                font-size: 9px;
+                padding: 1px 3px;
+            }
+            .editor-title-input {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            #noteContent {
+                font-size: 13px;
+                padding: 10px;
+                min-height: 150px;
+            }
+            .editor-footer .word-count {
+                font-size: 10px;
+            }
+            .editor-footer .editor-actions .btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            .floating-navbar {
+                padding: 6px 8px;
+                gap: 4px;
+            }
+            .classy-btn {
+                padding: 6px 8px;
+                font-size: 9px;
+            }
+            .classy-btn .btn-badge {
+                width: 18px;
+                height: 18px;
             }
         }
     </style>
@@ -1100,13 +1208,22 @@
     <div class="modal" id="imageModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-image"></i> Insert Image</h3>
+                <h3><i class="fas fa-image"></i> Insert Image from File</h3>
                 <button class="modal-close" onclick="closeModal('imageModal')"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="return insertImageSubmit(event)">
                 <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" required>
+                    <label>Upload Image from Device</label>
+                    <div class="file-upload-area" onclick="document.getElementById('imageFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload an image from your device</p>
+                        <div class="file-name" id="imageFileName">No file selected</div>
+                        <input type="file" id="imageFileInput" accept="image/*" onchange="handleImageFileSelect(event)">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Or Paste Image URL</label>
+                    <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
                 </div>
                 <div class="form-group">
                     <label>Alt Text</label>
@@ -1169,7 +1286,7 @@
     <script>
         // ============================================
         // SRMS - Advanced Notepad (50+ Features)
-        // Full Version
+        // Full Version - Fixed
         // ============================================
 
         // ============ GLOBALS ============
@@ -1181,6 +1298,8 @@
         var searchTerm = '';
         var sortMode = 'newest';
         var allNotes = [];
+        var uploadedImageData = null;
+        var uploadedImageName = '';
 
         // ============ SPECIAL CHARACTERS ============
         var specialChars = [
@@ -1219,7 +1338,19 @@
             setupContentListeners();
             populateSpecialChars();
             updateWordCount();
-            document.getElementById('noteContent').focus();
+            
+            // Set default title placeholder
+            document.getElementById('noteTitle').placeholder = 'Document Title...';
+            
+            // Auto-focus on content
+            setTimeout(function() {
+                document.getElementById('noteContent').focus();
+            }, 500);
+            
+            // Detect mobile and adjust
+            if (window.innerWidth <= 480) {
+                document.querySelector('.notepad-editor').style.minHeight = '300px';
+            }
         });
 
         // ============ LOAD NOTES ============
@@ -1239,7 +1370,6 @@
             var container = document.getElementById('noteList');
             if (!container) return;
 
-            // Apply search filter
             var filtered = notes;
             if (searchTerm) {
                 var term = searchTerm.toLowerCase();
@@ -1249,7 +1379,6 @@
                 });
             }
 
-            // Apply sorting
             filtered.sort(function(a, b) {
                 switch (sortMode) {
                     case 'oldest':
@@ -1258,7 +1387,7 @@
                         return (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
                     case 'za':
                         return (b.title || 'Untitled').localeCompare(a.title || 'Untitled');
-                    default: // newest
+                    default:
                         return new Date(b.timestamp) - new Date(a.timestamp);
                 }
             });
@@ -1312,6 +1441,7 @@
         function createNewNote() {
             currentNoteId = null;
             document.getElementById('noteTitle').value = '';
+            document.getElementById('noteTitle').placeholder = 'Document Title...';
             document.getElementById('noteContent').innerHTML = '';
             document.getElementById('noteContent').focus();
             updateWordCount();
@@ -1324,7 +1454,6 @@
             var user = getCurrentUser();
             if (!school || !user) return;
 
-            // Save current note first
             if (currentNoteId) {
                 saveNoteSilent();
             }
@@ -1362,9 +1491,7 @@
                 return;
             }
 
-            // Check if we should update or create
             if (currentNoteId) {
-                // Find and update the note
                 API.saveNote(school, {
                     author: user.name,
                     authorEmail: user.email,
@@ -1378,7 +1505,6 @@
                     }
                 });
             } else {
-                // Create new note
                 API.saveNote(school, {
                     author: user.name,
                     authorEmail: user.email,
@@ -1388,7 +1514,6 @@
                     if (result.success) {
                         if (showToast) showNotification('Note saved!', 'success');
                         loadNotes();
-                        // Load the new note
                         setTimeout(function() {
                             var notes = allNotes;
                             if (notes.length > 0) {
@@ -1411,7 +1536,7 @@
                 if (document.getElementById('noteContent').innerHTML.trim()) {
                     saveNoteSilent(false);
                 }
-            }, 30000); // Auto-save every 30 seconds
+            }, 30000);
         }
 
         function updateNoteMetadata() {
@@ -1466,6 +1591,23 @@
             }
         }
 
+        // ============ IMAGE FUNCTIONS ============
+        function handleImageFileSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            uploadedImageName = file.name;
+            document.getElementById('imageFileName').textContent = file.name;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageData = e.target.result;
+                document.getElementById('imageUrl').value = uploadedImageData;
+                showNotification('Image loaded: ' + file.name, 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
         // ============ INSERT FUNCTIONS ============
         function insertLink() {
             openModal('linkModal');
@@ -1489,6 +1631,14 @@
 
         function insertImage() {
             openModal('imageModal');
+            uploadedImageData = null;
+            uploadedImageName = '';
+            document.getElementById('imageFileName').textContent = 'No file selected';
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('imageAlt').value = '';
+            document.getElementById('imageWidth').value = '300';
+            document.getElementById('imageHeight').value = '200';
+            document.getElementById('imageFileInput').value = '';
         }
 
         function insertImageSubmit(event) {
@@ -1497,12 +1647,15 @@
             var alt = document.getElementById('imageAlt').value || 'Image';
             var width = document.getElementById('imageWidth').value || '300';
             var height = document.getElementById('imageHeight').value || '200';
+            
             if (url) {
                 var html = '<img src="' + url + '" alt="' + alt + '" width="' + width + '" height="' + height + '">';
                 document.execCommand('insertHTML', false, html);
                 closeModal('imageModal');
                 updateWordCount();
                 showNotification('Image inserted', 'success');
+            } else {
+                showNotification('Please provide an image URL or upload a file', 'warning');
             }
             return false;
         }
@@ -1639,16 +1792,22 @@
 
         // ============ DELETE ============
         function deleteNoteConfirm(noteId) {
-            DialogSystem.confirm('Delete this note?', {
-                title: 'Delete Note',
-                type: 'danger',
-                confirmText: 'Delete',
-                cancelText: 'Cancel'
-            }).then(function(result) {
-                if (result === 'confirm') {
+            if (typeof DialogSystem !== 'undefined') {
+                DialogSystem.confirm('Delete this note?', {
+                    title: 'Delete Note',
+                    type: 'danger',
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel'
+                }).then(function(result) {
+                    if (result === 'confirm') {
+                        deleteNote(noteId);
+                    }
+                });
+            } else {
+                if (confirm('Delete this note?')) {
                     deleteNote(noteId);
                 }
-            });
+            }
         }
 
         function deleteNote(noteId) {
@@ -1666,48 +1825,66 @@
         }
 
         function deleteAllNotes() {
-            DialogSystem.confirm('Delete ALL notes? This cannot be undone.', {
-                title: 'Delete All Notes',
-                type: 'danger',
-                confirmText: 'Delete All',
-                cancelText: 'Cancel'
-            }).then(function(result) {
-                if (result === 'confirm') {
-                    var school = getCurrentSchool();
-                    var user = getCurrentUser();
-                    if (!school || !user) return;
-                    API.getNotes(school, user.email).then(function(notes) {
-                        var promises = [];
-                        notes.forEach(function(n) {
-                            promises.push(API.deleteNote(school, n.id));
-                        });
-                        Promise.all(promises).then(function() {
-                            currentNoteId = null;
-                            document.getElementById('noteTitle').value = '';
-                            document.getElementById('noteContent').innerHTML = '';
-                            updateWordCount();
-                            loadNotes();
-                            showNotification('All notes deleted!', 'success');
-                        });
-                    });
+            if (typeof DialogSystem !== 'undefined') {
+                DialogSystem.confirm('Delete ALL notes? This cannot be undone.', {
+                    title: 'Delete All Notes',
+                    type: 'danger',
+                    confirmText: 'Delete All',
+                    cancelText: 'Cancel'
+                }).then(function(result) {
+                    if (result === 'confirm') {
+                        executeDeleteAllNotes();
+                    }
+                });
+            } else {
+                if (confirm('Delete ALL notes? This cannot be undone.')) {
+                    executeDeleteAllNotes();
                 }
+            }
+        }
+
+        function executeDeleteAllNotes() {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            if (!school || !user) return;
+            API.getNotes(school, user.email).then(function(notes) {
+                var promises = [];
+                notes.forEach(function(n) {
+                    promises.push(API.deleteNote(school, n.id));
+                });
+                Promise.all(promises).then(function() {
+                    currentNoteId = null;
+                    document.getElementById('noteTitle').value = '';
+                    document.getElementById('noteContent').innerHTML = '';
+                    updateWordCount();
+                    loadNotes();
+                    showNotification('All notes deleted!', 'success');
+                });
             });
         }
 
         // ============ CLEAR ============
         function clearNote() {
-            DialogSystem.confirm('Clear the current document?', {
-                title: 'Clear Document',
-                type: 'warning',
-                confirmText: 'Clear',
-                cancelText: 'Cancel'
-            }).then(function(result) {
-                if (result === 'confirm') {
+            if (typeof DialogSystem !== 'undefined') {
+                DialogSystem.confirm('Clear the current document?', {
+                    title: 'Clear Document',
+                    type: 'warning',
+                    confirmText: 'Clear',
+                    cancelText: 'Cancel'
+                }).then(function(result) {
+                    if (result === 'confirm') {
+                        document.getElementById('noteContent').innerHTML = '';
+                        updateWordCount();
+                        showNotification('Document cleared', 'info');
+                    }
+                });
+            } else {
+                if (confirm('Clear the current document?')) {
                     document.getElementById('noteContent').innerHTML = '';
                     updateWordCount();
                     showNotification('Document cleared', 'info');
                 }
-            });
+            }
         }
 
         // ============ PRINT ============
@@ -1779,30 +1956,29 @@
         // ============ KEYBOARD SHORTCUTS ============
         function setupKeyboardShortcuts() {
             document.addEventListener('keydown', function(e) {
-                // Ctrl+S - Save
                 if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     saveNote();
                 }
-                // Ctrl+N - New Note
                 if (e.ctrlKey && e.key === 'n') {
                     e.preventDefault();
                     createNewNote();
                 }
-                // Ctrl+Shift+E - Export
                 if (e.ctrlKey && e.shiftKey && e.key === 'E') {
                     e.preventDefault();
                     exportNote();
                 }
-                // Ctrl+P - Print
                 if (e.ctrlKey && e.key === 'p') {
                     e.preventDefault();
                     printNote();
                 }
-                // F11 - Fullscreen
                 if (e.key === 'F11') {
                     e.preventDefault();
                     toggleFullscreen();
+                }
+                if (e.key === 'Tab' && document.activeElement === document.getElementById('noteContent')) {
+                    e.preventDefault();
+                    document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
                 }
             });
         }
@@ -1812,13 +1988,6 @@
             var content = document.getElementById('noteContent');
             content.addEventListener('input', function() {
                 updateWordCount();
-            });
-            content.addEventListener('keydown', function(e) {
-                // Tab key for indentation
-                if (e.key === 'Tab') {
-                    e.preventDefault();
-                    document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
-                }
             });
         }
 
@@ -1845,6 +2014,45 @@
                 });
             }
         });
+
+        // Detect mobile and adjust layout
+        function detectMobile() {
+            var isMobile = window.innerWidth <= 768;
+            var sidebar = document.querySelector('.notepad-sidebar');
+            var editor = document.querySelector('.notepad-editor');
+            
+            if (isMobile) {
+                sidebar.style.maxHeight = '150px';
+                editor.style.minHeight = '350px';
+                document.querySelector('.notepad-layout').style.height = 'auto';
+            } else {
+                sidebar.style.maxHeight = '';
+                editor.style.minHeight = '400px';
+            }
+        }
+
+        window.addEventListener('resize', detectMobile);
+        detectMobile();
+
+        // ============ NOTIFICATION FALLBACK ============
+        function showNotification(message, type) {
+            if (typeof window.showNotification === 'function') {
+                window.showNotification(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // ============ LOGOUT ============
+        function logout() {
+            if (typeof window.logout === 'function') {
+                window.logout();
+            } else {
+                localStorage.removeItem('srms_user');
+                localStorage.removeItem('srms_school');
+                window.location.href = 'index.html';
+            }
+        }
 
         // ============ EXPOSE GLOBALS ============
         window.loadNotes = loadNotes;
@@ -1880,6 +2088,8 @@
         window.updateWordCount = updateWordCount;
         window.openModal = openModal;
         window.closeModal = closeModal;
+        window.handleImageFileSelect = handleImageFileSelect;
+        window.logout = logout;
     </script>
 </body>
 </html>
