@@ -1,599 +1,448 @@
 // ============================================
-// SRMS - Complete Utility Functions
-// Full Version
+// SRMS - Custom Dialogue Box System
+// Beautiful Glass-Morphism Dialogs
 // ============================================
 
-// ============ DATE FUNCTIONS ============
-function getCurrentDate() {
-  var today = new Date();
-  var year = today.getFullYear();
-  var month = String(today.getMonth() + 1).padStart(2, "0");
-  var day = String(today.getDate()).padStart(2, "0");
-  return year + "-" + month + "-" + day;
-}
+var DialogSystem = {
+  _overlay: null,
+  _resolve: null,
+  _escHandler: null,
+  _isPrompt: false,
 
-function getCurrentDateTime() {
-  return new Date().toISOString();
-}
+  // ============ CONFIRM DIALOG ============
+  confirm(message, options) {
+    options = options || {};
+    var title = options.title || "Confirm";
+    var confirmText = options.confirmText || "Confirm";
+    var cancelText = options.cancelText || "Cancel";
+    var type = options.type || "warning";
 
-function getDateDisplay() {
-  var now = new Date();
-  var options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  return now.toLocaleDateString("en-US", options);
-}
+    return new Promise(function (resolve) {
+      var overlay = document.createElement("div");
+      overlay.className = "dialog-overlay";
+      overlay.id = "dialogOverlay";
 
-function formatDate(dateString) {
-  if (!dateString) return "-";
-  var date = new Date(dateString);
-  if (isNaN(date.getTime())) return "-";
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
+      var icons = {
+        warning: "fa-exclamation-triangle",
+        danger: "fa-trash",
+        info: "fa-info-circle",
+        success: "fa-check-circle",
+      };
 
-function formatDateTime(dateString) {
-  if (!dateString) return "-";
-  var date = new Date(dateString);
-  if (isNaN(date.getTime())) return "-";
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+      var colors = {
+        warning: "#ffc107",
+        danger: "#e94560",
+        info: "#17a2b8",
+        success: "#28a745",
+      };
 
-function formatTime(dateString) {
-  if (!dateString) return "-";
-  var date = new Date(dateString);
-  if (isNaN(date.getTime())) return "-";
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+      overlay.innerHTML = `
+                <div class="dialog-box">
+                    <div class="dialog-icon" style="background: ${colors[type]}20; color: ${colors[type]}; border: 2px solid ${colors[type]};">
+                        <i class="fas ${icons[type]}"></i>
+                    </div>
+                    <h3 class="dialog-title">${title}</h3>
+                    <p class="dialog-message">${message}</p>
+                    <div class="dialog-buttons">
+                        <button class="dialog-btn dialog-cancel" onclick="DialogSystem.close('cancel')">
+                            <i class="fas fa-times"></i> ${cancelText}
+                        </button>
+                        <button class="dialog-btn dialog-confirm" style="background: ${colors[type]};" onclick="DialogSystem.close('confirm')">
+                            <i class="fas fa-check"></i> ${confirmText}
+                        </button>
+                    </div>
+                </div>
+            `;
 
-function addDays(dateString, days) {
-  var date = new Date(dateString);
-  date.setDate(date.getDate() + days);
-  var year = date.getFullYear();
-  var month = String(date.getMonth() + 1).padStart(2, "0");
-  var day = String(date.getDate()).padStart(2, "0");
-  return year + "-" + month + "-" + day;
-}
+      document.body.appendChild(overlay);
 
-function subtractDays(dateString, days) {
-  return addDays(dateString, -days);
-}
+      if (!document.getElementById("dialogStyles")) {
+        var styleEl = document.createElement("style");
+        styleEl.id = "dialogStyles";
+        styleEl.textContent = DialogSystem.getStyles();
+        document.head.appendChild(styleEl);
+      }
 
-function daysOverdue(returnDate) {
-  if (!returnDate) return 0;
-  var today = new Date();
-  today.setHours(0, 0, 0, 0);
-  var dueDate = new Date(returnDate);
-  dueDate.setHours(0, 0, 0, 0);
-  var diffTime = today - dueDate;
-  var days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  return days > 0 ? days : 0;
-}
-
-function isOverdue(returnDate) {
-  return daysOverdue(returnDate) > 0;
-}
-
-function daysBetween(date1, date2) {
-  var d1 = new Date(date1);
-  var d2 = new Date(date2);
-  if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return 0;
-  var diffTime = Math.abs(d2 - d1);
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
-function getMonthName(monthNumber) {
-  var months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return months[monthNumber] || "";
-}
-
-function getMonthShortName(monthNumber) {
-  var months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  return months[monthNumber] || "";
-}
-
-function getDayName(dayNumber) {
-  var days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  return days[dayNumber] || "";
-}
-
-function getCurrentAcademicYear() {
-  var now = new Date();
-  var year = now.getFullYear();
-  var month = now.getMonth() + 1;
-  if (month >= 9) {
-    return year + "/" + (year + 1);
-  } else {
-    return year - 1 + "/" + year;
-  }
-}
-
-// ============ FORMATTING FUNCTIONS ============
-function formatNumber(number) {
-  if (number === undefined || number === null) return "0";
-  return new Intl.NumberFormat("en-US").format(number);
-}
-
-function formatCurrency(amount) {
-  if (amount === undefined || amount === null) amount = 0;
-  return "KES " + new Intl.NumberFormat("en-KE").format(amount);
-}
-
-function capitalizeFirst(string) {
-  if (!string) return "";
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-}
-
-function capitalizeWords(string) {
-  if (!string) return "";
-  return string.replace(/\b\w/g, function (char) {
-    return char.toUpperCase();
-  });
-}
-
-function truncateText(text, length) {
-  if (!text) return "";
-  length = length || 50;
-  if (text.length <= length) return text;
-  return text.substring(0, length) + "...";
-}
-
-function getInitials(name) {
-  if (!name) return "U";
-  var parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-}
-
-// ============ GENERATION FUNCTIONS ============
-function generateCode(prefix, length) {
-  prefix = prefix || "";
-  length = length || 8;
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  var code = "";
-  for (var i = 0; i < length; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return prefix + code;
-}
-
-function generateUniqueId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-}
-
-function generateRandomColor() {
-  var colors = [
-    "#e94560",
-    "#0f3460",
-    "#d4af37",
-    "#28a745",
-    "#17a2b8",
-    "#6f42c1",
-    "#fd7e14",
-    "#20c997",
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
-
-// ============ VALIDATION FUNCTIONS ============
-function validateEmail(email) {
-  var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return pattern.test(email);
-}
-
-function validatePhone(phone) {
-  var pattern = /^\+?[\d\s-]{10,}$/;
-  return pattern.test(phone);
-}
-
-function validateRequired(value) {
-  return value && value.trim().length > 0;
-}
-
-function isEmpty(str) {
-  return !str || str.trim().length === 0;
-}
-
-// ============ AUTH FUNCTIONS ============
-function checkAuth() {
-  var user = localStorage.getItem("srms_user");
-  var school = localStorage.getItem("srms_school");
-
-  if (!user || !school) {
-    if (
-      window.location.pathname.indexOf("index.html") === -1 &&
-      window.location.pathname.indexOf("landing.html") === -1 &&
-      window.location.pathname.indexOf("wallpaper.html") === -1
-    ) {
-      window.location.href = "index.html";
-    }
-    return null;
-  }
-
-  try {
-    return JSON.parse(user);
-  } catch (error) {
-    localStorage.removeItem("srms_user");
-    localStorage.removeItem("srms_school");
-    return null;
-  }
-}
-
-function getCurrentUser() {
-  var user = localStorage.getItem("srms_user");
-  if (!user) return null;
-  try {
-    return JSON.parse(user);
-  } catch (error) {
-    return null;
-  }
-}
-
-function getCurrentSchool() {
-  return localStorage.getItem("srms_school");
-}
-
-function isAdmin() {
-  var user = getCurrentUser();
-  return user && user.role === "admin";
-}
-
-function logout() {
-  localStorage.removeItem("srms_user");
-  localStorage.removeItem("srms_school");
-  showNotification("Logged out successfully!", "success");
-  setTimeout(function () {
-    window.location.href = "index.html";
-  }, 1000);
-}
-
-// ============ NOTIFICATION FUNCTIONS ============
-function showNotification(message, type, duration) {
-  type = type || "success";
-  duration = duration || 3000;
-
-  var existingNotifications = document.querySelectorAll(".notification");
-  for (var i = 0; i < existingNotifications.length; i++) {
-    existingNotifications[i].remove();
-  }
-
-  var notification = document.createElement("div");
-  notification.className = "notification notification-" + type;
-
-  var icons = {
-    success: "fa-check-circle",
-    error: "fa-exclamation-circle",
-    warning: "fa-exclamation-triangle",
-    info: "fa-info-circle",
-  };
-
-  notification.innerHTML =
-    '<i class="fas ' +
-    (icons[type] || icons.success) +
-    '"></i><span>' +
-    message +
-    "</span>";
-
-  document.body.appendChild(notification);
-
-  setTimeout(function () {
-    notification.classList.add("show");
-  }, 100);
-
-  setTimeout(function () {
-    notification.classList.remove("show");
-    setTimeout(function () {
-      notification.remove();
-    }, 300);
-  }, duration);
-}
-
-// ============ MODAL FUNCTIONS ============
-function openModal(modalId) {
-  var modal = document.getElementById(modalId);
-  if (modal) {
-    modal.classList.add("active");
-    document.body.style.overflow = "hidden";
-  }
-}
-
-function closeModal(modalId) {
-  var modal = document.getElementById(modalId);
-  if (modal) {
-    modal.classList.remove("active");
-    document.body.style.overflow = "auto";
-  }
-}
-
-function closeAllModals() {
-  var modals = document.querySelectorAll(".modal");
-  for (var i = 0; i < modals.length; i++) {
-    modals[i].classList.remove("active");
-  }
-  document.body.style.overflow = "auto";
-}
-
-document.addEventListener("click", function (event) {
-  if (event.target.classList.contains("modal")) {
-    event.target.classList.remove("active");
-    document.body.style.overflow = "auto";
-  }
-});
-
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape") {
-    closeAllModals();
-  }
-});
-
-// ============ TABLE FUNCTIONS ============
-function filterTable(searchInput, tableBody) {
-  if (!searchInput || !tableBody) return;
-  var filter = searchInput.value.toLowerCase();
-  var rows = tableBody.getElementsByTagName("tr");
-
-  for (var i = 0; i < rows.length; i++) {
-    var rowText = rows[i].textContent.toLowerCase();
-    rows[i].style.display = rowText.indexOf(filter) > -1 ? "" : "none";
-  }
-}
-
-function exportToCSV(data, filename) {
-  filename = filename || "export.csv";
-  if (!data || data.length === 0) {
-    showNotification("No data to export", "warning");
-    return;
-  }
-
-  var headers = Object.keys(data[0]);
-  var csvContent = headers.join(",") + "\n";
-
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    var rowArray = [];
-    for (var j = 0; j < headers.length; j++) {
-      var value = row[headers[j]] || "";
-      rowArray.push(JSON.stringify(String(value)));
-    }
-    csvContent += rowArray.join(",") + "\n";
-  }
-
-  var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  var link = document.createElement("a");
-  var url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", filename);
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showNotification("Export successful!", "success");
-}
-
-// ============ LOADING FUNCTIONS ============
-function showLoading(message) {
-  message = message || "Loading...";
-  var existing = document.getElementById("globalLoader");
-  if (existing) existing.remove();
-
-  var loader = document.createElement("div");
-  loader.id = "globalLoader";
-  loader.style.cssText =
-    "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;";
-  loader.innerHTML =
-    '<div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.3);border-top:4px solid #d4af37;border-radius:50%;animation:spin 1s linear infinite;"></div><p style="color:#fff;margin-top:20px;">' +
-    message +
-    "</p>";
-  document.body.appendChild(loader);
-}
-
-function hideLoading() {
-  var loader = document.getElementById("globalLoader");
-  if (loader) loader.remove();
-}
-
-// ============ MISC FUNCTIONS ============
-function copyToClipboard(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard
-      .writeText(text)
-      .then(function () {
-        showNotification("Copied to clipboard!", "success");
-      })
-      .catch(function () {
-        showNotification("Failed to copy", "error");
+      requestAnimationFrame(function () {
+        overlay.classList.add("active");
+        overlay.querySelector(".dialog-box").classList.add("active");
       });
-  } else {
-    var textarea = document.createElement("textarea");
-    textarea.value = text;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-    showNotification("Copied to clipboard!", "success");
-  }
-}
 
-function debounce(func, wait) {
-  var timeout;
-  return function () {
-    var context = this;
-    var args = arguments;
-    var later = function () {
-      timeout = null;
-      func.apply(context, args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
+      DialogSystem._resolve = resolve;
+      DialogSystem._overlay = overlay;
 
-function throttle(func, limit) {
-  var inThrottle;
-  return function () {
-    var context = this;
-    var args = arguments;
-    if (!inThrottle) {
-      func.apply(context, args);
-      inThrottle = true;
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) {
+          DialogSystem.close("cancel");
+        }
+      });
+
+      DialogSystem._escHandler = function (e) {
+        if (e.key === "Escape") {
+          DialogSystem.close("cancel");
+        }
+      };
+      document.addEventListener("keydown", DialogSystem._escHandler);
+    });
+  },
+
+  // ============ ALERT DIALOG ============
+  alert(message, options) {
+    options = options || {};
+    var title = options.title || "Notice";
+    var confirmText = options.confirmText || "OK";
+    var type = options.type || "info";
+
+    return new Promise(function (resolve) {
+      var overlay = document.createElement("div");
+      overlay.className = "dialog-overlay";
+      overlay.id = "dialogOverlay";
+
+      var icons = {
+        warning: "fa-exclamation-triangle",
+        danger: "fa-exclamation-circle",
+        info: "fa-info-circle",
+        success: "fa-check-circle",
+      };
+
+      var colors = {
+        warning: "#ffc107",
+        danger: "#e94560",
+        info: "#17a2b8",
+        success: "#28a745",
+      };
+
+      overlay.innerHTML = `
+                <div class="dialog-box">
+                    <div class="dialog-icon" style="background: ${colors[type]}20; color: ${colors[type]}; border: 2px solid ${colors[type]};">
+                        <i class="fas ${icons[type]}"></i>
+                    </div>
+                    <h3 class="dialog-title">${title}</h3>
+                    <p class="dialog-message">${message}</p>
+                    <div class="dialog-buttons">
+                        <button class="dialog-btn dialog-confirm" style="background: ${colors[type]}; width: 100%;" onclick="DialogSystem.close('confirm')">
+                            <i class="fas fa-check"></i> ${confirmText}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+      document.body.appendChild(overlay);
+
+      if (!document.getElementById("dialogStyles")) {
+        var styleEl = document.createElement("style");
+        styleEl.id = "dialogStyles";
+        styleEl.textContent = DialogSystem.getStyles();
+        document.head.appendChild(styleEl);
+      }
+
+      requestAnimationFrame(function () {
+        overlay.classList.add("active");
+        overlay.querySelector(".dialog-box").classList.add("active");
+      });
+
+      DialogSystem._resolve = resolve;
+      DialogSystem._overlay = overlay;
+
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) {
+          DialogSystem.close("confirm");
+        }
+      });
+
+      DialogSystem._escHandler = function (e) {
+        if (e.key === "Escape" || e.key === "Enter") {
+          DialogSystem.close("confirm");
+        }
+      };
+      document.addEventListener("keydown", DialogSystem._escHandler);
+    });
+  },
+
+  // ============ PROMPT DIALOG ============
+  prompt(message, options) {
+    options = options || {};
+    var title = options.title || "Input Required";
+    var confirmText = options.confirmText || "Submit";
+    var cancelText = options.cancelText || "Cancel";
+    var placeholder = options.placeholder || "Enter value...";
+    var defaultValue = options.defaultValue || "";
+    var inputType = options.inputType || "text";
+
+    return new Promise(function (resolve) {
+      var overlay = document.createElement("div");
+      overlay.className = "dialog-overlay";
+      overlay.id = "dialogOverlay";
+
+      overlay.innerHTML = `
+                <div class="dialog-box">
+                    <div class="dialog-icon" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border: 2px solid #d4af37;">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <h3 class="dialog-title">${title}</h3>
+                    <p class="dialog-message">${message}</p>
+                    <div class="dialog-input-group">
+                        <input type="${inputType}" class="dialog-input" id="dialogInput" placeholder="${placeholder}" value="${defaultValue}">
+                    </div>
+                    <div class="dialog-buttons">
+                        <button class="dialog-btn dialog-cancel" onclick="DialogSystem.close('cancel')">
+                            <i class="fas fa-times"></i> ${cancelText}
+                        </button>
+                        <button class="dialog-btn dialog-confirm" style="background: #d4af37;" onclick="DialogSystem.close('confirm')">
+                            <i class="fas fa-check"></i> ${confirmText}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+      document.body.appendChild(overlay);
+
+      if (!document.getElementById("dialogStyles")) {
+        var styleEl = document.createElement("style");
+        styleEl.id = "dialogStyles";
+        styleEl.textContent = DialogSystem.getStyles();
+        document.head.appendChild(styleEl);
+      }
+
+      requestAnimationFrame(function () {
+        overlay.classList.add("active");
+        overlay.querySelector(".dialog-box").classList.add("active");
+        var input = document.getElementById("dialogInput");
+        if (input) {
+          setTimeout(function () {
+            input.focus();
+          }, 300);
+        }
+      });
+
+      DialogSystem._resolve = resolve;
+      DialogSystem._overlay = overlay;
+      DialogSystem._isPrompt = true;
+
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) {
+          DialogSystem.close("cancel");
+        }
+      });
+
+      DialogSystem._escHandler = function (e) {
+        if (e.key === "Escape") {
+          DialogSystem.close("cancel");
+        }
+        if (e.key === "Enter") {
+          DialogSystem.close("confirm");
+        }
+      };
+      document.addEventListener("keydown", DialogSystem._escHandler);
+    });
+  },
+
+  // ============ CLOSE ============
+  close(result) {
+    if (DialogSystem._overlay) {
+      var overlay = DialogSystem._overlay;
+      var box = overlay.querySelector(".dialog-box");
+
+      box.classList.remove("active");
+      overlay.classList.remove("active");
+
       setTimeout(function () {
-        inThrottle = false;
-      }, limit);
+        overlay.remove();
+      }, 200);
+
+      if (DialogSystem._escHandler) {
+        document.removeEventListener("keydown", DialogSystem._escHandler);
+        DialogSystem._escHandler = null;
+      }
+
+      if (DialogSystem._resolve) {
+        var value = result;
+        if (DialogSystem._isPrompt && result === "confirm") {
+          var input = document.getElementById("dialogInput");
+          value = input ? input.value : "";
+        }
+        DialogSystem._resolve(value);
+        DialogSystem._resolve = null;
+      }
+
+      DialogSystem._overlay = null;
+      DialogSystem._isPrompt = false;
     }
-  };
+  },
+
+  // ============ STYLES ============
+  getStyles() {
+    return `
+            .dialog-overlay {
+                position: fixed;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 3000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+                padding: 20px;
+            }
+            
+            .dialog-overlay.active {
+                opacity: 1;
+            }
+            
+            .dialog-box {
+                background: linear-gradient(135deg, #1a1f4e, #0a0e27);
+                border: 2px solid rgba(212, 175, 55, 0.4);
+                border-radius: 20px;
+                padding: 30px;
+                width: 90%;
+                max-width: 420px;
+                text-align: center;
+                transform: scale(0.8) translateY(20px);
+                transition: transform 0.2s ease;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .dialog-box::before {
+                content: '';
+                position: absolute;
+                top: 0; left: 0; right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+            }
+            
+            .dialog-box.active {
+                transform: scale(1) translateY(0);
+            }
+            
+            .dialog-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                margin: 0 auto 15px;
+                animation: dialogPulse 1.5s infinite;
+            }
+            
+            @keyframes dialogPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            .dialog-title {
+                color: #ffffff;
+                font-size: 1.3em;
+                font-weight: 800;
+                margin-bottom: 10px;
+            }
+            
+            .dialog-message {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 14px;
+                margin-bottom: 20px;
+                line-height: 1.5;
+            }
+            
+            .dialog-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .dialog-btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-family: 'Inter', sans-serif;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: #ffffff;
+            }
+            
+            .dialog-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .dialog-cancel {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .dialog-cancel:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .dialog-confirm {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .dialog-input-group {
+                margin-bottom: 20px;
+            }
+            
+            .dialog-input {
+                width: 100%;
+                padding: 12px 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                color: #ffffff;
+                font-size: 14px;
+                font-family: 'Inter', sans-serif;
+                outline: none;
+                transition: all 0.2s ease;
+            }
+            
+            .dialog-input:focus {
+                border-color: #d4af37;
+                box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+            }
+            
+            .dialog-input::placeholder {
+                color: rgba(255, 255, 255, 0.4);
+            }
+            
+            @media (max-width: 480px) {
+                .dialog-box {
+                    padding: 20px;
+                }
+                .dialog-btn {
+                    padding: 8px 15px;
+                    font-size: 12px;
+                }
+            }
+        `;
+  },
+};
+
+// ============ GLOBAL FUNCTIONS ============
+function showConfirm(message, options) {
+  return DialogSystem.confirm(message, options);
 }
 
-function animateNumber(elementId, targetValue) {
-  var element = document.getElementById(elementId);
-  if (!element) return;
-
-  var startValue = parseInt(element.textContent) || 0;
-  var duration = 800;
-  var startTime = performance.now();
-
-  function update(currentTime) {
-    var elapsed = currentTime - startTime;
-    var progress = Math.min(elapsed / duration, 1);
-    var eased = 1 - Math.pow(1 - progress, 3);
-    var currentValue = Math.round(
-      startValue + (targetValue - startValue) * eased,
-    );
-    element.textContent = currentValue;
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    }
-  }
-
-  requestAnimationFrame(update);
+function showAlert(message, options) {
+  return DialogSystem.alert(message, options);
 }
 
-function getDefaultWallpaper() {
-  var saved = localStorage.getItem("srms_wallpaper");
-  if (!saved) {
-    localStorage.setItem("srms_wallpaper", "library");
-    return "library";
-  }
-  return saved;
+function showPrompt(message, options) {
+  return DialogSystem.prompt(message, options);
 }
 
-// ============ CUSTOM DIALOG HELPERS ============
-function customConfirm(message, title, type) {
-  return DialogSystem.confirm(message, {
-    title: title || "Confirm",
-    type: type || "warning",
-  });
-}
-
-function customAlert(message, title, type) {
-  return DialogSystem.alert(message, {
-    title: title || "Notice",
-    type: type || "info",
-  });
-}
-
-function customPrompt(message, title, placeholder) {
-  return DialogSystem.prompt(message, {
-    title: title || "Input",
-    placeholder: placeholder || "Enter value...",
-  });
-}
-
-// ============ EXPORT ALL ============
-window.getCurrentDate = getCurrentDate;
-window.getCurrentDateTime = getCurrentDateTime;
-window.getDateDisplay = getDateDisplay;
-window.formatDate = formatDate;
-window.formatDateTime = formatDateTime;
-window.formatTime = formatTime;
-window.addDays = addDays;
-window.subtractDays = subtractDays;
-window.daysOverdue = daysOverdue;
-window.isOverdue = isOverdue;
-window.daysBetween = daysBetween;
-window.getMonthName = getMonthName;
-window.getMonthShortName = getMonthShortName;
-window.getDayName = getDayName;
-window.getCurrentAcademicYear = getCurrentAcademicYear;
-window.formatNumber = formatNumber;
-window.formatCurrency = formatCurrency;
-window.capitalizeFirst = capitalizeFirst;
-window.capitalizeWords = capitalizeWords;
-window.truncateText = truncateText;
-window.getInitials = getInitials;
-window.generateCode = generateCode;
-window.generateUniqueId = generateUniqueId;
-window.generateRandomColor = generateRandomColor;
-window.validateEmail = validateEmail;
-window.validatePhone = validatePhone;
-window.validateRequired = validateRequired;
-window.isEmpty = isEmpty;
-window.checkAuth = checkAuth;
-window.getCurrentUser = getCurrentUser;
-window.getCurrentSchool = getCurrentSchool;
-window.isAdmin = isAdmin;
-window.logout = logout;
-window.showNotification = showNotification;
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.closeAllModals = closeAllModals;
-window.filterTable = filterTable;
-window.exportToCSV = exportToCSV;
-window.showLoading = showLoading;
-window.hideLoading = hideLoading;
-window.copyToClipboard = copyToClipboard;
-window.debounce = debounce;
-window.throttle = throttle;
-window.animateNumber = animateNumber;
-window.getDefaultWallpaper = getDefaultWallpaper;
-window.customConfirm = customConfirm;
-window.customAlert = customAlert;
-window.customPrompt = customPrompt;
+// Export
+window.DialogSystem = DialogSystem;
+window.showConfirm = showConfirm;
+window.showAlert = showAlert;
+window.showPrompt = showPrompt;

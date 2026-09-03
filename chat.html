@@ -42,7 +42,9 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
         .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
@@ -158,6 +160,14 @@
             text-align: left;
         }
         .chat-user-btn:hover { background: rgba(255,255,255,0.1); }
+        .chat-user-btn .unread-indicator {
+            width: 10px; height: 10px;
+            background: #e94560;
+            border-radius: 50%;
+            display: none;
+            flex-shrink: 0;
+        }
+        .chat-user-btn .unread-indicator.has-unread { display: block; }
         
         .chat-messages {
             background: var(--glass-bg);
@@ -183,6 +193,13 @@
             border: none; border-radius: 10px; color: #fff;
             cursor: pointer;
         }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+        .empty-state i { font-size: 40px; margin-bottom: 15px; color: var(--accent); opacity: 0.5; }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
@@ -214,13 +231,13 @@
             <div class="chat-user-list">
                 <h4><i class="fas fa-users"></i> Staff Members</h4>
                 <div id="chatUserList">
-                    <p style="color:rgba(255,255,255,0.5);text-align:center;">Loading...</p>
+                    <div class="empty-state"><i class="fas fa-users"></i><p>Loading users...</p></div>
                 </div>
             </div>
             <div class="chat-messages">
                 <h4 id="chatWithName" style="color:var(--accent);">Select a user</h4>
                 <div id="chatMessages">
-                    <p style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">No messages yet</p>
+                    <div class="empty-state"><i class="fas fa-comment-dots"></i><p>No messages yet</p></div>
                 </div>
                 <form class="chat-input-container" onsubmit="return sendMessage(event)">
                     <input type="text" id="messageInput" placeholder="Type a message..." required>

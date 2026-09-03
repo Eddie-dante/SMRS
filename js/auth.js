@@ -71,20 +71,32 @@ function handleSignup(event) {
     return false;
   }
 
-  API.createUser(schoolName, {
-    name: name,
-    email: email,
-    password: password,
-    role: "teacher",
-  }).then(function (result) {
-    if (result.success) {
-      showNotification("Account created! Please login.", "success");
-      setTimeout(function () {
-        showLoginForm();
-      }, 1000);
-    } else {
-      showError(result.error || "Signup failed");
+  // First verify the school exists and invite code matches
+  API.getSchool(schoolName).then(function (school) {
+    if (!school) {
+      showError("School not found");
+      return;
     }
+    if (school.inviteCode !== inviteCode) {
+      showError("Invalid invite code");
+      return;
+    }
+
+    API.createUser(schoolName, {
+      name: name,
+      email: email,
+      password: password,
+      role: "teacher",
+    }).then(function (result) {
+      if (result.success) {
+        showNotification("Account created! Please login.", "success");
+        setTimeout(function () {
+          showLoginForm();
+        }, 1000);
+      } else {
+        showError(result.error || "Signup failed");
+      }
+    });
   });
 
   return false;
@@ -157,7 +169,7 @@ function showSignup(event) {
             <div class="form-group"><label><i class="fas fa-user"></i> Full Name</label><input type="text" id="signupName" required></div>
             <div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="signupEmail" required></div>
             <div class="form-group"><label><i class="fas fa-key"></i> Invite Code</label><input type="text" id="signupInviteCode" required></div>
-            <div class="form-group"><label><i class="fas fa-lock"></i> Password</label><input type="password" id="signupPassword" required></div>
+            <div class="form-group"><label><i class="fas fa-lock"></i> Password (min 6 chars)</label><input type="password" id="signupPassword" required></div>
             <button type="submit" class="btn-login"><i class="fas fa-user-plus"></i> Sign Up</button>
         </form>
         <div class="login-footer"><a href="#" onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a></div>
@@ -179,7 +191,7 @@ function showCreateSchool(event) {
             <div class="form-group"><label><i class="fas fa-school"></i> School Name</label><input type="text" id="createSchoolName" required></div>
             <div class="form-group"><label><i class="fas fa-user"></i> Admin Name</label><input type="text" id="createAdminName" required></div>
             <div class="form-group"><label><i class="fas fa-envelope"></i> Admin Email</label><input type="email" id="createAdminEmail" required></div>
-            <div class="form-group"><label><i class="fas fa-lock"></i> Password</label><input type="password" id="createPassword" required></div>
+            <div class="form-group"><label><i class="fas fa-lock"></i> Password (min 8 chars)</label><input type="password" id="createPassword" required></div>
             <div class="form-group"><label><i class="fas fa-lock"></i> Confirm Password</label><input type="password" id="createConfirmPassword" required></div>
             <button type="submit" class="btn-login"><i class="fas fa-plus-circle"></i> Create School</button>
         </form>
@@ -197,10 +209,57 @@ function showForgotPassword(event) {
             <h2>Reset Password</h2>
             <p>Enter your email to reset</p>
         </div>
-        <div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="forgotEmail" required></div>
-        <button class="btn-login" onclick="showNotification('Reset instructions sent!', 'success')"><i class="fas fa-key"></i> Reset Password</button>
+        <div id="errorMessage" class="error-message"><i class="fas fa-exclamation-circle"></i><span id="errorText"></span></div>
+        <form onsubmit="return handleForgotPassword(event)">
+            <div class="form-group"><label><i class="fas fa-school"></i> School Name</label><input type="text" id="resetSchoolName" required></div>
+            <div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="forgotEmail" required></div>
+            <button type="submit" class="btn-login"><i class="fas fa-key"></i> Reset Password</button>
+        </form>
         <div class="login-footer"><a href="#" onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a></div>
     `;
+}
+
+function handleForgotPassword(event) {
+  event.preventDefault();
+  var schoolName = document.getElementById("resetSchoolName").value.trim();
+  var email = document.getElementById("forgotEmail").value.trim();
+
+  if (!schoolName || !email) {
+    showError("Please fill in all fields");
+    return false;
+  }
+
+  // Check if user exists
+  API.getSchool(schoolName).then(function (school) {
+    if (!school) {
+      showError("School not found");
+      return;
+    }
+
+    API.getUsers(schoolName).then(function (users) {
+      var found = false;
+      users.forEach(function (u) {
+        if (u.email === email) {
+          found = true;
+        }
+      });
+
+      if (!found) {
+        showError("User not found in this school");
+        return;
+      }
+
+      showNotification(
+        "Password reset instructions sent to your email",
+        "success",
+      );
+      setTimeout(function () {
+        showLoginForm();
+      }, 1500);
+    });
+  });
+
+  return false;
 }
 
 function showLoginForm(event) {
@@ -226,6 +285,7 @@ function showError(message) {
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
 window.handleCreateSchool = handleCreateSchool;
+window.handleForgotPassword = handleForgotPassword;
 window.showSignup = showSignup;
 window.showCreateSchool = showCreateSchool;
 window.showForgotPassword = showForgotPassword;

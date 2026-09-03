@@ -384,12 +384,22 @@
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-qrcode"></i></div>
                 <h3>QR Code System</h3>
-                <p>Unique codes for books, chairs, and lockers</p>
+                <p>Unique codes for books, chairs, and student IDs</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-id-card"></i></div>
+                <h3>Student ID Cards</h3>
+                <p>Generate ID cards with QR codes for each student</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-comments"></i></div>
                 <h3>Communication</h3>
                 <p>Private chat and group forum for staff</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-sticky-note"></i></div>
+                <h3>Advanced Notepad</h3>
+                <p>Microsoft Word-like editor with 50+ features</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
@@ -401,7 +411,7 @@
     
     <!-- FOOTER -->
     <div class="footer">
-        <p>SRMS v1.0 | School Resource Management System | © 2026 WeGEM | Edwin</p>
+        <p>SRMS v2.0 | School Resource Management System | © 2026 WeGEM | Edwin</p>
     </div>
     
     <script>
@@ -410,7 +420,6 @@
             var percentEl = document.getElementById('loaderPercentage');
             var percent = 0;
             
-            // Create particles
             var container = document.getElementById('particles');
             for (var i = 0; i < 40; i++) {
                 var particle = document.createElement('div');
@@ -423,7 +432,6 @@
                 container.appendChild(particle);
             }
             
-            // Loader percentage
             var interval = setInterval(function() {
                 percent += Math.floor(Math.random() * 15) + 5;
                 if (percent > 100) percent = 100;
@@ -431,7 +439,6 @@
                 if (percent >= 100) clearInterval(interval);
             }, 200);
             
-            // Hide loader after 3 seconds
             setTimeout(function() {
                 loader.classList.add('hidden');
             }, 3000);

@@ -640,6 +640,7 @@ const API = {
           form: studentData.form || "",
           stream: studentData.stream || "",
           gender: studentData.gender || "",
+          dob: studentData.dob || "",
           parentName: studentData.parentName || "",
           parentPhone: studentData.parentPhone || "",
           parentEmail: studentData.parentEmail || "",
@@ -715,6 +716,7 @@ const API = {
             form: classData.name,
             stream: classData.stream || "",
             gender: student.Gender || student.gender || "",
+            dob: student.DOB || student.dob || "",
             parentName: student["Parent Name"] || "",
             parentPhone: student["Parent Phone"] || "",
             parentEmail: student["Parent Email"] || "",
@@ -1259,6 +1261,103 @@ const API = {
     }
   },
 
+  // ============ STUDENT ID CARDS ============
+  async generateStudentID(schoolName, adm) {
+    try {
+      const studentSnapshot = await database
+        .ref("schools/" + schoolName + "/students/" + adm)
+        .once("value");
+      const student = studentSnapshot.val();
+
+      if (!student) {
+        return { success: false, error: "Student not found" };
+      }
+
+      // Generate QR code for student if not exists
+      const qrRef = database.ref("schools/" + schoolName + "/qrcodes");
+      const snapshot = await qrRef.once("value");
+      const existingCodes = snapshot.val() || {};
+      const usedCodes = {};
+
+      Object.values(existingCodes).forEach(function (qr) {
+        usedCodes[qr.code] = true;
+      });
+
+      var qrCode = generateUniqueQRCode("STUDENT", usedCodes);
+
+      // Save QR code
+      const newQRRef = qrRef.push();
+      await newQRRef.set({
+        code: qrCode,
+        type: "student",
+        assigned: true,
+        assignedTo: student.name,
+        className: student.form || "",
+        stream: student.stream || "",
+        adm: adm,
+        returned: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Update student with QR code
+      await database.ref("schools/" + schoolName + "/students/" + adm).update({
+        qrCode: qrCode,
+        idGeneratedAt: new Date().toISOString(),
+      });
+
+      CacheManager.clear();
+      return {
+        success: true,
+        qrCode: qrCode,
+        student: student,
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async getStudentByQRCode(schoolName, qrCode) {
+    try {
+      const snapshot = await database
+        .ref("schools/" + schoolName + "/students")
+        .orderByChild("qrCode")
+        .equalTo(qrCode)
+        .once("value");
+
+      const students = snapshot.val();
+      if (!students) {
+        return { success: false, error: "No student found with this QR code" };
+      }
+
+      const adm = Object.keys(students)[0];
+      const student = students[adm];
+
+      // Also get QR code details
+      const qrSnapshot = await database
+        .ref("schools/" + schoolName + "/qrcodes")
+        .orderByChild("code")
+        .equalTo(qrCode)
+        .once("value");
+
+      const qrData = qrSnapshot.val();
+      let qrInfo = null;
+      if (qrData) {
+        const qrId = Object.keys(qrData)[0];
+        qrInfo = qrData[qrId];
+        qrInfo.id = qrId;
+      }
+
+      return {
+        success: true,
+        student: student,
+        adm: adm,
+        qrInfo: qrInfo,
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
   // ============ AUDIT LOG ============
   async addAuditLog(schoolName, logData) {
     try {
@@ -1293,6 +1392,8 @@ const API = {
         "Term Added",
         "Timetable Added",
         "Note Saved",
+        "Student ID Generated",
+        "Student ID Scanned",
       ];
 
       if (importantActions.indexOf(logData.action) === -1) {

@@ -42,7 +42,9 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
         .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
@@ -55,7 +57,6 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 16px; transition: var(--transition);
         }
-        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
         
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -162,6 +163,21 @@
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-section select {
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
@@ -189,6 +205,39 @@
         <div class="search-bar">
             <i class="fas fa-search"></i>
             <input type="text" id="searchAuditLog" placeholder="Search audit log..." onkeyup="filterAuditLog()">
+        </div>
+        
+        <div class="filter-section">
+            <select id="filterAction" onchange="filterAuditLog()">
+                <option value="">All Actions</option>
+                <option>Book Added</option>
+                <option>Book Issued</option>
+                <option>Book Returned</option>
+                <option>Book Deleted</option>
+                <option>Student Added</option>
+                <option>Student Deleted</option>
+                <option>Student ID Generated</option>
+                <option>Student ID Scanned</option>
+                <option>Class Added</option>
+                <option>Class Deleted</option>
+                <option>Teacher Added</option>
+                <option>Teacher Deleted</option>
+                <option>Furniture Allocated</option>
+                <option>Furniture Returned</option>
+                <option>Fee Recorded</option>
+                <option>Fee Updated</option>
+                <option>Fee Deleted</option>
+                <option>User Added</option>
+                <option>User Deactivated</option>
+                <option>User Promoted</option>
+                <option>QR Code Generated</option>
+                <option>QR Code Assigned</option>
+                <option>QR Code Returned</option>
+                <option>Event Added</option>
+                <option>Term Added</option>
+                <option>Timetable Added</option>
+                <option>Note Saved</option>
+            </select>
         </div>
         
         <div class="table-container">
@@ -263,13 +312,31 @@
     
     <script>
         function filterAuditLog() {
-            filterTable(document.getElementById('searchAuditLog'), document.getElementById('auditLogBody'));
+            var searchInput = document.getElementById('searchAuditLog');
+            var filterAction = document.getElementById('filterAction').value;
+            var tbody = document.getElementById('auditLogBody');
+            var rows = tbody.getElementsByTagName('tr');
+            var searchTerm = searchInput.value.toLowerCase();
+            
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var text = row.textContent.toLowerCase();
+                var action = row.querySelector('td:nth-child(4)');
+                var actionText = action ? action.textContent : '';
+                
+                var matchesSearch = text.indexOf(searchTerm) > -1;
+                var matchesAction = !filterAction || actionText.indexOf(filterAction) > -1;
+                
+                row.style.display = (matchesSearch && matchesAction) ? '' : 'none';
+            }
         }
+        
         function logoutWithConfirm() {
             DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                 if (result === 'confirm') logout();
             });
         }
+        
         window.filterAuditLog = filterAuditLog;
         window.logoutWithConfirm = logoutWithConfirm;
     </script>
