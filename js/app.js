@@ -23,18 +23,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var page = window.location.pathname.split("/").pop();
 
-  // Load page data with slight delay for smooth transition
   setTimeout(function () {
     loadPageData(page);
   }, 100);
 
-  // Start message checking
   setTimeout(function () {
     checkUnreadMessages();
     messageCheckInterval = setInterval(checkUnreadMessages, 15000);
   }, 2000);
 
-  // Initialize dropdown controller
   initDropdownController();
 });
 
@@ -217,7 +214,6 @@ function loadDashboardData() {
     }
   }
 
-  // Load all data in parallel
   Promise.all([
     API.getBooks(school),
     API.getStudents(school),
@@ -237,7 +233,6 @@ function loadDashboardData() {
     var events = results[6];
     var fees = results[7];
 
-    // Update stats
     animateNumber(
       "totalBooks",
       books.reduce(function (s, b) {
@@ -368,7 +363,6 @@ function loadLibraryData() {
     var borrowed = results[1];
     var classes = results[2];
 
-    // Books table
     var booksTbody = document.getElementById("booksTableBody");
     if (booksTbody) {
       if (books.length === 0) {
@@ -397,7 +391,6 @@ function loadLibraryData() {
         booksTbody.innerHTML = booksHtml;
       }
 
-      // Populate book selects
       var select = document.getElementById("issueBookTitle");
       if (select) {
         var selectHtml = '<option value="">Select Book</option>';
@@ -433,7 +426,6 @@ function loadLibraryData() {
       }
     }
 
-    // Returns table
     var returnsTbody = document.getElementById("returnsTableBody");
     if (returnsTbody) {
       var active = borrowed.filter(function (b) {
@@ -470,7 +462,6 @@ function loadLibraryData() {
       }
     }
 
-    // Borrowed history
     var borrowedTbody = document.getElementById("borrowedTableBody");
     if (borrowedTbody) {
       if (borrowed.length === 0) {
@@ -499,7 +490,6 @@ function loadLibraryData() {
       }
     }
 
-    // Bulk book classes
     var bulkClassSelect = document.getElementById("bulkBookClass");
     if (bulkClassSelect) {
       var classHtml = '<option value="">Select Class</option>';
@@ -869,7 +859,6 @@ function loadFurnitureData() {
       var allList = document.getElementById("allFurnitureList");
       if (allList) allList.innerHTML = activeList.innerHTML;
 
-      // Populate bulk furniture classes
       var bulkClassSelect = document.getElementById("bulkFurnitureClass");
       if (bulkClassSelect) {
         var classHtml = '<option value="">Select Class</option>';
@@ -2104,6 +2093,145 @@ function loadReports() {
   });
 }
 
+// ============ QR CODES ============
+function loadQRCodeList() {
+  var school = getCurrentSchool();
+  API.getQRCodes(school).then(function (codes) {
+    var container = document.getElementById("qrCodeList");
+    if (!container) return;
+
+    if (codes.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state"><i class="fas fa-list"></i><p>No QR codes in the system yet.</p></div>';
+      return;
+    }
+
+    var html =
+      '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Class</th><th>ADM</th></tr></thead><tbody>';
+    codes.forEach(function (qr) {
+      var status = qr.returned
+        ? "Returned"
+        : qr.assigned
+          ? "Assigned"
+          : "Available";
+      var badgeClass = qr.returned
+        ? "badge-success"
+        : qr.assigned
+          ? "badge-warning"
+          : "badge-info";
+      html +=
+        "<tr>" +
+        "<td><strong>" +
+        qr.code +
+        "</strong></td>" +
+        "<td>" +
+        qr.type +
+        "</td>" +
+        '<td><span class="badge ' +
+        badgeClass +
+        '">' +
+        status +
+        "</span></td>" +
+        "<td>" +
+        (qr.assignedTo || "-") +
+        "</td>" +
+        "<td>" +
+        (qr.className || "-") +
+        "</td>" +
+        "<td>" +
+        (qr.adm || "-") +
+        "</td>" +
+        "</tr>";
+    });
+    html += "</tbody></table>";
+    container.innerHTML = html;
+  });
+}
+
+function generateAndDisplayQRCodes() {
+  var school = getCurrentSchool();
+  var type = document.getElementById("qrType")
+    ? document.getElementById("qrType").value
+    : "book";
+  var start = document.getElementById("qrStart")
+    ? parseInt(document.getElementById("qrStart").value)
+    : 1;
+  var end = document.getElementById("qrEnd")
+    ? parseInt(document.getElementById("qrEnd").value)
+    : 5;
+  var container = document.getElementById("qrContainer");
+
+  if (!container) return;
+
+  API.generateQRCodes(school, type, start, end).then(function (result) {
+    if (result.success) {
+      var html = "";
+      result.codes.forEach(function (code) {
+        var qrUrl =
+          "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+          encodeURIComponent(code);
+        html +=
+          '<div class="qr-item">' +
+          '<img src="' +
+          qrUrl +
+          '" width="150" height="150" alt="' +
+          code +
+          '">' +
+          "<p>" +
+          code +
+          "</p>" +
+          '<div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">' +
+          '<button class="btn btn-sm btn-primary" onclick="downloadQRCode(\'' +
+          code +
+          '\')"><i class="fas fa-download"></i></button>' +
+          '<button class="btn btn-sm btn-secondary" onclick="copyQRCodeText(\'' +
+          code +
+          '\')"><i class="fas fa-copy"></i></button>' +
+          "</div>" +
+          "</div>";
+      });
+      container.innerHTML = html;
+      showNotification(
+        "Generated " + result.codes.length + " QR codes!",
+        "success",
+      );
+      logAction("QR Code Generated", result.codes.length + " codes");
+    } else {
+      container.innerHTML =
+        '<p style="text-align:center;color:rgba(255,255,255,0.5);">Error generating QR codes</p>';
+      showNotification("Error generating QR codes", "error");
+    }
+  });
+}
+
+function downloadQRCode(code) {
+  var url =
+    "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=" +
+    encodeURIComponent(code);
+  var link = document.createElement("a");
+  link.download = code + ".png";
+  link.href = url;
+  link.target = "_blank";
+  link.click();
+  showNotification("Downloading " + code, "success");
+}
+
+function copyQRCodeText(code) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function () {
+      showNotification("Copied: " + code, "success");
+    });
+  } else {
+    var input = document.createElement("input");
+    input.value = code;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand("copy");
+    document.body.removeChild(input);
+    showNotification("Copied: " + code, "success");
+  }
+}
+
 // ============ WALLPAPER ============
 function loadWallpapers() {
   var grid = document.getElementById("wallpaperGrid");
@@ -2171,52 +2299,6 @@ function selectWallpaper(key) {
   }
 
   showNotification("Wallpaper applied!", "success");
-}
-
-// ============ QR CODES ============
-function loadQRCodeList() {
-  var school = getCurrentSchool();
-  API.getQRCodes(school).then(function (codes) {
-    var container = document.getElementById("qrCodeList");
-    if (!container) return;
-
-    if (codes.length === 0) {
-      container.innerHTML =
-        '<p style="text-align:center;">No QR codes generated yet</p>';
-      return;
-    }
-
-    var html =
-      '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Class</th></tr></thead><tbody>';
-    codes.forEach(function (qr) {
-      var status = qr.returned
-        ? "Returned"
-        : qr.assigned
-          ? "Assigned"
-          : "Available";
-      var badgeClass = qr.returned
-        ? "badge-success"
-        : qr.assigned
-          ? "badge-warning"
-          : "badge-info";
-      html +=
-        "<tr><td><strong>" +
-        qr.code +
-        "</strong></td><td>" +
-        qr.type +
-        '</td><td><span class="badge ' +
-        badgeClass +
-        '">' +
-        status +
-        "</span></td><td>" +
-        (qr.assignedTo || "-") +
-        "</td><td>" +
-        (qr.className || "-") +
-        "</td></tr>";
-    });
-    html += "</tbody></table>";
-    container.innerHTML = html;
-  });
 }
 
 // ============ DATABASE MANAGER ============
@@ -2319,6 +2401,9 @@ window.loadDatabaseTable = loadDatabaseTable;
 window.loadWallpapers = loadWallpapers;
 window.selectWallpaper = selectWallpaper;
 window.loadQRCodeList = loadQRCodeList;
+window.generateAndDisplayQRCodes = generateAndDisplayQRCodes;
+window.downloadQRCode = downloadQRCode;
+window.copyQRCodeText = copyQRCodeText;
 window.initDropdownController = initDropdownController;
 window.checkUnreadMessages = checkUnreadMessages;
 window.logAction = logAction;

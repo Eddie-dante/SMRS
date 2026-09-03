@@ -1,16 +1,13 @@
 // ============================================
-// SRMS - Custom Dialogue Box System
-// Beautiful Glass-Morphism Dialogs
+// SRMS - Dialog System
 // ============================================
 
 var DialogSystem = {
   _overlay: null,
   _resolve: null,
   _escHandler: null,
-  _isPrompt: false,
 
-  // ============ CONFIRM DIALOG ============
-  confirm(message, options) {
+  confirm: function (message, options) {
     options = options || {};
     var title = options.title || "Confirm";
     var confirmText = options.confirmText || "Confirm";
@@ -28,7 +25,6 @@ var DialogSystem = {
         info: "fa-info-circle",
         success: "fa-check-circle",
       };
-
       var colors = {
         warning: "#ffc107",
         danger: "#e94560",
@@ -86,8 +82,7 @@ var DialogSystem = {
     });
   },
 
-  // ============ ALERT DIALOG ============
-  alert(message, options) {
+  alert: function (message, options) {
     options = options || {};
     var title = options.title || "Notice";
     var confirmText = options.confirmText || "OK";
@@ -104,7 +99,6 @@ var DialogSystem = {
         info: "fa-info-circle",
         success: "fa-check-circle",
       };
-
       var colors = {
         warning: "#ffc107",
         danger: "#e94560",
@@ -159,8 +153,7 @@ var DialogSystem = {
     });
   },
 
-  // ============ PROMPT DIALOG ============
-  prompt(message, options) {
+  prompt: function (message, options) {
     options = options || {};
     var title = options.title || "Input Required";
     var confirmText = options.confirmText || "Submit";
@@ -207,10 +200,9 @@ var DialogSystem = {
       requestAnimationFrame(function () {
         overlay.classList.add("active");
         overlay.querySelector(".dialog-box").classList.add("active");
-
-        var input = document.getElementById("dialogInput");
         setTimeout(function () {
-          input.focus();
+          var input = document.getElementById("dialogInput");
+          if (input) input.focus();
         }, 300);
       });
 
@@ -236,8 +228,7 @@ var DialogSystem = {
     });
   },
 
-  // ============ CLOSE ============
-  close(result) {
+  close: function (result) {
     if (DialogSystem._overlay) {
       var overlay = DialogSystem._overlay;
       var box = overlay.querySelector(".dialog-box");
@@ -269,8 +260,7 @@ var DialogSystem = {
     }
   },
 
-  // ============ STYLES ============
-  getStyles() {
+  getStyles: function () {
     return `
             .dialog-overlay {
                 position: fixed;
@@ -285,11 +275,9 @@ var DialogSystem = {
                 transition: opacity 0.2s ease;
                 padding: 20px;
             }
-            
             .dialog-overlay.active {
                 opacity: 1;
             }
-            
             .dialog-box {
                 background: linear-gradient(135deg, #1a1f4e, #0a0e27);
                 border: 2px solid rgba(212, 175, 55, 0.4);
@@ -304,7 +292,6 @@ var DialogSystem = {
                 position: relative;
                 overflow: hidden;
             }
-            
             .dialog-box::before {
                 content: '';
                 position: absolute;
@@ -312,11 +299,9 @@ var DialogSystem = {
                 height: 4px;
                 background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
             }
-            
             .dialog-box.active {
                 transform: scale(1) translateY(0);
             }
-            
             .dialog-icon {
                 width: 60px;
                 height: 60px;
@@ -328,33 +313,28 @@ var DialogSystem = {
                 margin: 0 auto 15px;
                 animation: dialogPulse 1.5s infinite;
             }
-            
             @keyframes dialogPulse {
                 0%, 100% { transform: scale(1); }
                 50% { transform: scale(1.05); }
             }
-            
             .dialog-title {
                 color: #ffffff;
                 font-size: 1.3em;
                 font-weight: 800;
                 margin-bottom: 10px;
             }
-            
             .dialog-message {
                 color: rgba(255, 255, 255, 0.7);
                 font-size: 14px;
                 margin-bottom: 20px;
                 line-height: 1.5;
             }
-            
             .dialog-buttons {
                 display: flex;
                 gap: 10px;
                 justify-content: center;
                 flex-wrap: wrap;
             }
-            
             .dialog-btn {
                 padding: 10px 20px;
                 border: none;
@@ -369,29 +349,23 @@ var DialogSystem = {
                 gap: 6px;
                 color: #ffffff;
             }
-            
             .dialog-btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             }
-            
             .dialog-cancel {
                 background: rgba(255, 255, 255, 0.1);
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
-            
             .dialog-cancel:hover {
                 background: rgba(255, 255, 255, 0.2);
             }
-            
             .dialog-confirm {
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             }
-            
             .dialog-input-group {
                 margin-bottom: 20px;
             }
-            
             .dialog-input {
                 width: 100%;
                 padding: 12px 15px;
@@ -404,24 +378,16 @@ var DialogSystem = {
                 outline: none;
                 transition: all 0.2s ease;
             }
-            
             .dialog-input:focus {
                 border-color: #d4af37;
                 box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
             }
-            
             .dialog-input::placeholder {
                 color: rgba(255, 255, 255, 0.4);
             }
-            
             @media (max-width: 480px) {
-                .dialog-box {
-                    padding: 20px;
-                }
-                .dialog-btn {
-                    padding: 8px 15px;
-                    font-size: 12px;
-                }
+                .dialog-box { padding: 20px; }
+                .dialog-btn { padding: 8px 15px; font-size: 12px; }
             }
         `;
   },
@@ -440,7 +406,6 @@ function showPrompt(message, options) {
   return DialogSystem.prompt(message, options);
 }
 
-// Export
 window.DialogSystem = DialogSystem;
 window.showConfirm = showConfirm;
 window.showAlert = showAlert;

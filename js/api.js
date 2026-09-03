@@ -551,6 +551,84 @@ const API = {
     }
   },
 
+  // ============ QR CODE EXTRA FUNCTIONS ============
+  async getQRCodeByCode(schoolName, code) {
+    try {
+      const snapshot = await database
+        .ref("schools/" + schoolName + "/qrcodes")
+        .once("value");
+      const codes = snapshot.val();
+      if (!codes) return null;
+
+      for (var id in codes) {
+        if (codes[id].code === code) {
+          return Object.assign({ id: id }, codes[id]);
+        }
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  async deleteQRCode(schoolName, qrId) {
+    try {
+      await database.ref("schools/" + schoolName + "/qrcodes/" + qrId).remove();
+      CacheManager.clear();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async bulkGenerateQRCodes(schoolName, type, count) {
+    try {
+      const qrRef = database.ref("schools/" + schoolName + "/qrcodes");
+      const snapshot = await qrRef.once("value");
+      const existingCodes = snapshot.val() || {};
+      const usedCodes = {};
+
+      Object.values(existingCodes).forEach(function (qr) {
+        usedCodes[qr.code] = true;
+      });
+
+      var generated = [];
+      for (var i = 0; i < count; i++) {
+        var code = generateUniqueQRCode(type, usedCodes);
+        var newQRRef = qrRef.push();
+        await newQRRef.set({
+          code: code,
+          type: type,
+          assigned: false,
+          assignedTo: null,
+          className: null,
+          stream: null,
+          adm: null,
+          returned: false,
+          createdAt: new Date().toISOString(),
+        });
+        generated.push(code);
+      }
+
+      CacheManager.clear();
+      return { success: true, codes: generated };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async updateQRCode(schoolName, qrId, data) {
+    try {
+      await database
+        .ref("schools/" + schoolName + "/qrcodes/" + qrId)
+        .update(data);
+      CacheManager.clear();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
   // ============ STUDENT OPERATIONS ============
   async addStudent(schoolName, studentData) {
     try {
@@ -1363,3 +1441,7 @@ window.generateInviteCode = generateInviteCode;
 window.generateStaffId = generateStaffId;
 window.hashPassword = hashPassword;
 window.generateUniqueQRCode = generateUniqueQRCode;
+window.getQRCodeByCode = API.getQRCodeByCode;
+window.deleteQRCode = API.deleteQRCode;
+window.bulkGenerateQRCodes = API.bulkGenerateQRCodes;
+window.updateQRCode = API.updateQRCode;
