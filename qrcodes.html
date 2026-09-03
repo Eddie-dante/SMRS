@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - QR Codes | School Resource Management System</title>
+    <title>SRMS - Library Management | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -19,18 +18,12 @@
     <style>
         :root {
             --primary: #e94560;
-            --primary-dark: #c62a47;
             --accent: #d4af37;
             --gold: #f0d060;
-            --dark: #0a0e27;
-            --dark-light: #1a1f4e;
-            --success: #28a745;
-            --danger: #dc3545;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.3s ease;
+            --transition: all 0.2s ease;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -41,7 +34,6 @@
             padding-bottom: 120px;
         }
         
-        /* Header */
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
             height: 65px;
@@ -51,28 +43,18 @@
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
-        .taskbar-logo {
-            display: flex; align-items: center; gap: 10px;
-            color: var(--gold); font-weight: 900; font-size: 22px;
-        }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--accent);
-            cursor: pointer;
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 16px;
-            transition: var(--transition);
+            font-size: 16px; transition: var(--transition);
         }
-        .taskbar-icon-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
         
-        /* Floating Navbar */
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             z-index: 1000; width: auto; max-width: 95vw;
@@ -84,7 +66,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
@@ -97,8 +78,8 @@
             cursor: pointer; display: flex; align-items: center; gap: 10px;
             transition: var(--transition);
         }
-        .classy-btn i { color: var(--accent); font-size: 15px; }
-        .classy-btn:hover { color: #fff; transform: translateY(-3px); }
+        .classy-btn i { color: var(--accent); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -117,188 +98,138 @@
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 14px; padding: 10px; min-width: 200px;
             z-index: 1200;
-            box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
             text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer;
-            transition: var(--transition); white-space: nowrap;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
         }
-        .dropdown-item i { color: var(--accent); width: 20px; text-align: center; }
+        .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
+        .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
         
-        /* Main Content */
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1200px; margin: 0 auto;
-            animation: fadeIn 0.5s ease;
+            max-width: 1400px; margin: 0 auto;
+            animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .page-header { margin-bottom: 25px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+        }
         .page-header h1 {
-            font-size: 2em; font-weight: 900;
+            font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
         }
-        .page-header p { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
-        
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab {
-            padding: 12px 24px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer; font-family: 'Inter', sans-serif;
-            font-size: 14px; font-weight: 600;
-            transition: var(--transition);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .tab:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-        .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        .generator-form {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px; margin-bottom: 20px;
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group label {
-            display: block; margin-bottom: 5px;
-            font-size: 13px; color: rgba(255, 255, 255, 0.7);
-        }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px; color: #fff;
-            font-family: 'Inter', sans-serif;
-        }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
             border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif;
-            font-weight: 600; transition: var(--transition);
+            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
         }
-        .btn-primary:hover { transform: translateY(-2px); }
-        .btn-success {
+        .btn-secondary {
             padding: 12px 20px;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif;
-            font-weight: 600;
-        }
-        .btn-stop {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #dc3545, #ff4757);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif;
-            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px; color: #fff;
+            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
         }
         
-        .qr-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        .qr-item {
-            background: #fff; border-radius: 12px;
-            padding: 15px; text-align: center;
-        }
-        .qr-placeholder {
-            width: 100px; height: 100px; margin: 0 auto;
-            background: #f0f0f0; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 40px; color: #333;
-        }
-        .qr-item p { margin-top: 10px; font-weight: 700; color: #333; font-size: 12px; }
-        
-        .scanner-container {
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; overflow-x: auto; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+            padding: 10px 18px;
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px; margin-bottom: 20px;
-            text-align: center;
+            border-radius: 10px; color: rgba(255,255,255,0.7);
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            font-size: 13px; white-space: nowrap; flex-shrink: 0;
+            transition: var(--transition);
         }
-        .scanner-container h3 { color: var(--accent); margin-bottom: 15px; }
-        #scannerVideo {
-            width: 100%; max-width: 400px;
-            border-radius: 12px; border: 2px solid var(--accent);
-            margin: 0 auto 15px; display: none;
+        .tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .search-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; margin-bottom: 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
         }
-        #scannerCanvas { display: none; }
-        .scan-result {
-            background: rgba(40, 167, 69, 0.2);
-            border: 1px solid #28a745;
-            border-radius: 12px; padding: 20px;
-            margin-top: 15px; display: none;
-        }
-        .scan-result .scanned-code {
-            font-family: 'Courier New', monospace;
-            font-size: 1.5em; font-weight: 800;
-            color: #34ce57; letter-spacing: 3px;
+        .search-bar i { color: rgba(255,255,255,0.5); }
+        .search-bar input {
+            flex: 1; background: none; border: none;
+            color: #fff; font-size: 14px; outline: none;
+            font-family: 'Inter', sans-serif;
         }
         
-        /* QR Code List Table */
-        .qr-list-container {
+        .table-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 16px; padding: 20px;
-            overflow-x: auto; margin-bottom: 20px;
+            overflow-x: auto;
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
             background: rgba(233, 69, 96, 0.8);
-            padding: 12px; text-align: left;
-            font-weight: 700; font-size: 11px; text-transform: uppercase;
+            padding: 15px; text-align: left;
+            font-weight: 700; font-size: 12px; text-transform: uppercase;
             white-space: nowrap;
         }
         .data-table td {
-            padding: 10px 12px;
+            padding: 12px 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 13px;
         }
+        .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         .badge {
-            display: inline-block; padding: 4px 10px;
-            border-radius: 20px; font-size: 10px; font-weight: 600;
+            display: inline-block; padding: 4px 12px;
+            border-radius: 20px; font-size: 11px; font-weight: 600;
         }
         .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .badge-info { background: rgba(23,162,184,0.2); color: #17a2b8; }
+        .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
         
-        /* Modal */
+        .form-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 25px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px; color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
         .modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 1300;
+            background: rgba(0,0,0,0.7); z-index: 1300;
             justify-content: center; align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px; padding: 30px;
-            width: 90%; max-width: 500px;
-            max-height: 85vh; overflow-y: auto;
+            width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
-        .modal-close {
-            background: none; border: none; color: #fff;
-            cursor: pointer; font-size: 18px;
-        }
+        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
@@ -321,223 +252,56 @@
     
     <div class="main-content">
         <div class="page-header">
-            <h1>QR Codes</h1>
-            <p>Generate, scan, and manage QR codes</p>
+            <div>
+                <h1>Library Management</h1>
+                <p>Manage books, issue, and returns</p>
+            </div>
+            <button class="btn-primary" onclick="openModal('addBookModal')"><i class="fas fa-plus"></i> Add Book</button>
         </div>
         
         <div class="tabs">
-            <button class="tab active" onclick="switchQRTab('generate')"><i class="fas fa-qrcode"></i> Generate</button>
-            <button class="tab" onclick="switchQRTab('scan')"><i class="fas fa-camera"></i> Scan</button>
-            <button class="tab" onclick="switchQRTab('list')"><i class="fas fa-list"></i> All Codes</button>
+            <button class="tab active" onclick="switchLibTab('catalog')"><i class="fas fa-list"></i> Catalog</button>
+            <button class="tab" onclick="switchLibTab('issue')"><i class="fas fa-book"></i> Issue Books</button>
+            <button class="tab" onclick="switchLibTab('returns')"><i class="fas fa-undo"></i> Returns</button>
+            <button class="tab" onclick="switchLibTab('borrowed')"><i class="fas fa-clock"></i> Borrowed</button>
         </div>
         
-        <div id="generateTab" class="tab-content active">
-            <div class="generator-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Type</label>
-                        <select id="qrType"><option value="book">Book</option><option value="chair">Chair</option><option value="locker">Locker</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Start Number</label>
-                        <input type="number" id="qrStart" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label>End Number</label>
-                        <input type="number" id="qrEnd" min="1" value="10">
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="generateQRCodes()"><i class="fas fa-qrcode"></i> Generate Unique Codes</button>
+        <div id="catalogTab" class="tab-content active">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchBooks" placeholder="Search books..." onkeyup="filterBooks()">
             </div>
-            <div class="qr-grid" id="qrContainer"></div>
-        </div>
-        
-        <div id="scanTab" class="tab-content">
-            <div class="scanner-container">
-                <h3><i class="fas fa-camera"></i> Scan QR Code</h3>
-                <video id="scannerVideo" autoplay playsinline></video>
-                <canvas id="scannerCanvas"></canvas>
-                <div style="display:flex;gap:10px;justify-content:center;">
-                    <button class="btn-success" id="startScanBtn" onclick="startScanner()"><i class="fas fa-camera"></i> Start Camera</button>
-                    <button class="btn-stop" id="stopScanBtn" onclick="stopScanner()" style="display:none;"><i class="fas fa-stop"></i> Stop</button>
-                </div>
-                <div class="scan-result" id="scanResult">
-                    <p>SCANNED CODE:</p>
-                    <div class="scanned-code" id="scannedCode"></div>
-                    <button class="btn-primary" onclick="handleScannedQRCode(document.getElementById('scannedCode').textContent)"><i class="fas fa-check"></i> Process Code</button>
-                </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>Title</th><th>Author</th><th>Type</th><th>Subject</th><th>Quantity</th><th>Available</th><th>Actions</th></tr></thead>
+                    <tbody id="booksTableBody"></tbody>
+                </table>
             </div>
         </div>
         
-        <div id="listTab" class="tab-content">
-            <div class="qr-list-container" id="qrCodeList">
-                <p style="text-align:center;color:rgba(255,255,255,0.5);">Loading QR codes...</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Floating Navbar -->
-    <div class="floating-navbar-container">
-        <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
-            </button>
-            <div class="nav-group">
-                <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
-                    <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
-                    <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
+        <div id="issueTab" class="tab-content">
+            <div class="form-container">
+                <h3 style="color:var(--accent);margin-bottom:20px;">Issue Book</h3>
+                <div style="display:flex;gap:10px;margin-bottom:20px;">
+                    <button class="btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
+                    <button class="btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
                 </div>
-            </div>
-            <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
-                    <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
-                    <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                <div id="individualIssueForm">
+                    <form onsubmit="return issueBook(event)">
+                        <div class="form-row">
+                            <div class="form-group"><label>Student Name</label><input type="text" id="issueStudentName" required></div>
+                            <div class="form-group"><label>ADM Number</label><input type="text" id="issueADM" required></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Book Title</label><select id="issueBookTitle" required><option value="">Select Book</option></select></div>
+                            <div class="form-group"><label>Book Number</label><input type="text" id="issueBookNumber" required></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Borrow Date</label><input type="date" id="issueBorrowDate" required></div>
+                            <div class="form-group"><label>Return Date</label><input type="date" id="issueReturnDate" required></div>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-book"></i> Issue Book</button>
+                    </form>
                 </div>
-            </div>
-            <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Private Chat</a>
-                    <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Group Forum</a>
-                    <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
-                </div>
-            </div>
-            <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
-                    <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
-                    <a class="dropdown-item" href="timetable.html"><i class="fas fa-clock"></i> Timetable</a>
-                    <a class="dropdown-item" href="terms.html"><i class="fas fa-calendar-alt"></i> Terms</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="reports.html"><i class="fas fa-file-alt"></i> Reports</a>
-                    <a class="dropdown-item" href="auditlog.html"><i class="fas fa-history"></i> Audit</a>
-                    <a class="dropdown-item" href="database.html"><i class="fas fa-database"></i> DB</a>
-                    <a class="dropdown-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/wallpaper-loader.js"></script>
-    <script src="js/app.js"></script>
-    
-    <script>
-        function switchQRTab(tabName) {
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-            if (tabName === 'generate') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
-                document.getElementById('generateTab').classList.add('active');
-            } else if (tabName === 'scan') {
-                document.querySelectorAll('.tab')[1].classList.add('active');
-                document.getElementById('scanTab').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab')[2].classList.add('active');
-                document.getElementById('listTab').classList.add('active');
-                loadQRCodeList();
-            }
-        }
-        
-        function generateQRCodes() {
-            var school = getCurrentSchool();
-            var type = document.getElementById('qrType').value;
-            var start = parseInt(document.getElementById('qrStart').value);
-            var end = parseInt(document.getElementById('qrEnd').value);
-            var container = document.getElementById('qrContainer');
-            
-            API.generateQRCodes(school, type, start, end).then(function(result) {
-                if (result.success) {
-                    var html = '';
-                    for (var i = 0; i < result.codes.length; i++) {
-                        html += '<div class="qr-item"><div class="qr-placeholder"><i class="fas fa-qrcode"></i></div><p>' + result.codes[i] + '</p></div>';
-                    }
-                    container.innerHTML = html;
-                    showNotification('Generated ' + result.codes.length + ' unique codes!', 'success');
-                }
-            });
-        }
-        
-        var scannerStream = null;
-        var scannerActive = false;
-        
-        async function startScanner() {
-            var video = document.getElementById('scannerVideo');
-            var startBtn = document.getElementById('startScanBtn');
-            var stopBtn = document.getElementById('stopScanBtn');
-            var resultDiv = document.getElementById('scanResult');
-            resultDiv.style.display = 'none';
-            
-            try {
-                scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                video.srcObject = scannerStream;
-                video.style.display = 'block';
-                video.play();
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'inline-block';
-                scannerActive = true;
-                scanLoop();
-                showNotification('Camera started!', 'success');
-            } catch (error) {
-                showNotification('Cannot access camera: ' + error.message, 'error');
-            }
-        }
-        
-        function stopScanner() {
-            if (scannerStream) {
-                scannerStream.getTracks().forEach(function(track) { track.stop(); });
-            }
-            scannerActive = false;
-            document.getElementById('scannerVideo').style.display = 'none';
-            document.getElementById('startScanBtn').style.display = 'inline-block';
-            document.getElementById('stopScanBtn').style.display = 'none';
-        }
-        
-        function scanLoop() {
-            if (!scannerActive) return;
-            var video = document.getElementById('scannerVideo');
-            var canvas = document.getElementById('scannerCanvas');
-            var ctx = canvas.getContext('2d');
-            
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                
-                if (window.jsQR) {
-                    var code = jsQR(imageData.data, imageData.width, imageData.height);
-                    if (code && code.data) {
-                        scannerActive = false;
-                        stopScanner();
-                        document.getElementById('scannedCode').textContent = code.data;
-                        document.getElementById('scanResult').style.display = 'block';
-                        showNotification('QR code detected!', 'success');
-                        return;
-                    }
-                }
-            }
-            if (scannerActive) requestAnimationFrame(scanLoop);
-        }
-        
-        window.switchQRTab = switchQRTab;
-        window.generateQRCodes = generateQRCodes;
-        window.startScanner = startScanner;
-        window.stopScanner = stopScanner;
-    </script>
-</body>
-</html>
+                <div id="bulkIssueForm" style="display:none;">
+                    <div class="form-group"><label>Book Title</label><select id="bulkBookTitle"><option value="">Select

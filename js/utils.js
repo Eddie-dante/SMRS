@@ -1,7 +1,9 @@
 // ============================================
 // SRMS - Complete Utility Functions
+// Full Version
 // ============================================
 
+// ============ DATE FUNCTIONS ============
 function getCurrentDate() {
   var today = new Date();
   var year = today.getFullYear();
@@ -66,6 +68,10 @@ function addDays(dateString, days) {
   var month = String(date.getMonth() + 1).padStart(2, "0");
   var day = String(date.getDate()).padStart(2, "0");
   return year + "-" + month + "-" + day;
+}
+
+function subtractDays(dateString, days) {
+  return addDays(dateString, -days);
 }
 
 function daysOverdue(returnDate) {
@@ -151,6 +157,7 @@ function getCurrentAcademicYear() {
   }
 }
 
+// ============ FORMATTING FUNCTIONS ============
 function formatNumber(number) {
   if (number === undefined || number === null) return "0";
   return new Intl.NumberFormat("en-US").format(number);
@@ -187,6 +194,7 @@ function getInitials(name) {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
+// ============ GENERATION FUNCTIONS ============
 function generateCode(prefix, length) {
   prefix = prefix || "";
   length = length || 8;
@@ -216,6 +224,7 @@ function generateRandomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+// ============ VALIDATION FUNCTIONS ============
 function validateEmail(email) {
   var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return pattern.test(email);
@@ -234,6 +243,7 @@ function isEmpty(str) {
   return !str || str.trim().length === 0;
 }
 
+// ============ AUTH FUNCTIONS ============
 function checkAuth() {
   var user = localStorage.getItem("srms_user");
   var school = localStorage.getItem("srms_school");
@@ -286,6 +296,7 @@ function logout() {
   }, 1000);
 }
 
+// ============ NOTIFICATION FUNCTIONS ============
 function showNotification(message, type, duration) {
   type = type || "success";
   duration = duration || 3000;
@@ -326,6 +337,7 @@ function showNotification(message, type, duration) {
   }, duration);
 }
 
+// ============ MODAL FUNCTIONS ============
 function openModal(modalId) {
   var modal = document.getElementById(modalId);
   if (modal) {
@@ -363,6 +375,7 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
+// ============ TABLE FUNCTIONS ============
 function filterTable(searchInput, tableBody) {
   if (!searchInput || !tableBody) return;
   var filter = searchInput.value.toLowerCase();
@@ -406,6 +419,7 @@ function exportToCSV(data, filename) {
   showNotification("Export successful!", "success");
 }
 
+// ============ LOADING FUNCTIONS ============
 function showLoading(message) {
   message = message || "Loading...";
   var existing = document.getElementById("globalLoader");
@@ -427,6 +441,7 @@ function hideLoading() {
   if (loader) loader.remove();
 }
 
+// ============ MISC FUNCTIONS ============
 function copyToClipboard(text) {
   if (navigator.clipboard) {
     navigator.clipboard
@@ -482,7 +497,7 @@ function animateNumber(elementId, targetValue) {
   if (!element) return;
 
   var startValue = parseInt(element.textContent) || 0;
-  var duration = 1000;
+  var duration = 800;
   var startTime = performance.now();
 
   function update(currentTime) {
@@ -501,7 +516,6 @@ function animateNumber(elementId, targetValue) {
   requestAnimationFrame(update);
 }
 
-// Default wallpaper function
 function getDefaultWallpaper() {
   var saved = localStorage.getItem("srms_wallpaper");
   if (!saved) {
@@ -511,7 +525,29 @@ function getDefaultWallpaper() {
   return saved;
 }
 
-// Export all to window
+// ============ CUSTOM DIALOG HELPERS ============
+function customConfirm(message, title, type) {
+  return DialogSystem.confirm(message, {
+    title: title || "Confirm",
+    type: type || "warning",
+  });
+}
+
+function customAlert(message, title, type) {
+  return DialogSystem.alert(message, {
+    title: title || "Notice",
+    type: type || "info",
+  });
+}
+
+function customPrompt(message, title, placeholder) {
+  return DialogSystem.prompt(message, {
+    title: title || "Input",
+    placeholder: placeholder || "Enter value...",
+  });
+}
+
+// ============ EXPORT ALL ============
 window.getCurrentDate = getCurrentDate;
 window.getCurrentDateTime = getCurrentDateTime;
 window.getDateDisplay = getDateDisplay;
@@ -519,6 +555,7 @@ window.formatDate = formatDate;
 window.formatDateTime = formatDateTime;
 window.formatTime = formatTime;
 window.addDays = addDays;
+window.subtractDays = subtractDays;
 window.daysOverdue = daysOverdue;
 window.isOverdue = isOverdue;
 window.daysBetween = daysBetween;
@@ -557,3 +594,6 @@ window.debounce = debounce;
 window.throttle = throttle;
 window.animateNumber = animateNumber;
 window.getDefaultWallpaper = getDefaultWallpaper;
+window.customConfirm = customConfirm;
+window.customAlert = customAlert;
+window.customPrompt = customPrompt;

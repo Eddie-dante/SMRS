@@ -22,7 +22,7 @@
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.3s ease;
+            --transition: all 0.2s ease;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -81,7 +81,7 @@
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-3px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -92,6 +92,14 @@
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
             display: flex; align-items: center; justify-content: center;
+        }
+        .message-badge {
+            position: absolute; top: -5px; right: -5px;
+            background: #e94560; color: #fff;
+            border-radius: 50%; width: 20px; height: 20px;
+            display: none; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700;
+            border: 2px solid #0a0e27; z-index: 1200;
         }
         .dropdown-menu {
             display: none; position: absolute;
@@ -116,130 +124,128 @@
         .main-content {
             padding: 85px 25px 25px;
             max-width: 1600px; margin: 0 auto;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .welcome-banner {
             background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(233,69,96,0.15));
             border: 2px solid rgba(212,175,55,0.3);
-            border-radius: 20px; padding: 35px; margin-bottom: 25px;
+            border-radius: 20px; padding: 30px; margin-bottom: 20px;
             text-align: center; backdrop-filter: blur(15px);
         }
         .welcome-banner h1 {
-            font-size: 2.5em; font-weight: 900;
+            font-size: 2em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
-        .welcome-banner .school-name { font-size: 1.6em; color: var(--gold); font-weight: 700; }
+        .welcome-banner .school-name { font-size: 1.4em; color: var(--gold); font-weight: 700; }
         .welcome-banner .user-greeting { color: rgba(255,255,255,0.8); }
         .welcome-banner .date-display {
-            display: inline-block; margin-top: 15px; padding: 8px 20px;
+            display: inline-block; margin-top: 12px; padding: 6px 16px;
             background: rgba(255,255,255,0.1); border: 1px solid rgba(212,175,55,0.3);
-            border-radius: 25px; font-size: 14px;
+            border-radius: 25px; font-size: 13px;
         }
         
         .invite-code-banner {
             background: rgba(212,175,55,0.1);
             border: 2px dashed rgba(212,175,55,0.4);
-            border-radius: 16px; padding: 20px; text-align: center;
-            margin-bottom: 25px; display: none;
+            border-radius: 16px; padding: 15px; text-align: center;
+            margin-bottom: 20px; display: none;
         }
         .invite-code-banner .code {
             font-family: 'Courier New', monospace;
-            font-size: 2em; font-weight: 800; letter-spacing: 6px;
+            font-size: 1.8em; font-weight: 800; letter-spacing: 5px;
             color: var(--gold);
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 18px; margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 20px;
         }
         .stat-card {
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px;
+            border-radius: 16px; padding: 20px;
             position: relative; overflow: hidden;
             cursor: pointer; transition: var(--transition);
         }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(212,175,55,0.3); }
+        .stat-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.3); }
         .stat-card::before {
             content: ''; position: absolute; top: 0; left: 0;
-            width: 4px; height: 100%;
+            width: 3px; height: 100%;
             background: linear-gradient(135deg, #e94560, #c62a47);
         }
         .stat-icon {
-            width: 50px; height: 50px; border-radius: 12px;
+            width: 45px; height: 45px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; margin-bottom: 15px;
+            font-size: 20px; margin-bottom: 12px;
         }
-        .stat-value { font-size: 2em; font-weight: 900; color: #fff; }
-        .stat-label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+        .stat-value { font-size: 1.8em; font-weight: 900; color: #fff; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
         
         .quick-actions {
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px; margin-bottom: 25px;
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
         }
-        .section-title { font-size: 1.1em; font-weight: 700; margin-bottom: 20px; }
+        .section-title { font-size: 1.1em; font-weight: 700; margin-bottom: 15px; }
         .section-title i { color: var(--accent); }
         .quick-actions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
         }
         .btn-action {
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-            padding: 20px 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            padding: 15px 10px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px; color: #fff;
             cursor: pointer; transition: var(--transition);
-            font-family: 'Inter', sans-serif; font-size: 12px;
+            font-family: 'Inter', sans-serif; font-size: 11px;
         }
-        .btn-action i { font-size: 24px; color: var(--accent); }
-        .btn-action:hover { background: rgba(255,255,255,0.08); transform: translateY(-3px); }
+        .btn-action i { font-size: 22px; color: var(--accent); }
+        .btn-action:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
         
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 20px; margin-bottom: 25px;
+            gap: 15px; margin-bottom: 20px;
         }
         .recent-activity, .quick-stats {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px;
+            border-radius: 16px; padding: 20px;
         }
         .activity-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .activity-icon {
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 35px; height: 35px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
         }
-        .activity-text { font-size: 13px; }
-        .activity-time { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .activity-text { font-size: 12px; }
+        .activity-time { font-size: 10px; color: rgba(255,255,255,0.4); }
         .quick-stat-item {
             display: flex; justify-content: space-between;
-            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .quick-stat-label { font-size: 13px; color: rgba(255,255,255,0.6); }
-        .quick-stat-value { font-size: 16px; font-weight: 700; color: var(--gold); }
+        .quick-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .quick-stat-value { font-size: 15px; font-weight: 700; color: var(--gold); }
         
         @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
-            .welcome-banner h1 { font-size: 1.8em; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .welcome-banner h1 { font-size: 1.5em; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .quick-actions-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
@@ -251,7 +257,7 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
@@ -264,7 +270,7 @@
         </div>
         
         <div class="invite-code-banner" id="inviteCodeBanner">
-            <p style="margin-bottom:10px;">School Invite Code</p>
+            <p style="margin-bottom:8px;">School Invite Code</p>
             <div class="code" id="inviteCode">CODE</div>
         </div>
         
@@ -329,7 +335,6 @@
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn active" onclick="location.href='dashboard.html'">
@@ -358,6 +363,7 @@
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="message-badge" id="communicationBadge">0</span>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -385,14 +391,18 @@
     </div>
     
     <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            initDropdownController();
-        });
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
+        }
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>

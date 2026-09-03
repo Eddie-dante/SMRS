@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - Fee Management | School Resource Management System</title>
+    <title>SRMS - Classes | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -18,16 +19,11 @@
     <style>
         :root {
             --primary: #e94560;
-            --primary-dark: #c62a47;
             --accent: #d4af37;
             --gold: #f0d060;
-            --dark: #0a0e27;
-            --dark-light: #1a1f4e;
-            --success: #28a745;
-            --danger: #dc3545;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.3s ease;
+            --transition: all 0.2s ease;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,7 +36,6 @@
             padding-bottom: 120px;
         }
         
-        /* Header */
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
             height: 65px;
@@ -50,28 +45,18 @@
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
-        .taskbar-logo {
-            display: flex; align-items: center; gap: 10px;
-            color: var(--gold); font-weight: 900; font-size: 22px;
-        }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--accent);
-            cursor: pointer;
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 16px;
-            transition: var(--transition);
+            font-size: 16px; transition: var(--transition);
         }
-        .taskbar-icon-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
         
-        /* Floating Navbar */
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             z-index: 1000; width: auto; max-width: 95vw;
@@ -83,7 +68,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
@@ -96,8 +80,8 @@
             cursor: pointer; display: flex; align-items: center; gap: 10px;
             transition: var(--transition);
         }
-        .classy-btn i { color: var(--accent); font-size: 15px; }
-        .classy-btn:hover { color: #fff; transform: translateY(-3px); }
+        .classy-btn i { color: var(--accent); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -116,135 +100,91 @@
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 14px; padding: 10px; min-width: 200px;
             z-index: 1200;
-            box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
             text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer;
-            transition: var(--transition); white-space: nowrap;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
         }
-        .dropdown-item i { color: var(--accent); width: 20px; text-align: center; }
+        .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
         .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
         
-        /* Main Content */
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1400px; margin: 0 auto;
-            animation: fadeIn 0.5s ease;
+            max-width: 1200px; margin: 0 auto;
+            animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .page-header { margin-bottom: 25px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+        }
         .page-header h1 {
             font-size: 2em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
         }
-        .page-header p { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
-        
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; margin-bottom: 25px;
-        }
-        .stat-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px; text-align: center;
-        }
-        .stat-card .value { font-size: 1.5em; font-weight: 900; color: var(--gold); }
-        .stat-card .label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
-        
-        /* Form */
-        .form-container {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px; margin-bottom: 20px;
-        }
-        .form-container h3 { color: var(--accent); margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label {
-            display: block; margin-bottom: 5px;
-            font-size: 13px; color: rgba(255, 255, 255, 0.7);
-        }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px; color: #fff;
-            font-family: 'Inter', sans-serif;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none; border-color: rgba(212, 175, 55, 0.5);
-        }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .page-header p { color: rgba(255,255,255,0.6); }
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
             border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif;
-            font-weight: 600; transition: var(--transition);
-        }
-        .btn-primary:hover { transform: translateY(-2px); }
-        .btn-sm {
-            padding: 6px 12px; font-size: 11px;
-            border: none; border-radius: 6px; cursor: pointer;
-            font-family: 'Inter', sans-serif; font-weight: 600;
-        }
-        .btn-edit {
-            background: rgba(212, 175, 55, 0.2);
-            color: var(--gold);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-        }
-        .btn-delete {
-            background: rgba(220, 53, 69, 0.2);
-            color: #ff4757;
-            border: 1px solid rgba(220, 53, 69, 0.4);
+            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
         }
         
-        /* Table */
-        .table-container {
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .class-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 16px; padding: 20px;
-            overflow-x: auto;
+            transition: var(--transition);
         }
-        .data-table { width: 100%; border-collapse: collapse; color: #fff; }
-        .data-table th {
-            background: rgba(233, 69, 96, 0.8);
-            padding: 15px; text-align: left;
-            font-weight: 700; font-size: 12px; text-transform: uppercase;
-            white-space: nowrap;
+        .class-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.4); }
+        .class-card h4 { color: var(--accent); margin-bottom: 8px; }
+        .class-card p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 5px; }
+        
+        .modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 1300;
+            justify-content: center; align-items: center;
         }
-        .data-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 13px;
+        .modal.active { display: flex; }
+        .modal-content {
+            background: rgba(26, 31, 78, 0.95);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; padding: 30px;
+            width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
         }
-        .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
-        .badge {
-            display: inline-block; padding: 4px 12px;
-            border-radius: 20px; font-size: 11px; font-weight: 600;
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--accent); }
+        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
+        .form-group input { width: 100%; padding: 10px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .upload-area {
+            border: 2px dashed rgba(212, 175, 55, 0.4);
+            border-radius: 12px; padding: 20px; text-align: center;
+            cursor: pointer; transition: var(--transition);
         }
-        .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
-        .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .upload-area:hover { border-color: var(--gold); background: rgba(212,175,55,0.1); }
+        .upload-area i { font-size: 30px; color: var(--accent); margin-bottom: 10px; }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .classes-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -255,51 +195,52 @@
         </div>
         <div class="taskbar-right">
             <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <div class="main-content">
         <div class="page-header">
-            <h1>Fee Management</h1>
-            <p>Track, edit, and manage student fees</p>
+            <div>
+                <h1>Classes</h1>
+                <p>Manage class lists with Excel upload</p>
+            </div>
+            <button class="btn-primary" onclick="openModal('addClassModal')"><i class="fas fa-plus"></i> Add Class</button>
         </div>
         
-        <div class="stats-grid">
-            <div class="stat-card"><div class="value" id="totalFeesAmount">KES 0</div><div class="label">Total Fees</div></div>
-            <div class="stat-card"><div class="value" id="totalPaidAmount">KES 0</div><div class="label">Total Paid</div></div>
-            <div class="stat-card"><div class="value" id="totalBalanceAmount">KES 0</div><div class="label">Outstanding</div></div>
-        </div>
-        
-        <div class="form-container">
-            <h3><i class="fas fa-money-bill"></i> <span id="formTitle">Record Fee Payment</span></h3>
-            <form onsubmit="return saveFee(event)">
-                <div class="form-group">
-                    <label>Student</label>
-                    <select id="feeStudent" required><option value="">Select Student</option></select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Total Fee (KES)</label><input type="number" id="feeAmount" min="0" required></div>
-                    <div class="form-group"><label>Amount Paid (KES)</label><input type="number" id="feePaid" min="0" required></div>
-                </div>
-                <div class="form-group"><label>Term</label><input type="text" id="feeTerm" value="Term 1"></div>
-                <button type="submit" class="btn-primary" id="saveFeeBtn"><i class="fas fa-save"></i> Save Fee</button>
-            </form>
-        </div>
-        
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr><th>Student</th><th>ADM</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Term</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="feesTableBody">
-                    <tr><td colspan="8" style="text-align:center;">Loading fees...</td></tr>
-                </tbody>
-            </table>
+        <div class="classes-grid" id="classesList">
+            <p style="text-align:center;color:rgba(255,255,255,0.5);">Loading classes...</p>
         </div>
     </div>
     
-    <!-- Floating Navbar -->
+    <div class="modal" id="addClassModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-door-open"></i> Add Class</h3>
+                <button class="modal-close" onclick="closeModal('addClassModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="return addClassWithExcel(event)">
+                <div class="form-row">
+                    <div class="form-group"><label>Class Name *</label><input type="text" id="className" required></div>
+                    <div class="form-group"><label>Stream</label><input type="text" id="classStream"></div>
+                </div>
+                <div class="form-group"><label>Class Teacher</label><input type="text" id="classTeacher"></div>
+                <div class="form-group">
+                    <label>Upload Student Details (.xls/.xlsx)</label>
+                    <div class="upload-area" onclick="document.getElementById('excelFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload Excel file</p>
+                    </div>
+                    <input type="file" id="excelFileInput" accept=".xls,.xlsx" style="display:none;" onchange="handleExcelUpload(event)">
+                    <p id="excelStudentCount" style="color:#34ce57;margin-top:10px;"></p>
+                    <input type="hidden" id="excelStudentsData" data-loaded="false">
+                </div>
+                <div id="excelPreview" style="margin-top:15px;overflow-x:auto;"></div>
+                <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Class</button>
+            </form>
+        </div>
+    </div>
+    
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -316,7 +257,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn">
+                <button class="classy-btn active">
                     <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
@@ -330,13 +271,13 @@
                     <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Private Chat</a>
-                    <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Group Forum</a>
+                    <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
+                    <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Forum</a>
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn active">
+                <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
@@ -355,14 +296,18 @@
     </div>
     
     <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            initDropdownController();
-        });
+        function logoutWithConfirm() {
+            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                if (result === 'confirm') logout();
+            });
+        }
+        window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>
 </html>
