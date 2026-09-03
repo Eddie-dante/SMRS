@@ -18,13 +18,13 @@
     <style>
         :root {
             --primary: #e94560;
+            --primary-dark: #c62a47;
             --accent: #d4af37;
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.3s ease;
+            --transition: all 0.2s ease;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -55,6 +55,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 16px; transition: var(--transition);
         }
+        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
         
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -80,7 +81,7 @@
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-3px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -115,28 +116,27 @@
         .main-content {
             padding: 85px 25px 25px;
             max-width: 1400px; margin: 0 auto;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em; font-weight: 900;
+            font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: transparent;
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .page-header p { color: rgba(255,255,255,0.6); }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
             border: none; border-radius: 10px; color: #fff;
             cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            transition: var(--transition);
         }
+        .btn-primary:hover { transform: translateY(-2px); }
         .btn-secondary {
             padding: 12px 20px;
             background: rgba(255,255,255,0.1);
@@ -145,9 +145,9 @@
             cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
         }
         
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab {
-            padding: 12px 20px;
+            padding: 10px 18px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 10px; color: rgba(255,255,255,0.7);
@@ -161,7 +161,7 @@
         
         .search-bar {
             display: flex; align-items: center; gap: 10px;
-            padding: 12px 20px; margin-bottom: 20px;
+            padding: 10px 15px; margin-bottom: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
@@ -191,6 +191,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 13px;
         }
+        .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         .badge {
             display: inline-block; padding: 4px 12px;
             border-radius: 20px; font-size: 11px; font-weight: 600;
@@ -198,6 +199,11 @@
         .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
         .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
+        .btn-sm {
+            padding: 6px 12px; font-size: 11px;
+            border: none; border-radius: 6px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 600;
+        }
         
         .form-container {
             background: var(--glass-bg);
@@ -218,7 +224,7 @@
         .modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 1300;
+            background: rgba(0,0,0,0.7); z-index: 1300;
             justify-content: center; align-items: center;
         }
         .modal.active { display: flex; }
@@ -261,41 +267,51 @@
         </div>
         
         <div class="tabs">
-            <button class="tab active" onclick="switchLibraryTab('catalog')">Catalog</button>
-            <button class="tab" onclick="switchLibraryTab('issue')">Issue Books</button>
-            <button class="tab" onclick="switchLibraryTab('returns')">Returns</button>
-            <button class="tab" onclick="switchLibraryTab('borrowed')">Borrowed</button>
+            <button class="tab active" onclick="switchLibraryTab('catalog')"><i class="fas fa-list"></i> Catalog</button>
+            <button class="tab" onclick="switchLibraryTab('issue')"><i class="fas fa-book"></i> Issue Books</button>
+            <button class="tab" onclick="switchLibraryTab('returns')"><i class="fas fa-undo"></i> Returns</button>
+            <button class="tab" onclick="switchLibraryTab('borrowed')"><i class="fas fa-clock"></i> Borrowed</button>
         </div>
         
+        <!-- CATALOG TAB -->
         <div id="catalogTab" class="tab-content active">
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchBooks" placeholder="Search books..." onkeyup="filterBooks()">
+                <input type="text" id="searchBooks" placeholder="Search books by title, author, or subject..." onkeyup="filterBooks()">
             </div>
             <div class="table-container">
                 <table class="data-table">
-                    <thead><tr><th>Title</th><th>Author</th><th>Type</th><th>Subject</th><th>Quantity</th><th>Available</th><th>Actions</th></tr></thead>
-                    <tbody id="booksTableBody"></tbody>
+                    <thead>
+                        <tr><th>Title</th><th>Author</th><th>Type</th><th>Subject</th><th>Quantity</th><th>Available</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="booksTableBody">
+                        <tr><td colspan="7" style="text-align:center;">Loading books...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
         
+        <!-- ISSUE TAB -->
         <div id="issueTab" class="tab-content">
             <div class="form-container">
-                <h3 style="color:var(--accent);margin-bottom:20px;">Issue Book</h3>
+                <h3 style="color:var(--accent);margin-bottom:20px;"><i class="fas fa-book"></i> Issue Book</h3>
+                
+                <!-- Issue Type Toggle -->
                 <div style="display:flex;gap:10px;margin-bottom:20px;">
-                    <button class="btn-primary" id="individualIssueBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
-                    <button class="btn-secondary" id="bulkIssueBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
+                    <button class="btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
+                    <button class="btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
                 </div>
+                
+                <!-- Individual Issue Form -->
                 <div id="individualIssueForm">
                     <form onsubmit="return issueBook(event)">
                         <div class="form-row">
-                            <div class="form-group"><label>Student Name</label><input type="text" id="issueStudentName" required></div>
-                            <div class="form-group"><label>ADM Number</label><input type="text" id="issueADM" required></div>
+                            <div class="form-group"><label>Student Name *</label><input type="text" id="issueStudentName" required></div>
+                            <div class="form-group"><label>ADM Number *</label><input type="text" id="issueADM" required></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label>Book Title</label><select id="issueBookTitle" required><option value="">Select Book</option></select></div>
-                            <div class="form-group"><label>Book Number</label><input type="text" id="issueBookNumber" required></div>
+                            <div class="form-group"><label>Book Title *</label><select id="issueBookTitle" required><option value="">Select Book</option></select></div>
+                            <div class="form-group"><label>Book Number *</label><input type="text" id="issueBookNumber" required></div>
                         </div>
                         <div class="form-row">
                             <div class="form-group"><label>Borrow Date</label><input type="date" id="issueBorrowDate" required></div>
@@ -304,9 +320,19 @@
                         <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-book"></i> Issue Book</button>
                     </form>
                 </div>
+                
+                <!-- Bulk Issue Form -->
                 <div id="bulkIssueForm" style="display:none;">
-                    <div class="form-group"><label>Book Title</label><select id="bulkBookTitle"><option value="">Select Book</option></select></div>
-                    <div class="form-group"><label>Select Class</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">Select Class</option></select></div>
+                    <div class="form-group">
+                        <label>Book Title *</label>
+                        <select id="bulkBookTitle"><option value="">Select Book</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Class *</label>
+                        <select id="bulkBookClass" onchange="loadClassStudentsForBooks()">
+                            <option value="">Select Class</option>
+                        </select>
+                    </div>
                     <div class="form-row">
                         <div class="form-group"><label>Borrow Date</label><input type="date" id="bulkBookBorrowDate"></div>
                         <div class="form-group"><label>Return Date</label><input type="date" id="bulkBookReturnDate"></div>
@@ -316,33 +342,44 @@
             </div>
         </div>
         
+        <!-- RETURNS TAB -->
         <div id="returnsTab" class="tab-content">
             <div class="table-container">
                 <table class="data-table">
-                    <thead><tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody id="returnsTableBody"></tbody>
+                    <thead>
+                        <tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="returnsTableBody">
+                        <tr><td colspan="7" style="text-align:center;">Loading active loans...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
         
+        <!-- BORROWED TAB -->
         <div id="borrowedTab" class="tab-content">
             <div class="table-container">
                 <table class="data-table">
-                    <thead><tr><th>Student</th><th>Book</th><th>Borrow Date</th><th>Return Date</th><th>Status</th></tr></thead>
-                    <tbody id="borrowedTableBody"></tbody>
+                    <thead>
+                        <tr><th>Student</th><th>Book</th><th>Borrow Date</th><th>Return Date</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="borrowedTableBody">
+                        <tr><td colspan="5" style="text-align:center;">Loading records...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
     
+    <!-- ADD BOOK MODAL -->
     <div class="modal" id="addBookModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-plus"></i> Add New Book</h3>
                 <button class="modal-close" onclick="closeModal('addBookModal')"><i class="fas fa-times"></i></button>
             </div>
-            <form onsubmit="return addBook(event)">
-                <div class="form-group"><label>Book Title</label><input type="text" id="bookTitle" required></div>
+            <form id="addBookForm" onsubmit="return addBook(event)">
+                <div class="form-group"><label>Book Title *</label><input type="text" id="bookTitle" required></div>
                 <div class="form-row">
                     <div class="form-group"><label>Author</label><input type="text" id="bookAuthor"></div>
                     <div class="form-group"><label>Type</label><select id="bookType"><option>Textbook</option><option>Novel</option><option>Reference</option><option>Magazine</option><option>Other</option></select></div>
@@ -359,13 +396,9 @@
     <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
-            </button>
+            <button class="classy-btn" onclick="location.href='dashboard.html'"><span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard</button>
             <div class="nav-group">
-                <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn active"><span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
                     <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
@@ -373,9 +406,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
@@ -383,9 +414,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
                     <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Forum</a>
@@ -393,9 +422,7 @@
                 </div>
             </div>
             <div class="nav-group">
-                <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
-                </button>
+                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
                     <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
@@ -413,25 +440,36 @@
     
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/dialog.js"></script>
     <script src="js/wallpaper-loader.js"></script>
     <script src="js/app.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             initDropdownController();
+            
+            // Set default dates
             document.getElementById('issueBorrowDate').value = getCurrentDate();
             document.getElementById('issueReturnDate').value = addDays(getCurrentDate(), 14);
-            if (document.getElementById('bulkBookBorrowDate')) document.getElementById('bulkBookBorrowDate').value = getCurrentDate();
-            if (document.getElementById('bulkBookReturnDate')) document.getElementById('bulkBookReturnDate').value = addDays(getCurrentDate(), 14);
+            
+            var bulkBorrowDate = document.getElementById('bulkBookBorrowDate');
+            var bulkReturnDate = document.getElementById('bulkBookReturnDate');
+            if (bulkBorrowDate) bulkBorrowDate.value = getCurrentDate();
+            if (bulkReturnDate) bulkReturnDate.value = addDays(getCurrentDate(), 14);
         });
         
         function switchLibraryTab(tabName) {
             document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-            if (tabName === 'catalog') { document.querySelectorAll('.tab')[0].classList.add('active'); document.getElementById('catalogTab').classList.add('active'); }
-            if (tabName === 'issue') { document.querySelectorAll('.tab')[1].classList.add('active'); document.getElementById('issueTab').classList.add('active'); }
-            if (tabName === 'returns') { document.querySelectorAll('.tab')[2].classList.add('active'); document.getElementById('returnsTab').classList.add('active'); }
-            if (tabName === 'borrowed') { document.querySelectorAll('.tab')[3].classList.add('active'); document.getElementById('borrowedTab').classList.add('active'); }
+            
+            var tabIndex = 0;
+            if (tabName === 'catalog') tabIndex = 0;
+            if (tabName === 'issue') tabIndex = 1;
+            if (tabName === 'returns') tabIndex = 2;
+            if (tabName === 'borrowed') tabIndex = 3;
+            
+            document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
         }
         
         function showIndividualIssue() {
@@ -444,9 +482,16 @@
             document.getElementById('bulkIssueForm').style.display = 'block';
         }
         
+        function filterBooks() {
+            var searchInput = document.getElementById('searchBooks');
+            var tbody = document.getElementById('booksTableBody');
+            filterTable(searchInput, tbody);
+        }
+        
         window.switchLibraryTab = switchLibraryTab;
         window.showIndividualIssue = showIndividualIssue;
         window.showBulkIssue = showBulkIssue;
+        window.filterBooks = filterBooks;
     </script>
 </body>
 </html>
