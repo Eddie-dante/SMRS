@@ -55,7 +55,9 @@
             color: #fff;
             cursor: pointer;
             text-decoration: none;
-            display: flex; align-items: center; gap: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             z-index: 100;
             backdrop-filter: blur(20px);
             font-family: 'Inter', sans-serif;
@@ -76,6 +78,33 @@
             flex: 1; background: none; border: none;
             color: #fff; font-size: 16px; outline: none;
             font-family: 'Inter', sans-serif;
+        }
+        
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .category-filters button {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        .category-filters button:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .category-filters button.active {
+            background: rgba(212,175,55,0.2);
+            border-color: #d4af37;
+            color: #d4af37;
         }
         
         .wallpaper-grid {
@@ -121,6 +150,17 @@
             text-align: center;
         }
         .wallpaper-info h3 { font-size: 14px; margin-bottom: 5px; font-weight: 600; }
+        .wallpaper-info .category-tag {
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .wallpaper-info .credit {
+            font-size: 9px;
+            color: rgba(255,255,255,0.2);
+            margin-top: 3px;
+        }
         
         .check-badge {
             position: absolute;
@@ -137,9 +177,19 @@
         }
         .wallpaper-card.active .check-badge { display: flex; }
         
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.4);
+            grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
+        
         @media (max-width: 768px) {
             .wallpaper-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
             .wallpaper-preview { height: 100px; }
+            .wallpaper-page { padding: 15px; }
+            .back-btn { top: 10px; left: 10px; padding: 8px 12px; font-size: 12px; }
         }
     </style>
 </head>
@@ -149,12 +199,21 @@
     <div class="wallpaper-page">
         <div class="page-header">
             <h1>Choose Wallpaper</h1>
-            <p>Select a beautiful background</p>
+            <p>Select a beautiful background for your dashboard</p>
         </div>
         
         <div class="search-bar">
             <i class="fas fa-search"></i>
             <input type="text" id="wallpaperSearch" placeholder="Search wallpapers..." onkeyup="searchWallpapers()">
+        </div>
+        
+        <div class="category-filters" id="categoryFilters">
+            <button class="active" onclick="filterCategory('all')">All</button>
+            <button onclick="filterCategory('School')">🏫 School</button>
+            <button onclick="filterCategory('Nature')">🌿 Nature</button>
+            <button onclick="filterCategory('City')">🏙️ City</button>
+            <button onclick="filterCategory('Abstract')">🎨 Abstract</button>
+            <button onclick="filterCategory('Default')">🌙 Default</button>
         </div>
         
         <div class="wallpaper-grid" id="wallpaperGrid"></div>
@@ -163,13 +222,27 @@
     <script src="js/wallpaper-loader.js"></script>
     
     <script>
+        var currentCategory = 'all';
+        var searchTerm = '';
+        
         function loadWallpapers() {
             var grid = document.getElementById('wallpaperGrid');
             var currentWallpaper = localStorage.getItem('srms_wallpaper') || 'library';
             
             var html = '';
+            var found = false;
+            
             for (var key in WALLPAPER_DATA) {
                 var wallpaper = WALLPAPER_DATA[key];
+                var category = wallpaper.category || 'Default';
+                
+                // Check category filter
+                if (currentCategory !== 'all' && category !== currentCategory) continue;
+                
+                // Check search
+                if (searchTerm && !wallpaper.name.toLowerCase().includes(searchTerm.toLowerCase())) continue;
+                
+                found = true;
                 var isActive = key === currentWallpaper ? ' active' : '';
                 
                 var previewStyle = '';
@@ -180,20 +253,45 @@
                     previewStyle = 'background-image:url("' + thumbUrl + '");background-size:cover;background-position:center;';
                 }
                 
+                var categoryIcon = getCategoryIcon(category);
+                
                 html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\')">' +
                     '<div class="check-badge"><i class="fas fa-check"></i></div>' +
                     '<div class="wallpaper-preview" style="' + previewStyle + '"></div>' +
-                    '<div class="wallpaper-info"><h3>' + wallpaper.name + '</h3></div>' +
+                    '<div class="wallpaper-info">' +
+                        '<h3>' + wallpaper.name + '</h3>' +
+                        '<div class="category-tag">' + categoryIcon + ' ' + category + '</div>' +
+                        (wallpaper.credit ? '<div class="credit">📷 ' + wallpaper.credit + '</div>' : '') +
+                    '</div>' +
                     '</div>';
             }
-            grid.innerHTML = html;
+            
+            if (!found) {
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>No wallpapers found matching your criteria</p></div>';
+            } else {
+                grid.innerHTML = html;
+            }
+        }
+        
+        function getCategoryIcon(category) {
+            var icons = {
+                'School': '🏫',
+                'Nature': '🌿',
+                'City': '🏙️',
+                'Abstract': '🎨',
+                'Default': '🌙'
+            };
+            return icons[category] || '📷';
         }
         
         function selectWallpaper(key) {
             localStorage.setItem('srms_wallpaper', key);
+            
             var cards = document.querySelectorAll('.wallpaper-card');
             for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
-            event.target.closest('.wallpaper-card').classList.add('active');
+            
+            var target = event ? event.target.closest('.wallpaper-card') : null;
+            if (target) target.classList.add('active');
             
             var wallpaper = WALLPAPER_DATA[key];
             if (wallpaper.type === 'gradient') {
@@ -210,13 +308,23 @@
         }
         
         function searchWallpapers() {
-            var searchInput = document.getElementById('wallpaperSearch');
-            var searchTerm = searchInput.value.toLowerCase();
-            var cards = document.querySelectorAll('.wallpaper-card');
-            for (var i = 0; i < cards.length; i++) {
-                var name = cards[i].querySelector('h3').textContent.toLowerCase();
-                cards[i].style.display = name.indexOf(searchTerm) > -1 ? '' : 'none';
+            searchTerm = document.getElementById('wallpaperSearch').value;
+            loadWallpapers();
+        }
+        
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            var buttons = document.querySelectorAll('.category-filters button');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+                if (buttons[i].textContent.trim() === category || 
+                    (category === 'all' && buttons[i].textContent.trim() === 'All')) {
+                    buttons[i].classList.add('active');
+                }
             }
+            
+            loadWallpapers();
         }
         
         function showNotification(message, type) {
@@ -225,10 +333,18 @@
             notification.innerHTML = '<i class="fas fa-check-circle"></i><span>' + message + '</span>';
             document.body.appendChild(notification);
             setTimeout(function() { notification.classList.add('show'); }, 100);
-            setTimeout(function() { notification.classList.remove('show'); setTimeout(function() { notification.remove(); }, 300); }, 3000);
+            setTimeout(function() { 
+                notification.classList.remove('show'); 
+                setTimeout(function() { notification.remove(); }, 300); 
+            }, 3000);
         }
         
         document.addEventListener('DOMContentLoaded', loadWallpapers);
+        
+        window.loadWallpapers = loadWallpapers;
+        window.selectWallpaper = selectWallpaper;
+        window.searchWallpapers = searchWallpapers;
+        window.filterCategory = filterCategory;
     </script>
 </body>
 </html>

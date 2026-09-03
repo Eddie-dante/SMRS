@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRMS - Audit Log | School Resource Management System</title>
+    <title>SRMS - Student ID Cards | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
@@ -120,11 +119,14 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1400px; margin: 0 auto;
+            max-width: 1200px; margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .page-header { margin-bottom: 20px; }
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+        }
         .page-header h1 {
             font-size: 2em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
@@ -132,6 +134,30 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); }
+        
+        .btn-primary {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            border: none; border-radius: 10px; color: #fff;
+            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
+        .btn-secondary {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px; color: #fff;
+            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            display: inline-flex;
+            align-items: center; gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
         
         .search-bar {
             display: flex; align-items: center; gap: 10px;
@@ -147,46 +173,146 @@
             font-family: 'Inter', sans-serif;
         }
         
-        .table-container {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 15px;
-            overflow-x: auto;
+        .filters {
+            display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
         }
-        .data-table { width: 100%; border-collapse: collapse; color: #fff; }
-        .data-table th {
-            background: rgba(233, 69, 96, 0.8);
-            padding: 12px; text-align: left;
-            font-weight: 700; font-size: 11px; text-transform: uppercase;
-            white-space: nowrap;
-        }
-        .data-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 13px;
-        }
-        .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
-        
-        .filter-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .filter-section select {
+        .filters select {
             padding: 10px 15px;
-            background: rgba(10, 14, 39, 0.9);
+            background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: #fff;
+            border-radius: 10px; color: #fff;
             font-family: 'Inter', sans-serif;
             outline: none;
         }
+        .filters select option { background: #1a1f4e; }
+        
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .student-id-card {
+            background: linear-gradient(135deg, #0a0e27, #1a1f4e);
+            border: 2px solid #d4af37;
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+        }
+        .student-id-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
+        .student-id-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+        }
+        .student-id-card .id-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .student-id-card .id-header .school-name {
+            font-size: 12px; font-weight: 700; color: #d4af37; letter-spacing: 1px;
+        }
+        .student-id-card .id-header .id-type {
+            font-size: 9px; color: rgba(255,255,255,0.4);
+            text-transform: uppercase; letter-spacing: 2px;
+            background: rgba(212,175,55,0.15); padding: 3px 10px; border-radius: 20px;
+        }
+        .student-id-card .id-body {
+            display: flex; gap: 15px; align-items: center;
+        }
+        .student-id-card .id-avatar {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #f0d060);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 900; color: #0a0e27;
+            flex-shrink: 0; border: 3px solid #d4af37;
+        }
+        .student-id-card .id-details { flex: 1; min-width: 0; }
+        .student-id-card .id-details .name {
+            font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 2px;
+        }
+        .student-id-card .id-details .adm {
+            font-size: 11px; color: #d4af37; font-weight: 600; letter-spacing: 1px;
+        }
+        .student-id-card .id-details .info-row {
+            display: flex; gap: 12px; margin-top: 4px; font-size: 10px;
+            color: rgba(255,255,255,0.5); flex-wrap: wrap;
+        }
+        .student-id-card .id-footer {
+            margin-top: 12px; padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .student-id-card .id-footer .qr-code {
+            width: 55px; height: 55px; background: white; border-radius: 8px;
+            padding: 4px; display: flex; align-items: center; justify-content: center;
+        }
+        .student-id-card .id-footer .qr-code img { width: 100%; height: 100%; }
+        .student-id-card .id-footer .qr-code .no-qr {
+            font-size: 8px; color: #999; text-align: center;
+        }
+        .student-id-card .id-footer .valid-date {
+            font-size: 8px; color: rgba(255,255,255,0.3); text-align: right;
+        }
+        .student-id-card .id-actions {
+            margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;
+            justify-content: center;
+        }
+        .student-id-card .id-actions .btn { flex: 1; justify-content: center; font-size: 11px; padding: 8px 12px; }
+        
+        .no-students {
+            text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.4);
+            grid-column: 1 / -1;
+        }
+        .no-students i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
+        
+        .modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1300;
+            justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: rgba(26, 31, 78, 0.95);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; padding: 30px;
+            width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--accent); }
+        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px; color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .loading-spinner {
+            text-align: center; padding: 40px; color: rgba(255,255,255,0.5);
+        }
+        .loading-spinner i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
+            .students-grid { grid-template-columns: 1fr; }
+            .student-id-card .id-body { flex-direction: column; text-align: center; }
+            .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .page-header .btn { justify-content: center; }
         }
     </style>
 </head>
@@ -203,47 +329,75 @@
     
     <div class="main-content">
         <div class="page-header">
-            <h1>Audit Log</h1>
-            <p>System activity tracking and operational records</p>
+            <div>
+                <h1><i class="fas fa-id-card" style="color:var(--accent);"></i> Student ID Cards</h1>
+                <p>Generate and manage student ID cards with QR codes</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn-primary" onclick="openModal('generateIDModal')">
+                    <i class="fas fa-qrcode"></i> Generate ID Card
+                </button>
+                <button class="btn-secondary" onclick="refreshStudents()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
         </div>
         
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchAuditLog" placeholder="Search audit log..." onkeyup="filterAuditLog()">
+            <input type="text" id="searchStudents" placeholder="Search by name or ADM..." onkeyup="filterStudents()">
         </div>
         
-        <div class="filter-section">
-            <select id="filterAction" onchange="filterAuditLog()">
-                <option value="">All Actions</option>
-                <option value="Book Added">Book Added</option>
-                <option value="Book Issued">Book Issued</option>
-                <option value="Book Returned">Book Returned</option>
-                <option value="Student Added">Student Added</option>
-                <option value="Student Deleted">Student Deleted</option>
-                <option value="Teacher Added">Teacher Added</option>
-                <option value="Fee Recorded">Fee Recorded</option>
-                <option value="User Added">User Added</option>
+        <div class="filters">
+            <select id="filterForm" onchange="filterStudents()">
+                <option value="">All Forms</option>
+                <option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option>
+            </select>
+            <select id="filterStream" onchange="filterStudents()">
+                <option value="">All Streams</option>
+                <option>East</option><option>West</option><option>North</option><option>South</option>
+            </select>
+            <select id="filterQR" onchange="filterStudents()">
+                <option value="">All Students</option>
+                <option value="has">Has QR Code</option>
+                <option value="no">No QR Code</option>
             </select>
         </div>
         
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Action</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody id="auditLogBody">
-                    <tr><td colspan="5" style="text-align:center;">Loading audit log...</td></tr>
-                </tbody>
-            </table>
+        <div class="students-grid" id="studentsGrid">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading students...
+            </div>
         </div>
     </div>
     
+    <!-- Generate ID Modal -->
+    <div class="modal" id="generateIDModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-id-card"></i> Generate Student ID Card</h3>
+                <button class="modal-close" onclick="closeModal('generateIDModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-group">
+                <label>Select Student</label>
+                <select id="studentSelect" onchange="previewStudentForID()">
+                    <option value="">Select a student...</option>
+                </select>
+            </div>
+            <div id="idPreview" style="margin-top:15px;"></div>
+            <div id="idActions" style="display:none;margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn-primary" onclick="generateStudentID()" style="flex:1;">
+                    <i class="fas fa-qrcode"></i> Generate QR & ID
+                </button>
+                <button class="btn-secondary" onclick="printStudentIDCard()" style="flex:1;">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -251,7 +405,7 @@
             </button>
             
             <div class="nav-group">
-                <button class="classy-btn" onclick="toggleDropdown(this)">
+                <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
@@ -262,18 +416,19 @@
             </div>
             
             <div class="nav-group">
-                <button class="classy-btn" onclick="toggleDropdown(this)">
+                <button class="classy-btn active">
                     <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
             
             <div class="nav-group">
-                <button class="classy-btn" onclick="toggleDropdown(this)">
+                <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
@@ -284,7 +439,7 @@
             </div>
             
             <div class="nav-group">
-                <button class="classy-btn active" onclick="toggleDropdown(this)">
+                <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
@@ -309,122 +464,576 @@
     <script src="js/app.js"></script>
     
     <script>
-        // Dropdown toggle handler for mobile/touch
-        function toggleDropdown(button) {
-            const currentMenu = button.nextElementSibling;
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                if (menu !== currentMenu) menu.classList.remove('open');
-            });
-            if (currentMenu) {
-                currentMenu.classList.toggle('open');
-            }
-        }
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.nav-group')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('open'));
-            }
+        // ============ GLOBALS ============
+        var allStudents = [];
+        var allQRCodes = [];
+        var selectedStudentId = null;
+        
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStudents();
+            loadStudentSelect();
         });
-
-        // Search & Filter system
-        function filterAuditLog() {
-            var searchInput = document.getElementById('searchAuditLog');
-            var filterAction = document.getElementById('filterAction').value;
-            var tbody = document.getElementById('auditLogBody');
-            var rows = tbody.getElementsByTagName('tr');
-            var searchTerm = searchInput.value.toLowerCase();
-            
-            for (var i = 0; i < rows.length; i++) {
-                var row = rows[i];
-                if (row.cells.length < 5) continue; // Skip header/message rows
-                
-                var text = row.textContent.toLowerCase();
-                var actionCell = row.querySelector('td:nth-child(4)');
-                var actionText = actionCell ? actionCell.textContent : '';
-                
-                var matchesSearch = text.indexOf(searchTerm) > -1;
-                var matchesAction = !filterAction || actionText.toLowerCase().indexOf(filterAction.toLowerCase()) > -1;
-                
-                row.style.display = (matchesSearch && matchesAction) ? '' : 'none';
+        
+        // ============ LOAD STUDENTS ============
+        function loadStudents() {
+            var school = getCurrentSchool();
+            if (!school) {
+                document.getElementById('studentsGrid').innerHTML = 
+                    '<div class="no-students"><i class="fas fa-exclamation-circle"></i><p>Please login to view students</p></div>';
+                return;
             }
+            
+            document.getElementById('studentsGrid').innerHTML = 
+                '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading students...</div>';
+            
+            Promise.all([
+                API.getStudents(school),
+                API.getQRCodes(school)
+            ]).then(function(results) {
+                allStudents = results[0] || [];
+                allQRCodes = results[1] || [];
+                renderStudents(allStudents);
+            }).catch(function(err) {
+                document.getElementById('studentsGrid').innerHTML = 
+                    '<div class="no-students"><i class="fas fa-exclamation-triangle"></i><p>Error loading students</p></div>';
+                console.error(err);
+            });
         }
         
-        // Logout execution
+        function renderStudents(students) {
+            var grid = document.getElementById('studentsGrid');
+            var school = getCurrentSchool();
+            
+            if (!students || students.length === 0) {
+                grid.innerHTML = '<div class="no-students"><i class="fas fa-user-graduate"></i><p>No students found. Add students first!</p></div>';
+                return;
+            }
+            
+            var html = '';
+            students.forEach(function(student) {
+                // Check if student has QR code
+                var qrCode = null;
+                allQRCodes.forEach(function(qr) {
+                    if (qr.adm === student.adm && qr.type === 'student' && !qr.returned) {
+                        qrCode = qr;
+                    }
+                });
+                
+                var initials = getInitials(student.name);
+                var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
+                
+                var today = new Date();
+                var expiryDate = new Date(today);
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                
+                html += `
+                    <div class="student-id-card" data-adm="${student.adm}">
+                        <div class="id-header">
+                            <span class="school-name">${school}</span>
+                            <span class="id-type">${qrCode ? '✅ Active' : 'No QR'}</span>
+                        </div>
+                        <div class="id-body">
+                            <div class="id-avatar">${initials}</div>
+                            <div class="id-details">
+                                <div class="name">${student.name}</div>
+                                <div class="adm">ADM: ${student.adm}</div>
+                                <div class="info-row">
+                                    <span>${student.form || 'Form: -'}</span>
+                                    <span>${student.stream || 'Stream: -'}</span>
+                                    <span>${student.gender || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="id-footer">
+                            <div class="qr-code">
+                                ${qrUrl ? '<img src="' + qrUrl + '" alt="QR">' : '<div class="no-qr">No QR<br>Code</div>'}
+                            </div>
+                            <div class="valid-date">
+                                <div>Valid Until</div>
+                                <div>${expiryDate.toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <div class="id-actions">
+                            ${!qrCode ? '<button class="btn btn-primary btn-sm" onclick="generateIDForStudent(\'' + student.adm + '\')"><i class="fas fa-qrcode"></i> Generate QR</button>' : ''}
+                            <button class="btn btn-secondary btn-sm" onclick="printStudentCard(\'' + student.adm + '\')"><i class="fas fa-print"></i> Print</button>
+                            <button class="btn btn-secondary btn-sm" onclick="viewStudentDetails(\'' + student.adm + '\')"><i class="fas fa-eye"></i> View</button>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+        
+        // ============ FILTER STUDENTS ============
+        function filterStudents() {
+            var searchTerm = document.getElementById('searchStudents').value.toLowerCase();
+            var formFilter = document.getElementById('filterForm').value;
+            var streamFilter = document.getElementById('filterStream').value;
+            var qrFilter = document.getElementById('filterQR').value;
+            
+            var filtered = allStudents.filter(function(student) {
+                var matchesSearch = student.name.toLowerCase().includes(searchTerm) || 
+                                   student.adm.toLowerCase().includes(searchTerm);
+                var matchesForm = !formFilter || student.form === formFilter;
+                var matchesStream = !streamFilter || student.stream === streamFilter;
+                
+                var hasQR = false;
+                allQRCodes.forEach(function(qr) {
+                    if (qr.adm === student.adm && qr.type === 'student' && !qr.returned) hasQR = true;
+                });
+                
+                var matchesQR = true;
+                if (qrFilter === 'has') matchesQR = hasQR;
+                if (qrFilter === 'no') matchesQR = !hasQR;
+                
+                return matchesSearch && matchesForm && matchesStream && matchesQR;
+            });
+            
+            renderStudents(filtered);
+        }
+        
+        // ============ REFRESH ============
+        function refreshStudents() {
+            loadStudents();
+            loadStudentSelect();
+            showNotification('Refreshed!', 'success');
+        }
+        
+        // ============ STUDENT SELECT DROPDOWN ============
+        function loadStudentSelect() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getStudents(school).then(function(students) {
+                var select = document.getElementById('studentSelect');
+                if (!select) return;
+                
+                var html = '<option value="">Select a student...</option>';
+                students.forEach(function(s) {
+                    html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
+                });
+                select.innerHTML = html;
+            });
+        }
+        
+        // ============ PREVIEW STUDENT FOR ID ============
+        function previewStudentForID() {
+            var adm = document.getElementById('studentSelect').value;
+            var preview = document.getElementById('idPreview');
+            var actions = document.getElementById('idActions');
+            
+            if (!adm) {
+                preview.innerHTML = '';
+                actions.style.display = 'none';
+                return;
+            }
+            
+            var student = null;
+            allStudents.forEach(function(s) {
+                if (s.adm === adm) student = s;
+            });
+            
+            if (!student) {
+                preview.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">Student not found</p>';
+                actions.style.display = 'none';
+                return;
+            }
+            
+            selectedStudentId = adm;
+            var initials = getInitials(student.name);
+            var school = getCurrentSchool();
+            
+            // Check if QR exists
+            var hasQR = false;
+            allQRCodes.forEach(function(qr) {
+                if (qr.adm === adm && qr.type === 'student' && !qr.returned) hasQR = true;
+            });
+            
+            preview.innerHTML = `
+                <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:15px;">
+                    <div style="display:flex;align-items:center;gap:15px;margin-bottom:10px;">
+                        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#0a0e27;flex-shrink:0;">
+                            ${initials}
+                        </div>
+                        <div>
+                            <div style="font-weight:700;font-size:16px;">${student.name}</div>
+                            <div style="font-size:12px;color:var(--accent);">ADM: ${student.adm}</div>
+                            <div style="font-size:11px;color:rgba(255,255,255,0.4);">${student.form || 'Form: -'} | ${student.stream || 'Stream: -'}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;font-size:12px;color:rgba(255,255,255,0.5);">
+                        <span><i class="fas fa-venus-mars"></i> ${student.gender || 'N/A'}</span>
+                        <span><i class="fas fa-phone"></i> ${student.parentPhone || 'N/A'}</span>
+                    </div>
+                    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);font-size:11px;color:${hasQR ? '#34ce57' : 'rgba(255,255,255,0.3)'};">
+                        <i class="fas fa-qrcode"></i> ${hasQR ? '✅ QR Code generated' : '⚠️ No QR Code - Click Generate below'}
+                    </div>
+                </div>
+            `;
+            actions.style.display = 'flex';
+        }
+        
+        // ============ GENERATE STUDENT ID ============
+        function generateStudentID() {
+            if (!selectedStudentId) {
+                showNotification('Please select a student first', 'warning');
+                return;
+            }
+            
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            
+            showNotification('Generating ID card...', 'info');
+            
+            API.generateStudentID(school, selectedStudentId).then(function(result) {
+                if (result.success) {
+                    showNotification('ID Card generated with QR code!', 'success');
+                    logAction('Student ID Generated', result.student.name + ' (' + selectedStudentId + ')');
+                    closeModal('generateIDModal');
+                    loadStudents();
+                    loadStudentSelect();
+                } else {
+                    showNotification('Error: ' + result.error, 'error');
+                }
+            });
+        }
+        
+        // ============ GENERATE ID FOR STUDENT (from card) ============
+        function generateIDForStudent(adm) {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            
+            showNotification('Generating QR code...', 'info');
+            
+            API.generateStudentID(school, adm).then(function(result) {
+                if (result.success) {
+                    showNotification('QR Code generated for ' + result.student.name + '!', 'success');
+                    logAction('Student ID Generated', result.student.name + ' (' + adm + ')');
+                    loadStudents();
+                } else {
+                    showNotification('Error: ' + result.error, 'error');
+                }
+            });
+        }
+        
+        // ============ PRINT STUDENT CARD ============
+        function printStudentCard(adm) {
+            var student = null;
+            allStudents.forEach(function(s) {
+                if (s.adm === adm) student = s;
+            });
+            
+            if (!student) {
+                showNotification('Student not found', 'error');
+                return;
+            }
+            
+            // Find QR code
+            var qrCode = null;
+            allQRCodes.forEach(function(qr) {
+                if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
+                    qrCode = qr;
+                }
+            });
+            
+            var school = getCurrentSchool();
+            var initials = getInitials(student.name);
+            var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
+            
+            var today = new Date();
+            var expiryDate = new Date(today);
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+            
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Student ID Card - ${student.name}</title>
+                        <style>
+                            body {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                height: 100vh;
+                                margin: 0;
+                                background: #f0f0f0;
+                                font-family: Arial, sans-serif;
+                            }
+                            .student-id-card {
+                                background: linear-gradient(135deg, #0a0e27, #1a1f4e);
+                                border: 3px solid #d4af37;
+                                border-radius: 16px;
+                                padding: 25px;
+                                width: 380px;
+                                position: relative;
+                                overflow: hidden;
+                                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                                color: white;
+                            }
+                            .student-id-card::before {
+                                content: '';
+                                position: absolute;
+                                top: 0; left: 0; right: 0;
+                                height: 5px;
+                                background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+                            }
+                            .id-header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 15px;
+                                padding-bottom: 10px;
+                                border-bottom: 1px solid rgba(255,255,255,0.1);
+                            }
+                            .id-header .school-name {
+                                font-size: 14px;
+                                font-weight: 700;
+                                color: #d4af37;
+                                letter-spacing: 1px;
+                            }
+                            .id-header .id-type {
+                                font-size: 10px;
+                                color: rgba(255,255,255,0.4);
+                                text-transform: uppercase;
+                                letter-spacing: 2px;
+                                background: rgba(212,175,55,0.15);
+                                padding: 4px 12px;
+                                border-radius: 20px;
+                            }
+                            .id-body {
+                                display: flex;
+                                gap: 15px;
+                                align-items: center;
+                            }
+                            .id-avatar {
+                                width: 80px;
+                                height: 80px;
+                                border-radius: 50%;
+                                background: linear-gradient(135deg, #d4af37, #f0d060);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 30px;
+                                font-weight: 900;
+                                color: #0a0e27;
+                                flex-shrink: 0;
+                                border: 3px solid #d4af37;
+                            }
+                            .id-details { flex: 1; }
+                            .id-details .name {
+                                font-size: 18px;
+                                font-weight: 700;
+                                color: #ffffff;
+                                margin-bottom: 3px;
+                            }
+                            .id-details .adm {
+                                font-size: 12px;
+                                color: #d4af37;
+                                font-weight: 600;
+                                letter-spacing: 1px;
+                            }
+                            .id-details .info-row {
+                                display: flex;
+                                gap: 15px;
+                                margin-top: 5px;
+                                font-size: 11px;
+                                color: rgba(255,255,255,0.6);
+                            }
+                            .id-footer {
+                                margin-top: 15px;
+                                padding-top: 12px;
+                                border-top: 1px solid rgba(255,255,255,0.1);
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            }
+                            .id-footer .qr-code {
+                                width: 70px;
+                                height: 70px;
+                                background: white;
+                                border-radius: 8px;
+                                padding: 5px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            }
+                            .id-footer .qr-code img { width: 100%; height: 100%; }
+                            .id-footer .valid-date {
+                                font-size: 9px;
+                                color: rgba(255,255,255,0.3);
+                                text-align: right;
+                            }
+                            .id-footer .valid-date .date {
+                                font-size: 12px;
+                                font-weight: 600;
+                                color: rgba(255,255,255,0.5);
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="student-id-card">
+                            <div class="id-header">
+                                <span class="school-name">${school}</span>
+                                <span class="id-type">Student ID</span>
+                            </div>
+                            <div class="id-body">
+                                <div class="id-avatar">${initials}</div>
+                                <div class="id-details">
+                                    <div class="name">${student.name}</div>
+                                    <div class="adm">ADM: ${student.adm}</div>
+                                    <div class="info-row">
+                                        <span>${student.form || 'Form: -'}</span>
+                                        <span>${student.stream || 'Stream: -'}</span>
+                                        <span>${student.gender || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="id-footer">
+                                <div class="qr-code">
+                                    ${qrUrl ? '<img src="' + qrUrl + '" alt="QR Code">' : '<div style="font-size:9px;color:#999;text-align:center;">No QR<br>Code</div>'}
+                                </div>
+                                <div class="valid-date">
+                                    <div>Valid Until</div>
+                                    <div class="date">${expiryDate.toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(function() {
+                printWindow.print();
+            }, 500);
+        }
+        
+        // ============ VIEW STUDENT DETAILS ============
+        function viewStudentDetails(adm) {
+            var student = null;
+            allStudents.forEach(function(s) {
+                if (s.adm === adm) student = s;
+            });
+            
+            if (!student) {
+                showNotification('Student not found', 'error');
+                return;
+            }
+            
+            // Find QR code
+            var qrCode = null;
+            allQRCodes.forEach(function(qr) {
+                if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
+                    qrCode = qr;
+                }
+            });
+            
+            var html = `
+                <div style="background:rgba(212,175,55,0.1);border:1px solid var(--accent);border-radius:12px;padding:20px;max-width:400px;margin:0 auto;">
+                    <h4 style="color:var(--accent);margin-bottom:15px;"><i class="fas fa-user-graduate"></i> Student Details</h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+                        <div><strong>Name:</strong></div><div>${student.name}</div>
+                        <div><strong>ADM:</strong></div><div>${student.adm}</div>
+                        <div><strong>Form:</strong></div><div>${student.form || '-'}</div>
+                        <div><strong>Stream:</strong></div><div>${student.stream || '-'}</div>
+                        <div><strong>Gender:</strong></div><div>${student.gender || '-'}</div>
+                        <div><strong>Parent:</strong></div><div>${student.parentName || '-'}</div>
+                        <div><strong>Parent Phone:</strong></div><div>${student.parentPhone || '-'}</div>
+                        <div><strong>Parent Email:</strong></div><div>${student.parentEmail || '-'}</div>
+                        <div><strong>QR Code:</strong></div><div>${qrCode ? '✅ Generated' : '❌ Not generated'}</div>
+                    </div>
+                    ${qrCode ? '<div style="margin-top:15px;text-align:center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H" style="border-radius:8px;background:white;padding:8px;"></div>' : ''}
+                    <div style="margin-top:15px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" onclick="printStudentCard('${adm}')"><i class="fas fa-print"></i> Print ID</button>
+                        ${!qrCode ? '<button class="btn btn-success btn-sm" onclick="generateIDForStudent(\'' + adm + '\')"><i class="fas fa-qrcode"></i> Generate QR</button>' : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Show in a modal
+            var modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'viewStudentModal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-id-card"></i> Student Details</h3>
+                        <button class="modal-close" onclick="closeModal('viewStudentModal')"><i class="fas fa-times"></i></button>
+                    </div>
+                    ${html}
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // ============ PRINT STUDENT ID CARD (from modal) ============
+        function printStudentIDCard() {
+            if (!selectedStudentId) {
+                showNotification('Please select a student first', 'warning');
+                return;
+            }
+            printStudentCard(selectedStudentId);
+        }
+        
+        // ============ LOGOUT ============
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                    if (result === 'confirm') executeLogout();
+                    if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) executeLogout();
+                if (confirm('Are you sure you want to logout?')) logout();
             }
         }
-
-        function executeLogout() {
-            if (typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().signOut().then(() => location.href = 'index.html');
-            } else {
-                location.href = 'index.html';
-            }
-        }
-
-        // Load Real Firebase Audit Logs or Display Fallback
-        function loadAuditLog() {
-            const tbody = document.getElementById('auditLogBody');
-            if (typeof firebase !== 'undefined' && firebase.database) {
-                firebase.database().ref('audit_logs').limitToLast(50).once('value')
-                .then(snapshot => {
-                    const data = snapshot.val();
-                    if (data) {
-                        tbody.innerHTML = '';
-                        Object.keys(data).reverse().forEach(key => {
-                            const log = data[key];
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td>${log.timestamp || new Date().toLocaleString()}</td>
-                                <td>${log.userName || 'Admin'}</td>
-                                <td>${log.userEmail || 'admin@srms.edu'}</td>
-                                <td><span style="color:var(--gold)">${log.action || 'System Action'}</span></td>
-                                <td>${log.details || '-'}</td>
-                            `;
-                            tbody.appendChild(tr);
-                        });
-                    } else {
-                        renderSampleData();
-                    }
-                })
-                .catch(() => renderSampleData());
-            } else {
-                renderSampleData();
-            }
-        }
-
-        function renderSampleData() {
-            const tbody = document.getElementById('auditLogBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td>${new Date().toLocaleString()}</td>
-                    <td>Admin User</td>
-                    <td>admin@srms.edu</td>
-                    <td><span style="color:var(--gold)">Book Added</span></td>
-                    <td>Added physics textbook to Library</td>
-                </tr>
-                <tr>
-                    <td>${new Date(Date.now() - 3600000).toLocaleString()}</td>
-                    <td>System</td>
-                    <td>system@srms.edu</td>
-                    <td><span style="color:var(--gold)">Student Added</span></td>
-                    <td>Registered new student (ID: STU-1029)</td>
-                </tr>
-            `;
-        }
-
-        document.addEventListener('DOMContentLoaded', loadAuditLog);
         
-        window.filterAuditLog = filterAuditLog;
+        function logout() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(function() {
+                    localStorage.removeItem('srms_user');
+                    localStorage.removeItem('srms_school');
+                    window.location.href = 'index.html';
+                });
+            } else {
+                localStorage.removeItem('srms_user');
+                localStorage.removeItem('srms_school');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // ============ NOTIFICATION FALLBACK ============
+        function showNotification(message, type) {
+            if (typeof window.showNotification === 'function') {
+                window.showNotification(message, type);
+            } else {
+                // Simple fallback
+                var div = document.createElement('div');
+                div.style.cssText = 'position:fixed;top:80px;right:20px;padding:15px 20px;background:' + 
+                    (type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8') + 
+                    ';color:#fff;border-radius:10px;z-index:2000;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);';
+                div.textContent = message;
+                document.body.appendChild(div);
+                setTimeout(function() {
+                    div.style.opacity = '0';
+                    div.style.transition = 'opacity 0.3s';
+                    setTimeout(function() { div.remove(); }, 300);
+                }, 3000);
+            }
+        }
+        
+        // ============ EXPOSE FUNCTIONS ============
+        window.loadStudents = loadStudents;
+        window.renderStudents = renderStudents;
+        window.filterStudents = filterStudents;
+        window.refreshStudents = refreshStudents;
+        window.generateStudentID = generateStudentID;
+        window.generateIDForStudent = generateIDForStudent;
+        window.printStudentCard = printStudentCard;
+        window.printStudentIDCard = printStudentIDCard;
+        window.viewStudentDetails = viewStudentDetails;
+        window.previewStudentForID = previewStudentForID;
         window.logoutWithConfirm = logoutWithConfirm;
-        window.toggleDropdown = toggleDropdown;
+        window.logout = logout;
+        window.showNotification = showNotification;
     </script>
 </body>
 </html>
