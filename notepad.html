@@ -1,18 +1,12 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SRMS - Notepad | School Resource Management System</title>
+    <title>SRMS - Advanced Notepad | School Resource Management System</title>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Georgia&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Georgia&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -22,753 +16,1149 @@
     <link rel="stylesheet" href="css/components.css" />
 
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Inter", sans-serif;
-        min-height: 100vh;
-        background: linear-gradient(
-          135deg,
-          #0a0e27 0%,
-          #1a1f4e 50%,
-          #0f3460 100%
-        );
-        color: #ffffff;
-        overflow-x: hidden;
-        padding-bottom: 120px;
-      }
-
-      .taskbar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 65px;
-        background: rgba(10, 14, 39, 0.9);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-      }
-      .taskbar-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-      .taskbar-logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #f0d060;
-        font-weight: 900;
-        font-size: 22px;
-        letter-spacing: 1px;
-      }
-      .taskbar-logo i {
-        font-size: 26px;
-      }
-      .taskbar-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .taskbar-icon-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #d4af37;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        transition: all 0.3s ease;
-      }
-      .taskbar-icon-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.1);
-      }
-
-      .floating-navbar-container {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        width: auto;
-        max-width: 95vw;
-      }
-      .floating-navbar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        padding: 12px 24px;
-        background: rgba(15, 18, 30, 0.65);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 50px;
-        box-shadow:
-          0 20px 50px rgba(0, 0, 0, 0.6),
-          inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      }
-      .nav-group {
-        position: relative;
-        display: inline-block;
-      }
-      .classy-btn {
-        font-family: "Cinzel", "Inter", serif;
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0.8px;
-        color: #f0e6d2;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        background: linear-gradient(
-          135deg,
-          rgba(35, 30, 25, 0.85) 0%,
-          rgba(10, 8, 5, 0.95) 100%
-        );
-        border: 1px solid rgba(212, 175, 55, 0.5);
-        border-radius: 30px;
-        padding: 10px 22px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        box-shadow:
-          0 8px 20px rgba(0, 0, 0, 0.5),
-          inset 0 1px 2px rgba(255, 223, 138, 0.4),
-          inset 0 -2px 6px rgba(0, 0, 0, 0.9);
-        position: relative;
-        z-index: 1100;
-      }
-      .classy-btn i {
-        color: #d4af37;
-        font-size: 15px;
-        transition: transform 0.3s ease;
-      }
-      .classy-btn .fa-chevron-up {
-        font-size: 9px;
-        color: rgba(212, 175, 55, 0.7);
-      }
-      .classy-btn:hover {
-        color: #ffffff;
-        transform: translateY(-3px);
-      }
-      .classy-btn.active {
-        background: linear-gradient(
-          135deg,
-          rgba(80, 60, 25, 0.9) 0%,
-          rgba(30, 20, 5, 0.95) 100%
-        );
-        border-color: #f0d060;
-        box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-      }
-      .btn-badge {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: radial-gradient(
-          circle,
-          rgba(212, 175, 55, 0.25) 0%,
-          rgba(0, 0, 0, 0.4) 100%
-        );
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-      .dropdown-menu {
-        display: none;
-        position: absolute;
-        bottom: calc(100% + 5px);
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(10, 14, 39, 0.98);
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        border-radius: 14px;
-        padding: 10px;
-        min-width: 200px;
-        z-index: 1200;
-        box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
-      }
-      .dropdown-menu.open {
-        display: block !important;
-      }
-      .nav-group:hover .dropdown-menu,
-      .dropdown-menu:hover {
-        display: block !important;
-      }
-      .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 15px;
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        font-size: 13px;
-        cursor: pointer;
-        font-family: "Inter", sans-serif;
-        width: 100%;
-        background: none;
-        border: none;
-        text-align: left;
-        white-space: nowrap;
-      }
-      .dropdown-item i {
-        font-size: 14px;
-        color: #d4af37;
-        width: 20px;
-        text-align: center;
-      }
-      .dropdown-item:hover {
-        background: rgba(212, 175, 55, 0.15);
-        color: #ffffff;
-        transform: translateX(5px);
-      }
-      .dropdown-divider {
-        height: 1px;
-        background: rgba(255, 255, 255, 0.1);
-        margin: 5px 0;
-      }
-
-      .main-content {
-        padding: 85px 25px 25px;
-        max-width: 1000px;
-        margin: 0 auto;
-        animation: fadeIn 0.5s ease;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        to {
-          opacity: 1;
-          transform: translateY(0);
+        body {
+            font-family: "Inter", sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            padding-bottom: 120px;
         }
-      }
-      .page-header {
-        margin-bottom: 25px;
-      }
-      .page-header h1 {
-        font-size: 2em;
-        font-weight: 900;
-        background: linear-gradient(180deg, #ffffff, #d4af37);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-        margin-bottom: 5px;
-      }
-      .page-header p {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 14px;
-      }
 
-      /* WHITE EDITOR AREA */
-      .editor-container {
-        background: #ffffff;
-        border: 3px solid #d4af37;
-        border-radius: 16px;
-        padding: 25px;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-      }
+        .taskbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: rgba(10, 14, 39, 0.9);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .taskbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f0d060;
+            font-weight: 900;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+        .taskbar-logo i {
+            font-size: 26px;
+        }
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .taskbar-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #d4af37;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .taskbar-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
 
-      .toolbar {
-        display: flex;
-        gap: 5px;
-        margin-bottom: 15px;
-        flex-wrap: wrap;
-        padding: 12px;
-        background: #f5f5f5;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-      }
-
-      .toolbar-btn {
-        width: 38px;
-        height: 38px;
-        background: #ffffff;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        color: #333;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        transition: all 0.3s ease;
-      }
-
-      .toolbar-btn:hover {
-        background: #e0e0e0;
-        border-color: #999;
-      }
-
-      .toolbar-btn.active {
-        background: #d4af37;
-        color: #ffffff;
-        border-color: #d4af37;
-      }
-
-      .toolbar-select {
-        padding: 5px 10px;
-        background: #ffffff;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        color: #333;
-        font-family: "Inter", sans-serif;
-        font-size: 12px;
-        cursor: pointer;
-      }
-
-      .toolbar-divider {
-        width: 1px;
-        background: #ccc;
-        margin: 0 5px;
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 13px;
-        color: #333;
-        font-weight: 600;
-      }
-      .form-group input {
-        width: 100%;
-        padding: 12px 15px;
-        background: #ffffff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        color: #333;
-        font-family: "Inter", sans-serif;
-        font-size: 16px;
-        font-weight: 700;
-      }
-      .form-group input:focus {
-        outline: none;
-        border-color: #d4af37;
-        box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
-      }
-
-      #noteContent {
-        width: 100%;
-        min-height: 400px;
-        padding: 20px;
-        background: #ffffff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        color: #333;
-        font-family: "Georgia", "Times New Roman", serif;
-        font-size: 16px;
-        overflow-y: auto;
-        outline: none;
-        line-height: 1.8;
-      }
-
-      #noteContent:focus {
-        border-color: #d4af37;
-        box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-      }
-
-      #noteContent h1,
-      #noteContent h2,
-      #noteContent h3 {
-        color: #333;
-      }
-      #noteContent p {
-        color: #333;
-      }
-      #noteContent ul,
-      #noteContent ol {
-        color: #333;
-        padding-left: 25px;
-      }
-
-      .word-count {
-        font-size: 12px;
-        color: #666;
-        margin-top: 5px;
-        text-align: right;
-      }
-
-      .btn-primary {
-        padding: 12px 20px;
-        background: linear-gradient(135deg, #e94560, #c62a47);
-        border: none;
-        border-radius: 10px;
-        color: #ffffff;
-        cursor: pointer;
-        font-family: "Inter", sans-serif;
-        font-weight: 600;
-        transition: all 0.3s ease;
-      }
-      .btn-primary:hover {
-        transform: translateY(-2px);
-      }
-      .btn-secondary {
-        padding: 12px 20px;
-        background: #f5f5f5;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        color: #333;
-        cursor: pointer;
-        font-family: "Inter", sans-serif;
-        font-weight: 600;
-      }
-
-      .note-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 15px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-      .note-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(212, 175, 55, 0.4);
-      }
-      .note-card h4 {
-        color: #d4af37;
-        margin-bottom: 8px;
-      }
-      .note-card p {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 8px;
-      }
-      .note-card small {
-        color: rgba(255, 255, 255, 0.4);
-      }
-
-      @media (max-width: 768px) {
+        .floating-navbar-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95vw;
+        }
         .floating-navbar {
-          padding: 8px 12px;
-          gap: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 24px;
+            background: rgba(15, 18, 30, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .nav-group {
+            position: relative;
+            display: inline-block;
         }
         .classy-btn {
-          padding: 8px 12px;
-          font-size: 11px;
+            font-family: "Cinzel", "Inter", serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            color: #f0e6d2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, rgba(35, 30, 25, 0.85) 0%, rgba(10, 8, 5, 0.95) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 223, 138, 0.4), inset 0 -2px 6px rgba(0, 0, 0, 0.9);
+            position: relative;
+            z-index: 1100;
         }
+        .classy-btn i {
+            color: #d4af37;
+            font-size: 15px;
+            transition: transform 0.3s ease;
+        }
+        .classy-btn .fa-chevron-up {
+            font-size: 9px;
+            color: rgba(212, 175, 55, 0.7);
+        }
+        .classy-btn:hover {
+            color: #ffffff;
+            transform: translateY(-3px);
+        }
+        .classy-btn.active {
+            background: linear-gradient(135deg, rgba(80, 60, 25, 0.9) 0%, rgba(30, 20, 5, 0.95) 100%);
+            border-color: #f0d060;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+        .btn-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(0, 0, 0, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 14, 39, 0.98);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
+            z-index: 1200;
+            box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6);
+        }
+        .dropdown-menu.open {
+            display: block !important;
+        }
+        .nav-group:hover .dropdown-menu,
+        .dropdown-menu:hover {
+            display: block !important;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .dropdown-item i {
+            font-size: 14px;
+            color: #d4af37;
+            width: 20px;
+            text-align: center;
+        }
+        .dropdown-item:hover {
+            background: rgba(212, 175, 55, 0.15);
+            color: #ffffff;
+            transform: translateX(5px);
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 5px 0;
+        }
+
         .main-content {
-          padding: 75px 15px 15px;
+            padding: 85px 25px 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
         }
-      }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .page-header h1 {
+            font-size: 2em;
+            font-weight: 900;
+            background: linear-gradient(180deg, #ffffff, #d4af37);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            margin-bottom: 5px;
+        }
+        .page-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+        .page-header .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #e94560, #c62a47);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
+        }
+        .btn-secondary {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.6);
+        }
+        .btn-danger {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #dc3545, #ff4757);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.6);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+            border-radius: 6px;
+        }
+
+        .notepad-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            height: calc(100vh - 250px);
+            min-height: 500px;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .notepad-sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .notepad-sidebar .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notepad-sidebar .sidebar-header h4 {
+            color: #d4af37;
+            font-size: 14px;
+            margin: 0;
+        }
+        .notepad-sidebar .sidebar-stats {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .note-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+            color: rgba(255, 255, 255, 0.8);
+            font-family: "Inter", sans-serif;
+        }
+        .note-list-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        .note-list-item.active {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.5);
+        }
+        .note-list-item .note-icon {
+            color: #d4af37;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .note-list-item .note-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .note-list-item .note-title {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .note-list-item .note-preview {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .note-list-item .note-date {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+        .note-list-item .note-delete {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .note-list-item .note-delete:hover {
+            color: #ff4757;
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        /* ========== EDITOR ========== */
+        .notepad-editor {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-wrap: wrap;
+            border-radius: 16px 16px 0 0;
+        }
+        .editor-toolbar .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 0 8px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .editor-toolbar .toolbar-group:last-child {
+            border-right: none;
+        }
+        .editor-toolbar .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .editor-toolbar .toolbar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        .editor-toolbar .toolbar-btn.active {
+            background: rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+        }
+        .editor-toolbar .toolbar-select {
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 12px;
+            font-family: "Inter", sans-serif;
+            cursor: pointer;
+            outline: none;
+        }
+        .editor-toolbar .toolbar-select option {
+            background: #1a1f4e;
+        }
+        .editor-toolbar .toolbar-color {
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            background: #ffffff;
+        }
+        .editor-toolbar .toolbar-color::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        .editor-toolbar .toolbar-color::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        .editor-title-input {
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: "Inter", sans-serif;
+            outline: none;
+        }
+        .editor-title-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        #noteContent {
+            flex: 1;
+            padding: 20px;
+            background: transparent;
+            color: #ffffff;
+            font-family: "Georgia", "Times New Roman", serif;
+            font-size: 16px;
+            overflow-y: auto;
+            outline: none;
+            line-height: 1.8;
+            min-height: 300px;
+        }
+        #noteContent:focus {
+            outline: none;
+        }
+        #noteContent h1,
+        #noteContent h2,
+        #noteContent h3 {
+            color: #d4af37;
+        }
+        #noteContent p {
+            color: #ffffff;
+        }
+        #noteContent ul,
+        #noteContent ol {
+            color: #ffffff;
+            padding-left: 25px;
+        }
+        #noteContent blockquote {
+            border-left: 3px solid #d4af37;
+            padding-left: 15px;
+            margin: 10px 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        #noteContent pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            color: #34ce57;
+        }
+        #noteContent table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+        #noteContent table th,
+        #noteContent table td {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        #noteContent table th {
+            background: rgba(212, 175, 55, 0.2);
+        }
+        #noteContent img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        #noteContent a {
+            color: #d4af37;
+            text-decoration: underline;
+        }
+
+        .editor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            flex-wrap: wrap;
+            gap: 10px;
+            border-radius: 0 0 16px 16px;
+        }
+        .editor-footer .word-count {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .editor-footer .editor-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .editor-footer .editor-actions .btn {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        /* ========== MODALS ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1300;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: rgba(26, 31, 78, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            color: #d4af37;
+            margin: 0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: "Inter", sans-serif;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .notepad-layout {
+                grid-template-columns: 220px 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .floating-navbar {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+            .classy-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+            .main-content {
+                padding: 75px 15px 15px;
+            }
+            .notepad-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: auto;
+            }
+            .notepad-sidebar {
+                max-height: 200px;
+                order: 2;
+            }
+            .notepad-editor {
+                order: 1;
+                min-height: 400px;
+            }
+            .editor-toolbar {
+                padding: 8px 10px;
+                gap: 2px;
+            }
+            .editor-toolbar .toolbar-group {
+                padding: 0 4px;
+            }
+            .editor-toolbar .toolbar-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 11px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .page-header .header-actions {
+                justify-content: stretch;
+            }
+            .page-header .header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+        @media (max-width: 480px) {
+            .editor-toolbar .toolbar-group {
+                border-right: none;
+            }
+            .editor-toolbar .toolbar-select {
+                font-size: 10px;
+                padding: 2px 4px;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="taskbar">
-      <div class="taskbar-left">
-        <div class="taskbar-logo">
-          <i class="fas fa-school"></i><span>SRMS</span>
+        <div class="taskbar-left">
+            <div class="taskbar-logo">
+                <i class="fas fa-school"></i><span>SRMS</span>
+            </div>
         </div>
-      </div>
-      <div class="taskbar-right">
-        <button
-          class="taskbar-icon-btn"
-          onclick="location.href = 'wallpaper.html'"
-          title="Change Wallpaper"
-        >
-          <i class="fas fa-image"></i>
-        </button>
-        <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </div>
+        <div class="taskbar-right">
+            <button class="taskbar-icon-btn" onclick="location.href = 'wallpaper.html'" title="Change Wallpaper">
+                <i class="fas fa-image"></i>
+            </button>
+            <button class="taskbar-icon-btn" onclick="logout()" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
     </div>
 
     <div class="main-content">
-      <div class="page-header">
-        <h1>Advanced Notepad</h1>
-        <p>Microsoft Word-like document editor</p>
-      </div>
-
-      <div class="editor-container">
-        <!-- TOOLBAR -->
-        <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatText('bold')" title="Bold">
-            <i class="fas fa-bold"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('italic')"
-            title="Italic"
-          >
-            <i class="fas fa-italic"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('underline')"
-            title="Underline"
-          >
-            <i class="fas fa-underline"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('strikeThrough')"
-            title="Strikethrough"
-          >
-            <i class="fas fa-strikethrough"></i>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button
-            class="toolbar-btn"
-            onclick="formatText('insertUnorderedList')"
-            title="Bullet List"
-          >
-            <i class="fas fa-list-ul"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('insertOrderedList')"
-            title="Numbered List"
-          >
-            <i class="fas fa-list-ol"></i>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button
-            class="toolbar-btn"
-            onclick="formatText('justifyLeft')"
-            title="Align Left"
-          >
-            <i class="fas fa-align-left"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('justifyCenter')"
-            title="Center"
-          >
-            <i class="fas fa-align-center"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('justifyRight')"
-            title="Align Right"
-          >
-            <i class="fas fa-align-right"></i>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button
-            class="toolbar-btn"
-            onclick="formatText('formatBlock')"
-            title="Heading 1"
-          >
-            <i class="fas fa-heading"></i> H1
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('formatBlock')"
-            title="Heading 2"
-          >
-            <i class="fas fa-heading"></i> H2
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('formatBlock')"
-            title="Heading 3"
-          >
-            <i class="fas fa-heading"></i> H3
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <select class="toolbar-select" onchange="changeFontSize(this.value)">
-            <option value="3">Normal Size</option>
-            <option value="1">Small</option>
-            <option value="2">Medium Small</option>
-            <option value="4">Medium Large</option>
-            <option value="5">Large</option>
-            <option value="6">Very Large</option>
-            <option value="7">Huge</option>
-          </select>
-
-          <select class="toolbar-select" onchange="changeFontColor(this.value)">
-            <option value="#333333">Black</option>
-            <option value="#e94560">Red</option>
-            <option value="#28a745">Green</option>
-            <option value="#0f3460">Dark Blue</option>
-            <option value="#d4af37">Gold</option>
-            <option value="#17a2b8">Teal</option>
-            <option value="#6f42c1">Purple</option>
-          </select>
-
-          <div class="toolbar-divider"></div>
-
-          <button class="toolbar-btn" onclick="formatText('undo')" title="Undo">
-            <i class="fas fa-undo"></i>
-          </button>
-          <button class="toolbar-btn" onclick="formatText('redo')" title="Redo">
-            <i class="fas fa-redo"></i>
-          </button>
-          <button
-            class="toolbar-btn"
-            onclick="formatText('removeFormat')"
-            title="Clear Formatting"
-          >
-            <i class="fas fa-eraser"></i>
-          </button>
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-sticky-note" style="color:#d4af37;"></i> Advanced Notepad</h1>
+                <p>Microsoft Word-like document editor with 50+ features</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="createNewNote()">
+                    <i class="fas fa-plus"></i> New Note
+                </button>
+                <button class="btn btn-secondary" onclick="exportNote()">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+                <button class="btn btn-secondary" onclick="importNote()">
+                    <i class="fas fa-file-import"></i> Import
+                </button>
+            </div>
         </div>
 
-        <form onsubmit="return saveNote(event);">
-          <div class="form-group">
-            <label>Document Title</label>
-            <input
-              type="text"
-              id="noteTitle"
-              placeholder="Enter document title..."
-            />
-          </div>
-          <div class="form-group">
-            <label>Content</label>
-            <div
-              id="noteContent"
-              contenteditable="true"
-              placeholder="Start typing your document..."
-            ></div>
-            <div class="word-count" id="wordCount">0 words</div>
-          </div>
-          <div style="display: flex; gap: 10px; margin-top: 15px">
-            <button type="submit" class="btn-primary">
-              <i class="fas fa-save"></i> Save Document
-            </button>
-            <button type="button" class="btn-secondary" onclick="clearNote()">
-              <i class="fas fa-eraser"></i> Clear
-            </button>
-            <button type="button" class="btn-secondary" onclick="printNote()">
-              <i class="fas fa-print"></i> Print
-            </button>
-          </div>
-        </form>
-      </div>
+        <div class="notepad-layout">
+            <!-- ========== SIDEBAR ========== -->
+            <div class="notepad-sidebar">
+                <div class="sidebar-header">
+                    <h4><i class="fas fa-list"></i> My Notes</h4>
+                    <span class="sidebar-stats" id="noteCount">0 notes</span>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <input type="text" id="searchNotes" placeholder="Search notes..." oninput="searchNotes()" style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;outline:none;">
+                    <select id="sortNotes" onchange="loadNotes()" style="padding:8px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:12px;font-family:'Inter',sans-serif;outline:none;">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="az">A-Z</option>
+                        <option value="za">Z-A</option>
+                    </select>
+                </div>
+                <div id="noteList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+                    <div style="text-align:center;color:rgba(255,255,255,0.4);padding:20px;font-size:13px;">
+                        <i class="fas fa-sticky-note" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                        No notes yet.<br>Create your first note!
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="exportAllNotes()" style="flex:1;">
+                        <i class="fas fa-download"></i> Export All
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAllNotes()" style="flex:1;">
+                        <i class="fas fa-trash"></i> Delete All
+                    </button>
+                </div>
+            </div>
 
-      <div id="notesList">
-        <p style="text-align: center; color: rgba(255, 255, 255, 0.5)">
-          Loading saved documents...
-        </p>
-      </div>
+            <!-- ========== EDITOR ========== -->
+            <div class="notepad-editor">
+                <!-- Toolbar -->
+                <div class="editor-toolbar">
+                    <!-- Text Formatting -->
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatText('bold')" title="Bold (Ctrl+B)">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('italic')" title="Italic (Ctrl+I)">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('underline')" title="Underline (Ctrl+U)">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('strikeThrough')" title="Strikethrough">
+                            <i class="fas fa-strikethrough"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('superscript')" title="Superscript">
+                            <i class="fas fa-superscript"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('subscript')" title="Subscript">
+                            <i class="fas fa-subscript"></i>
+                        </button>
+                    </div>
+
+                    <!-- Text Color -->
+                    <div class="toolbar-group">
+                        <input type="color" class="toolbar-color" id="textColorPicker" value="#ffffff" onchange="changeTextColor(this.value)" title="Text Color">
+                        <input type="color" class="toolbar-color" id="bgColorPicker" value="#1a1f4e" onchange="changeBgColor(this.value)" title="Background Color">
+                    </div>
+
+                    <!-- Font -->
+                    <div class="toolbar-group">
+                        <select class="toolbar-select" onchange="changeFontFamily(this.value)" title="Font Family">
+                            <option value="Georgia">Georgia</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Tahoma">Tahoma</option>
+                            <option value="Trebuchet MS">Trebuchet MS</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                        </select>
+                        <select class="toolbar-select" onchange="changeFontSize(this.value)" title="Font Size">
+                            <option value="1">8</option>
+                            <option value="2">10</option>
+                            <option value="3" selected>12</option>
+                            <option value="4">14</option>
+                            <option value="5">18</option>
+                            <option value="6">24</option>
+                            <option value="7">36</option>
+                        </select>
+                    </div>
+
+                    <!-- Alignment -->
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatText('justifyLeft')" title="Align Left">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('justifyCenter')" title="Center">
+                            <i class="fas fa-align-center"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('justifyRight')" title="Align Right">
+                            <i class="fas fa-align-right"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('justifyFull')" title="Justify">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+                    </div>
+
+                    <!-- Lists -->
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatText('insertUnorderedList')" title="Bullet List">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('insertOrderedList')" title="Numbered List">
+                            <i class="fas fa-list-ol"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('outdent')" title="Decrease Indent">
+                            <i class="fas fa-outdent"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('indent')" title="Increase Indent">
+                            <i class="fas fa-indent"></i>
+                        </button>
+                    </div>
+
+                    <!-- Headings -->
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatText('formatBlock', 'h1')" title="Heading 1">
+                            <i class="fas fa-heading"></i>1
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('formatBlock', 'h2')" title="Heading 2">
+                            <i class="fas fa-heading"></i>2
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('formatBlock', 'h3')" title="Heading 3">
+                            <i class="fas fa-heading"></i>3
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('formatBlock', 'h4')" title="Heading 4">
+                            <i class="fas fa-heading"></i>4
+                        </button>
+                    </div>
+
+                    <!-- Insert -->
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="insertLink()" title="Insert Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="insertImage()" title="Insert Image">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="insertTable()" title="Insert Table">
+                            <i class="fas fa-table"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="insertHorizontalRule()" title="Horizontal Rule">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="insertSpecialChar()" title="Insert Special Character">
+                            <i class="fas fa-omega"></i>
+                        </button>
+                    </div>
+
+                    <!-- Utilities -->
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatText('undo')" title="Undo (Ctrl+Z)">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('redo')" title="Redo (Ctrl+Y)">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('selectAll')" title="Select All (Ctrl+A)">
+                            <i class="fas fa-check-double"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="formatText('removeFormat')" title="Clear Formatting">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Title Input -->
+                <input type="text" class="editor-title-input" id="noteTitle" placeholder="Document Title..." oninput="updateNoteMetadata()">
+
+                <!-- Content -->
+                <div id="noteContent" contenteditable="true" placeholder="Start typing your document..."></div>
+
+                <!-- Footer -->
+                <div class="editor-footer">
+                    <div class="word-count" id="wordCount">0 words | 0 characters | 0 lines</div>
+                    <div class="editor-actions">
+                        <button class="btn btn-primary btn-sm" onclick="saveNote()">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="autoSaveNote()">
+                            <i class="fas fa-clock"></i> Auto-save
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="printNote()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearNote()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleWordWrap()" id="wordWrapToggle">
+                            <i class="fas fa-text-width"></i> Wrap
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- FLOATING BOTTOM NAVBAR -->
+    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
-      <div class="floating-navbar">
-        <button class="classy-btn" onclick="location.href = 'dashboard.html'">
-          <span class="btn-badge"><i class="fas fa-th-large"></i></span>
-          Dashboard
-        </button>
-        <div class="nav-group">
-          <button class="classy-btn">
-            <span class="btn-badge"><i class="fas fa-layer-group"></i></span>
-            Resources <i class="fas fa-chevron-up"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="library.html"
-              ><i class="fas fa-book"></i> Library</a
-            >
-            <a class="dropdown-item" href="furniture.html"
-              ><i class="fas fa-chair"></i> Furniture</a
-            >
-            <a class="dropdown-item" href="qrcodes.html"
-              ><i class="fas fa-qrcode"></i> QR Codes</a
-            >
-          </div>
+        <div class="floating-navbar">
+            <button class="classy-btn" onclick="location.href = 'dashboard.html'">
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span>
+                Dashboard
+            </button>
+            <div class="nav-group">
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span>
+                    Resources <i class="fas fa-chevron-up"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
+                    <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
+                    <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
+                </div>
+            </div>
+            <div class="nav-group">
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span>
+                    People <i class="fas fa-chevron-up"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
+                    <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+                    <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                </div>
+            </div>
+            <div class="nav-group">
+                <button class="classy-btn active">
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span>
+                    Communication <i class="fas fa-chevron-up"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Private Chat</a>
+                    <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Group Forum</a>
+                    <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
+                </div>
+            </div>
+            <div class="nav-group">
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span>
+                    More <i class="fas fa-chevron-up"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
+                    <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
+                    <a class="dropdown-item" href="timetable.html"><i class="fas fa-clock"></i> Timetable</a>
+                    <a class="dropdown-item" href="terms.html"><i class="fas fa-calendar-alt"></i> Academic Terms</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="reports.html"><i class="fas fa-file-alt"></i> Reports</a>
+                    <a class="dropdown-item" href="auditlog.html"><i class="fas fa-history"></i> Audit Log</a>
+                    <a class="dropdown-item" href="database.html"><i class="fas fa-database"></i> Database</a>
+                    <a class="dropdown-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                </div>
+            </div>
         </div>
-        <div class="nav-group">
-          <button class="classy-btn">
-            <span class="btn-badge"><i class="fas fa-user-friends"></i></span>
-            People <i class="fas fa-chevron-up"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="students.html"
-              ><i class="fas fa-user-graduate"></i> Students</a
-            >
-            <a class="dropdown-item" href="teachers.html"
-              ><i class="fas fa-chalkboard-teacher"></i> Teachers</a
-            >
-            <a class="dropdown-item" href="classes.html"
-              ><i class="fas fa-door-open"></i> Classes</a
-            >
-          </div>
+    </div>
+
+    <!-- ========== MODALS ========== -->
+    <!-- Link Modal -->
+    <div class="modal" id="linkModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-link"></i> Insert Link</h3>
+                <button class="modal-close" onclick="closeModal('linkModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="return insertLinkSubmit(event)">
+                <div class="form-group">
+                    <label>Link URL</label>
+                    <input type="url" id="linkUrl" placeholder="https://example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Link Text</label>
+                    <input type="text" id="linkText" placeholder="Click here">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-link"></i> Insert Link</button>
+            </form>
         </div>
-        <div class="nav-group">
-          <button class="classy-btn active">
-            <span class="btn-badge"><i class="fas fa-comments"></i></span>
-            Communication <i class="fas fa-chevron-up"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="chat.html"
-              ><i class="fas fa-comment-dots"></i> Private Chat</a
-            >
-            <a class="dropdown-item" href="forum.html"
-              ><i class="fas fa-bullhorn"></i> Group Forum</a
-            >
-            <a class="dropdown-item" href="notepad.html"
-              ><i class="fas fa-sticky-note"></i> Notepad</a
-            >
-          </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-image"></i> Insert Image</h3>
+                <button class="modal-close" onclick="closeModal('imageModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="return insertImageSubmit(event)">
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label>Alt Text</label>
+                    <input type="text" id="imageAlt" placeholder="Image description">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Width (px)</label>
+                        <input type="number" id="imageWidth" value="300" min="10" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label>Height (px)</label>
+                        <input type="number" id="imageHeight" value="200" min="10" max="1000">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-image"></i> Insert Image</button>
+            </form>
         </div>
-        <div class="nav-group">
-          <button class="classy-btn">
-            <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span>
-            More <i class="fas fa-chevron-up"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="events.html"
-              ><i class="fas fa-calendar"></i> Events</a
-            >
-            <a class="dropdown-item" href="fees.html"
-              ><i class="fas fa-money-bill"></i> Fees</a
-            >
-            <a class="dropdown-item" href="timetable.html"
-              ><i class="fas fa-clock"></i> Timetable</a
-            >
-            <a class="dropdown-item" href="terms.html"
-              ><i class="fas fa-calendar-alt"></i> Academic Terms</a
-            >
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="reports.html"
-              ><i class="fas fa-file-alt"></i> Reports</a
-            >
-            <a class="dropdown-item" href="auditlog.html"
-              ><i class="fas fa-history"></i> Audit Log</a
-            >
-            <a class="dropdown-item" href="database.html"
-              ><i class="fas fa-database"></i> Database</a
-            >
-            <a class="dropdown-item" href="settings.html"
-              ><i class="fas fa-cog"></i> Settings</a
-            >
-          </div>
+    </div>
+
+    <!-- Table Modal -->
+    <div class="modal" id="tableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-table"></i> Insert Table</h3>
+                <button class="modal-close" onclick="closeModal('tableModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="return insertTableSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rows</label>
+                        <input type="number" id="tableRows" value="3" min="1" max="20" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Columns</label>
+                        <input type="number" id="tableCols" value="3" min="1" max="20" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-table"></i> Insert Table</button>
+            </form>
         </div>
-      </div>
+    </div>
+
+    <!-- Special Character Modal -->
+    <div class="modal" id="charModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-omega"></i> Special Characters</h3>
+                <button class="modal-close" onclick="closeModal('charModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:8px;" id="charGrid"></div>
+        </div>
     </div>
 
     <script src="js/api.js"></script>
@@ -777,63 +1167,719 @@
     <script src="js/app.js"></script>
 
     <script>
-      function formatText(command, value) {
-        document.execCommand(command, false, value);
-        document.getElementById("noteContent").focus();
-        updateWordCount();
-      }
+        // ============================================
+        // SRMS - Advanced Notepad (50+ Features)
+        // Full Version
+        // ============================================
 
-      function changeFontSize(size) {
-        document.execCommand("fontSize", false, size);
-        document.getElementById("noteContent").focus();
-      }
+        // ============ GLOBALS ============
+        var currentNoteId = null;
+        var currentNoteTitle = '';
+        var autoSaveTimer = null;
+        var isWordWrap = true;
+        var isFullscreen = false;
+        var searchTerm = '';
+        var sortMode = 'newest';
+        var allNotes = [];
 
-      function changeFontColor(color) {
-        document.execCommand("foreColor", false, color);
-        document.getElementById("noteContent").focus();
-      }
+        // ============ SPECIAL CHARACTERS ============
+        var specialChars = [
+            '©', '®', '™', '€', '£', '¥', '¢', '§', '¶', '•',
+            '†', '‡', '‰', '′', '″', '‵', '‴', '№', '℮', '℉',
+            '℗', '℘', 'ℜ', 'ℵ', 'ℶ', 'ℷ', 'ℸ', 'ℹ', '℺', '℻',
+            '←', '↑', '→', '↓', '↔', '↕', '↖', '↗', '↘', '↙',
+            '↚', '↛', '↜', '↝', '↞', '↟', '↠', '↡', '↢', '↣',
+            '↤', '↥', '↦', '↧', '↨', '↩', '↪', '↫', '↬', '↭',
+            '↮', '↯', '↰', '↱', '↲', '↳', '↴', '↵', '↶', '↷',
+            '↸', '↹', '↺', '↻', '↼', '↽', '↾', '↿', '⇀', '⇁',
+            '⇂', '⇃', '⇄', '⇅', '⇆', '⇇', '⇈', '⇉', '⇊', '⇋',
+            '⇌', '⇍', '⇎', '⇏', '⇐', '⇑', '⇒', '⇓', '⇔', '⇕',
+            '⇖', '⇗', '⇘', '⇙', '⇚', '⇛', '⇜', '⇝', '⇞', '⇟',
+            '⇠', '⇡', '⇢', '⇣', '⇤', '⇥', '⇦', '⇧', '⇨', '⇩',
+            '⇪', '⇫', '⇬', '⇭', '⇮', '⇯', '⇰', '⇱', '⇲', '⇳',
+            '⇴', '⇵', '⇶', '⇷', '⇸', '⇹', '⇺', '⇻', '⇼', '⇽',
+            '⇾', '⇿', '∀', '∁', '∂', '∃', '∄', '∅', '∆', '∇',
+            '∈', '∉', '∊', '∋', '∌', '∍', '∎', '∏', '∐', '∑',
+            '−', '∓', '∔', '∕', '∖', '∗', '∘', '∙', '√', '∛',
+            '∜', '∝', '∞', '∟', '∠', '∡', '∢', '∣', '∤', '∥',
+            '∦', '∧', '∨', '∩', '∪', '∫', '∬', '∭', '∮', '∯',
+            '∰', '∱', '∲', '∳', '∴', '∵', '∶', '∷', '∸', '∹',
+            '∺', '∻', '∼', '∽', '∾', '∿', '≀', '≁', '≂', '≃',
+            '≄', '≅', '≆', '≇', '≈', '≉', '≊', '≋', '≌', '≍',
+            '≎', '≏', '≐', '≑', '≒', '≓', '≔', '≕', '≖', '≗',
+            '≘', '≙', '≚', '≛', '≜', '≝', '≞', '≟', '≠', '≡'
+        ];
 
-      function clearNote() {
-        if (!confirm("Clear the document?")) return;
-        document.getElementById("noteTitle").value = "";
-        document.getElementById("noteContent").innerHTML = "";
-        currentNoteId = null;
-        updateWordCount();
-        document.getElementById("noteContent").focus();
-      }
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', function() {
+            initDropdownController();
+            loadNotes();
+            setupAutoSave();
+            setupKeyboardShortcuts();
+            setupContentListeners();
+            populateSpecialChars();
+            updateWordCount();
+            document.getElementById('noteContent').focus();
+        });
 
-      function printNote() {
-        var content = document.getElementById("noteContent").innerHTML;
-        var title =
-          document.getElementById("noteTitle").value || "Untitled Document";
-        var printWindow = window.open("", "_blank");
-        printWindow.document.write(
-          "<html><head><title>" +
-            title +
-            "</title></head><body>" +
-            content +
-            "</body></html>",
-        );
-        printWindow.document.close();
-        printWindow.print();
-      }
+        // ============ LOAD NOTES ============
+        function loadNotes() {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            if (!school || !user) return;
 
-      function updateWordCount() {
-        var content = document.getElementById("noteContent").textContent;
-        var words = content.trim() ? content.trim().split(/\s+/).length : 0;
-        document.getElementById("wordCount").textContent = words + " words";
-      }
+            API.getNotes(school, user.email).then(function(notes) {
+                allNotes = notes;
+                renderNoteList(notes);
+                document.getElementById('noteCount').textContent = notes.length + ' notes';
+            });
+        }
 
-      document
-        .getElementById("noteContent")
-        .addEventListener("input", updateWordCount);
+        function renderNoteList(notes) {
+            var container = document.getElementById('noteList');
+            if (!container) return;
 
-      window.formatText = formatText;
-      window.changeFontSize = changeFontSize;
-      window.changeFontColor = changeFontColor;
-      window.clearNote = clearNote;
-      window.printNote = printNote;
-      window.updateWordCount = updateWordCount;
+            // Apply search filter
+            var filtered = notes;
+            if (searchTerm) {
+                var term = searchTerm.toLowerCase();
+                filtered = notes.filter(function(n) {
+                    return (n.title || 'Untitled').toLowerCase().includes(term) ||
+                        (n.content || '').toLowerCase().includes(term);
+                });
+            }
+
+            // Apply sorting
+            filtered.sort(function(a, b) {
+                switch (sortMode) {
+                    case 'oldest':
+                        return new Date(a.timestamp) - new Date(b.timestamp);
+                    case 'az':
+                        return (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
+                    case 'za':
+                        return (b.title || 'Untitled').localeCompare(a.title || 'Untitled');
+                    default: // newest
+                        return new Date(b.timestamp) - new Date(a.timestamp);
+                }
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;color:rgba(255,255,255,0.4);padding:20px;font-size:13px;">
+                        <i class="fas fa-sticky-note" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                        ${notes.length === 0 ? 'No notes yet.<br>Create your first note!' : 'No notes match your search.'}
+                    </div>
+                `;
+                return;
+            }
+
+            var html = '';
+            filtered.forEach(function(note) {
+                var isActive = note.id === currentNoteId ? 'active' : '';
+                var title = note.title || 'Untitled';
+                var preview = (note.content || '').replace(/<[^>]*>/g, '').substring(0, 50);
+                var date = formatDateShort(note.timestamp);
+
+                html += `
+                    <button class="note-list-item ${isActive}" onclick="loadNote('${note.id}')">
+                        <span class="note-icon"><i class="fas fa-file-alt"></i></span>
+                        <div class="note-info">
+                            <div class="note-title">${title}</div>
+                            <div class="note-preview">${preview || 'Empty note'}</div>
+                        </div>
+                        <span class="note-date">${date}</span>
+                        <button class="note-delete" onclick="event.stopPropagation();deleteNoteConfirm('${note.id}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function formatDateShort(dateString) {
+            if (!dateString) return '';
+            var date = new Date(dateString);
+            var now = new Date();
+            var diff = (now - date) / (1000 * 60 * 60 * 24);
+            if (diff < 1) return 'Today';
+            if (diff < 2) return 'Yesterday';
+            if (diff < 7) return Math.floor(diff) + 'd ago';
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // ============ CREATE / LOAD / SAVE ============
+        function createNewNote() {
+            currentNoteId = null;
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').innerHTML = '';
+            document.getElementById('noteContent').focus();
+            updateWordCount();
+            renderNoteList(allNotes);
+            showNotification('New note created', 'info');
+        }
+
+        function loadNote(noteId) {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            if (!school || !user) return;
+
+            // Save current note first
+            if (currentNoteId) {
+                saveNoteSilent();
+            }
+
+            API.getNotes(school, user.email).then(function(notes) {
+                var found = null;
+                notes.forEach(function(n) {
+                    if (n.id === noteId) found = n;
+                });
+                if (found) {
+                    currentNoteId = found.id;
+                    document.getElementById('noteTitle').value = found.title || '';
+                    document.getElementById('noteContent').innerHTML = found.content || '';
+                    updateWordCount();
+                    renderNoteList(allNotes);
+                    showNotification('Loaded: ' + (found.title || 'Untitled'), 'success');
+                }
+            });
+        }
+
+        function saveNote() {
+            return saveNoteSilent(true);
+        }
+
+        function saveNoteSilent(showToast) {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            if (!school || !user) return;
+
+            var title = document.getElementById('noteTitle').value.trim() || 'Untitled';
+            var content = document.getElementById('noteContent').innerHTML;
+
+            if (!content || content === '<br>' || content === '') {
+                if (showToast) showNotification('Cannot save empty note', 'warning');
+                return;
+            }
+
+            // Check if we should update or create
+            if (currentNoteId) {
+                // Find and update the note
+                API.saveNote(school, {
+                    author: user.name,
+                    authorEmail: user.email,
+                    title: title,
+                    content: content,
+                    noteId: currentNoteId
+                }).then(function(result) {
+                    if (result.success) {
+                        if (showToast) showNotification('Note saved!', 'success');
+                        loadNotes();
+                    }
+                });
+            } else {
+                // Create new note
+                API.saveNote(school, {
+                    author: user.name,
+                    authorEmail: user.email,
+                    title: title,
+                    content: content
+                }).then(function(result) {
+                    if (result.success) {
+                        if (showToast) showNotification('Note saved!', 'success');
+                        loadNotes();
+                        // Load the new note
+                        setTimeout(function() {
+                            var notes = allNotes;
+                            if (notes.length > 0) {
+                                loadNote(notes[0].id);
+                            }
+                        }, 500);
+                    }
+                });
+            }
+        }
+
+        function autoSaveNote() {
+            showNotification('Auto-save enabled', 'info');
+            setupAutoSave();
+        }
+
+        function setupAutoSave() {
+            if (autoSaveTimer) clearInterval(autoSaveTimer);
+            autoSaveTimer = setInterval(function() {
+                if (document.getElementById('noteContent').innerHTML.trim()) {
+                    saveNoteSilent(false);
+                }
+            }, 30000); // Auto-save every 30 seconds
+        }
+
+        function updateNoteMetadata() {
+            updateWordCount();
+        }
+
+        // ============ FORMATTING ============
+        function formatText(command, value) {
+            document.execCommand(command, false, value);
+            document.getElementById('noteContent').focus();
+            updateWordCount();
+        }
+
+        function changeFontFamily(value) {
+            document.execCommand('fontName', false, value);
+            document.getElementById('noteContent').focus();
+        }
+
+        function changeFontSize(value) {
+            document.execCommand('fontSize', false, value);
+            document.getElementById('noteContent').focus();
+        }
+
+        function changeTextColor(value) {
+            document.execCommand('foreColor', false, value);
+            document.getElementById('noteContent').focus();
+        }
+
+        function changeBgColor(value) {
+            document.execCommand('hiliteColor', false, value);
+            document.getElementById('noteContent').focus();
+        }
+
+        function toggleWordWrap() {
+            isWordWrap = !isWordWrap;
+            var content = document.getElementById('noteContent');
+            content.style.whiteSpace = isWordWrap ? 'pre-wrap' : 'pre';
+            content.style.wordWrap = isWordWrap ? 'break-word' : 'normal';
+            document.getElementById('wordWrapToggle').innerHTML = isWordWrap ?
+                '<i class="fas fa-text-width"></i> Wrap' :
+                '<i class="fas fa-text-width"></i> No Wrap';
+        }
+
+        function toggleFullscreen() {
+            var editor = document.querySelector('.notepad-editor');
+            if (!document.fullscreenElement) {
+                editor.requestFullscreen().catch(function() {});
+                isFullscreen = true;
+            } else {
+                document.exitFullscreen();
+                isFullscreen = false;
+            }
+        }
+
+        // ============ INSERT FUNCTIONS ============
+        function insertLink() {
+            openModal('linkModal');
+            document.getElementById('linkUrl').value = '';
+            document.getElementById('linkText').value = '';
+        }
+
+        function insertLinkSubmit(event) {
+            event.preventDefault();
+            var url = document.getElementById('linkUrl').value;
+            var text = document.getElementById('linkText').value || url;
+            if (url) {
+                var html = '<a href="' + url + '" target="_blank">' + text + '</a>';
+                document.execCommand('insertHTML', false, html);
+                closeModal('linkModal');
+                updateWordCount();
+                showNotification('Link inserted', 'success');
+            }
+            return false;
+        }
+
+        function insertImage() {
+            openModal('imageModal');
+        }
+
+        function insertImageSubmit(event) {
+            event.preventDefault();
+            var url = document.getElementById('imageUrl').value;
+            var alt = document.getElementById('imageAlt').value || 'Image';
+            var width = document.getElementById('imageWidth').value || '300';
+            var height = document.getElementById('imageHeight').value || '200';
+            if (url) {
+                var html = '<img src="' + url + '" alt="' + alt + '" width="' + width + '" height="' + height + '">';
+                document.execCommand('insertHTML', false, html);
+                closeModal('imageModal');
+                updateWordCount();
+                showNotification('Image inserted', 'success');
+            }
+            return false;
+        }
+
+        function insertTable() {
+            openModal('tableModal');
+        }
+
+        function insertTableSubmit(event) {
+            event.preventDefault();
+            var rows = parseInt(document.getElementById('tableRows').value) || 3;
+            var cols = parseInt(document.getElementById('tableCols').value) || 3;
+            var html = '<table border="1" style="border-collapse:collapse;width:100%;">';
+            for (var r = 0; r < rows; r++) {
+                html += '<tr>';
+                for (var c = 0; c < cols; c++) {
+                    html += '<td style="padding:8px;border:1px solid rgba(255,255,255,0.2);">&nbsp;</td>';
+                }
+                html += '</tr>';
+            }
+            html += '</table><br>';
+            document.execCommand('insertHTML', false, html);
+            closeModal('tableModal');
+            updateWordCount();
+            showNotification('Table inserted', 'success');
+            return false;
+        }
+
+        function insertHorizontalRule() {
+            document.execCommand('insertHorizontalRule', false, null);
+            updateWordCount();
+            showNotification('Horizontal rule inserted', 'success');
+        }
+
+        function insertSpecialChar() {
+            openModal('charModal');
+        }
+
+        function populateSpecialChars() {
+            var grid = document.getElementById('charGrid');
+            if (!grid) return;
+            var html = '';
+            specialChars.forEach(function(ch) {
+                html += '<button onclick="insertChar(\'' + ch + '\')" style="padding:8px;font-size:18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;cursor:pointer;transition:all 0.2s ease;">' + ch + '</button>';
+            });
+            grid.innerHTML = html;
+        }
+
+        function insertChar(ch) {
+            document.execCommand('insertHTML', false, ch);
+            document.getElementById('noteContent').focus();
+            updateWordCount();
+            closeModal('charModal');
+        }
+
+        // ============ EXPORT / IMPORT ============
+        function exportNote() {
+            var title = document.getElementById('noteTitle').value || 'Untitled';
+            var content = document.getElementById('noteContent').innerHTML;
+            if (!content || content === '<br>') {
+                showNotification('Cannot export empty note', 'warning');
+                return;
+            }
+            var data = {
+                title: title,
+                content: content,
+                exportedAt: new Date().toISOString(),
+                version: '1.0'
+            };
+            var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = (title.replace(/[^a-z0-9]/gi, '_') || 'note') + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Note exported!', 'success');
+        }
+
+        function importNote() {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        var data = JSON.parse(event.target.result);
+                        if (data.title && data.content) {
+                            document.getElementById('noteTitle').value = data.title;
+                            document.getElementById('noteContent').innerHTML = data.content;
+                            currentNoteId = null;
+                            updateWordCount();
+                            showNotification('Note imported!', 'success');
+                        } else {
+                            showNotification('Invalid file format', 'error');
+                        }
+                    } catch (err) {
+                        showNotification('Error reading file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function exportAllNotes() {
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            if (!school || !user) return;
+
+            API.getNotes(school, user.email).then(function(notes) {
+                if (notes.length === 0) {
+                    showNotification('No notes to export', 'warning');
+                    return;
+                }
+                var data = {
+                    exportedAt: new Date().toISOString(),
+                    total: notes.length,
+                    notes: notes
+                };
+                var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'all_notes_' + new Date().toISOString().split('T')[0] + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('All notes exported!', 'success');
+            });
+        }
+
+        // ============ DELETE ============
+        function deleteNoteConfirm(noteId) {
+            DialogSystem.confirm('Delete this note?', {
+                title: 'Delete Note',
+                type: 'danger',
+                confirmText: 'Delete',
+                cancelText: 'Cancel'
+            }).then(function(result) {
+                if (result === 'confirm') {
+                    deleteNote(noteId);
+                }
+            });
+        }
+
+        function deleteNote(noteId) {
+            var school = getCurrentSchool();
+            API.deleteNote(school, noteId).then(function() {
+                showNotification('Note deleted!', 'success');
+                if (noteId === currentNoteId) {
+                    currentNoteId = null;
+                    document.getElementById('noteTitle').value = '';
+                    document.getElementById('noteContent').innerHTML = '';
+                    updateWordCount();
+                }
+                loadNotes();
+            });
+        }
+
+        function deleteAllNotes() {
+            DialogSystem.confirm('Delete ALL notes? This cannot be undone.', {
+                title: 'Delete All Notes',
+                type: 'danger',
+                confirmText: 'Delete All',
+                cancelText: 'Cancel'
+            }).then(function(result) {
+                if (result === 'confirm') {
+                    var school = getCurrentSchool();
+                    var user = getCurrentUser();
+                    if (!school || !user) return;
+                    API.getNotes(school, user.email).then(function(notes) {
+                        var promises = [];
+                        notes.forEach(function(n) {
+                            promises.push(API.deleteNote(school, n.id));
+                        });
+                        Promise.all(promises).then(function() {
+                            currentNoteId = null;
+                            document.getElementById('noteTitle').value = '';
+                            document.getElementById('noteContent').innerHTML = '';
+                            updateWordCount();
+                            loadNotes();
+                            showNotification('All notes deleted!', 'success');
+                        });
+                    });
+                }
+            });
+        }
+
+        // ============ CLEAR ============
+        function clearNote() {
+            DialogSystem.confirm('Clear the current document?', {
+                title: 'Clear Document',
+                type: 'warning',
+                confirmText: 'Clear',
+                cancelText: 'Cancel'
+            }).then(function(result) {
+                if (result === 'confirm') {
+                    document.getElementById('noteContent').innerHTML = '';
+                    updateWordCount();
+                    showNotification('Document cleared', 'info');
+                }
+            });
+        }
+
+        // ============ PRINT ============
+        function printNote() {
+            var title = document.getElementById('noteTitle').value || 'Untitled';
+            var content = document.getElementById('noteContent').innerHTML;
+            if (!content || content === '<br>') {
+                showNotification('Cannot print empty note', 'warning');
+                return;
+            }
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body {
+                                font-family: Georgia, 'Times New Roman', serif;
+                                padding: 40px;
+                                max-width: 800px;
+                                margin: 0 auto;
+                                line-height: 1.8;
+                                color: #222;
+                            }
+                            h1 { color: #1a1f4e; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
+                            img { max-width: 100%; }
+                            table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+                            table th, table td { border: 1px solid #ddd; padding: 8px; }
+                            pre { background: #f5f5f5; padding: 15px; border-radius: 8px; overflow-x: auto; }
+                            blockquote { border-left: 3px solid #d4af37; padding-left: 15px; color: #555; }
+                            .footer { margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 15px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>${title}</h1>
+                        ${content}
+                        <div class="footer">Printed from SRMS Notepad on ${new Date().toLocaleString()}</div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(function() {
+                printWindow.print();
+            }, 500);
+        }
+
+        // ============ WORD COUNT ============
+        function updateWordCount() {
+            var content = document.getElementById('noteContent');
+            var text = content.textContent || '';
+            var words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            var chars = text.length;
+            var lines = text.split('\n').length;
+            document.getElementById('wordCount').textContent = words + ' words | ' + chars + ' characters | ' + lines + ' lines';
+        }
+
+        // ============ SEARCH ============
+        function searchNotes() {
+            searchTerm = document.getElementById('searchNotes').value;
+            renderNoteList(allNotes);
+        }
+
+        // ============ SORT ============
+        function sortNotes() {
+            sortMode = document.getElementById('sortNotes').value;
+            renderNoteList(allNotes);
+        }
+
+        // ============ KEYBOARD SHORTCUTS ============
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+S - Save
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveNote();
+                }
+                // Ctrl+N - New Note
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    createNewNote();
+                }
+                // Ctrl+Shift+E - Export
+                if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+                    e.preventDefault();
+                    exportNote();
+                }
+                // Ctrl+P - Print
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    printNote();
+                }
+                // F11 - Fullscreen
+                if (e.key === 'F11') {
+                    e.preventDefault();
+                    toggleFullscreen();
+                }
+            });
+        }
+
+        // ============ CONTENT LISTENERS ============
+        function setupContentListeners() {
+            var content = document.getElementById('noteContent');
+            content.addEventListener('input', function() {
+                updateWordCount();
+            });
+            content.addEventListener('keydown', function(e) {
+                // Tab key for indentation
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+                }
+            });
+        }
+
+        // ============ MODAL HELPERS ============
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // ============ RESPONSIVE HELPERS ============
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(function(m) {
+                    m.classList.remove('active');
+                });
+            }
+        });
+
+        // ============ EXPOSE GLOBALS ============
+        window.loadNotes = loadNotes;
+        window.createNewNote = createNewNote;
+        window.loadNote = loadNote;
+        window.saveNote = saveNote;
+        window.autoSaveNote = autoSaveNote;
+        window.deleteNoteConfirm = deleteNoteConfirm;
+        window.deleteAllNotes = deleteAllNotes;
+        window.clearNote = clearNote;
+        window.printNote = printNote;
+        window.exportNote = exportNote;
+        window.importNote = importNote;
+        window.exportAllNotes = exportAllNotes;
+        window.formatText = formatText;
+        window.changeFontFamily = changeFontFamily;
+        window.changeFontSize = changeFontSize;
+        window.changeTextColor = changeTextColor;
+        window.changeBgColor = changeBgColor;
+        window.insertLink = insertLink;
+        window.insertLinkSubmit = insertLinkSubmit;
+        window.insertImage = insertImage;
+        window.insertImageSubmit = insertImageSubmit;
+        window.insertTable = insertTable;
+        window.insertTableSubmit = insertTableSubmit;
+        window.insertHorizontalRule = insertHorizontalRule;
+        window.insertSpecialChar = insertSpecialChar;
+        window.insertChar = insertChar;
+        window.toggleFullscreen = toggleFullscreen;
+        window.toggleWordWrap = toggleWordWrap;
+        window.searchNotes = searchNotes;
+        window.sortNotes = sortNotes;
+        window.updateWordCount = updateWordCount;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
     </script>
-  </body>
+</body>
 </html>
