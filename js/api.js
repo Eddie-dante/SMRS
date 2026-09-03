@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Full Version with Caching System
+// Fixed Version - With Error Handling
 // ============================================
 
 const firebaseConfig = {
@@ -100,17 +100,12 @@ function generateUniqueQRCode(type, usedCodes) {
 const API = {
   // ============ SCHOOL OPERATIONS ============
   async getSchool(schoolName) {
-    var cacheKey = "school_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName)
         .once("value");
       var data = snapshot.val();
-      CacheManager.set(cacheKey, data);
-      return data;
+      return data || null;
     } catch (error) {
       console.error("Get school error:", error);
       return null;
@@ -227,10 +222,6 @@ const API = {
   },
 
   async getUsers(schoolName) {
-    var cacheKey = "users_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/users")
@@ -241,7 +232,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -296,10 +286,6 @@ const API = {
   },
 
   async getBooks(schoolName) {
-    var cacheKey = "books_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/books")
@@ -310,7 +296,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -367,10 +352,6 @@ const API = {
   },
 
   async getBorrowed(schoolName) {
-    var cacheKey = "borrowed_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/borrowed")
@@ -381,7 +362,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -447,10 +427,6 @@ const API = {
   },
 
   async getQRCodes(schoolName) {
-    var cacheKey = "qrcodes_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/qrcodes")
@@ -461,7 +437,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -581,8 +556,40 @@ const API = {
     }
   },
 
-  async bulkGenerateQRCodes(schoolName, type, count) {
+  async generateStudentID(schoolName, adm) {
     try {
+      const studentSnapshot = await database
+        .ref("schools/" + schoolName + "/students/" + adm)
+        .once("value");
+      const student = studentSnapshot.val();
+
+      if (!student) {
+        return { success: false, error: "Student not found" };
+      }
+
+      // Check if QR already exists for this student
+      const qrSnapshot = await database
+        .ref("schools/" + schoolName + "/qrcodes")
+        .orderByChild("adm")
+        .equalTo(adm)
+        .once("value");
+
+      const existingQRs = qrSnapshot.val();
+      if (existingQRs) {
+        // Check if any are still active (not returned)
+        for (var key in existingQRs) {
+          if (!existingQRs[key].returned) {
+            return {
+              success: true,
+              qrCode: existingQRs[key].code,
+              student: student,
+              existing: true,
+            };
+          }
+        }
+      }
+
+      // Generate new QR code
       const qrRef = database.ref("schools/" + schoolName + "/qrcodes");
       const snapshot = await qrRef.once("value");
       const existingCodes = snapshot.val() || {};
@@ -592,38 +599,76 @@ const API = {
         usedCodes[qr.code] = true;
       });
 
-      var generated = [];
-      for (var i = 0; i < count; i++) {
-        var code = generateUniqueQRCode(type, usedCodes);
-        var newQRRef = qrRef.push();
-        await newQRRef.set({
-          code: code,
-          type: type,
-          assigned: false,
-          assignedTo: null,
-          className: null,
-          stream: null,
-          adm: null,
-          returned: false,
-          createdAt: new Date().toISOString(),
-        });
-        generated.push(code);
-      }
+      var qrCode = generateUniqueQRCode("STUDENT", usedCodes);
+
+      // Save QR code
+      const newQRRef = qrRef.push();
+      await newQRRef.set({
+        code: qrCode,
+        type: "student",
+        assigned: true,
+        assignedTo: student.name,
+        className: student.form || "",
+        stream: student.stream || "",
+        adm: adm,
+        returned: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Update student with QR code
+      await database.ref("schools/" + schoolName + "/students/" + adm).update({
+        qrCode: qrCode,
+        idGeneratedAt: new Date().toISOString(),
+      });
 
       CacheManager.clear();
-      return { success: true, codes: generated };
+      return {
+        success: true,
+        qrCode: qrCode,
+        student: student,
+      };
     } catch (error) {
       return { success: false, error: error.message };
     }
   },
 
-  async updateQRCode(schoolName, qrId, data) {
+  async getStudentByQRCode(schoolName, qrCode) {
     try {
-      await database
-        .ref("schools/" + schoolName + "/qrcodes/" + qrId)
-        .update(data);
-      CacheManager.clear();
-      return { success: true };
+      const snapshot = await database
+        .ref("schools/" + schoolName + "/students")
+        .orderByChild("qrCode")
+        .equalTo(qrCode)
+        .once("value");
+
+      const students = snapshot.val();
+      if (!students) {
+        return { success: false, error: "No student found with this QR code" };
+      }
+
+      const adm = Object.keys(students)[0];
+      const student = students[adm];
+
+      // Also get QR code details
+      const qrSnapshot = await database
+        .ref("schools/" + schoolName + "/qrcodes")
+        .orderByChild("code")
+        .equalTo(qrCode)
+        .once("value");
+
+      const qrData = qrSnapshot.val();
+      let qrInfo = null;
+      if (qrData) {
+        const qrId = Object.keys(qrData)[0];
+        qrInfo = qrData[qrId];
+        qrInfo.id = qrId;
+      }
+
+      return {
+        success: true,
+        student: student,
+        adm: adm,
+        qrInfo: qrInfo,
+      };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -655,10 +700,6 @@ const API = {
   },
 
   async getStudents(schoolName) {
-    var cacheKey = "students_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/students")
@@ -669,7 +710,6 @@ const API = {
             return Object.assign({ adm: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -734,10 +774,6 @@ const API = {
   },
 
   async getClasses(schoolName) {
-    var cacheKey = "classes_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/classes")
@@ -748,7 +784,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -805,10 +840,6 @@ const API = {
   },
 
   async getFees(schoolName) {
-    var cacheKey = "fees_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/fees")
@@ -819,7 +850,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -861,10 +891,6 @@ const API = {
   },
 
   async getFurniture(schoolName) {
-    var cacheKey = "furniture_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/furniture")
@@ -875,7 +901,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -917,10 +942,6 @@ const API = {
   },
 
   async getTeachers(schoolName) {
-    var cacheKey = "teachers_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/teachers")
@@ -931,7 +952,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -970,10 +990,6 @@ const API = {
   },
 
   async getEvents(schoolName) {
-    var cacheKey = "events_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/events")
@@ -984,7 +1000,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -1036,10 +1051,6 @@ const API = {
   },
 
   async getTimetable(schoolName) {
-    var cacheKey = "timetable_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/timetable/classes")
@@ -1053,7 +1064,6 @@ const API = {
           });
         });
       }
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -1080,10 +1090,6 @@ const API = {
   },
 
   async getTerms(schoolName) {
-    var cacheKey = "terms_" + schoolName;
-    var cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
     try {
       const snapshot = await database
         .ref("schools/" + schoolName + "/terms")
@@ -1094,7 +1100,6 @@ const API = {
             return Object.assign({ id: entry[0] }, entry[1]);
           })
         : [];
-      CacheManager.set(cacheKey, result);
       return result;
     } catch (error) {
       return [];
@@ -1261,103 +1266,6 @@ const API = {
     }
   },
 
-  // ============ STUDENT ID CARDS ============
-  async generateStudentID(schoolName, adm) {
-    try {
-      const studentSnapshot = await database
-        .ref("schools/" + schoolName + "/students/" + adm)
-        .once("value");
-      const student = studentSnapshot.val();
-
-      if (!student) {
-        return { success: false, error: "Student not found" };
-      }
-
-      // Generate QR code for student if not exists
-      const qrRef = database.ref("schools/" + schoolName + "/qrcodes");
-      const snapshot = await qrRef.once("value");
-      const existingCodes = snapshot.val() || {};
-      const usedCodes = {};
-
-      Object.values(existingCodes).forEach(function (qr) {
-        usedCodes[qr.code] = true;
-      });
-
-      var qrCode = generateUniqueQRCode("STUDENT", usedCodes);
-
-      // Save QR code
-      const newQRRef = qrRef.push();
-      await newQRRef.set({
-        code: qrCode,
-        type: "student",
-        assigned: true,
-        assignedTo: student.name,
-        className: student.form || "",
-        stream: student.stream || "",
-        adm: adm,
-        returned: false,
-        createdAt: new Date().toISOString(),
-      });
-
-      // Update student with QR code
-      await database.ref("schools/" + schoolName + "/students/" + adm).update({
-        qrCode: qrCode,
-        idGeneratedAt: new Date().toISOString(),
-      });
-
-      CacheManager.clear();
-      return {
-        success: true,
-        qrCode: qrCode,
-        student: student,
-      };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-
-  async getStudentByQRCode(schoolName, qrCode) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/students")
-        .orderByChild("qrCode")
-        .equalTo(qrCode)
-        .once("value");
-
-      const students = snapshot.val();
-      if (!students) {
-        return { success: false, error: "No student found with this QR code" };
-      }
-
-      const adm = Object.keys(students)[0];
-      const student = students[adm];
-
-      // Also get QR code details
-      const qrSnapshot = await database
-        .ref("schools/" + schoolName + "/qrcodes")
-        .orderByChild("code")
-        .equalTo(qrCode)
-        .once("value");
-
-      const qrData = qrSnapshot.val();
-      let qrInfo = null;
-      if (qrData) {
-        const qrId = Object.keys(qrData)[0];
-        qrInfo = qrData[qrId];
-        qrInfo.id = qrId;
-      }
-
-      return {
-        success: true,
-        student: student,
-        adm: adm,
-        qrInfo: qrInfo,
-      };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-
   // ============ AUDIT LOG ============
   async addAuditLog(schoolName, logData) {
     try {
@@ -1368,6 +1276,8 @@ const API = {
         "Book Deleted",
         "Student Added",
         "Student Deleted",
+        "Student ID Generated",
+        "Student ID Scanned",
         "Class Added",
         "Class Deleted",
         "Teacher Added",
@@ -1392,8 +1302,6 @@ const API = {
         "Term Added",
         "Timetable Added",
         "Note Saved",
-        "Student ID Generated",
-        "Student ID Scanned",
       ];
 
       if (importantActions.indexOf(logData.action) === -1) {
@@ -1433,7 +1341,13 @@ const API = {
       const snapshot = await database
         .ref("schools/" + schoolName + "/settings")
         .once("value");
-      return snapshot.val();
+      return (
+        snapshot.val() || {
+          maxBorrowDays: 14,
+          maxBooksPerStudent: 3,
+          finePerDay: 10,
+        }
+      );
     } catch (error) {
       return null;
     }
@@ -1542,7 +1456,3 @@ window.generateInviteCode = generateInviteCode;
 window.generateStaffId = generateStaffId;
 window.hashPassword = hashPassword;
 window.generateUniqueQRCode = generateUniqueQRCode;
-window.getQRCodeByCode = API.getQRCodeByCode;
-window.deleteQRCode = API.deleteQRCode;
-window.bulkGenerateQRCodes = API.bulkGenerateQRCodes;
-window.updateQRCode = API.updateQRCode;

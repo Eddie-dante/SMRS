@@ -24,7 +24,15 @@ document.addEventListener("DOMContentLoaded", function () {
   isInitialized = true;
   
   var user = checkAuth();
-  if (!user) return;
+  if (!user) {
+    // If not logged in, redirect to login
+    if (window.location.pathname.indexOf("index.html") === -1 && 
+        window.location.pathname.indexOf("landing.html") === -1 &&
+        window.location.pathname.indexOf("wallpaper.html") === -1) {
+      window.location.href = "index.html";
+    }
+    return;
+  }
 
   var page = window.location.pathname.split("/").pop() || "dashboard.html";
 
@@ -34,15 +42,115 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load page data with slight delay for smooth rendering
   setTimeout(function () {
     loadPageData(page);
-  }, 150);
+  }, 200);
 
   // Start message checking
   setTimeout(function () {
     checkUnreadMessages();
     if (messageCheckInterval) clearInterval(messageCheckInterval);
     messageCheckInterval = setInterval(checkUnreadMessages, 30000);
-  }, 2000);
+  }, 3000);
+  
+  // Generate sample data if needed (after 5 seconds)
+  setTimeout(function() {
+    generateSampleDataIfNeeded();
+  }, 5000);
 });
+
+// ============ GENERATE SAMPLE DATA ============
+function generateSampleDataIfNeeded() {
+  var school = getCurrentSchool();
+  if (!school) return;
+  
+  // Check if data already exists
+  API.getBooks(school).then(function(books) {
+    if (books && books.length > 0) return;
+    
+    // Add sample books
+    var sampleBooks = [
+      { title: "Mathematics Textbook", author: "John Smith", type: "Textbook", subject: "Mathematics", quantity: 10 },
+      { title: "English Literature", author: "Jane Doe", type: "Textbook", subject: "English", quantity: 8 },
+      { title: "Physics Explained", author: "Albert Newton", type: "Reference", subject: "Physics", quantity: 5 },
+      { title: "Chemistry Basics", author: "Marie Curie", type: "Textbook", subject: "Chemistry", quantity: 7 },
+      { title: "Biology Studies", author: "Charles Darwin", type: "Reference", subject: "Biology", quantity: 6 },
+      { title: "History of Kenya", author: "Prof. Wangari", type: "Textbook", subject: "History", quantity: 4 },
+      { title: "Geography Today", author: "Dr. Ochieng", type: "Reference", subject: "Geography", quantity: 3 }
+    ];
+    
+    sampleBooks.forEach(function(book) {
+      API.addBook(school, book);
+    });
+    
+    // Add sample students
+    var sampleStudents = [
+      { name: "Alice Mwangi", adm: "ADM-001", form: "Form 1", stream: "East", gender: "Female", parentPhone: "+254700000001" },
+      { name: "Bob Ochieng", adm: "ADM-002", form: "Form 1", stream: "West", gender: "Male", parentPhone: "+254700000002" },
+      { name: "Carol Akinyi", adm: "ADM-003", form: "Form 2", stream: "North", gender: "Female", parentPhone: "+254700000003" },
+      { name: "David Kamau", adm: "ADM-004", form: "Form 2", stream: "South", gender: "Male", parentPhone: "+254700000004" },
+      { name: "Eve Wanjiru", adm: "ADM-005", form: "Form 3", stream: "East", gender: "Female", parentPhone: "+254700000005" },
+      { name: "Frank Odhiambo", adm: "ADM-006", form: "Form 3", stream: "West", gender: "Male", parentPhone: "+254700000006" },
+      { name: "Grace Muthoni", adm: "ADM-007", form: "Form 4", stream: "North", gender: "Female", parentPhone: "+254700000007" },
+      { name: "Henry Kimani", adm: "ADM-008", form: "Form 4", stream: "South", gender: "Male", parentPhone: "+254700000008" }
+    ];
+    
+    sampleStudents.forEach(function(student) {
+      API.addStudent(school, student);
+    });
+    
+    // Add sample teachers
+    var sampleTeachers = [
+      { name: "Mr. Peter Maina", email: "peter@school.com", phone: "+254700000009", subjects: "Mathematics", classes: "Form 1, Form 2" },
+      { name: "Ms. Sarah Njeri", email: "sarah@school.com", phone: "+254700000010", subjects: "English", classes: "Form 1, Form 3" },
+      { name: "Dr. James Omondi", email: "james@school.com", phone: "+254700000011", subjects: "Physics, Chemistry", classes: "Form 2, Form 3" },
+      { name: "Mrs. Mary Atieno", email: "mary@school.com", phone: "+254700000012", subjects: "Biology", classes: "Form 3, Form 4" },
+      { name: "Mr. Samuel Kiprop", email: "samuel@school.com", phone: "+254700000013", subjects: "History, Geography", classes: "Form 1, Form 4" }
+    ];
+    
+    sampleTeachers.forEach(function(teacher) {
+      API.addTeacher(school, teacher);
+    });
+    
+    // Add sample furniture allocations
+    var sampleFurniture = [
+      { studentName: "Alice Mwangi", adm: "ADM-001", form: "Form 1", stream: "East", chairNo: "CH-001", lockerNo: "LK-001" },
+      { studentName: "Bob Ochieng", adm: "ADM-002", form: "Form 1", stream: "West", chairNo: "CH-002", lockerNo: "LK-002" },
+      { studentName: "Carol Akinyi", adm: "ADM-003", form: "Form 2", stream: "North", chairNo: "CH-003", lockerNo: "LK-003" },
+      { studentName: "David Kamau", adm: "ADM-004", form: "Form 2", stream: "South", chairNo: "CH-004", lockerNo: "LK-004" }
+    ];
+    
+    sampleFurniture.forEach(function(f) {
+      API.allocateFurniture(school, {
+        studentName: f.studentName,
+        adm: f.adm,
+        form: f.form,
+        stream: f.stream,
+        chairNo: f.chairNo,
+        lockerNo: f.lockerNo,
+        allocationDate: getCurrentDate(),
+        issuedBy: "System"
+      });
+    });
+    
+    // Add sample events
+    var sampleEvents = [
+      { title: "Sports Day", description: "Annual school sports competition", eventDate: addDays(getCurrentDate(), 14), eventType: "Sports" },
+      { title: "Parent-Teacher Meeting", description: "End of term parent-teacher conference", eventDate: addDays(getCurrentDate(), 30), eventType: "Meeting" },
+      { title: "Science Fair", description: "Student science projects exhibition", eventDate: addDays(getCurrentDate(), 45), eventType: "Academic" },
+      { title: "Cultural Festival", description: "Music, dance, and drama performances", eventDate: addDays(getCurrentDate(), 60), eventType: "Cultural" }
+    ];
+    
+    sampleEvents.forEach(function(event) {
+      API.addEvent(school, event);
+    });
+    
+    console.log("✅ Sample data generated successfully!");
+    showNotification("Sample data created! You can now use the app.", "success");
+    
+    // Reload current page data
+    var page = window.location.pathname.split("/").pop() || "dashboard.html";
+    loadPageData(page);
+  });
+}
 
 // ============ DROPDOWN CONTROLLER ============
 function initDropdownController() {
@@ -73,11 +181,10 @@ function initDropdownController() {
       }, 300);
     }
 
-    // Remove old listeners by cloning
+    // Clean up old listeners
     var newGroup = group.cloneNode(true);
     group.parentNode.replaceChild(newGroup, group);
     
-    // Re-attach listeners
     var newDropdown = newGroup.querySelector(".dropdown-menu");
     var newButton = newGroup.querySelector(".classy-btn");
     
@@ -99,7 +206,6 @@ function initDropdownController() {
     });
   });
 
-  // Close dropdowns on outside click
   document.addEventListener("click", function (event) {
     if (!event.target.closest(".nav-group")) {
       document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
@@ -111,6 +217,11 @@ function initDropdownController() {
 
 // ============ PAGE ROUTER ============
 function loadPageData(page) {
+  // If no page specified, use current
+  if (!page || page === "") {
+    page = window.location.pathname.split("/").pop() || "dashboard.html";
+  }
+  
   switch (page) {
     case "dashboard.html":
       loadDashboardData();
@@ -120,6 +231,9 @@ function loadPageData(page) {
       break;
     case "students.html":
       loadStudentsData();
+      break;
+    case "studentsids.html":
+      // StudentsIDs.html loads its own data
       break;
     case "furniture.html":
       loadFurnitureData();
@@ -170,9 +284,9 @@ function loadPageData(page) {
       // Wallpaper loads itself
       break;
     default:
-      // Check if on wallpaper page
-      if (window.location.pathname.indexOf("wallpaper.html") > -1) {
-        // Wallpaper loads itself
+      // If on dashboard or unknown, try to load dashboard data
+      if (document.getElementById("welcomeUserName")) {
+        loadDashboardData();
       }
       break;
   }
@@ -220,7 +334,16 @@ function checkUnreadMessages() {
 // ============ DASHBOARD ============
 function loadDashboardData() {
   var school = getCurrentSchool();
-  if (!school) return;
+  if (!school) {
+    // Try to set school from user data
+    var user = getCurrentUser();
+    if (user && user.school) {
+      localStorage.setItem("srms_school", user.school);
+      school = user.school;
+    } else {
+      return;
+    }
+  }
 
   var user = getCurrentUser();
   if (user) {
@@ -1629,6 +1752,89 @@ function loadClassesData() {
   });
 }
 
+function handleExcelUpload(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    var data = e.target.result;
+    var workbook = XLSX.read(data, { type: "binary" });
+    var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    var jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+    var countEl = document.getElementById("excelStudentCount");
+    var dataEl = document.getElementById("excelStudentsData");
+    var previewEl = document.getElementById("excelPreview");
+    
+    if (countEl) countEl.textContent = jsonData.length + " students loaded";
+    if (dataEl) {
+      dataEl.value = JSON.stringify(jsonData);
+      dataEl.dataset.loaded = "true";
+    }
+
+    if (jsonData.length > 0 && previewEl) {
+      var columns = Object.keys(jsonData[0]);
+      var previewHtml = '<table class="data-table"><thead><tr>';
+      columns.forEach(function (col) {
+        previewHtml += "<th>" + col + "</th>";
+      });
+      previewHtml += "</tr></thead><tbody>";
+      jsonData.slice(0, 5).forEach(function (row) {
+        previewHtml += "<tr>";
+        columns.forEach(function (col) {
+          previewHtml += "<td>" + (row[col] || "-") + "</td>";
+        });
+        previewHtml += "</tr>";
+      });
+      previewHtml += "</tbody></table>";
+      previewEl.innerHTML = previewHtml;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function addClassWithExcel(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+
+  var className = document.getElementById("className");
+  var classStream = document.getElementById("classStream");
+  var classTeacher = document.getElementById("classTeacher");
+  var studentsData = document.getElementById("excelStudentsData");
+
+  if (!className || !className.value) {
+    showNotification("Class name is required", "warning");
+    return false;
+  }
+
+  var students = [];
+  if (studentsData && studentsData.value && studentsData.dataset.loaded === "true") {
+    try {
+      students = JSON.parse(studentsData.value);
+    } catch (e) {
+      students = [];
+    }
+  }
+
+  API.addClass(school, {
+    name: className.value,
+    stream: classStream ? classStream.value : "",
+    teacher: classTeacher ? classTeacher.value : "",
+    students: students,
+    createdBy: user ? user.name : "",
+  }).then(function (result) {
+    if (result.success) {
+      showNotification("Class added with " + students.length + " students!", "success");
+      logAction("Class Added", className.value + " with " + students.length + " students");
+      closeModal("addClassModal");
+      loadClassesData();
+    }
+  });
+  return false;
+}
+
 function viewClassStudents(classId) {
   if (!classId) return;
   
@@ -1827,369 +2033,6 @@ function loadSettingsData() {
   });
 }
 
-function promoteToAdmin(email) {
-  if (!email) return;
-  
-  DialogSystem.confirm("Promote this user to admin?", {
-    title: "Promote User",
-    type: "success",
-    confirmText: "Promote",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-
-    var school = getCurrentSchool();
-    API.updateUser(school, email, { role: "admin" }).then(function () {
-      showNotification("User promoted!", "success");
-      logAction("User Promoted", email);
-      loadSettingsData();
-    });
-  });
-}
-
-function deleteUser(email) {
-  if (!email) return;
-  
-  DialogSystem.confirm("Deactivate this user?", {
-    title: "Delete User",
-    type: "danger",
-    confirmText: "Deactivate",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-
-    var school = getCurrentSchool();
-    API.deleteUser(school, email).then(function () {
-      showNotification("User deactivated!", "success");
-      logAction("User Deactivated", email);
-      loadSettingsData();
-    });
-  });
-}
-
-// ============ REPORTS ============
-function loadReports() {
-  var school = getCurrentSchool();
-  if (!school) return;
-
-  Promise.all([
-    API.getBooks(school),
-    API.getStudents(school),
-    API.getBorrowed(school),
-    API.getFurniture(school),
-  ]).then(function (results) {
-    var books = results[0] || [];
-    var students = results[1] || [];
-    var borrowed = results[2] || [];
-    var furniture = results[3] || [];
-
-    var activeLoans = borrowed.filter(function (b) { return !b.returned; });
-    var overdue = activeLoans.filter(function (b) { return isOverdue(b.returnDate); });
-    var returned = borrowed.filter(function (b) { return b.returned; });
-    var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
-
-    var overdueEl = document.getElementById("overdueCount");
-    var activeEl = document.getElementById("activeLoansCount");
-    var rateEl = document.getElementById("returnRate");
-    var furnitureEl = document.getElementById("furnitureCount");
-    
-    if (overdueEl) overdueEl.textContent = overdue.length;
-    if (activeEl) activeEl.textContent = activeLoans.length;
-    if (rateEl) rateEl.textContent = returnRate + "%";
-    if (furnitureEl) furnitureEl.textContent = furniture.length;
-
-    if (typeof Chart !== "undefined") {
-      try {
-        createBooksByTypeChart(books);
-        createStudentsByFormChart(students);
-        createFurnitureChart(furniture);
-        createBorrowingTrendChart(borrowed);
-      } catch (e) {
-        // Chart errors ignored
-      }
-    }
-  });
-}
-
-function createBooksByTypeChart(books) {
-  var canvas = document.getElementById('booksByTypeChart');
-  if (!canvas) return;
-  
-  var types = {};
-  books.forEach(function(b) {
-    var type = b.type || 'Other';
-    types[type] = (types[type] || 0) + (b.quantity || 0);
-  });
-  
-  new Chart(canvas, {
-    type: 'doughnut',
-    data: {
-      labels: Object.keys(types),
-      datasets: [{ data: Object.values(types), backgroundColor: ['#e94560', '#0f3460', '#d4af37', '#28a745', '#17a2b8', '#6f42c1'] }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
-    }
-  });
-}
-
-function createStudentsByFormChart(students) {
-  var canvas = document.getElementById('studentsByFormChart');
-  if (!canvas) return;
-  
-  var forms = {};
-  students.forEach(function(s) {
-    var form = s.form || 'Unknown';
-    forms[form] = (forms[form] || 0) + 1;
-  });
-  
-  new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(forms),
-      datasets: [{ label: 'Students', data: Object.values(forms), backgroundColor: '#e94560' }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-        x: { ticks: { color: 'white' } }
-      }
-    }
-  });
-}
-
-function createFurnitureChart(furniture) {
-  var canvas = document.getElementById('furnitureChart');
-  if (!canvas) return;
-  
-  new Chart(canvas, {
-    type: 'pie',
-    data: {
-      labels: ['Allocated'],
-      datasets: [{ data: [furniture.length], backgroundColor: ['#ffc107'] }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
-    }
-  });
-}
-
-function createBorrowingTrendChart(borrowed) {
-  var canvas = document.getElementById('borrowingTrendChart');
-  if (!canvas) return;
-  
-  var months = {};
-  borrowed.forEach(function(b) {
-    var date = new Date(b.borrowDate);
-    var key = date.getFullYear() + '-' + (date.getMonth() + 1);
-    months[key] = (months[key] || 0) + 1;
-  });
-  
-  var sortedKeys = Object.keys(months).sort();
-  
-  new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: sortedKeys.map(function(k) {
-        var parts = k.split('-');
-        return getMonthShortName(parseInt(parts[1]) - 1) + ' ' + parts[0];
-      }),
-      datasets: [{
-        label: 'Books Borrowed',
-        data: sortedKeys.map(function(k) { return months[k]; }),
-        borderColor: '#d4af37',
-        backgroundColor: 'rgba(212,175,55,0.2)',
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: 'white' } } },
-      scales: {
-        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-        x: { ticks: { color: 'white' } }
-      }
-    }
-  });
-}
-
-// ============ QR CODES ============
-function loadQRCodeList() {
-  var school = getCurrentSchool();
-  if (!school) return;
-  
-  API.getQRCodes(school).then(function (codes) {
-    var container = document.getElementById('qrCodeList');
-    if (!container) return;
-    
-    if (!codes || codes.length === 0) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-list"></i><p>No QR codes in the system yet.</p></div>';
-      return;
-    }
-    
-    var html = '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Class</th><th>ADM</th></tr></thead><tbody>';
-    codes.forEach(function(qr) {
-      var status = qr.returned ? 'Returned' : (qr.assigned ? 'Assigned' : 'Available');
-      var badgeClass = qr.returned ? 'badge-success' : (qr.assigned ? 'badge-warning' : 'badge-info');
-      html += '<tr>' +
-        '<td><strong>' + (qr.code || '') + '</strong></td>' +
-        '<td>' + (qr.type || '') + '</td>' +
-        '<td><span class="badge ' + badgeClass + '">' + status + '</span></td>' +
-        '<td>' + (qr.assignedTo || '-') + '</td>' +
-        '<td>' + (qr.className || '-') + '</td>' +
-        '<td>' + (qr.adm || '-') + '</td>' +
-        '</tr>';
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
-  });
-}
-
-function generateAndDisplayQRCodes() {
-  var school = getCurrentSchool();
-  if (!school) return;
-  
-  var type = document.getElementById('qrType');
-  var start = document.getElementById('qrStart');
-  var end = document.getElementById('qrEnd');
-  var container = document.getElementById('qrContainer');
-  
-  if (!container) return;
-  
-  var t = type ? type.value : 'book';
-  var s = start ? parseInt(start.value) || 1 : 1;
-  var e = end ? parseInt(end.value) || 5 : 5;
-  
-  if (s > e) {
-    showNotification('Start number must be less than end number', 'error');
-    return;
-  }
-  
-  if (e - s > 50) {
-    showNotification('Maximum 50 codes per batch', 'warning');
-    return;
-  }
-  
-  container.innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i><p style="margin-top:10px;">Generating QR codes...</p></div>';
-  
-  API.generateQRCodes(school, t, s, e).then(function(result) {
-    if (result.success) {
-      var html = '';
-      result.codes.forEach(function(code) {
-        var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(code);
-        html += '<div class="qr-item">' +
-          '<img src="' + qrUrl + '" width="150" height="150" alt="' + code + '">' +
-          '<p>' + code + '</p>' +
-          '<div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">' +
-          '<button class="btn btn-sm btn-primary" onclick="downloadQRCode(\'' + code + '\')"><i class="fas fa-download"></i></button>' +
-          '<button class="btn btn-sm btn-secondary" onclick="copyQRCodeText(\'' + code + '\')"><i class="fas fa-copy"></i></button>' +
-          '</div>' +
-          '</div>';
-      });
-      container.innerHTML = html;
-      showNotification('Generated ' + result.codes.length + ' QR codes!', 'success');
-      logAction('QR Code Generated', result.codes.length + ' codes');
-    } else {
-      container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">Error generating QR codes</p>';
-      showNotification('Error generating QR codes', 'error');
-    }
-  });
-}
-
-function downloadQRCode(code) {
-  if (!code) return;
-  var url = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(code);
-  var link = document.createElement('a');
-  link.download = code + '.png';
-  link.href = url;
-  link.target = '_blank';
-  link.click();
-  showNotification('Downloading ' + code, 'success');
-}
-
-function copyQRCodeText(code) {
-  if (!code) return;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(code).then(function() {
-      showNotification('Copied: ' + code, 'success');
-    });
-  } else {
-    var input = document.createElement('input');
-    input.value = code;
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand('copy');
-    document.body.removeChild(input);
-    showNotification('Copied: ' + code, 'success');
-  }
-}
-
-// ============ DATABASE MANAGER ============
-function loadDatabaseTables() {
-  var tables = [
-    "books", "borrowed", "students", "furniture", "teachers",
-    "classes", "terms", "events", "fees", "qrcodes",
-    "auditLog", "users", "chat", "forum", "notes"
-  ];
-  var select = document.getElementById("databaseTableSelect");
-  if (!select) return;
-
-  var html = "";
-  tables.forEach(function (t) {
-    html += '<option value="' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + "</option>";
-  });
-  select.innerHTML = html;
-
-  setTimeout(loadDatabaseTable, 300);
-}
-
-function loadDatabaseTable() {
-  var school = getCurrentSchool();
-  var select = document.getElementById("databaseTableSelect");
-  if (!select || !select.value) return;
-  
-  var tableName = select.value;
-
-  API.getTableData(school, tableName).then(function (data) {
-    var tbody = document.getElementById("databaseTableBody");
-    var thead = document.getElementById("databaseTableHead");
-
-    if (!tbody || !thead) return;
-
-    if (!data || data.length === 0) {
-      thead.innerHTML = "";
-      tbody.innerHTML = "<tr><td>No data in this table</td></tr>";
-      return;
-    }
-
-    var columns = Object.keys(data[0]);
-    var filteredColumns = columns.filter(function (c) { return c !== "password"; });
-
-    var headHtml = "";
-    filteredColumns.forEach(function (col) {
-      headHtml += "<th>" + col + "</th>";
-    });
-    thead.innerHTML = headHtml;
-
-    var bodyHtml = "";
-    data.forEach(function (row) {
-      bodyHtml += "<tr>";
-      filteredColumns.forEach(function (col) {
-        var value = row[col];
-        if (typeof value === "object") value = JSON.stringify(value);
-        bodyHtml += "<td>" + (value || "-") + "</td>";
-      });
-      bodyHtml += "</tr>";
-    });
-    tbody.innerHTML = bodyHtml;
-  });
-}
-
-// ============ SCHOOL INFO ============
 function saveSchoolInfo(event) {
   event.preventDefault();
   var school = getCurrentSchool();
@@ -2269,6 +2112,547 @@ function addUser(event) {
   return false;
 }
 
+function promoteToAdmin(email) {
+  if (!email) return;
+  
+  DialogSystem.confirm("Promote this user to admin?", {
+    title: "Promote User",
+    type: "success",
+    confirmText: "Promote",
+    cancelText: "Cancel",
+  }).then(function (confirmed) {
+    if (confirmed !== "confirm") return;
+
+    var school = getCurrentSchool();
+    API.updateUser(school, email, { role: "admin" }).then(function () {
+      showNotification("User promoted!", "success");
+      logAction("User Promoted", email);
+      loadSettingsData();
+    });
+  });
+}
+
+function deleteUser(email) {
+  if (!email) return;
+  
+  DialogSystem.confirm("Deactivate this user?", {
+    title: "Delete User",
+    type: "danger",
+    confirmText: "Deactivate",
+    cancelText: "Cancel",
+  }).then(function (confirmed) {
+    if (confirmed !== "confirm") return;
+
+    var school = getCurrentSchool();
+    API.deleteUser(school, email).then(function () {
+      showNotification("User deactivated!", "success");
+      logAction("User Deactivated", email);
+      loadSettingsData();
+    });
+  });
+}
+
+// ============ REPORTS ============
+function loadReports() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  Promise.all([
+    API.getBooks(school),
+    API.getStudents(school),
+    API.getBorrowed(school),
+    API.getFurniture(school),
+  ]).then(function (results) {
+    var books = results[0] || [];
+    var students = results[1] || [];
+    var borrowed = results[2] || [];
+    var furniture = results[3] || [];
+
+    var activeLoans = borrowed.filter(function (b) { return !b.returned; });
+    var overdue = activeLoans.filter(function (b) { return isOverdue(b.returnDate); });
+    var returned = borrowed.filter(function (b) { return b.returned; });
+    var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
+
+    var overdueEl = document.getElementById("overdueCount");
+    var activeEl = document.getElementById("activeLoansCount");
+    var rateEl = document.getElementById("returnRate");
+    var furnitureEl = document.getElementById("furnitureCount");
+    
+    if (overdueEl) overdueEl.textContent = overdue.length;
+    if (activeEl) activeEl.textContent = activeLoans.length;
+    if (rateEl) rateEl.textContent = returnRate + "%";
+    if (furnitureEl) furnitureEl.textContent = furniture.length;
+
+    // Render overdue report
+    renderOverdueReport(overdue);
+    renderMonthlySummary(borrowed, furniture);
+
+    if (typeof Chart !== "undefined") {
+      try {
+        createBooksByTypeChart(books);
+        createStudentsByFormChart(students);
+        createFurnitureChart(furniture);
+        createBorrowingTrendChart(borrowed);
+      } catch (e) {
+        // Chart errors ignored
+      }
+    }
+  });
+}
+
+function renderOverdueReport(overdue) {
+  var tbody = document.getElementById("overdueReportBody");
+  if (!tbody) return;
+  
+  if (overdue.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No overdue books 🎉</td></tr>';
+    return;
+  }
+  
+  var html = "";
+  overdue.forEach(function (b) {
+    html += '<tr>' +
+      '<td>' + (b.studentName || '-') + '</td>' +
+      '<td>' + (b.adm || '-') + '</td>' +
+      '<td>' + (b.bookTitle || '-') + '</td>' +
+      '<td>' + (b.bookNo || '-') + '</td>' +
+      '<td>' + (b.returnDate || '-') + '</td>' +
+      '<td><span class="badge badge-danger">' + daysOverdue(b.returnDate) + ' days</span></td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function renderMonthlySummary(borrowed, furniture) {
+  var tbody = document.getElementById("monthlySummaryBody");
+  if (!tbody) return;
+  
+  var monthlyData = {};
+  
+  (borrowed || []).forEach(function (b) {
+    var date = new Date(b.borrowDate);
+    var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+    if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
+    monthlyData[key].issued++;
+    if (b.returned) monthlyData[key].returned++;
+  });
+  
+  (furniture || []).forEach(function (f) {
+    var date = new Date(f.allocationDate);
+    var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+    if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
+    monthlyData[key].furniture++;
+  });
+  
+  var months = Object.keys(monthlyData).sort().reverse();
+  
+  if (months.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No data</td></tr>';
+    return;
+  }
+  
+  var html = '';
+  months.slice(0, 12).forEach(function (key) {
+    var parts = key.split('-');
+    var monthName = getMonthName(parseInt(parts[1]) - 1) + ' ' + parts[0];
+    var data = monthlyData[key];
+    html += '<tr>' +
+      '<td>' + monthName + '</td>' +
+      '<td>' + data.issued + '</td>' +
+      '<td>' + data.returned + '</td>' +
+      '<td>' + data.furniture + '</td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function createBooksByTypeChart(books) {
+  var canvas = document.getElementById('booksByTypeChart');
+  if (!canvas) return;
+  
+  var types = {};
+  books.forEach(function (b) {
+    var type = b.type || 'Other';
+    types[type] = (types[type] || 0) + (b.quantity || 0);
+  });
+  
+  new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(types),
+      datasets: [{ data: Object.values(types), backgroundColor: ['#e94560', '#0f3460', '#d4af37', '#28a745', '#17a2b8', '#6f42c1'] }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
+    }
+  });
+}
+
+function createStudentsByFormChart(students) {
+  var canvas = document.getElementById('studentsByFormChart');
+  if (!canvas) return;
+  
+  var forms = {};
+  students.forEach(function (s) {
+    var form = s.form || 'Unknown';
+    forms[form] = (forms[form] || 0) + 1;
+  });
+  
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(forms),
+      datasets: [{ label: 'Students', data: Object.values(forms), backgroundColor: '#e94560' }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+        x: { ticks: { color: 'white' } }
+      }
+    }
+  });
+}
+
+function createFurnitureChart(furniture) {
+  var canvas = document.getElementById('furnitureChart');
+  if (!canvas) return;
+  
+  new Chart(canvas, {
+    type: 'pie',
+    data: {
+      labels: ['Allocated'],
+      datasets: [{ data: [furniture.length], backgroundColor: ['#ffc107'] }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
+    }
+  });
+}
+
+function createBorrowingTrendChart(borrowed) {
+  var canvas = document.getElementById('borrowingTrendChart');
+  if (!canvas) return;
+  
+  var months = {};
+  borrowed.forEach(function (b) {
+    var date = new Date(b.borrowDate);
+    var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+    months[key] = (months[key] || 0) + 1;
+  });
+  
+  var sortedKeys = Object.keys(months).sort();
+  
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: sortedKeys.map(function (k) {
+        var parts = k.split('-');
+        return getMonthShortName(parseInt(parts[1]) - 1) + ' ' + parts[0];
+      }),
+      datasets: [{
+        label: 'Books Borrowed',
+        data: sortedKeys.map(function (k) { return months[k]; }),
+        borderColor: '#d4af37',
+        backgroundColor: 'rgba(212,175,55,0.2)',
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: 'white' } } },
+      scales: {
+        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+        x: { ticks: { color: 'white' } }
+      }
+    }
+  });
+}
+
+// ============ QR CODES ============
+function loadQRCodeList() {
+  var school = getCurrentSchool();
+  if (!school) return;
+  
+  API.getQRCodes(school).then(function (codes) {
+    var container = document.getElementById('qrCodeList');
+    if (!container) return;
+    
+    if (!codes || codes.length === 0) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-list"></i><p>No QR codes in the system yet.</p></div>';
+      return;
+    }
+    
+    var html = '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Class</th><th>ADM</th></tr></thead><tbody>';
+    codes.forEach(function (qr) {
+      var status = qr.returned ? 'Returned' : (qr.assigned ? 'Assigned' : 'Available');
+      var badgeClass = qr.returned ? 'badge-success' : (qr.assigned ? 'badge-warning' : 'badge-info');
+      html += '<tr>' +
+        '<td><strong>' + (qr.code || '') + '</strong></td>' +
+        '<td>' + (qr.type || '') + '</td>' +
+        '<td><span class="badge ' + badgeClass + '">' + status + '</span></td>' +
+        '<td>' + (qr.assignedTo || '-') + '</td>' +
+        '<td>' + (qr.className || '-') + '</td>' +
+        '<td>' + (qr.adm || '-') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  });
+}
+
+function generateAndDisplayQRCodes() {
+  var school = getCurrentSchool();
+  if (!school) return;
+  
+  var type = document.getElementById('qrType');
+  var start = document.getElementById('qrStart');
+  var end = document.getElementById('qrEnd');
+  var container = document.getElementById('qrContainer');
+  
+  if (!container) return;
+  
+  var t = type ? type.value : 'book';
+  var s = start ? parseInt(start.value) || 1 : 1;
+  var e = end ? parseInt(end.value) || 5 : 5;
+  
+  if (s > e) {
+    showNotification('Start number must be less than end number', 'error');
+    return;
+  }
+  
+  if (e - s > 50) {
+    showNotification('Maximum 50 codes per batch', 'warning');
+    return;
+  }
+  
+  container.innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i><p style="margin-top:10px;">Generating QR codes...</p></div>';
+  
+  API.generateQRCodes(school, t, s, e).then(function (result) {
+    if (result.success) {
+      var html = '';
+      result.codes.forEach(function (code) {
+        var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(code);
+        html += '<div class="qr-item">' +
+          '<img src="' + qrUrl + '" width="150" height="150" alt="' + code + '">' +
+          '<p>' + code + '</p>' +
+          '<div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">' +
+          '<button class="btn btn-sm btn-primary" onclick="downloadQRCode(\'' + code + '\')"><i class="fas fa-download"></i></button>' +
+          '<button class="btn btn-sm btn-secondary" onclick="copyQRCodeText(\'' + code + '\')"><i class="fas fa-copy"></i></button>' +
+          '</div>' +
+          '</div>';
+      });
+      container.innerHTML = html;
+      showNotification('Generated ' + result.codes.length + ' QR codes!', 'success');
+      logAction('QR Code Generated', result.codes.length + ' codes');
+    } else {
+      container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">Error generating QR codes</p>';
+      showNotification('Error generating QR codes', 'error');
+    }
+  });
+}
+
+function downloadQRCode(code) {
+  if (!code) return;
+  var url = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(code);
+  var link = document.createElement('a');
+  link.download = code + '.png';
+  link.href = url;
+  link.target = '_blank';
+  link.click();
+  showNotification('Downloading ' + code, 'success');
+}
+
+function copyQRCodeText(code) {
+  if (!code) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function () {
+      showNotification('Copied: ' + code, 'success');
+    });
+  } else {
+    var input = document.createElement('input');
+    input.value = code;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    showNotification('Copied: ' + code, 'success');
+  }
+}
+
+// ============ DATABASE MANAGER ============
+function loadDatabaseTables() {
+  var tables = [
+    "books", "borrowed", "students", "furniture", "teachers",
+    "classes", "terms", "events", "fees", "qrcodes",
+    "auditLog", "users", "chat", "forum", "notes"
+  ];
+  var select = document.getElementById("databaseTableSelect");
+  if (!select) return;
+
+  var html = "";
+  tables.forEach(function (t) {
+    html += '<option value="' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + "</option>";
+  });
+  select.innerHTML = html;
+
+  setTimeout(loadDatabaseTable, 300);
+}
+
+function loadDatabaseTable() {
+  var school = getCurrentSchool();
+  var select = document.getElementById("databaseTableSelect");
+  if (!select || !select.value) return;
+  
+  var tableName = select.value;
+
+  API.getTableData(school, tableName).then(function (data) {
+    var tbody = document.getElementById("databaseTableBody");
+    var thead = document.getElementById("databaseTableHead");
+
+    if (!tbody || !thead) return;
+
+    if (!data || data.length === 0) {
+      thead.innerHTML = "";
+      tbody.innerHTML = "<tr><td>No data in this table</td></tr>";
+      return;
+    }
+
+    var columns = Object.keys(data[0]);
+    var filteredColumns = columns.filter(function (c) { return c !== "password"; });
+
+    var headHtml = "";
+    filteredColumns.forEach(function (col) {
+      headHtml += "<th>" + col + "</th>";
+    });
+    thead.innerHTML = headHtml;
+
+    var bodyHtml = "";
+    data.forEach(function (row) {
+      bodyHtml += "<tr>";
+      filteredColumns.forEach(function (col) {
+        var value = row[col];
+        if (typeof value === "object") value = JSON.stringify(value);
+        bodyHtml += "<td>" + (value || "-") + "</td>";
+      });
+      bodyHtml += "</tr>";
+    });
+    tbody.innerHTML = bodyHtml;
+  });
+}
+
+// ============ WALLPAPER ============
+function loadWallpapers() {
+  var grid = document.getElementById("wallpaperGrid");
+  if (!grid) return;
+
+  var currentWallpaper = localStorage.getItem("srms_wallpaper") || "library";
+
+  var html = "";
+  for (var key in WALLPAPER_DATA) {
+    var wallpaper = WALLPAPER_DATA[key];
+    var isActive = key === currentWallpaper ? " active" : "";
+
+    var previewStyle = "";
+    if (wallpaper.type === "gradient") {
+      previewStyle = "background:" + wallpaper.css + ";";
+    } else {
+      var thumbUrl = wallpaper.url.replace("w=1920", "w=400&h=250&fit=crop&q=60");
+      previewStyle = 'background-image:url("' + thumbUrl + '");background-size:cover;background-position:center;';
+    }
+
+    html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + "')\">" +
+      '<div class="check-badge"><i class="fas fa-check"></i></div>' +
+      '<div class="wallpaper-preview" style="' + previewStyle + '"></div>' +
+      '<div class="wallpaper-info"><h3>' + wallpaper.name + "</h3></div></div>";
+  }
+  grid.innerHTML = html;
+}
+
+function selectWallpaper(key) {
+  localStorage.setItem("srms_wallpaper", key);
+
+  var cards = document.querySelectorAll(".wallpaper-card");
+  cards.forEach(function (card) {
+    card.classList.remove("active");
+  });
+  if (event && event.target) {
+    var target = event.target.closest(".wallpaper-card");
+    if (target) target.classList.add("active");
+  }
+
+  var wallpaper = WALLPAPER_DATA[key];
+  if (wallpaper.type === "gradient") {
+    document.body.style.background = wallpaper.css;
+    document.body.style.backgroundImage = "none";
+  } else {
+    document.body.style.backgroundImage = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + wallpaper.url + '")';
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundAttachment = "fixed";
+  }
+
+  showNotification("Wallpaper applied!", "success");
+}
+
+// ============ NOTIFICATION FALLBACK ============
+function showNotification(message, type) {
+  // Check if the global notification function exists
+  if (typeof window.showNotification === 'function' && window.showNotification !== showNotification) {
+    window.showNotification(message, type);
+    return;
+  }
+  
+  // Fallback notification
+  var colors = {
+    success: '#28a745',
+    error: '#dc3545',
+    warning: '#ffc107',
+    info: '#17a2b8'
+  };
+  
+  var icon = {
+    success: 'fa-check-circle',
+    error: 'fa-exclamation-circle',
+    warning: 'fa-exclamation-triangle',
+    info: 'fa-info-circle'
+  };
+  
+  var div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:80px;right:20px;padding:15px 20px;background:' + (colors[type] || colors.info) + ';color:#fff;border-radius:10px;z-index:9999;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;transition:all 0.3s ease;transform:translateX(120%);';
+  div.innerHTML = '<i class="fas ' + (icon[type] || icon.info) + '"></i><span>' + message + '</span>';
+  document.body.appendChild(div);
+  
+  setTimeout(function() {
+    div.style.transform = 'translateX(0)';
+  }, 100);
+  
+  setTimeout(function() {
+    div.style.transform = 'translateX(120%)';
+    setTimeout(function() {
+      if (div.parentNode) div.remove();
+    }, 300);
+  }, 3000);
+}
+
+// ============ LOGOUT ============
+function logout() {
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().signOut().then(function() {
+      localStorage.removeItem('srms_user');
+      localStorage.removeItem('srms_school');
+      window.location.href = 'index.html';
+    });
+  } else {
+    localStorage.removeItem('srms_user');
+    localStorage.removeItem('srms_school');
+    window.location.href = 'index.html';
+  }
+}
+
 // ============ EXPORT ALL FUNCTIONS ============
 window.loadDashboardData = loadDashboardData;
 window.loadLibraryData = loadLibraryData;
@@ -2288,6 +2672,8 @@ window.loadReports = loadReports;
 window.loadSettingsData = loadSettingsData;
 window.loadDatabaseTables = loadDatabaseTables;
 window.loadDatabaseTable = loadDatabaseTable;
+window.loadWallpapers = loadWallpapers;
+window.selectWallpaper = selectWallpaper;
 window.loadQRCodeList = loadQRCodeList;
 window.generateAndDisplayQRCodes = generateAndDisplayQRCodes;
 window.downloadQRCode = downloadQRCode;
@@ -2316,6 +2702,8 @@ window.deleteFee = deleteFee;
 window.addTimetableEntry = addTimetableEntry;
 window.addTeacher = addTeacher;
 window.deleteTeacher = deleteTeacher;
+window.addClassWithExcel = addClassWithExcel;
+window.handleExcelUpload = handleExcelUpload;
 window.viewClassStudents = viewClassStudents;
 window.deleteClass = deleteClass;
 window.addTerm = addTerm;
@@ -2329,3 +2717,8 @@ window.saveSchoolInfo = saveSchoolInfo;
 window.saveSettings = saveSettings;
 window.addUser = addUser;
 window.animateNumber = animateNumber;
+window.showNotification = showNotification;
+window.logout = logout;
+window.generateSampleDataIfNeeded = generateSampleDataIfNeeded;
+
+console.log("✅ SRMS App loaded successfully!");
