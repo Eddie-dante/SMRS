@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Classes | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -43,71 +43,110 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
             width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
         }
+        .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; width: auto; max-width: 95vw;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95vw;
         }
         .floating-navbar {
-            display: flex; align-items: center; justify-content: center;
-            gap: 12px; padding: 12px 24px;
-            background: rgba(15, 18, 30, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 24px;
+            background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px; padding: 10px 22px;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
         .btn-badge {
-            width: 28px; height: 28px; border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .dropdown-menu {
-            display: none; position: absolute;
-            bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
             z-index: 1200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
+        .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
@@ -115,26 +154,65 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1200px; margin: 0 auto;
+            max-width: 1200px;
+            margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em; font-weight: 900;
+            font-size: 2em;
+            font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); }
+        
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
+        .btn-secondary {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
+        .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
+        .btn-danger:hover { background: rgba(220,53,69,0.4); }
+        .btn-view { background: rgba(23,162,184,0.2); color: #17a2b8; border: 1px solid rgba(23,162,184,0.4); }
+        .btn-view:hover { background: rgba(23,162,184,0.4); }
         
         .classes-grid {
             display: grid;
@@ -144,75 +222,155 @@
         .class-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px;
+            border-radius: 16px;
+            padding: 20px;
             transition: var(--transition);
         }
         .class-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.4); }
-        .class-card h4 { color: var(--accent); margin-bottom: 8px; }
+        .class-card h4 { color: var(--accent); margin-bottom: 8px; font-size: 1.1em; }
         .class-card p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 5px; }
+        .class-card .class-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         
         .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 1300;
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1300;
+            justify-content: center;
+            align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px; padding: 30px;
-            width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
         .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
+        
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
-        .form-group input { width: 100%; padding: 10px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
         .upload-area {
             border: 2px dashed rgba(212, 175, 55, 0.4);
-            border-radius: 12px; padding: 20px; text-align: center;
-            cursor: pointer; transition: var(--transition);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(255,255,255,0.02);
         }
         .upload-area:hover { border-color: var(--gold); background: rgba(212,175,55,0.1); }
-        .upload-area i { font-size: 30px; color: var(--accent); margin-bottom: 10px; }
+        .upload-area i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
+        .upload-area p { color: rgba(255,255,255,0.6); font-size: 13px; }
+        .upload-area .file-name { color: #34ce57; font-weight: 600; margin-top: 8px; }
+        
+        .excel-preview-container {
+            margin-top: 15px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .excel-preview-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .excel-preview-container table th {
+            background: rgba(233, 69, 96, 0.8);
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .excel-preview-container table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            white-space: nowrap;
+        }
+        .excel-preview-container table tr:hover { background: rgba(255,255,255,0.05); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.4);
+            grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.5);
+            grid-column: 1 / -1;
+        }
+        .loading-spinner i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
-            .form-row { grid-template-columns: 1fr; }
             .classes-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .page-header .btn { justify-content: center; }
+            .modal-content { padding: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+            <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <div class="main-content">
         <div class="page-header">
             <div>
-                <h1>Classes</h1>
+                <h1><i class="fas fa-door-open" style="color:var(--accent);"></i> Classes</h1>
                 <p>Manage class lists with Excel upload</p>
             </div>
-            <button class="btn-primary" onclick="openModal('addClassModal')"><i class="fas fa-plus"></i> Add Class</button>
+            <button class="btn-primary" onclick="openModal('addClassModal')">
+                <i class="fas fa-plus"></i> Add Class
+            </button>
         </div>
         
         <div class="classes-grid" id="classesList">
-            <p style="text-align:center;color:rgba(255,255,255,0.5);">Loading classes...</p>
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading classes...
+            </div>
         </div>
     </div>
     
+    <!-- Add Class Modal -->
     <div class="modal" id="addClassModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -221,31 +379,61 @@
             </div>
             <form onsubmit="return addClassWithExcel(event)">
                 <div class="form-row">
-                    <div class="form-group"><label>Class Name *</label><input type="text" id="className" required></div>
-                    <div class="form-group"><label>Stream</label><input type="text" id="classStream"></div>
+                    <div class="form-group">
+                        <label>Class Name *</label>
+                        <input type="text" id="className" placeholder="e.g., Form 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stream</label>
+                        <input type="text" id="classStream" placeholder="e.g., East">
+                    </div>
                 </div>
-                <div class="form-group"><label>Class Teacher</label><input type="text" id="classTeacher"></div>
                 <div class="form-group">
-                    <label>Upload Student Details (.xls/.xlsx)</label>
+                    <label>Class Teacher</label>
+                    <input type="text" id="classTeacher" placeholder="Teacher name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Upload Student Details (.xls / .xlsx)</label>
                     <div class="upload-area" onclick="document.getElementById('excelFileInput').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Click to upload Excel file</p>
+                        <p>Click to upload an Excel file</p>
+                        <div class="file-name" id="excelFileName">No file selected</div>
+                        <input type="file" id="excelFileInput" accept=".xls,.xlsx" style="display:none;" onchange="handleExcelUpload(event)">
                     </div>
-                    <input type="file" id="excelFileInput" accept=".xls,.xlsx" style="display:none;" onchange="handleExcelUpload(event)">
-                    <p id="excelStudentCount" style="color:#34ce57;margin-top:10px;"></p>
+                    <p id="excelStudentCount" style="color:#34ce57;margin-top:8px;font-size:13px;"></p>
                     <input type="hidden" id="excelStudentsData" data-loaded="false">
                 </div>
-                <div id="excelPreview" style="margin-top:15px;overflow-x:auto;"></div>
-                <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Class</button>
+                
+                <div id="excelPreviewContainer" class="excel-preview-container" style="display:none;"></div>
+                
+                <button type="submit" class="btn-primary" style="width:100%;margin-top:15px;">
+                    <i class="fas fa-plus"></i> Create Class
+                </button>
             </form>
         </div>
     </div>
     
+    <!-- View Students Modal -->
+    <div class="modal" id="viewStudentsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-users"></i> <span id="viewClassName">Class Name</span> Students</h3>
+                <button class="modal-close" onclick="closeModal('viewStudentsModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="viewStudentsContent">
+                <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
                 <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
             </button>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
@@ -256,6 +444,7 @@
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn active">
                     <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
@@ -264,8 +453,11 @@
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
@@ -276,6 +468,7 @@
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
@@ -302,12 +495,314 @@
     <script src="js/app.js"></script>
     
     <script>
-        function logoutWithConfirm() {
-            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                if (result === 'confirm') logout();
+        // ============ GLOBALS ============
+        var allClasses = [];
+        var excelData = [];
+        var excelFileName = '';
+        
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClasses();
+        });
+        
+        // ============ LOAD CLASSES ============
+        function loadClasses() {
+            var school = getCurrentSchool();
+            if (!school) {
+                document.getElementById('classesList').innerHTML = 
+                    '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Please login to view classes</p></div>';
+                return;
+            }
+            
+            document.getElementById('classesList').innerHTML = 
+                '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading classes...</div>';
+            
+            API.getClasses(school).then(function(classes) {
+                allClasses = classes || [];
+                renderClasses(allClasses);
+            }).catch(function(err) {
+                console.error('Error loading classes:', err);
+                document.getElementById('classesList').innerHTML = 
+                    '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading classes. Please refresh.</p></div>';
             });
         }
+        
+        function renderClasses(classes) {
+            var container = document.getElementById('classesList');
+            
+            if (!classes || classes.length === 0) {
+                container.innerHTML = 
+                    '<div class="empty-state"><i class="fas fa-door-open"></i><p>No classes yet. Click "Add Class" to create one!</p></div>';
+                return;
+            }
+            
+            var html = '';
+            classes.forEach(function(cls) {
+                var studentCount = cls.students ? cls.students.length : 0;
+                var className = cls.name || 'Unnamed Class';
+                var stream = cls.stream || '';
+                var teacher = cls.teacher || 'Not assigned';
+                
+                html += `
+                    <div class="class-card" data-id="${cls.id}">
+                        <h4>${className} ${stream ? ' - ' + stream : ''}</h4>
+                        <p><i class="fas fa-users"></i> ${studentCount} students</p>
+                        <p><i class="fas fa-chalkboard-teacher"></i> Teacher: ${teacher}</p>
+                        <div class="class-actions">
+                            <button class="btn btn-view btn-sm" onclick="viewClassStudents('${cls.id}')">
+                                <i class="fas fa-eye"></i> View Students
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteClass('${cls.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        
+        // ============ EXCEL UPLOAD ============
+        function handleExcelUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            excelFileName = file.name;
+            document.getElementById('excelFileName').textContent = file.name;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    var jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    excelData = jsonData;
+                    
+                    var countEl = document.getElementById('excelStudentCount');
+                    var dataEl = document.getElementById('excelStudentsData');
+                    
+                    if (countEl) {
+                        countEl.textContent = '✅ ' + jsonData.length + ' students loaded from ' + file.name;
+                    }
+                    if (dataEl) {
+                        dataEl.value = JSON.stringify(jsonData);
+                        dataEl.dataset.loaded = 'true';
+                    }
+                    
+                    // Show preview
+                    showExcelPreview(jsonData);
+                    
+                    showNotification('Loaded ' + jsonData.length + ' students from ' + file.name, 'success');
+                    
+                } catch (err) {
+                    console.error('Excel parse error:', err);
+                    showNotification('Error reading Excel file: ' + err.message, 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function showExcelPreview(data) {
+            var container = document.getElementById('excelPreviewContainer');
+            if (!container) return;
+            
+            if (!data || data.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            var columns = Object.keys(data[0]);
+            var html = '<table><thead><tr>';
+            columns.forEach(function(col) {
+                html += '<th>' + col + '</th>';
+            });
+            html += '</tr></thead><tbody>';
+            
+            var previewCount = Math.min(data.length, 10);
+            for (var i = 0; i < previewCount; i++) {
+                html += '<tr>';
+                columns.forEach(function(col) {
+                    var value = data[i][col] || '-';
+                    html += '<td>' + value + '</td>';
+                });
+                html += '</tr>';
+            }
+            
+            if (data.length > 10) {
+                html += '<tr><td colspan="' + columns.length + '" style="text-align:center;color:rgba(255,255,255,0.4);">... and ' + (data.length - 10) + ' more students</td></tr>';
+            }
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        // ============ ADD CLASS ============
+        function addClassWithExcel(event) {
+            event.preventDefault();
+            
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            
+            var className = document.getElementById('className');
+            var classStream = document.getElementById('classStream');
+            var classTeacher = document.getElementById('classTeacher');
+            var studentsData = document.getElementById('excelStudentsData');
+            
+            if (!className || !className.value.trim()) {
+                showNotification('Class name is required', 'warning');
+                return false;
+            }
+            
+            var students = [];
+            if (studentsData && studentsData.value && studentsData.dataset.loaded === 'true') {
+                try {
+                    students = JSON.parse(studentsData.value);
+                } catch (e) {
+                    students = [];
+                }
+            }
+            
+            API.addClass(school, {
+                name: className.value.trim(),
+                stream: classStream ? classStream.value.trim() : '',
+                teacher: classTeacher ? classTeacher.value.trim() : '',
+                students: students,
+                createdBy: user ? user.name : '',
+            }).then(function(result) {
+                if (result.success) {
+                    showNotification('Class added with ' + students.length + ' students!', 'success');
+                    logAction('Class Added', className.value + ' with ' + students.length + ' students');
+                    closeModal('addClassModal');
+                    
+                    // Reset form
+                    document.getElementById('className').value = '';
+                    document.getElementById('classStream').value = '';
+                    document.getElementById('classTeacher').value = '';
+                    document.getElementById('excelFileName').textContent = 'No file selected';
+                    document.getElementById('excelStudentCount').textContent = '';
+                    document.getElementById('excelStudentsData').value = '';
+                    document.getElementById('excelStudentsData').dataset.loaded = 'false';
+                    document.getElementById('excelPreviewContainer').style.display = 'none';
+                    document.getElementById('excelFileInput').value = '';
+                    excelData = [];
+                    
+                    loadClasses();
+                } else {
+                    showNotification('Error: ' + result.error, 'error');
+                }
+            });
+            return false;
+        }
+        
+        // ============ VIEW CLASS STUDENTS ============
+        function viewClassStudents(classId) {
+            if (!classId) return;
+            
+            var school = getCurrentSchool();
+            var modal = document.getElementById('viewStudentsModal');
+            var content = document.getElementById('viewStudentsContent');
+            var title = document.getElementById('viewClassName');
+            
+            modal.classList.add('active');
+            content.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading students...</div>';
+            
+            API.getClasses(school).then(function(classes) {
+                var found = null;
+                classes.forEach(function(cls) {
+                    if (cls.id === classId) found = cls;
+                });
+                
+                if (!found) {
+                    content.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Class not found</p></div>';
+                    return;
+                }
+                
+                title.textContent = found.name || 'Class';
+                var students = found.students || [];
+                
+                if (students.length === 0) {
+                    content.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>No students in this class</p></div>';
+                    return;
+                }
+                
+                var html = '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Gender</th></tr></thead><tbody>';
+                students.forEach(function(s, i) {
+                    var name = s.Name || s.name || s['Full Name'] || 'Unknown';
+                    var adm = s.ADM || s.adm || s['ADM No'] || '-';
+                    var gender = s.Gender || s.gender || '-';
+                    html += '<tr><td>' + (i + 1) + '</td><td>' + name + '</td><td>' + adm + '</td><td>' + gender + '</td></tr>';
+                });
+                html += '</tbody></table>';
+                content.innerHTML = html;
+            }).catch(function(err) {
+                content.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading students</p></div>';
+            });
+        }
+        
+        // ============ DELETE CLASS ============
+        function deleteClass(classId) {
+            if (!classId) return;
+            
+            DialogSystem.confirm('Delete this class? All students in this class will be removed.', {
+                title: 'Delete Class',
+                type: 'danger',
+                confirmText: 'Delete',
+                cancelText: 'Cancel'
+            }).then(function(confirmed) {
+                if (confirmed !== 'confirm') return;
+                
+                var school = getCurrentSchool();
+                API.deleteClass(school, classId).then(function() {
+                    showNotification('Class deleted!', 'success');
+                    logAction('Class Deleted', classId);
+                    loadClasses();
+                });
+            });
+        }
+        
+        // ============ LOGOUT ============
+        function logoutWithConfirm() {
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
+                    if (result === 'confirm') logout();
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) logout();
+            }
+        }
+        
+        function logout() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(function() {
+                    localStorage.removeItem('srms_user');
+                    localStorage.removeItem('srms_school');
+                    window.location.href = 'index.html';
+                });
+            } else {
+                localStorage.removeItem('srms_user');
+                localStorage.removeItem('srms_school');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // ============ EXPOSE FUNCTIONS ============
+        window.loadClasses = loadClasses;
+        window.renderClasses = renderClasses;
+        window.handleExcelUpload = handleExcelUpload;
+        window.addClassWithExcel = addClassWithExcel;
+        window.viewClassStudents = viewClassStudents;
+        window.deleteClass = deleteClass;
         window.logoutWithConfirm = logoutWithConfirm;
+        window.logout = logout;
     </script>
 </body>
 </html>
