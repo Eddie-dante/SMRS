@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SRMS - Login | School Resource Management System</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components.css">
-    
+
     <style>
-        :root {
-            --primary: #e94560;
-            --primary-dark: #c62a47;
-            --accent: #d4af37;
-            --gold: #f0d060;
-            --dark: #0a0e27;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -30,15 +25,17 @@
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            padding: 20px;
             position: relative;
             overflow: hidden;
-            padding: 20px;
         }
-        
+
         .particles {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 0;
         }
@@ -49,107 +46,75 @@
             animation: float 15s infinite;
         }
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-100px) rotate(180deg); }
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-100px) rotate(180deg);
+            }
         }
-        
+
         .login-container {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 850px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            overflow: hidden;
+            padding: 40px 30px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.5s ease;
         }
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
-        .brand-panel {
-            background: rgba(10, 14, 39, 0.5);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+
+        .login-logo {
             text-align: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
         }
-        .brand-logo {
-            width: 90px; height: 90px;
+        .login-logo .logo-icon {
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, #d4af37, #f0d060);
-            border-radius: 22px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 35px;
+            font-size: 32px;
             font-weight: 900;
             color: #0a0e27;
-            margin-bottom: 18px;
-            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.4);
-            animation: pulse 2s infinite;
+            margin: 0 auto 15px;
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .brand-title {
-            font-size: 2.5em;
+        .login-logo h1 {
+            font-size: 28px;
             font-weight: 900;
             background: linear-gradient(180deg, #f0d060, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            background-clip: text;
         }
-        .brand-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9em;
-            margin-bottom: 12px;
-        }
-        .brand-by { color: #d4af37; font-size: 0.8em; font-weight: 600; }
-        .brand-features {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .brand-feature {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .login-logo p {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
+            font-size: 13px;
+            margin-top: 4px;
         }
-        .brand-feature i { color: #d4af37; }
-        
-        .form-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+
+        .form-group {
+            margin-bottom: 18px;
         }
-        .form-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .form-header h2 {
-            color: #ffffff;
-            font-size: 1.7em;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-        .form-header p { color: rgba(255, 255, 255, 0.5); font-size: 13px; }
-        
-        .form-group { margin-bottom: 18px; }
         .form-group label {
             display: block;
             color: rgba(255, 255, 255, 0.7);
@@ -157,153 +122,186 @@
             font-weight: 600;
             font-size: 13px;
         }
-        .form-group label i { margin-right: 6px; color: #d4af37; }
+        .form-group label i {
+            margin-right: 8px;
+            color: #d4af37;
+        }
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
+            border-radius: 12px;
             color: #ffffff;
             font-size: 14px;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
+            outline: none;
         }
         .form-group input:focus {
-            outline: none;
             border-color: rgba(212, 175, 55, 0.5);
-            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+            background: rgba(255, 255, 255, 0.08);
         }
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
-        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
         .btn-login {
             width: 100%;
-            padding: 13px;
+            padding: 14px;
             background: linear-gradient(135deg, #e94560, #c62a47);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             color: #ffffff;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
             margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.5);
         }
         .btn-login:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .login-footer {
             text-align: center;
-            margin-top: 18px;
+            margin-top: 20px;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
         .login-footer a {
-            color: rgba(212, 175, 55, 0.8);
+            color: rgba(212, 175, 55, 0.7);
             text-decoration: none;
-            font-size: 12px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-        .login-footer a:hover { color: #f0d060; }
-        
-        .back-link {
-            position: fixed;
-            top: 20px; left: 20px;
-            color: #d4af37;
-            text-decoration: none;
-            font-size: 14px;
-            z-index: 10;
+        .login-footer a:hover {
+            color: #f0d060;
         }
-        
+
         .error-message {
             background: rgba(220, 53, 69, 0.15);
             border: 1px solid rgba(220, 53, 69, 0.3);
             color: #ff4757;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px 15px;
+            border-radius: 10px;
             margin-bottom: 15px;
             display: none;
             font-size: 13px;
+            align-items: center;
+            gap: 10px;
         }
-        .error-message.show { display: block; }
-        
-        @media (max-width: 768px) {
-            .login-container { grid-template-columns: 1fr; max-width: 400px; }
-            .brand-panel { display: none; }
+        .error-message.show {
+            display: flex;
+        }
+        .error-message i {
+            font-size: 18px;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 14px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover {
+            color: #d4af37;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 25px 20px;
+            }
+            .login-logo .logo-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            .login-logo h1 {
+                font-size: 24px;
+            }
+            .form-group input {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            .btn-login {
+                padding: 12px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
-    
+
+    <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+
     <div class="particles" id="particles"></div>
-    
+
     <div class="login-container">
-        <div class="brand-panel">
-            <div class="brand-logo"><i class="fas fa-school"></i></div>
-            <div class="brand-title">SRMS</div>
-            <div class="brand-subtitle">School Resource Management System</div>
-            <div class="brand-by">by <strong>WeGEM</strong></div>
-            <div class="brand-features">
-                <div class="brand-feature"><i class="fas fa-check-circle"></i> Library Management</div>
-                <div class="brand-feature"><i class="fas fa-check-circle"></i> Student Database</div>
-                <div class="brand-feature"><i class="fas fa-check-circle"></i> Furniture Allocation</div>
-                <div class="brand-feature"><i class="fas fa-check-circle"></i> Student ID Cards with QR</div>
-            </div>
+        <div class="login-logo">
+            <div class="logo-icon"><i class="fas fa-school"></i></div>
+            <h1>SRMS</h1>
+            <p>School Resource Management System</p>
         </div>
-        
-        <div class="form-panel" id="formPanel">
-            <div class="form-header">
-                <h2>Welcome Back!</h2>
-                <p>Login to your account</p>
+
+        <div id="errorMessage" class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText">Invalid credentials</span>
+        </div>
+
+        <form onsubmit="return handleLogin(event)" id="loginForm">
+            <div class="form-group">
+                <label><i class="fas fa-school"></i> School Name</label>
+                <input type="text" id="schoolName" placeholder="Enter school name" required autocomplete="off">
             </div>
-            
-            <div id="errorMessage" class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText"></span>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="email" placeholder="Enter email" required autocomplete="email">
             </div>
-            
-            <form onsubmit="return handleLogin(event)">
-                <div class="form-group">
-                    <label><i class="fas fa-school"></i> School Name</label>
-                    <input type="text" id="schoolName" placeholder="Enter school name" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="email" placeholder="Enter email" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" id="password" placeholder="Enter password" required>
-                </div>
-                <button type="submit" class="btn-login" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-            </form>
-            
-            <div class="login-footer">
-                <a href="#" onclick="showSignup(event)"><i class="fas fa-user-plus"></i> Sign Up</a>
-                <a href="#" onclick="showForgotPassword(event)"><i class="fas fa-key"></i> Forgot Password?</a>
-                <a href="#" onclick="showCreateSchool(event)"><i class="fas fa-plus-circle"></i> Create School</a>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
             </div>
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <a onclick="showSignup(event)"><i class="fas fa-user-plus"></i> Sign Up</a>
+            <a onclick="showForgotPassword(event)"><i class="fas fa-key"></i> Forgot Password?</a>
+            <a onclick="showCreateSchool(event)"><i class="fas fa-plus-circle"></i> Create School</a>
         </div>
     </div>
-    
+
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/wallpaper-loader.js"></script>
-    
+
     <script>
+        // Particles
         document.addEventListener('DOMContentLoaded', function() {
             var container = document.getElementById('particles');
             for (var i = 0; i < 30; i++) {
@@ -317,6 +315,154 @@
                 container.appendChild(particle);
             }
         });
+
+        // Form switch functions
+        function showSignup(event) {
+            if (event) event.preventDefault();
+            var container = document.querySelector('.login-container');
+            container.innerHTML = `
+                <div class="login-logo">
+                    <div class="logo-icon"><i class="fas fa-user-plus"></i></div>
+                    <h1>Sign Up</h1>
+                    <p>Create your staff account</p>
+                </div>
+                <div id="errorMessage" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+                <form onsubmit="return handleSignup(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-school"></i> School Name</label>
+                        <input type="text" id="signupSchoolName" placeholder="Enter school name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="signupName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="signupEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> Invite Code</label>
+                        <input type="text" id="signupInviteCode" placeholder="Enter invite code" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password (min 6 chars)</label>
+                        <input type="password" id="signupPassword" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-login"><i class="fas fa-user-plus"></i> Sign Up</button>
+                </form>
+                <div class="login-footer">
+                    <a onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a>
+                </div>
+            `;
+        }
+
+        function showCreateSchool(event) {
+            if (event) event.preventDefault();
+            var container = document.querySelector('.login-container');
+            container.innerHTML = `
+                <div class="login-logo">
+                    <div class="logo-icon"><i class="fas fa-plus-circle"></i></div>
+                    <h1>Create School</h1>
+                    <p>Register your school</p>
+                </div>
+                <div id="errorMessage" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+                <form onsubmit="return handleCreateSchool(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-school"></i> School Name</label>
+                        <input type="text" id="createSchoolName" placeholder="Enter school name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Admin Name</label>
+                        <input type="text" id="createAdminName" placeholder="Enter admin name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Admin Email</label>
+                        <input type="email" id="createAdminEmail" placeholder="Enter admin email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password (min 8 chars)</label>
+                        <input type="password" id="createPassword" placeholder="Enter password" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
+                        <input type="password" id="createConfirmPassword" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="btn-login"><i class="fas fa-plus-circle"></i> Create School</button>
+                </form>
+                <div class="login-footer">
+                    <a onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a>
+                </div>
+            `;
+        }
+
+        function showForgotPassword(event) {
+            if (event) event.preventDefault();
+            var container = document.querySelector('.login-container');
+            container.innerHTML = `
+                <div class="login-logo">
+                    <div class="logo-icon"><i class="fas fa-key"></i></div>
+                    <h1>Reset Password</h1>
+                    <p>Enter your email to reset</p>
+                </div>
+                <div id="errorMessage" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+                <form onsubmit="return handleForgotPassword(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-school"></i> School Name</label>
+                        <input type="text" id="resetSchoolName" placeholder="Enter school name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="forgotEmail" placeholder="Enter email" required>
+                    </div>
+                    <button type="submit" class="btn-login"><i class="fas fa-key"></i> Reset Password</button>
+                </form>
+                <div class="login-footer">
+                    <a onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a>
+                </div>
+            `;
+        }
+
+        function showLoginForm(event) {
+            if (event) event.preventDefault();
+            window.location.reload();
+        }
+
+        // Error handling
+        function showError(message) {
+            var errorMessage = document.getElementById('errorMessage');
+            var errorText = document.getElementById('errorText');
+            if (errorMessage && errorText) {
+                errorText.textContent = message;
+                errorMessage.classList.add('show');
+                setTimeout(function() {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+            } else {
+                alert(message);
+            }
+        }
+
+        function hideError() {
+            var errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) errorMessage.classList.remove('show');
+        }
+
+        window.showSignup = showSignup;
+        window.showCreateSchool = showCreateSchool;
+        window.showForgotPassword = showForgotPassword;
+        window.showLoginForm = showLoginForm;
+        window.showError = showError;
+        window.hideError = hideError;
     </script>
+
 </body>
 </html>

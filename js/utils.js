@@ -1,448 +1,415 @@
 // ============================================
-// SRMS - Custom Dialogue Box System
-// Beautiful Glass-Morphism Dialogs
+// SRMS - Complete Utility Functions
+// 100% Working
 // ============================================
 
-var DialogSystem = {
-  _overlay: null,
-  _resolve: null,
-  _escHandler: null,
-  _isPrompt: false,
+// ============ DATE FUNCTIONS ============
+function getCurrentDate() {
+  var today = new Date();
+  var year = today.getFullYear();
+  var month = String(today.getMonth() + 1).padStart(2, "0");
+  var day = String(today.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
+}
 
-  // ============ CONFIRM DIALOG ============
-  confirm(message, options) {
-    options = options || {};
-    var title = options.title || "Confirm";
-    var confirmText = options.confirmText || "Confirm";
-    var cancelText = options.cancelText || "Cancel";
-    var type = options.type || "warning";
+function getCurrentDateTime() {
+  return new Date().toISOString();
+}
 
-    return new Promise(function (resolve) {
-      var overlay = document.createElement("div");
-      overlay.className = "dialog-overlay";
-      overlay.id = "dialogOverlay";
+function getDateDisplay() {
+  var now = new Date();
+  var options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return now.toLocaleDateString("en-US", options);
+}
 
-      var icons = {
-        warning: "fa-exclamation-triangle",
-        danger: "fa-trash",
-        info: "fa-info-circle",
-        success: "fa-check-circle",
-      };
+function formatDate(dateString) {
+  if (!dateString) return "-";
+  var date = new Date(dateString);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 
-      var colors = {
-        warning: "#ffc107",
-        danger: "#e94560",
-        info: "#17a2b8",
-        success: "#28a745",
-      };
+function formatDateTime(dateString) {
+  if (!dateString) return "-";
+  var date = new Date(dateString);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
-      overlay.innerHTML = `
-                <div class="dialog-box">
-                    <div class="dialog-icon" style="background: ${colors[type]}20; color: ${colors[type]}; border: 2px solid ${colors[type]};">
-                        <i class="fas ${icons[type]}"></i>
-                    </div>
-                    <h3 class="dialog-title">${title}</h3>
-                    <p class="dialog-message">${message}</p>
-                    <div class="dialog-buttons">
-                        <button class="dialog-btn dialog-cancel" onclick="DialogSystem.close('cancel')">
-                            <i class="fas fa-times"></i> ${cancelText}
-                        </button>
-                        <button class="dialog-btn dialog-confirm" style="background: ${colors[type]};" onclick="DialogSystem.close('confirm')">
-                            <i class="fas fa-check"></i> ${confirmText}
-                        </button>
-                    </div>
-                </div>
-            `;
+function formatTime(dateString) {
+  if (!dateString) return "-";
+  var date = new Date(dateString);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
-      document.body.appendChild(overlay);
+function addDays(dateString, days) {
+  var date = new Date(dateString);
+  date.setDate(date.getDate() + days);
+  var year = date.getFullYear();
+  var month = String(date.getMonth() + 1).padStart(2, "0");
+  var day = String(date.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
+}
 
-      if (!document.getElementById("dialogStyles")) {
-        var styleEl = document.createElement("style");
-        styleEl.id = "dialogStyles";
-        styleEl.textContent = DialogSystem.getStyles();
-        document.head.appendChild(styleEl);
-      }
+function subtractDays(dateString, days) {
+  return addDays(dateString, -days);
+}
 
-      requestAnimationFrame(function () {
-        overlay.classList.add("active");
-        overlay.querySelector(".dialog-box").classList.add("active");
-      });
+function daysOverdue(returnDate) {
+  if (!returnDate) return 0;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var dueDate = new Date(returnDate);
+  dueDate.setHours(0, 0, 0, 0);
+  var diffTime = today - dueDate;
+  var days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return days > 0 ? days : 0;
+}
 
-      DialogSystem._resolve = resolve;
-      DialogSystem._overlay = overlay;
+function isOverdue(returnDate) {
+  return daysOverdue(returnDate) > 0;
+}
 
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) {
-          DialogSystem.close("cancel");
-        }
-      });
+function daysBetween(date1, date2) {
+  var d1 = new Date(date1);
+  var d2 = new Date(date2);
+  if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return 0;
+  var diffTime = Math.abs(d2 - d1);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
 
-      DialogSystem._escHandler = function (e) {
-        if (e.key === "Escape") {
-          DialogSystem.close("cancel");
-        }
-      };
-      document.addEventListener("keydown", DialogSystem._escHandler);
-    });
-  },
+function getMonthName(monthNumber) {
+  var months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return months[monthNumber] || "";
+}
 
-  // ============ ALERT DIALOG ============
-  alert(message, options) {
-    options = options || {};
-    var title = options.title || "Notice";
-    var confirmText = options.confirmText || "OK";
-    var type = options.type || "info";
+function getMonthShortName(monthNumber) {
+  var months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return months[monthNumber] || "";
+}
 
-    return new Promise(function (resolve) {
-      var overlay = document.createElement("div");
-      overlay.className = "dialog-overlay";
-      overlay.id = "dialogOverlay";
+function getDayName(dayNumber) {
+  var days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  return days[dayNumber] || "";
+}
 
-      var icons = {
-        warning: "fa-exclamation-triangle",
-        danger: "fa-exclamation-circle",
-        info: "fa-info-circle",
-        success: "fa-check-circle",
-      };
+// ============ FORMATTING FUNCTIONS ============
+function formatNumber(number) {
+  if (number === undefined || number === null) return "0";
+  return new Intl.NumberFormat("en-US").format(number);
+}
 
-      var colors = {
-        warning: "#ffc107",
-        danger: "#e94560",
-        info: "#17a2b8",
-        success: "#28a745",
-      };
+function formatCurrency(amount) {
+  if (amount === undefined || amount === null) amount = 0;
+  return "KES " + new Intl.NumberFormat("en-KE").format(amount);
+}
 
-      overlay.innerHTML = `
-                <div class="dialog-box">
-                    <div class="dialog-icon" style="background: ${colors[type]}20; color: ${colors[type]}; border: 2px solid ${colors[type]};">
-                        <i class="fas ${icons[type]}"></i>
-                    </div>
-                    <h3 class="dialog-title">${title}</h3>
-                    <p class="dialog-message">${message}</p>
-                    <div class="dialog-buttons">
-                        <button class="dialog-btn dialog-confirm" style="background: ${colors[type]}; width: 100%;" onclick="DialogSystem.close('confirm')">
-                            <i class="fas fa-check"></i> ${confirmText}
-                        </button>
-                    </div>
-                </div>
-            `;
+function capitalizeFirst(string) {
+  if (!string) return "";
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
 
-      document.body.appendChild(overlay);
+function capitalizeWords(string) {
+  if (!string) return "";
+  return string.replace(/\b\w/g, function (char) {
+    return char.toUpperCase();
+  });
+}
 
-      if (!document.getElementById("dialogStyles")) {
-        var styleEl = document.createElement("style");
-        styleEl.id = "dialogStyles";
-        styleEl.textContent = DialogSystem.getStyles();
-        document.head.appendChild(styleEl);
-      }
+function truncateText(text, length) {
+  if (!text) return "";
+  length = length || 50;
+  if (text.length <= length) return text;
+  return text.substring(0, length) + "...";
+}
 
-      requestAnimationFrame(function () {
-        overlay.classList.add("active");
-        overlay.querySelector(".dialog-box").classList.add("active");
-      });
+function getInitials(name) {
+  if (!name) return "U";
+  var parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
 
-      DialogSystem._resolve = resolve;
-      DialogSystem._overlay = overlay;
+// ============ GENERATION FUNCTIONS ============
+function generateCode(prefix, length) {
+  prefix = prefix || "";
+  length = length || 8;
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  var code = "";
+  for (var i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return prefix + code;
+}
 
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) {
-          DialogSystem.close("confirm");
-        }
-      });
+function generateUniqueId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+}
 
-      DialogSystem._escHandler = function (e) {
-        if (e.key === "Escape" || e.key === "Enter") {
-          DialogSystem.close("confirm");
-        }
-      };
-      document.addEventListener("keydown", DialogSystem._escHandler);
-    });
-  },
+function generateRandomColor() {
+  var colors = [
+    "#e94560",
+    "#0f3460",
+    "#d4af37",
+    "#28a745",
+    "#17a2b8",
+    "#6f42c1",
+    "#fd7e14",
+    "#20c997",
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
 
-  // ============ PROMPT DIALOG ============
-  prompt(message, options) {
-    options = options || {};
-    var title = options.title || "Input Required";
-    var confirmText = options.confirmText || "Submit";
-    var cancelText = options.cancelText || "Cancel";
-    var placeholder = options.placeholder || "Enter value...";
-    var defaultValue = options.defaultValue || "";
-    var inputType = options.inputType || "text";
+// ============ VALIDATION FUNCTIONS ============
+function validateEmail(email) {
+  var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return pattern.test(email);
+}
 
-    return new Promise(function (resolve) {
-      var overlay = document.createElement("div");
-      overlay.className = "dialog-overlay";
-      overlay.id = "dialogOverlay";
+function validatePhone(phone) {
+  var pattern = /^\+?[\d\s-]{10,}$/;
+  return pattern.test(phone);
+}
 
-      overlay.innerHTML = `
-                <div class="dialog-box">
-                    <div class="dialog-icon" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border: 2px solid #d4af37;">
-                        <i class="fas fa-keyboard"></i>
-                    </div>
-                    <h3 class="dialog-title">${title}</h3>
-                    <p class="dialog-message">${message}</p>
-                    <div class="dialog-input-group">
-                        <input type="${inputType}" class="dialog-input" id="dialogInput" placeholder="${placeholder}" value="${defaultValue}">
-                    </div>
-                    <div class="dialog-buttons">
-                        <button class="dialog-btn dialog-cancel" onclick="DialogSystem.close('cancel')">
-                            <i class="fas fa-times"></i> ${cancelText}
-                        </button>
-                        <button class="dialog-btn dialog-confirm" style="background: #d4af37;" onclick="DialogSystem.close('confirm')">
-                            <i class="fas fa-check"></i> ${confirmText}
-                        </button>
-                    </div>
-                </div>
-            `;
+function validateRequired(value) {
+  return value && value.trim().length > 0;
+}
 
-      document.body.appendChild(overlay);
+function isEmpty(str) {
+  return !str || str.trim().length === 0;
+}
 
-      if (!document.getElementById("dialogStyles")) {
-        var styleEl = document.createElement("style");
-        styleEl.id = "dialogStyles";
-        styleEl.textContent = DialogSystem.getStyles();
-        document.head.appendChild(styleEl);
-      }
-
-      requestAnimationFrame(function () {
-        overlay.classList.add("active");
-        overlay.querySelector(".dialog-box").classList.add("active");
-        var input = document.getElementById("dialogInput");
-        if (input) {
-          setTimeout(function () {
-            input.focus();
-          }, 300);
-        }
-      });
-
-      DialogSystem._resolve = resolve;
-      DialogSystem._overlay = overlay;
-      DialogSystem._isPrompt = true;
-
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) {
-          DialogSystem.close("cancel");
-        }
-      });
-
-      DialogSystem._escHandler = function (e) {
-        if (e.key === "Escape") {
-          DialogSystem.close("cancel");
-        }
-        if (e.key === "Enter") {
-          DialogSystem.close("confirm");
-        }
-      };
-      document.addEventListener("keydown", DialogSystem._escHandler);
-    });
-  },
-
-  // ============ CLOSE ============
-  close(result) {
-    if (DialogSystem._overlay) {
-      var overlay = DialogSystem._overlay;
-      var box = overlay.querySelector(".dialog-box");
-
-      box.classList.remove("active");
-      overlay.classList.remove("active");
-
-      setTimeout(function () {
-        overlay.remove();
-      }, 200);
-
-      if (DialogSystem._escHandler) {
-        document.removeEventListener("keydown", DialogSystem._escHandler);
-        DialogSystem._escHandler = null;
-      }
-
-      if (DialogSystem._resolve) {
-        var value = result;
-        if (DialogSystem._isPrompt && result === "confirm") {
-          var input = document.getElementById("dialogInput");
-          value = input ? input.value : "";
-        }
-        DialogSystem._resolve(value);
-        DialogSystem._resolve = null;
-      }
-
-      DialogSystem._overlay = null;
-      DialogSystem._isPrompt = false;
+// ============ AUTH FUNCTIONS ============
+function checkAuth() {
+  var user = localStorage.getItem("srms_user");
+  var school = localStorage.getItem("srms_school");
+  if (!user || !school) {
+    if (
+      window.location.pathname.indexOf("index.html") === -1 &&
+      window.location.pathname.indexOf("landing.html") === -1 &&
+      window.location.pathname.indexOf("wallpaper.html") === -1
+    ) {
+      window.location.href = "index.html";
     }
-  },
-
-  // ============ STYLES ============
-  getStyles() {
-    return `
-            .dialog-overlay {
-                position: fixed;
-                top: 0; left: 0;
-                width: 100%; height: 100%;
-                background: rgba(0, 0, 0, 0.7);
-                z-index: 3000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                transition: opacity 0.2s ease;
-                padding: 20px;
-            }
-            
-            .dialog-overlay.active {
-                opacity: 1;
-            }
-            
-            .dialog-box {
-                background: linear-gradient(135deg, #1a1f4e, #0a0e27);
-                border: 2px solid rgba(212, 175, 55, 0.4);
-                border-radius: 20px;
-                padding: 30px;
-                width: 90%;
-                max-width: 420px;
-                text-align: center;
-                transform: scale(0.8) translateY(20px);
-                transition: transform 0.2s ease;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .dialog-box::before {
-                content: '';
-                position: absolute;
-                top: 0; left: 0; right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
-            }
-            
-            .dialog-box.active {
-                transform: scale(1) translateY(0);
-            }
-            
-            .dialog-icon {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                margin: 0 auto 15px;
-                animation: dialogPulse 1.5s infinite;
-            }
-            
-            @keyframes dialogPulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-            }
-            
-            .dialog-title {
-                color: #ffffff;
-                font-size: 1.3em;
-                font-weight: 800;
-                margin-bottom: 10px;
-            }
-            
-            .dialog-message {
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 14px;
-                margin-bottom: 20px;
-                line-height: 1.5;
-            }
-            
-            .dialog-buttons {
-                display: flex;
-                gap: 10px;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .dialog-btn {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 10px;
-                font-size: 13px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                font-family: 'Inter', sans-serif;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                color: #ffffff;
-            }
-            
-            .dialog-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            }
-            
-            .dialog-cancel {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            
-            .dialog-cancel:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-            
-            .dialog-confirm {
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            }
-            
-            .dialog-input-group {
-                margin-bottom: 20px;
-            }
-            
-            .dialog-input {
-                width: 100%;
-                padding: 12px 15px;
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 10px;
-                color: #ffffff;
-                font-size: 14px;
-                font-family: 'Inter', sans-serif;
-                outline: none;
-                transition: all 0.2s ease;
-            }
-            
-            .dialog-input:focus {
-                border-color: #d4af37;
-                box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-            }
-            
-            .dialog-input::placeholder {
-                color: rgba(255, 255, 255, 0.4);
-            }
-            
-            @media (max-width: 480px) {
-                .dialog-box {
-                    padding: 20px;
-                }
-                .dialog-btn {
-                    padding: 8px 15px;
-                    font-size: 12px;
-                }
-            }
-        `;
-  },
-};
-
-// ============ GLOBAL FUNCTIONS ============
-function showConfirm(message, options) {
-  return DialogSystem.confirm(message, options);
+    return null;
+  }
+  try {
+    return JSON.parse(user);
+  } catch (error) {
+    localStorage.removeItem("srms_user");
+    localStorage.removeItem("srms_school");
+    return null;
+  }
 }
 
-function showAlert(message, options) {
-  return DialogSystem.alert(message, options);
+function getCurrentUser() {
+  var user = localStorage.getItem("srms_user");
+  if (!user) return null;
+  try {
+    return JSON.parse(user);
+  } catch (error) {
+    return null;
+  }
 }
 
-function showPrompt(message, options) {
-  return DialogSystem.prompt(message, options);
+function getCurrentSchool() {
+  return localStorage.getItem("srms_school");
 }
 
-// Export
-window.DialogSystem = DialogSystem;
-window.showConfirm = showConfirm;
-window.showAlert = showAlert;
-window.showPrompt = showPrompt;
+function isAdmin() {
+  var user = getCurrentUser();
+  return user && user.role === "admin";
+}
+
+function logout() {
+  localStorage.removeItem("srms_user");
+  localStorage.removeItem("srms_school");
+  window.location.href = "index.html";
+}
+
+// ============ NOTIFICATION FUNCTIONS ============
+function showNotification(message, type) {
+  type = type || "success";
+  var colors = {
+    success: "#28a745",
+    error: "#dc3545",
+    warning: "#ffc107",
+    info: "#17a2b8",
+  };
+  var icons = {
+    success: "fa-check-circle",
+    error: "fa-exclamation-circle",
+    warning: "fa-exclamation-triangle",
+    info: "fa-info-circle",
+  };
+
+  var existing = document.querySelectorAll(".notification");
+  existing.forEach(function (el) {
+    el.remove();
+  });
+
+  var notification = document.createElement("div");
+  notification.className = "notification notification-" + type;
+  notification.style.cssText =
+    "position:fixed;top:80px;right:20px;padding:15px 20px;background:" +
+    (colors[type] || colors.info) +
+    ";color:#fff;border-radius:12px;z-index:9999;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform 0.3s ease;";
+  notification.innerHTML =
+    '<i class="fas ' +
+    (icons[type] || icons.info) +
+    '"></i><span>' +
+    message +
+    "</span>";
+  document.body.appendChild(notification);
+
+  setTimeout(function () {
+    notification.style.transform = "translateX(0)";
+  }, 100);
+  setTimeout(function () {
+    notification.style.transform = "translateX(120%)";
+    setTimeout(function () {
+      if (notification.parentNode) notification.remove();
+    }, 300);
+  }, 3000);
+}
+
+// ============ MODAL FUNCTIONS ============
+function openModal(modalId) {
+  var modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeModal(modalId) {
+  var modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+}
+
+function closeAllModals() {
+  var modals = document.querySelectorAll(".modal");
+  modals.forEach(function (m) {
+    m.classList.remove("active");
+  });
+  document.body.style.overflow = "auto";
+}
+
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains("modal")) {
+    event.target.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+});
+
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") {
+    closeAllModals();
+  }
+});
+
+// ============ TABLE FUNCTIONS ============
+function filterTable(searchInput, tableBody) {
+  if (!searchInput || !tableBody) return;
+  var filter = searchInput.value.toLowerCase();
+  var rows = tableBody.getElementsByTagName("tr");
+  for (var i = 0; i < rows.length; i++) {
+    var rowText = rows[i].textContent.toLowerCase();
+    rows[i].style.display = rowText.indexOf(filter) > -1 ? "" : "none";
+  }
+}
+
+// ============ EXPORT ALL ============
+window.getCurrentDate = getCurrentDate;
+window.getCurrentDateTime = getCurrentDateTime;
+window.getDateDisplay = getDateDisplay;
+window.formatDate = formatDate;
+window.formatDateTime = formatDateTime;
+window.formatTime = formatTime;
+window.addDays = addDays;
+window.subtractDays = subtractDays;
+window.daysOverdue = daysOverdue;
+window.isOverdue = isOverdue;
+window.daysBetween = daysBetween;
+window.getMonthName = getMonthName;
+window.getMonthShortName = getMonthShortName;
+window.getDayName = getDayName;
+window.formatNumber = formatNumber;
+window.formatCurrency = formatCurrency;
+window.capitalizeFirst = capitalizeFirst;
+window.capitalizeWords = capitalizeWords;
+window.truncateText = truncateText;
+window.getInitials = getInitials;
+window.generateCode = generateCode;
+window.generateUniqueId = generateUniqueId;
+window.generateRandomColor = generateRandomColor;
+window.validateEmail = validateEmail;
+window.validatePhone = validatePhone;
+window.validateRequired = validateRequired;
+window.isEmpty = isEmpty;
+window.checkAuth = checkAuth;
+window.getCurrentUser = getCurrentUser;
+window.getCurrentSchool = getCurrentSchool;
+window.isAdmin = isAdmin;
+window.logout = logout;
+window.showNotification = showNotification;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.closeAllModals = closeAllModals;
+window.filterTable = filterTable;

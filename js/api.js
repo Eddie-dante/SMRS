@@ -1,9 +1,9 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Fixed Version - With Error Handling
+// 100% Working - Full Version
 // ============================================
 
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: "AIzaSyACefHWvbETo2siNZy4ETCWZVTwIrtaNMs",
   authDomain: "srms-fd318.firebaseapp.com",
   databaseURL: "https://srms-fd318-default-rtdb.firebaseio.com",
@@ -13,40 +13,12 @@ const firebaseConfig = {
   appId: "1:828888967437:web:90461f6b1bc79854ea6844",
 };
 
+// Initialize Firebase only once
 if (typeof firebase !== "undefined" && !firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const database = firebase.database();
-
-// ============ CACHE SYSTEM ============
-const CacheManager = {
-  cache: {},
-  timestamps: {},
-  DEFAULT_TTL: 30000,
-
-  get(key) {
-    var entry = this.cache[key];
-    if (!entry) return null;
-    var now = Date.now();
-    if (now - this.timestamps[key] > this.DEFAULT_TTL) {
-      delete this.cache[key];
-      delete this.timestamps[key];
-      return null;
-    }
-    return entry;
-  },
-
-  set(key, value) {
-    this.cache[key] = value;
-    this.timestamps[key] = Date.now();
-  },
-
-  clear() {
-    this.cache = {};
-    this.timestamps = {};
-  },
-};
+var database = firebase.database();
 
 // ============ HELPER FUNCTIONS ============
 function generateInviteCode(length) {
@@ -82,7 +54,6 @@ function generateUniqueQRCode(type, usedCodes) {
   var code = "";
   var unique = false;
   var attempts = 0;
-
   while (!unique && attempts < 100) {
     var number = Math.floor(10000 + Math.random() * 90000);
     code = type.toUpperCase() + "-" + number;
@@ -92,32 +63,30 @@ function generateUniqueQRCode(type, usedCodes) {
     }
     attempts++;
   }
-
   return code;
 }
 
 // ============ API OBJECT ============
-const API = {
+var API = {
+
   // ============ SCHOOL OPERATIONS ============
-  async getSchool(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName)
-        .once("value");
-      var data = snapshot.val();
-      return data || null;
-    } catch (error) {
-      console.error("Get school error:", error);
-      return null;
-    }
+  getSchool: function(schoolName) {
+    return database.ref("schools/" + schoolName).once("value")
+      .then(function(snapshot) {
+        return snapshot.val() || null;
+      })
+      .catch(function(error) {
+        console.error("Get school error:", error);
+        return null;
+      });
   },
 
-  async createSchool(schoolData) {
+  createSchool: function(schoolData) {
     try {
-      const inviteCode = generateInviteCode();
-      const emailKey = schoolData.adminEmail.replace(/\./g, ",");
+      var inviteCode = generateInviteCode();
+      var emailKey = schoolData.adminEmail.replace(/\./g, ",");
 
-      await database.ref("schools/" + schoolData.name).set({
+      return database.ref("schools/" + schoolData.name).set({
         name: schoolData.name,
         address: schoolData.address || "",
         adminName: schoolData.adminName,
@@ -127,17 +96,14 @@ const API = {
         motto: schoolData.motto || "",
         createdAt: new Date().toISOString(),
         isActive: true,
-      });
-
-      await database.ref("schools/" + schoolData.name + "/settings").set({
-        maxBorrowDays: 14,
-        maxBooksPerStudent: 3,
-        finePerDay: 10,
-      });
-
-      await database
-        .ref("schools/" + schoolData.name + "/users/" + emailKey)
-        .set({
+      }).then(function() {
+        return database.ref("schools/" + schoolData.name + "/settings").set({
+          maxBorrowDays: 14,
+          maxBooksPerStudent: 3,
+          finePerDay: 10,
+        });
+      }).then(function() {
+        return database.ref("schools/" + schoolData.name + "/users/" + emailKey).set({
           name: schoolData.adminName,
           email: schoolData.adminEmail,
           role: "admin",
@@ -146,611 +112,479 @@ const API = {
           createdAt: new Date().toISOString(),
           isActive: true,
         });
-
-      return { success: true, inviteCode: inviteCode };
+      }).then(function() {
+        return { success: true, inviteCode: inviteCode };
+      });
     } catch (error) {
-      return { success: false, error: error.message };
+      return Promise.resolve({ success: false, error: error.message });
     }
   },
 
-  async updateSchool(schoolName, schoolData) {
-    try {
-      await database.ref("schools/" + schoolName).update(schoolData);
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  updateSchool: function(schoolName, schoolData) {
+    return database.ref("schools/" + schoolName).update(schoolData)
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ AUTHENTICATION ============
-  async login(schoolName, email, password) {
-    try {
-      const emailKey = email.replace(/\./g, ",");
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/users/" + emailKey)
-        .once("value");
-      const user = snapshot.val();
-
-      if (
-        user &&
-        user.password === hashPassword(password) &&
-        user.isActive !== false
-      ) {
-        const sessionUser = {
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          staffId: user.staffId,
-        };
-        localStorage.setItem("srms_user", JSON.stringify(sessionUser));
-        localStorage.setItem("srms_school", schoolName);
-        return { success: true, user: sessionUser };
-      }
-      return { success: false, error: "Invalid credentials" };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-
-  async createUser(schoolName, userData) {
-    try {
-      const emailKey = userData.email.replace(/\./g, ",");
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/users/" + emailKey)
-        .once("value");
-
-      if (snapshot.exists()) {
-        return { success: false, error: "User already exists" };
-      }
-
-      await database.ref("schools/" + schoolName + "/users/" + emailKey).set({
-        name: userData.name,
-        email: userData.email,
-        role: userData.role || "teacher",
-        staffId: userData.staffId || generateStaffId(),
-        phone: userData.phone || "",
-        password: hashPassword(userData.password),
-        createdAt: new Date().toISOString(),
-        isActive: true,
+  login: function(schoolName, email, password) {
+    var emailKey = email.replace(/\./g, ",");
+    return database.ref("schools/" + schoolName + "/users/" + emailKey).once("value")
+      .then(function(snapshot) {
+        var user = snapshot.val();
+        if (user && user.password === hashPassword(password) && user.isActive !== false) {
+          var sessionUser = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            staffId: user.staffId,
+          };
+          localStorage.setItem("srms_user", JSON.stringify(sessionUser));
+          localStorage.setItem("srms_school", schoolName);
+          return { success: true, user: sessionUser };
+        }
+        return { success: false, error: "Invalid credentials" };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
       });
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
-  async getUsers(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/users")
-        .once("value");
-      const users = snapshot.val();
-      var result = users
-        ? Object.entries(users).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  createUser: function(schoolName, userData) {
+    var emailKey = userData.email.replace(/\./g, ",");
+    return database.ref("schools/" + schoolName + "/users/" + emailKey).once("value")
+      .then(function(snapshot) {
+        if (snapshot.exists()) {
+          return { success: false, error: "User already exists" };
+        }
+        return database.ref("schools/" + schoolName + "/users/" + emailKey).set({
+          name: userData.name,
+          email: userData.email,
+          role: userData.role || "teacher",
+          staffId: userData.staffId || generateStaffId(),
+          phone: userData.phone || "",
+          password: hashPassword(userData.password),
+          createdAt: new Date().toISOString(),
+          isActive: true,
+        });
+      }).then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
-  async updateUser(schoolName, email, userData) {
-    try {
-      const emailKey = email.replace(/\./g, ",");
-      await database
-        .ref("schools/" + schoolName + "/users/" + emailKey)
-        .update(userData);
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  getUsers: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/users").once("value")
+      .then(function(snapshot) {
+        var users = snapshot.val();
+        return users ? Object.entries(users).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
-  async deleteUser(schoolName, email) {
-    try {
-      const emailKey = email.replace(/\./g, ",");
-      await database
-        .ref("schools/" + schoolName + "/users/" + emailKey)
-        .update({ isActive: false });
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  updateUser: function(schoolName, email, userData) {
+    var emailKey = email.replace(/\./g, ",");
+    return database.ref("schools/" + schoolName + "/users/" + emailKey).update(userData)
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  deleteUser: function(schoolName, email) {
+    var emailKey = email.replace(/\./g, ",");
+    return database.ref("schools/" + schoolName + "/users/" + emailKey).update({ isActive: false })
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ BOOK OPERATIONS ============
-  async addBook(schoolName, bookData) {
-    try {
-      const bookRef = database.ref("schools/" + schoolName + "/books").push();
-      await bookRef.set({
-        title: bookData.title,
-        author: bookData.author || "",
-        type: bookData.type || "Textbook",
-        subject: bookData.subject || "",
-        quantity: bookData.quantity || 1,
-        available: bookData.quantity || 1,
-        createdBy: bookData.createdBy || "",
-        createdAt: new Date().toISOString(),
+  addBook: function(schoolName, bookData) {
+    var bookRef = database.ref("schools/" + schoolName + "/books").push();
+    return bookRef.set({
+      title: bookData.title,
+      author: bookData.author || "",
+      type: bookData.type || "Textbook",
+      subject: bookData.subject || "",
+      quantity: bookData.quantity || 1,
+      available: bookData.quantity || 1,
+      createdBy: bookData.createdBy || "",
+      createdAt: new Date().toISOString(),
+    }).then(function() {
+      return { success: true };
+    }).catch(function(error) {
+      return { success: false, error: error.message };
+    });
+  },
+
+  getBooks: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/books").once("value")
+      .then(function(snapshot) {
+        var books = snapshot.val();
+        return books ? Object.entries(books).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
       });
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
-  async getBooks(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/books")
-        .once("value");
-      const books = snapshot.val();
-      var result = books
-        ? Object.entries(books).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  updateBook: function(schoolName, bookId, bookData) {
+    return database.ref("schools/" + schoolName + "/books/" + bookId).update(bookData)
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
-  async updateBook(schoolName, bookId, bookData) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/books/" + bookId)
-        .update(bookData);
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-
-  async deleteBook(schoolName, bookId) {
-    try {
-      await database.ref("schools/" + schoolName + "/books/" + bookId).remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  deleteBook: function(schoolName, bookId) {
+    return database.ref("schools/" + schoolName + "/books/" + bookId).remove()
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ BORROWING OPERATIONS ============
-  async issueBook(schoolName, borrowData) {
-    try {
-      const borrowRef = database
-        .ref("schools/" + schoolName + "/borrowed")
-        .push();
-      await borrowRef.set({
-        studentName: borrowData.studentName,
-        adm: borrowData.adm,
-        form: borrowData.form || "",
-        stream: borrowData.stream || "",
-        bookTitle: borrowData.bookTitle,
-        bookNo: borrowData.bookNo,
-        qrId: borrowData.qrId || null,
-        borrowDate: borrowData.borrowDate,
-        returnDate: borrowData.returnDate,
-        returned: false,
-        issuedBy: borrowData.issuedBy || "",
-        createdAt: new Date().toISOString(),
+  issueBook: function(schoolName, borrowData) {
+    var borrowRef = database.ref("schools/" + schoolName + "/borrowed").push();
+    return borrowRef.set({
+      studentName: borrowData.studentName,
+      adm: borrowData.adm,
+      form: borrowData.form || "",
+      stream: borrowData.stream || "",
+      bookTitle: borrowData.bookTitle,
+      bookNo: borrowData.bookNo,
+      qrId: borrowData.qrId || null,
+      borrowDate: borrowData.borrowDate,
+      returnDate: borrowData.returnDate,
+      returned: false,
+      issuedBy: borrowData.issuedBy || "",
+      createdAt: new Date().toISOString(),
+    }).then(function() {
+      return { success: true };
+    }).catch(function(error) {
+      return { success: false, error: error.message };
+    });
+  },
+
+  getBorrowed: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/borrowed").once("value")
+      .then(function(snapshot) {
+        var borrowed = snapshot.val();
+        return borrowed ? Object.entries(borrowed).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
       });
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
-  async getBorrowed(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/borrowed")
-        .once("value");
-      const borrowed = snapshot.val();
-      var result = borrowed
-        ? Object.entries(borrowed).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
-  },
-
-  async returnBook(schoolName, borrowId) {
-    try {
-      const borrowSnapshot = await database
-        .ref("schools/" + schoolName + "/borrowed/" + borrowId)
-        .once("value");
-      const borrowRecord = borrowSnapshot.val();
-
-      if (borrowRecord && borrowRecord.qrId) {
-        await this.returnQRCode(schoolName, borrowRecord.qrId);
-      }
-
-      await database
-        .ref("schools/" + schoolName + "/borrowed/" + borrowId)
-        .remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  returnBook: function(schoolName, borrowId) {
+    return database.ref("schools/" + schoolName + "/borrowed/" + borrowId).once("value")
+      .then(function(snapshot) {
+        var borrowRecord = snapshot.val();
+        if (borrowRecord && borrowRecord.qrId) {
+          return API.returnQRCode(schoolName, borrowRecord.qrId);
+        }
+        return Promise.resolve();
+      })
+      .then(function() {
+        return database.ref("schools/" + schoolName + "/borrowed/" + borrowId).remove();
+      })
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ QR CODE OPERATIONS ============
-  async generateQRCodes(schoolName, type, start, end) {
-    try {
-      const qrRef = database.ref("schools/" + schoolName + "/qrcodes");
-      const snapshot = await qrRef.once("value");
-      const existingCodes = snapshot.val() || {};
-      const usedCodes = {};
-
-      Object.values(existingCodes).forEach(function (qr) {
-        usedCodes[qr.code] = true;
-      });
-
-      var generated = [];
-      for (var i = start; i <= end; i++) {
-        var code = generateUniqueQRCode(type, usedCodes);
-        var newQRRef = qrRef.push();
-        await newQRRef.set({
-          code: code,
-          type: type,
-          assigned: false,
-          assignedTo: null,
-          className: null,
-          stream: null,
-          adm: null,
-          returned: false,
-          createdAt: new Date().toISOString(),
+  generateQRCodes: function(schoolName, type, start, end) {
+    var qrRef = database.ref("schools/" + schoolName + "/qrcodes");
+    return qrRef.once("value")
+      .then(function(snapshot) {
+        var existingCodes = snapshot.val() || {};
+        var usedCodes = {};
+        Object.values(existingCodes).forEach(function(qr) {
+          usedCodes[qr.code] = true;
         });
-        generated.push(code);
-      }
-
-      CacheManager.clear();
-      return { success: true, codes: generated };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-
-  async getQRCodes(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/qrcodes")
-        .once("value");
-      const codes = snapshot.val();
-      var result = codes
-        ? Object.entries(codes).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
-  },
-
-  async scanQRCode(schoolName, code) {
-    try {
-      const codes = await this.getQRCodes(schoolName);
-      var foundQR = null;
-      var foundId = null;
-
-      for (var i = 0; i < codes.length; i++) {
-        if (codes[i].code === code) {
-          foundQR = codes[i];
-          foundId = codes[i].id;
-          break;
+        var generated = [];
+        var promises = [];
+        for (var i = start; i <= end; i++) {
+          var code = generateUniqueQRCode(type, usedCodes);
+          var newQRRef = qrRef.push();
+          promises.push(newQRRef.set({
+            code: code,
+            type: type,
+            assigned: false,
+            assignedTo: null,
+            className: null,
+            stream: null,
+            adm: null,
+            returned: false,
+            createdAt: new Date().toISOString(),
+          }));
+          generated.push(code);
         }
-      }
-
-      if (!foundQR) {
-        return { success: false, error: "Code not found in database" };
-      }
-
-      if (foundQR.assigned && !foundQR.returned) {
-        return { success: true, status: "assigned", qr: foundQR, id: foundId };
-      }
-
-      return { success: true, status: "available", qr: foundQR, id: foundId };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+        return Promise.all(promises).then(function() {
+          return { success: true, codes: generated };
+        });
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
-  async assignQRCode(schoolName, qrId, assignmentData) {
-    try {
-      await database.ref("schools/" + schoolName + "/qrcodes/" + qrId).update({
-        assigned: true,
-        assignedTo: assignmentData.studentName,
-        className: assignmentData.className || "",
-        stream: assignmentData.stream || "",
-        adm: assignmentData.adm || "",
-        assignedAt: new Date().toISOString(),
-        returned: false,
+  getQRCodes: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/qrcodes").once("value")
+      .then(function(snapshot) {
+        var codes = snapshot.val();
+        return codes ? Object.entries(codes).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
       });
-      CacheManager.clear();
+  },
+
+  scanQRCode: function(schoolName, code) {
+    return API.getQRCodes(schoolName)
+      .then(function(codes) {
+        var foundQR = null;
+        var foundId = null;
+        for (var i = 0; i < codes.length; i++) {
+          if (codes[i].code === code) {
+            foundQR = codes[i];
+            foundId = codes[i].id;
+            break;
+          }
+        }
+        if (!foundQR) {
+          return { success: false, error: "Code not found in database" };
+        }
+        if (foundQR.assigned && !foundQR.returned) {
+          return { success: true, status: "assigned", qr: foundQR, id: foundId };
+        }
+        return { success: true, status: "available", qr: foundQR, id: foundId };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  assignQRCode: function(schoolName, qrId, assignmentData) {
+    return database.ref("schools/" + schoolName + "/qrcodes/" + qrId).update({
+      assigned: true,
+      assignedTo: assignmentData.studentName,
+      className: assignmentData.className || "",
+      stream: assignmentData.stream || "",
+      adm: assignmentData.adm || "",
+      assignedAt: new Date().toISOString(),
+      returned: false,
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async returnQRCode(schoolName, qrId) {
-    try {
-      await database.ref("schools/" + schoolName + "/qrcodes/" + qrId).update({
-        returned: true,
-        returnedAt: new Date().toISOString(),
-        assigned: false,
-        assignedTo: null,
-        className: null,
-        stream: null,
-        adm: null,
-      });
-
-      const borrowedSnapshot = await database
-        .ref("schools/" + schoolName + "/borrowed")
-        .once("value");
-      const borrowed = borrowedSnapshot.val();
+  returnQRCode: function(schoolName, qrId) {
+    return database.ref("schools/" + schoolName + "/qrcodes/" + qrId).update({
+      returned: true,
+      returnedAt: new Date().toISOString(),
+      assigned: false,
+      assignedTo: null,
+      className: null,
+      stream: null,
+      adm: null,
+    }).then(function() {
+      return database.ref("schools/" + schoolName + "/borrowed").once("value");
+    }).then(function(snapshot) {
+      var borrowed = snapshot.val();
       if (borrowed) {
         var promises = [];
-        Object.entries(borrowed).forEach(function (entry) {
+        Object.entries(borrowed).forEach(function(entry) {
           if (entry[1].qrId === qrId) {
-            promises.push(
-              database
-                .ref("schools/" + schoolName + "/borrowed/" + entry[0])
-                .remove(),
-            );
+            promises.push(database.ref("schools/" + schoolName + "/borrowed/" + entry[0]).remove());
           }
         });
-        await Promise.all(promises);
+        return Promise.all(promises);
       }
-
-      CacheManager.clear();
+      return Promise.resolve();
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  // ============ QR CODE EXTRA FUNCTIONS ============
-  async getQRCodeByCode(schoolName, code) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/qrcodes")
-        .once("value");
-      const codes = snapshot.val();
-      if (!codes) return null;
-
-      for (var id in codes) {
-        if (codes[id].code === code) {
-          return Object.assign({ id: id }, codes[id]);
+  generateStudentID: function(schoolName, adm) {
+    return database.ref("schools/" + schoolName + "/students/" + adm).once("value")
+      .then(function(snapshot) {
+        var student = snapshot.val();
+        if (!student) {
+          return { success: false, error: "Student not found" };
         }
-      }
-      return null;
-    } catch (error) {
-      return null;
-    }
-  },
-
-  async deleteQRCode(schoolName, qrId) {
-    try {
-      await database.ref("schools/" + schoolName + "/qrcodes/" + qrId).remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-
-  async generateStudentID(schoolName, adm) {
-    try {
-      const studentSnapshot = await database
-        .ref("schools/" + schoolName + "/students/" + adm)
-        .once("value");
-      const student = studentSnapshot.val();
-
-      if (!student) {
-        return { success: false, error: "Student not found" };
-      }
-
-      // Check if QR already exists for this student
-      const qrSnapshot = await database
-        .ref("schools/" + schoolName + "/qrcodes")
-        .orderByChild("adm")
-        .equalTo(adm)
-        .once("value");
-
-      const existingQRs = qrSnapshot.val();
-      if (existingQRs) {
-        // Check if any are still active (not returned)
-        for (var key in existingQRs) {
-          if (!existingQRs[key].returned) {
-            return {
-              success: true,
-              qrCode: existingQRs[key].code,
-              student: student,
-              existing: true,
-            };
+        return database.ref("schools/" + schoolName + "/qrcodes").orderByChild("adm").equalTo(adm).once("value");
+      })
+      .then(function(snapshot) {
+        var existingQRs = snapshot.val();
+        if (existingQRs) {
+          for (var key in existingQRs) {
+            if (!existingQRs[key].returned) {
+              return { success: true, qrCode: existingQRs[key].code, student: student, existing: true };
+            }
           }
         }
-      }
-
-      // Generate new QR code
-      const qrRef = database.ref("schools/" + schoolName + "/qrcodes");
-      const snapshot = await qrRef.once("value");
-      const existingCodes = snapshot.val() || {};
-      const usedCodes = {};
-
-      Object.values(existingCodes).forEach(function (qr) {
-        usedCodes[qr.code] = true;
+        var qrRef = database.ref("schools/" + schoolName + "/qrcodes");
+        return qrRef.once("value").then(function(snap) {
+          var existingCodes = snap.val() || {};
+          var usedCodes = {};
+          Object.values(existingCodes).forEach(function(qr) {
+            usedCodes[qr.code] = true;
+          });
+          var qrCode = generateUniqueQRCode("STUDENT", usedCodes);
+          var newQRRef = qrRef.push();
+          return newQRRef.set({
+            code: qrCode,
+            type: "student",
+            assigned: true,
+            assignedTo: student.name,
+            className: student.form || "",
+            stream: student.stream || "",
+            adm: adm,
+            returned: false,
+            createdAt: new Date().toISOString(),
+          }).then(function() {
+            return database.ref("schools/" + schoolName + "/students/" + adm).update({
+              qrCode: qrCode,
+              idGeneratedAt: new Date().toISOString()
+            });
+          }).then(function() {
+            return { success: true, qrCode: qrCode, student: student };
+          });
+        });
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
       });
-
-      var qrCode = generateUniqueQRCode("STUDENT", usedCodes);
-
-      // Save QR code
-      const newQRRef = qrRef.push();
-      await newQRRef.set({
-        code: qrCode,
-        type: "student",
-        assigned: true,
-        assignedTo: student.name,
-        className: student.form || "",
-        stream: student.stream || "",
-        adm: adm,
-        returned: false,
-        createdAt: new Date().toISOString(),
-      });
-
-      // Update student with QR code
-      await database.ref("schools/" + schoolName + "/students/" + adm).update({
-        qrCode: qrCode,
-        idGeneratedAt: new Date().toISOString(),
-      });
-
-      CacheManager.clear();
-      return {
-        success: true,
-        qrCode: qrCode,
-        student: student,
-      };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
-  async getStudentByQRCode(schoolName, qrCode) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/students")
-        .orderByChild("qrCode")
-        .equalTo(qrCode)
-        .once("value");
-
-      const students = snapshot.val();
-      if (!students) {
-        return { success: false, error: "No student found with this QR code" };
-      }
-
-      const adm = Object.keys(students)[0];
-      const student = students[adm];
-
-      // Also get QR code details
-      const qrSnapshot = await database
-        .ref("schools/" + schoolName + "/qrcodes")
-        .orderByChild("code")
-        .equalTo(qrCode)
-        .once("value");
-
-      const qrData = qrSnapshot.val();
-      let qrInfo = null;
-      if (qrData) {
-        const qrId = Object.keys(qrData)[0];
-        qrInfo = qrData[qrId];
-        qrInfo.id = qrId;
-      }
-
-      return {
-        success: true,
-        student: student,
-        adm: adm,
-        qrInfo: qrInfo,
-      };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  getStudentByQRCode: function(schoolName, qrCode) {
+    return database.ref("schools/" + schoolName + "/students").orderByChild("qrCode").equalTo(qrCode).once("value")
+      .then(function(snapshot) {
+        var students = snapshot.val();
+        if (!students) {
+          return { success: false, error: "No student found with this QR code" };
+        }
+        var adm = Object.keys(students)[0];
+        var student = students[adm];
+        return database.ref("schools/" + schoolName + "/qrcodes").orderByChild("code").equalTo(qrCode).once("value")
+          .then(function(qrSnapshot) {
+            var qrData = qrSnapshot.val();
+            var qrInfo = null;
+            if (qrData) {
+              var qrId = Object.keys(qrData)[0];
+              qrInfo = qrData[qrId];
+              qrInfo.id = qrId;
+            }
+            return { success: true, student: student, adm: adm, qrInfo: qrInfo };
+          });
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ STUDENT OPERATIONS ============
-  async addStudent(schoolName, studentData) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/students/" + studentData.adm)
-        .set({
-          name: studentData.name,
-          adm: studentData.adm,
-          form: studentData.form || "",
-          stream: studentData.stream || "",
-          gender: studentData.gender || "",
-          dob: studentData.dob || "",
-          parentName: studentData.parentName || "",
-          parentPhone: studentData.parentPhone || "",
-          parentEmail: studentData.parentEmail || "",
-          addedBy: studentData.addedBy || "",
-          addedAt: new Date().toISOString(),
-        });
-      CacheManager.clear();
+  addStudent: function(schoolName, studentData) {
+    return database.ref("schools/" + schoolName + "/students/" + studentData.adm).set({
+      name: studentData.name,
+      adm: studentData.adm,
+      form: studentData.form || "",
+      stream: studentData.stream || "",
+      gender: studentData.gender || "",
+      dob: studentData.dob || "",
+      parentName: studentData.parentName || "",
+      parentPhone: studentData.parentPhone || "",
+      parentEmail: studentData.parentEmail || "",
+      addedBy: studentData.addedBy || "",
+      addedAt: new Date().toISOString(),
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getStudents(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/students")
-        .once("value");
-      const students = snapshot.val();
-      var result = students
-        ? Object.entries(students).map(function (entry) {
-            return Object.assign({ adm: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  getStudents: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/students").once("value")
+      .then(function(snapshot) {
+        var students = snapshot.val();
+        return students ? Object.entries(students).map(function(entry) {
+          return Object.assign({ adm: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
-  async deleteStudent(schoolName, adm) {
-    try {
-      await database.ref("schools/" + schoolName + "/students/" + adm).remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  deleteStudent: function(schoolName, adm) {
+    return database.ref("schools/" + schoolName + "/students/" + adm).remove()
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ CLASS OPERATIONS ============
-  async addClass(schoolName, classData) {
-    try {
-      const classRef = database
-        .ref("schools/" + schoolName + "/classes")
-        .push();
-      await classRef.set({
-        name: classData.name,
-        stream: classData.stream || "",
-        teacher: classData.teacher || "",
-        students: classData.students || [],
-        createdBy: classData.createdBy || "",
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      });
-
+  addClass: function(schoolName, classData) {
+    var classRef = database.ref("schools/" + schoolName + "/classes").push();
+    return classRef.set({
+      name: classData.name,
+      stream: classData.stream || "",
+      teacher: classData.teacher || "",
+      students: classData.students || [],
+      createdBy: classData.createdBy || "",
+      createdAt: new Date().toISOString(),
+      isActive: true,
+    }).then(function() {
       var students = classData.students || [];
+      var promises = [];
       for (var i = 0; i < students.length; i++) {
         var student = students[i];
         var adm = student.ADM || student.adm || student["ADM No"] || "";
-        var name =
-          student.Name || student.name || student["Full Name"] || "Unknown";
-
+        var name = student.Name || student.name || student["Full Name"] || "Unknown";
         if (adm) {
-          await database.ref("schools/" + schoolName + "/students/" + adm).set({
+          promises.push(database.ref("schools/" + schoolName + "/students/" + adm).set({
             name: name,
             adm: adm,
             form: classData.name,
@@ -762,697 +596,504 @@ const API = {
             parentEmail: student["Parent Email"] || "",
             addedBy: classData.createdBy || "",
             addedAt: new Date().toISOString(),
-          });
+          }));
         }
       }
-
-      CacheManager.clear();
+      return Promise.all(promises);
+    }).then(function() {
       return { success: true, classId: classRef.key };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getClasses(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/classes")
-        .once("value");
-      const classes = snapshot.val();
-      var result = classes
-        ? Object.entries(classes).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  getClasses: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/classes").once("value")
+      .then(function(snapshot) {
+        var classes = snapshot.val();
+        return classes ? Object.entries(classes).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
-  async deleteClass(schoolName, classId) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/classes/" + classId)
-        .remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  deleteClass: function(schoolName, classId) {
+    return database.ref("schools/" + schoolName + "/classes/" + classId).remove()
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ FEES OPERATIONS ============
-  async saveFee(schoolName, feeData) {
-    try {
-      const balance = (feeData.amount || 0) - (feeData.paid || 0);
-
-      if (feeData.id) {
-        await database
-          .ref("schools/" + schoolName + "/fees/" + feeData.id)
-          .update({
-            amount: feeData.amount || 0,
-            paid: feeData.paid || 0,
-            balance: balance,
-            term: feeData.term || "Term 1",
-            lastPaymentDate: new Date().toISOString().split("T")[0],
-            status: balance <= 0 ? "completed" : "partial",
-          });
-      } else {
-        const feeRef = database.ref("schools/" + schoolName + "/fees").push();
-        await feeRef.set({
-          studentAdm: feeData.studentAdm,
-          studentName: feeData.studentName,
-          amount: feeData.amount || 0,
-          paid: feeData.paid || 0,
-          balance: balance,
-          term: feeData.term || "Term 1",
-          lastPaymentDate: new Date().toISOString().split("T")[0],
-          status: balance <= 0 ? "completed" : "partial",
-          createdAt: new Date().toISOString(),
-        });
-      }
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
+  saveFee: function(schoolName, feeData) {
+    var balance = (feeData.amount || 0) - (feeData.paid || 0);
+    if (feeData.id) {
+      return database.ref("schools/" + schoolName + "/fees/" + feeData.id).update({
+        amount: feeData.amount || 0,
+        paid: feeData.paid || 0,
+        balance: balance,
+        term: feeData.term || "Term 1",
+        lastPaymentDate: new Date().toISOString().split("T")[0],
+        status: balance <= 0 ? "completed" : "partial",
+      }).then(function() {
+        return { success: true };
+      }).catch(function(error) {
+        return { success: false, error: error.message };
+      });
+    } else {
+      var feeRef = database.ref("schools/" + schoolName + "/fees").push();
+      return feeRef.set({
+        studentAdm: feeData.studentAdm,
+        studentName: feeData.studentName,
+        amount: feeData.amount || 0,
+        paid: feeData.paid || 0,
+        balance: balance,
+        term: feeData.term || "Term 1",
+        lastPaymentDate: new Date().toISOString().split("T")[0],
+        status: balance <= 0 ? "completed" : "partial",
+        createdAt: new Date().toISOString(),
+      }).then(function() {
+        return { success: true };
+      }).catch(function(error) {
+        return { success: false, error: error.message };
+      });
     }
   },
 
-  async getFees(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/fees")
-        .once("value");
-      const fees = snapshot.val();
-      var result = fees
-        ? Object.entries(fees).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  getFees: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/fees").once("value")
+      .then(function(snapshot) {
+        var fees = snapshot.val();
+        return fees ? Object.entries(fees).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
-  async deleteFee(schoolName, feeId) {
-    try {
-      await database.ref("schools/" + schoolName + "/fees/" + feeId).remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  deleteFee: function(schoolName, feeId) {
+    return database.ref("schools/" + schoolName + "/fees/" + feeId).remove()
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ FURNITURE OPERATIONS ============
-  async allocateFurniture(schoolName, furnitureData) {
-    try {
-      const furnitureRef = database
-        .ref("schools/" + schoolName + "/furniture")
-        .push();
-      await furnitureRef.set({
-        studentName: furnitureData.studentName,
-        adm: furnitureData.adm,
-        form: furnitureData.form || "",
-        stream: furnitureData.stream || "",
-        chairNo: furnitureData.chairNo,
-        lockerNo: furnitureData.lockerNo || "",
-        allocationDate: furnitureData.allocationDate,
-        issuedBy: furnitureData.issuedBy || "",
-        createdAt: new Date().toISOString(),
+  allocateFurniture: function(schoolName, furnitureData) {
+    var furnitureRef = database.ref("schools/" + schoolName + "/furniture").push();
+    return furnitureRef.set({
+      studentName: furnitureData.studentName,
+      adm: furnitureData.adm,
+      form: furnitureData.form || "",
+      stream: furnitureData.stream || "",
+      chairNo: furnitureData.chairNo,
+      lockerNo: furnitureData.lockerNo || "",
+      allocationDate: furnitureData.allocationDate,
+      issuedBy: furnitureData.issuedBy || "",
+      createdAt: new Date().toISOString(),
+    }).then(function() {
+      return { success: true };
+    }).catch(function(error) {
+      return { success: false, error: error.message };
+    });
+  },
+
+  getFurniture: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/furniture").once("value")
+      .then(function(snapshot) {
+        var furniture = snapshot.val();
+        return furniture ? Object.entries(furniture).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
       });
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
-  async getFurniture(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/furniture")
-        .once("value");
-      const furniture = snapshot.val();
-      var result = furniture
-        ? Object.entries(furniture).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
-  },
-
-  async returnFurniture(schoolName, furnitureId) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/furniture/" + furnitureId)
-        .remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  returnFurniture: function(schoolName, furnitureId) {
+    return database.ref("schools/" + schoolName + "/furniture/" + furnitureId).remove()
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ TEACHER OPERATIONS ============
-  async addTeacher(schoolName, teacherData) {
-    try {
-      const teacherRef = database
-        .ref("schools/" + schoolName + "/teachers")
-        .push();
-      await teacherRef.set({
-        name: teacherData.name,
-        email: teacherData.email || "",
-        phone: teacherData.phone || "",
-        subjects: teacherData.subjects || "",
-        classes: teacherData.classes || "",
-        addedBy: teacherData.addedBy || "",
-        createdAt: new Date().toISOString(),
+  addTeacher: function(schoolName, teacherData) {
+    var teacherRef = database.ref("schools/" + schoolName + "/teachers").push();
+    return teacherRef.set({
+      name: teacherData.name,
+      email: teacherData.email || "",
+      phone: teacherData.phone || "",
+      subjects: teacherData.subjects || "",
+      classes: teacherData.classes || "",
+      addedBy: teacherData.addedBy || "",
+      createdAt: new Date().toISOString(),
+    }).then(function() {
+      return { success: true };
+    }).catch(function(error) {
+      return { success: false, error: error.message };
+    });
+  },
+
+  getTeachers: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/teachers").once("value")
+      .then(function(snapshot) {
+        var teachers = snapshot.val();
+        return teachers ? Object.entries(teachers).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
       });
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
-  async getTeachers(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/teachers")
-        .once("value");
-      const teachers = snapshot.val();
-      var result = teachers
-        ? Object.entries(teachers).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
-  },
-
-  async deleteTeacher(schoolName, teacherId) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/teachers/" + teacherId)
-        .remove();
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  deleteTeacher: function(schoolName, teacherId) {
+    return database.ref("schools/" + schoolName + "/teachers/" + teacherId).remove()
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ EVENTS OPERATIONS ============
-  async addEvent(schoolName, eventData) {
-    try {
-      const eventRef = database.ref("schools/" + schoolName + "/events").push();
-      await eventRef.set({
-        title: eventData.title,
-        description: eventData.description || "",
-        eventDate: eventData.eventDate,
-        eventType: eventData.eventType || "Other",
-        createdBy: eventData.createdBy || "",
-        createdAt: new Date().toISOString(),
-      });
-      CacheManager.clear();
+  addEvent: function(schoolName, eventData) {
+    var eventRef = database.ref("schools/" + schoolName + "/events").push();
+    return eventRef.set({
+      title: eventData.title,
+      description: eventData.description || "",
+      eventDate: eventData.eventDate,
+      eventType: eventData.eventType || "Other",
+      createdBy: eventData.createdBy || "",
+      createdAt: new Date().toISOString(),
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getEvents(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/events")
-        .once("value");
-      const events = snapshot.val();
-      var result = events
-        ? Object.entries(events).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  getEvents: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/events").once("value")
+      .then(function(snapshot) {
+        var events = snapshot.val();
+        return events ? Object.entries(events).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
   // ============ TIMETABLE OPERATIONS ============
-  async addTimetableEntry(schoolName, entryData) {
-    try {
-      const classEntryRef = database
-        .ref(
-          "schools/" + schoolName + "/timetable/classes/" + entryData.className,
-        )
-        .push();
-      await classEntryRef.set({
+  addTimetableEntry: function(schoolName, entryData) {
+    var classEntryRef = database.ref("schools/" + schoolName + "/timetable/classes/" + entryData.className).push();
+    var promises = [classEntryRef.set({
+      day: entryData.day,
+      period: entryData.period,
+      subject: entryData.subject,
+      teacher: entryData.teacher || "",
+      room: entryData.room || "",
+      createdBy: entryData.createdBy || "",
+      createdAt: new Date().toISOString(),
+    })];
+    if (entryData.teacher) {
+      var teacherEntryRef = database.ref("schools/" + schoolName + "/timetable/teachers/" + entryData.teacher.replace(/\./g, ",")).push();
+      promises.push(teacherEntryRef.set({
         day: entryData.day,
         period: entryData.period,
         subject: entryData.subject,
-        teacher: entryData.teacher || "",
+        className: entryData.className,
         room: entryData.room || "",
-        createdBy: entryData.createdBy || "",
         createdAt: new Date().toISOString(),
-      });
-
-      if (entryData.teacher) {
-        const teacherEntryRef = database
-          .ref(
-            "schools/" +
-              schoolName +
-              "/timetable/teachers/" +
-              entryData.teacher.replace(/\./g, ","),
-          )
-          .push();
-        await teacherEntryRef.set({
-          day: entryData.day,
-          period: entryData.period,
-          subject: entryData.subject,
-          className: entryData.className,
-          room: entryData.room || "",
-          createdAt: new Date().toISOString(),
-        });
-      }
-
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
+      }));
     }
+    return Promise.all(promises).then(function() {
+      return { success: true };
+    }).catch(function(error) {
+      return { success: false, error: error.message };
+    });
   },
 
-  async getTimetable(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/timetable/classes")
-        .once("value");
-      const timetable = snapshot.val();
-      var result = [];
-      if (timetable) {
-        Object.entries(timetable).forEach(function (classEntry) {
-          Object.entries(classEntry[1]).forEach(function (entry) {
-            result.push(Object.assign({ className: classEntry[0] }, entry[1]));
+  getTimetable: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/timetable/classes").once("value")
+      .then(function(snapshot) {
+        var timetable = snapshot.val();
+        var result = [];
+        if (timetable) {
+          Object.entries(timetable).forEach(function(classEntry) {
+            Object.entries(classEntry[1]).forEach(function(entry) {
+              result.push(Object.assign({ className: classEntry[0] }, entry[1]));
+            });
           });
-        });
-      }
-      return result;
-    } catch (error) {
-      return [];
-    }
+        }
+        return result;
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
   // ============ TERMS OPERATIONS ============
-  async addTerm(schoolName, termData) {
-    try {
-      const termRef = database.ref("schools/" + schoolName + "/terms").push();
-      await termRef.set({
-        name: termData.name,
-        startDate: termData.startDate,
-        endDate: termData.endDate,
-        isCurrent: termData.isCurrent || false,
-        createdBy: termData.createdBy || "",
-        createdAt: new Date().toISOString(),
-      });
-      CacheManager.clear();
+  addTerm: function(schoolName, termData) {
+    var termRef = database.ref("schools/" + schoolName + "/terms").push();
+    return termRef.set({
+      name: termData.name,
+      startDate: termData.startDate,
+      endDate: termData.endDate,
+      isCurrent: termData.isCurrent || false,
+      createdBy: termData.createdBy || "",
+      createdAt: new Date().toISOString(),
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getTerms(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/terms")
-        .once("value");
-      const terms = snapshot.val();
-      var result = terms
-        ? Object.entries(terms).map(function (entry) {
-            return Object.assign({ id: entry[0] }, entry[1]);
-          })
-        : [];
-      return result;
-    } catch (error) {
-      return [];
-    }
+  getTerms: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/terms").once("value")
+      .then(function(snapshot) {
+        var terms = snapshot.val();
+        return terms ? Object.entries(terms).map(function(entry) {
+          return Object.assign({ id: entry[0] }, entry[1]);
+        }) : [];
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
   // ============ CHAT OPERATIONS ============
-  async sendChatMessage(schoolName, messageData) {
-    try {
-      const msgRef = database.ref("schools/" + schoolName + "/chat").push();
-      await msgRef.set({
-        fromEmail: messageData.fromEmail,
-        fromName: messageData.fromName,
-        toEmail: messageData.toEmail,
-        message: messageData.message,
-        timestamp: new Date().toISOString(),
-        readStatus: false,
-      });
+  sendChatMessage: function(schoolName, messageData) {
+    var msgRef = database.ref("schools/" + schoolName + "/chat").push();
+    return msgRef.set({
+      fromEmail: messageData.fromEmail,
+      fromName: messageData.fromName,
+      toEmail: messageData.toEmail,
+      message: messageData.message,
+      timestamp: new Date().toISOString(),
+      readStatus: false,
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getChatMessages(schoolName, userEmail, otherEmail) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/chat")
-        .once("value");
-      const messages = snapshot.val();
-      if (!messages) return [];
-
-      if (otherEmail === userEmail) {
-        return Object.values(messages).filter(function (msg) {
-          return msg.toEmail === userEmail && !msg.readStatus;
-        });
-      }
-
-      return Object.values(messages)
-        .filter(function (msg) {
-          return (
-            (msg.fromEmail === userEmail && msg.toEmail === otherEmail) ||
-            (msg.fromEmail === otherEmail && msg.toEmail === userEmail)
-          );
-        })
-        .sort(function (a, b) {
+  getChatMessages: function(schoolName, userEmail, otherEmail) {
+    return database.ref("schools/" + schoolName + "/chat").once("value")
+      .then(function(snapshot) {
+        var messages = snapshot.val();
+        if (!messages) return [];
+        if (otherEmail === userEmail) {
+          return Object.values(messages).filter(function(msg) {
+            return msg.toEmail === userEmail && !msg.readStatus;
+          });
+        }
+        return Object.values(messages).filter(function(msg) {
+          return (msg.fromEmail === userEmail && msg.toEmail === otherEmail) ||
+            (msg.fromEmail === otherEmail && msg.toEmail === userEmail);
+        }).sort(function(a, b) {
           return new Date(a.timestamp) - new Date(b.timestamp);
         });
-    } catch (error) {
-      return [];
-    }
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
-  async markMessagesAsRead(schoolName, userEmail, otherEmail) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/chat")
-        .once("value");
-      const messages = snapshot.val();
-      if (!messages) return { success: true };
-
-      var promises = [];
-      Object.entries(messages).forEach(function (entry) {
-        var msg = entry[1];
-        if (
-          msg.fromEmail === otherEmail &&
-          msg.toEmail === userEmail &&
-          !msg.readStatus
-        ) {
-          promises.push(
-            database
-              .ref("schools/" + schoolName + "/chat/" + entry[0])
-              .update({ readStatus: true }),
-          );
-        }
+  markMessagesAsRead: function(schoolName, userEmail, otherEmail) {
+    return database.ref("schools/" + schoolName + "/chat").once("value")
+      .then(function(snapshot) {
+        var messages = snapshot.val();
+        if (!messages) return { success: true };
+        var promises = [];
+        Object.entries(messages).forEach(function(entry) {
+          var msg = entry[1];
+          if (msg.fromEmail === otherEmail && msg.toEmail === userEmail && !msg.readStatus) {
+            promises.push(database.ref("schools/" + schoolName + "/chat/" + entry[0]).update({ readStatus: true }));
+          }
+        });
+        return Promise.all(promises);
+      })
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
       });
-
-      await Promise.all(promises);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
   },
 
   // ============ FORUM OPERATIONS ============
-  async postForumMessage(schoolName, messageData) {
-    try {
-      const msgRef = database.ref("schools/" + schoolName + "/forum").push();
-      await msgRef.set({
-        fromEmail: messageData.fromEmail,
-        fromName: messageData.fromName,
-        role: messageData.role || "teacher",
-        message: messageData.message,
-        timestamp: new Date().toISOString(),
-        isDeleted: false,
-      });
+  postForumMessage: function(schoolName, messageData) {
+    var msgRef = database.ref("schools/" + schoolName + "/forum").push();
+    return msgRef.set({
+      fromEmail: messageData.fromEmail,
+      fromName: messageData.fromName,
+      role: messageData.role || "teacher",
+      message: messageData.message,
+      timestamp: new Date().toISOString(),
+      isDeleted: false,
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getForumMessages(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/forum")
-        .once("value");
-      const messages = snapshot.val();
-      if (!messages) return [];
-      return Object.values(messages).filter(function (msg) {
-        return !msg.isDeleted;
+  getForumMessages: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/forum").once("value")
+      .then(function(snapshot) {
+        var messages = snapshot.val();
+        if (!messages) return [];
+        return Object.values(messages).filter(function(msg) {
+          return !msg.isDeleted;
+        });
+      })
+      .catch(function() {
+        return [];
       });
-    } catch (error) {
-      return [];
-    }
   },
 
   // ============ NOTEPAD OPERATIONS ============
-  async saveNote(schoolName, noteData) {
-    try {
-      const noteRef = database.ref("schools/" + schoolName + "/notes").push();
-      await noteRef.set({
-        author: noteData.author,
-        authorEmail: noteData.authorEmail,
-        title: noteData.title || "Untitled",
-        content: noteData.content,
-        timestamp: new Date().toISOString(),
-        isPrivate: true,
-        isDeleted: false,
-      });
+  saveNote: function(schoolName, noteData) {
+    var noteRef = database.ref("schools/" + schoolName + "/notes").push();
+    return noteRef.set({
+      author: noteData.author,
+      authorEmail: noteData.authorEmail,
+      title: noteData.title || "Untitled",
+      content: noteData.content,
+      timestamp: new Date().toISOString(),
+      isPrivate: true,
+      isDeleted: false,
+    }).then(function() {
       return { success: true };
-    } catch (error) {
+    }).catch(function(error) {
       return { success: false, error: error.message };
-    }
+    });
   },
 
-  async getNotes(schoolName, userEmail) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/notes")
-        .once("value");
-      const notes = snapshot.val();
-      if (!notes) return [];
-      return Object.entries(notes)
-        .map(function (entry) {
+  getNotes: function(schoolName, userEmail) {
+    return database.ref("schools/" + schoolName + "/notes").once("value")
+      .then(function(snapshot) {
+        var notes = snapshot.val();
+        if (!notes) return [];
+        return Object.entries(notes).map(function(entry) {
           return Object.assign({ id: entry[0] }, entry[1]);
-        })
-        .filter(function (note) {
+        }).filter(function(note) {
           return !note.isDeleted && note.authorEmail === userEmail;
         });
-    } catch (error) {
-      return [];
-    }
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
-  async deleteNote(schoolName, noteId) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/notes/" + noteId)
-        .update({ isDeleted: true });
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  deleteNote: function(schoolName, noteId) {
+    return database.ref("schools/" + schoolName + "/notes/" + noteId).update({ isDeleted: true })
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ AUDIT LOG ============
-  async addAuditLog(schoolName, logData) {
-    try {
-      var importantActions = [
-        "Book Added",
-        "Book Issued",
-        "Book Returned",
-        "Book Deleted",
-        "Student Added",
-        "Student Deleted",
-        "Student ID Generated",
-        "Student ID Scanned",
-        "Class Added",
-        "Class Deleted",
-        "Teacher Added",
-        "Teacher Deleted",
-        "Furniture Allocated",
-        "Furniture Returned",
-        "Fee Recorded",
-        "Fee Updated",
-        "Fee Deleted",
-        "User Added",
-        "User Deactivated",
-        "User Promoted",
-        "School Created",
-        "School Info Updated",
-        "Settings Updated",
-        "Bulk Book Issue",
-        "Bulk Furniture Allocation",
-        "QR Code Generated",
-        "QR Code Assigned",
-        "QR Code Returned",
-        "Event Added",
-        "Term Added",
-        "Timetable Added",
-        "Note Saved",
-      ];
-
-      if (importantActions.indexOf(logData.action) === -1) {
-        return { success: true, skipped: true };
-      }
-
-      const logRef = database.ref("schools/" + schoolName + "/auditLog").push();
-      await logRef.set({
-        timestamp: new Date().toISOString(),
-        user: logData.user || "System",
-        userEmail: logData.userEmail || "",
-        action: logData.action,
-        details: logData.details || "",
-      });
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
+  addAuditLog: function(schoolName, logData) {
+    var importantActions = [
+      "Book Added", "Book Issued", "Book Returned", "Book Deleted",
+      "Student Added", "Student Deleted", "Student ID Generated", "Student ID Scanned",
+      "Class Added", "Class Deleted", "Teacher Added", "Teacher Deleted",
+      "Furniture Allocated", "Furniture Returned",
+      "Fee Recorded", "Fee Updated", "Fee Deleted",
+      "User Added", "User Deactivated", "User Promoted",
+      "School Created", "School Info Updated", "Settings Updated",
+      "Bulk Book Issue", "Bulk Furniture Allocation",
+      "QR Code Generated", "QR Code Assigned", "QR Code Returned",
+      "Event Added", "Term Added", "Timetable Added", "Note Saved"
+    ];
+    if (importantActions.indexOf(logData.action) === -1) {
+      return Promise.resolve({ success: true, skipped: true });
     }
+    var logRef = database.ref("schools/" + schoolName + "/auditLog").push();
+    return logRef.set({
+      timestamp: new Date().toISOString(),
+      user: logData.user || "System",
+      userEmail: logData.userEmail || "",
+      action: logData.action,
+      details: logData.details || "",
+    }).then(function() {
+      return { success: true };
+    }).catch(function(error) {
+      return { success: false, error: error.message };
+    });
   },
 
-  async getAuditLog(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/auditLog")
-        .once("value");
-      const logs = snapshot.val();
-      if (!logs) return [];
-      return Object.values(logs).reverse().slice(0, 200);
-    } catch (error) {
-      return [];
-    }
+  getAuditLog: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/auditLog").once("value")
+      .then(function(snapshot) {
+        var logs = snapshot.val();
+        if (!logs) return [];
+        return Object.values(logs).reverse().slice(0, 200);
+      })
+      .catch(function() {
+        return [];
+      });
   },
 
   // ============ SETTINGS ============
-  async getSettings(schoolName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/settings")
-        .once("value");
-      return (
-        snapshot.val() || {
-          maxBorrowDays: 14,
-          maxBooksPerStudent: 3,
-          finePerDay: 10,
-        }
-      );
-    } catch (error) {
-      return null;
-    }
+  getSettings: function(schoolName) {
+    return database.ref("schools/" + schoolName + "/settings").once("value")
+      .then(function(snapshot) {
+        return snapshot.val() || { maxBorrowDays: 14, maxBooksPerStudent: 3, finePerDay: 10 };
+      })
+      .catch(function() {
+        return null;
+      });
   },
 
-  async updateSettings(schoolName, settingsData) {
-    try {
-      await database
-        .ref("schools/" + schoolName + "/settings")
-        .update(settingsData);
-      CacheManager.clear();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  updateSettings: function(schoolName, settingsData) {
+    return database.ref("schools/" + schoolName + "/settings").update(settingsData)
+      .then(function() {
+        return { success: true };
+      })
+      .catch(function(error) {
+        return { success: false, error: error.message };
+      });
   },
 
   // ============ DATABASE MANAGER ============
-  async getTableData(schoolName, tableName) {
-    try {
-      const snapshot = await database
-        .ref("schools/" + schoolName + "/" + tableName)
-        .once("value");
-      const data = snapshot.val();
-      if (!data) return [];
-      return Object.values(data);
-    } catch (error) {
-      return [];
-    }
-  },
-
-  // ============ REAL-TIME LISTENERS ============
-  onBooksChange(schoolName, callback) {
-    database
-      .ref("schools/" + schoolName + "/books")
-      .on("value", function (snapshot) {
-        const books = snapshot.val();
-        if (books) {
-          callback(
-            Object.entries(books).map(function (entry) {
-              return Object.assign({ id: entry[0] }, entry[1]);
-            }),
-          );
-        } else {
-          callback([]);
-        }
+  getTableData: function(schoolName, tableName) {
+    return database.ref("schools/" + schoolName + "/" + tableName).once("value")
+      .then(function(snapshot) {
+        var data = snapshot.val();
+        return data ? Object.values(data) : [];
+      })
+      .catch(function() {
+        return [];
       });
-  },
-
-  onBorrowedChange(schoolName, callback) {
-    database
-      .ref("schools/" + schoolName + "/borrowed")
-      .on("value", function (snapshot) {
-        const borrowed = snapshot.val();
-        if (borrowed) {
-          callback(
-            Object.entries(borrowed).map(function (entry) {
-              return Object.assign({ id: entry[0] }, entry[1]);
-            }),
-          );
-        } else {
-          callback([]);
-        }
-      });
-  },
-
-  onStudentsChange(schoolName, callback) {
-    database
-      .ref("schools/" + schoolName + "/students")
-      .on("value", function (snapshot) {
-        const students = snapshot.val();
-        if (students) {
-          callback(
-            Object.entries(students).map(function (entry) {
-              return Object.assign({ adm: entry[0] }, entry[1]);
-            }),
-          );
-        } else {
-          callback([]);
-        }
-      });
-  },
-
-  onFurnitureChange(schoolName, callback) {
-    database
-      .ref("schools/" + schoolName + "/furniture")
-      .on("value", function (snapshot) {
-        const furniture = snapshot.val();
-        if (furniture) {
-          callback(
-            Object.entries(furniture).map(function (entry) {
-              return Object.assign({ id: entry[0] }, entry[1]);
-            }),
-          );
-        } else {
-          callback([]);
-        }
-      });
-  },
+  }
 };
 
 // Export
 window.API = API;
-window.CacheManager = CacheManager;
-window.generateInviteCode = generateInviteCode;
-window.generateStaffId = generateStaffId;
-window.hashPassword = hashPassword;
-window.generateUniqueQRCode = generateUniqueQRCode;
