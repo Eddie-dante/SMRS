@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SRMS - Student ID Cards | School Resource Management System</title>
+    <title>SRMS - Student ID Cards</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -508,7 +508,7 @@
                 </select>
             </div>
             <div id="idPreview" style="margin-top:15px;"></div>
-            <div id="idActions" style="display:none;margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+            <div id="idActions" style="display:none;margin-top:15px;gap:10px;flex-wrap:wrap;">
                 <button class="btn-primary" onclick="generateStudentID()" style="flex:1;">
                     <i class="fas fa-qrcode"></i> Generate QR & ID
                 </button>
@@ -587,18 +587,15 @@
     <script src="js/app.js"></script>
     
     <script>
-        // ============ GLOBALS ============
         var allStudents = [];
         var allQRCodes = [];
         var selectedStudentId = null;
         
-        // ============ INIT ============
         document.addEventListener('DOMContentLoaded', function() {
             loadStudents();
             loadStudentSelect();
         });
         
-        // ============ LOAD STUDENTS ============
         function loadStudents() {
             var school = getCurrentSchool();
             if (!school) {
@@ -635,7 +632,6 @@
             
             var html = '';
             students.forEach(function(student) {
-                // Check if student has QR code
                 var qrCode = null;
                 allQRCodes.forEach(function(qr) {
                     if (qr.adm === student.adm && qr.type === 'student' && !qr.returned) {
@@ -645,7 +641,6 @@
                 
                 var initials = getInitials(student.name);
                 var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
-                
                 var today = new Date();
                 var expiryDate = new Date(today);
                 expiryDate.setFullYear(expiryDate.getFullYear() + 1);
@@ -688,7 +683,6 @@
             grid.innerHTML = html;
         }
         
-        // ============ FILTER STUDENTS ============
         function filterStudents() {
             var searchTerm = document.getElementById('searchStudents').value.toLowerCase();
             var formFilter = document.getElementById('filterForm').value;
@@ -716,14 +710,12 @@
             renderStudents(filtered);
         }
         
-        // ============ REFRESH ============
         function refreshStudents() {
             loadStudents();
             loadStudentSelect();
             showNotification('Refreshed!', 'success');
         }
         
-        // ============ STUDENT SELECT DROPDOWN ============
         function loadStudentSelect() {
             var school = getCurrentSchool();
             if (!school) return;
@@ -740,7 +732,6 @@
             });
         }
         
-        // ============ PREVIEW STUDENT FOR ID ============
         function previewStudentForID() {
             var adm = document.getElementById('studentSelect').value;
             var preview = document.getElementById('idPreview');
@@ -765,9 +756,6 @@
             
             selectedStudentId = adm;
             var initials = getInitials(student.name);
-            var school = getCurrentSchool();
-            
-            // Check if QR exists
             var hasQR = false;
             allQRCodes.forEach(function(qr) {
                 if (qr.adm === adm && qr.type === 'student' && !qr.returned) hasQR = true;
@@ -797,7 +785,6 @@
             actions.style.display = 'flex';
         }
         
-        // ============ GENERATE STUDENT ID ============
         function generateStudentID() {
             if (!selectedStudentId) {
                 showNotification('Please select a student first', 'warning');
@@ -805,7 +792,6 @@
             }
             
             var school = getCurrentSchool();
-            var user = getCurrentUser();
             
             showNotification('Generating ID card...', 'info');
             
@@ -822,10 +808,8 @@
             });
         }
         
-        // ============ GENERATE ID FOR STUDENT (from card) ============
         function generateIDForStudent(adm) {
             var school = getCurrentSchool();
-            var user = getCurrentUser();
             
             showNotification('Generating QR code...', 'info');
             
@@ -840,7 +824,6 @@
             });
         }
         
-        // ============ PRINT STUDENT CARD ============
         function printStudentCard(adm) {
             var student = null;
             allStudents.forEach(function(s) {
@@ -852,7 +835,6 @@
                 return;
             }
             
-            // Find QR code
             var qrCode = null;
             allQRCodes.forEach(function(qr) {
                 if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
@@ -863,7 +845,6 @@
             var school = getCurrentSchool();
             var initials = getInitials(student.name);
             var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
-            
             var today = new Date();
             var expiryDate = new Date(today);
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
@@ -1031,7 +1012,6 @@
             }, 500);
         }
         
-        // ============ VIEW STUDENT DETAILS ============
         function viewStudentDetails(adm) {
             var student = null;
             allStudents.forEach(function(s) {
@@ -1043,7 +1023,6 @@
                 return;
             }
             
-            // Find QR code
             var qrCode = null;
             allQRCodes.forEach(function(qr) {
                 if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
@@ -1073,7 +1052,6 @@
                 </div>
             `;
             
-            // Show in a modal
             var modal = document.createElement('div');
             modal.className = 'modal active';
             modal.id = 'viewStudentModal';
@@ -1089,7 +1067,6 @@
             document.body.appendChild(modal);
         }
         
-        // ============ PRINT STUDENT ID CARD (from modal) ============
         function printStudentIDCard() {
             if (!selectedStudentId) {
                 showNotification('Please select a student first', 'warning');
@@ -1098,7 +1075,6 @@
             printStudentCard(selectedStudentId);
         }
         
-        // ============ LOGOUT ============
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', { 
@@ -1128,7 +1104,6 @@
             }
         }
         
-        // ============ NOTIFICATION FALLBACK ============
         function showNotification(message, type) {
             if (typeof window.showNotification === 'function') {
                 window.showNotification(message, type);
@@ -1146,7 +1121,6 @@
             }
         }
         
-        // ============ EXPOSE FUNCTIONS ============
         window.loadStudents = loadStudents;
         window.renderStudents = renderStudents;
         window.filterStudents = filterStudents;
