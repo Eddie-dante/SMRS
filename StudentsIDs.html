@@ -1133,11 +1133,9 @@
             if (typeof window.showNotification === 'function') {
                 window.showNotification(message, type);
             } else {
-                // Simple fallback
+                var colors = { success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8' };
                 var div = document.createElement('div');
-                div.style.cssText = 'position:fixed;top:80px;right:20px;padding:15px 20px;background:' + 
-                    (type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8') + 
-                    ';color:#fff;border-radius:10px;z-index:2000;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);';
+                div.style.cssText = 'position:fixed;top:80px;right:20px;padding:15px 20px;background:' + (colors[type] || colors.info) + ';color:#fff;border-radius:10px;z-index:9999;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);';
                 div.textContent = message;
                 document.body.appendChild(div);
                 setTimeout(function() {
