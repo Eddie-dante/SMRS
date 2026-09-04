@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Direct Database Access - No Sample Data
+// Full Version - Direct Database Access
 // ============================================
 
 var firebaseConfig = {
@@ -69,18 +69,16 @@ function generateUniqueQRCode(type, usedCodes) {
 var API = {
   // ============ SCHOOL OPERATIONS ============
   getSchool: function (schoolName) {
-    return new Promise(function (resolve, reject) {
-      database
-        .ref("schools/" + schoolName)
-        .once("value")
-        .then(function (snapshot) {
-          resolve(snapshot.val() || null);
-        })
-        .catch(function (error) {
-          console.error("Get school error:", error);
-          resolve(null);
-        });
-    });
+    return database
+      .ref("schools/" + schoolName)
+      .once("value")
+      .then(function (snapshot) {
+        return snapshot.val() || null;
+      })
+      .catch(function (error) {
+        console.error("Get school error:", error);
+        return null;
+      });
   },
 
   createSchool: function (schoolData) {
@@ -528,11 +526,12 @@ var API = {
   },
 
   generateStudentID: function (schoolName, adm) {
+    var student = null;
     return database
       .ref("schools/" + schoolName + "/students/" + adm)
       .once("value")
       .then(function (snapshot) {
-        var student = snapshot.val();
+        student = snapshot.val();
         if (!student) {
           return { success: false, error: "Student not found" };
         }

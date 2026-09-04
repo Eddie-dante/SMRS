@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Wallpaper Loader
-// Full Version with Default Library Wallpaper
+// Full Version
 // ============================================
 
 var WALLPAPER_DATA = {
@@ -131,11 +131,8 @@ var WALLPAPER_DATA = {
   },
 };
 
-// Apply wallpaper on page load
 document.addEventListener("DOMContentLoaded", function () {
   var savedWallpaper = localStorage.getItem("srms_wallpaper");
-
-  // Default to 'library' if no wallpaper saved
   if (!savedWallpaper) {
     savedWallpaper = "library";
     localStorage.setItem("srms_wallpaper", "library");

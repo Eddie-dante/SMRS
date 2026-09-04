@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Utility Functions
-// 100% Working
+// Full Version
 // ============================================
 
 // ============ DATE FUNCTIONS ============
@@ -144,6 +144,17 @@ function getDayName(dayNumber) {
     "Saturday",
   ];
   return days[dayNumber] || "";
+}
+
+function getCurrentAcademicYear() {
+  var now = new Date();
+  var year = now.getFullYear();
+  var month = now.getMonth() + 1;
+  if (month >= 9) {
+    return year + "/" + (year + 1);
+  } else {
+    return year - 1 + "/" + year;
+  }
 }
 
 // ============ FORMATTING FUNCTIONS ============
@@ -375,6 +386,35 @@ function filterTable(searchInput, tableBody) {
   }
 }
 
+function exportToCSV(data, filename) {
+  filename = filename || "export.csv";
+  if (!data || data.length === 0) {
+    showNotification("No data to export", "warning");
+    return;
+  }
+  var headers = Object.keys(data[0]);
+  var csvContent = headers.join(",") + "\n";
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var rowArray = [];
+    for (var j = 0; j < headers.length; j++) {
+      var value = row[headers[j]] || "";
+      rowArray.push(JSON.stringify(String(value)));
+    }
+    csvContent += rowArray.join(",") + "\n";
+  }
+  var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  var link = document.createElement("a");
+  var url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showNotification("Export successful!", "success");
+}
+
 // ============ EXPORT ALL ============
 window.getCurrentDate = getCurrentDate;
 window.getCurrentDateTime = getCurrentDateTime;
@@ -390,6 +430,7 @@ window.daysBetween = daysBetween;
 window.getMonthName = getMonthName;
 window.getMonthShortName = getMonthShortName;
 window.getDayName = getDayName;
+window.getCurrentAcademicYear = getCurrentAcademicYear;
 window.formatNumber = formatNumber;
 window.formatCurrency = formatCurrency;
 window.capitalizeFirst = capitalizeFirst;
@@ -413,3 +454,4 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.closeAllModals = closeAllModals;
 window.filterTable = filterTable;
+window.exportToCSV = exportToCSV;

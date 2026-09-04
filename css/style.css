@@ -136,7 +136,6 @@ body {
   background: linear-gradient(135deg, #ff6b8a, #e94560);
 }
 
-/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
   scrollbar-color: #e94560 rgba(255, 255, 255, 0.05);
@@ -635,27 +634,19 @@ small {
   gap: 10px;
 }
 
-.page-title h1 {
+.page-header h1 {
   font-size: 1.8em;
-  margin-bottom: 5px;
+  font-weight: 900;
   background: linear-gradient(180deg, #ffffff, #d4af37);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
-.page-title p {
+.page-header p {
   color: rgba(255, 255, 255, 0.6);
   font-size: var(--font-size-sm);
-}
-
-.content-section {
-  padding: 20px;
-  margin-top: 60px;
-  animation: fadeIn 0.3s ease;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* ============ ANIMATIONS ============ */
@@ -720,19 +711,6 @@ small {
   }
 }
 
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-8px);
-  }
-  75% {
-    transform: translateX(8px);
-  }
-}
-
 /* ============ PERFORMANCE OPTIMIZATIONS ============ */
 .taskbar,
 .floating-navbar,
@@ -767,71 +745,11 @@ img {
   height: auto;
 }
 
-/* ============ UPLOAD AREA ============ */
-.upload-area {
-  border: 2px dashed rgba(212, 175, 55, 0.4);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.upload-area:hover {
-  border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.1);
-}
-
-.upload-area i {
-  font-size: 30px;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-
-.upload-area p {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* ============ QR CODES ============ */
-.qr-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-}
-
-.qr-item {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 15px;
-  text-align: center;
-}
-
-.qr-placeholder {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-  background: #f0f0f0;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  color: #333;
-}
-
-.qr-item p {
-  margin-top: 10px;
-  font-weight: 700;
-  color: #333;
-  font-size: var(--font-size-sm);
-}
-
 /* ============ RESPONSIVE ============ */
 
 /* TABLET */
 @media (max-width: 1024px) {
-  .content-section {
+  .main-content {
     padding: 15px;
     margin-top: 55px;
   }
@@ -867,7 +785,7 @@ img {
     font-size: var(--font-size-lg);
   }
 
-  .content-section {
+  .main-content {
     padding: 10px;
     margin-top: 50px;
   }
@@ -998,7 +916,7 @@ img {
 
 /* LARGE DESKTOP */
 @media (min-width: 1600px) {
-  .content-section {
+  .main-content {
     max-width: 1800px;
   }
 
@@ -1009,7 +927,7 @@ img {
 
 /* ULTRA WIDE */
 @media (min-width: 2000px) {
-  .content-section {
+  .main-content {
     max-width: 2200px;
   }
 }

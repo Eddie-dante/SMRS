@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Authentication Logic
-// 100% Working
+// Full Version
 // ============================================
 
 function handleLogin(event) {

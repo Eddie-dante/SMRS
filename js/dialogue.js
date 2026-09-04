@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Dialog System
-// 100% Working
+// Full Version
 // ============================================
 
 var DialogSystem = {
@@ -246,5 +246,3 @@ var DialogSystem = {
 };
 
 window.DialogSystem = DialogSystem;
-window.showConfirm = DialogSystem.confirm;
-window.showAlert = DialogSystem.alert;

@@ -1,10 +1,9 @@
 // ============================================
 // SRMS - Complete Wallpaper Management System
-// Fixed Version - Working
+// Full Version
 // ============================================
 
-// Wallpaper Collection
-const WALLPAPERS = {
+var WALLPAPERS = {
   none: {
     name: "Dark Gradient",
     icon: "fa-moon",
@@ -519,7 +518,29 @@ const WALLPAPERS = {
   },
 };
 
-// ============ WALLPAPER MANAGER ============
+var wallpaperManager = null;
+
+function toggleWallpaperPanel() {
+  var panel = document.getElementById("wallpaperPanel");
+  if (panel) {
+    panel.classList.toggle("active");
+  }
+}
+
+function closeWallpaperPanel() {
+  var panel = document.getElementById("wallpaperPanel");
+  if (panel) {
+    panel.classList.remove("active");
+  }
+}
+
+function setWallpaper(type) {
+  if (wallpaperManager) {
+    wallpaperManager.applyWallpaper(type);
+  }
+  closeWallpaperPanel();
+}
+
 class WallpaperManager {
   constructor() {
     this.currentWallpaper = localStorage.getItem("srms_wallpaper") || "none";
@@ -533,13 +554,16 @@ class WallpaperManager {
   }
 
   applyWallpaper(type) {
-    const wallpaper = WALLPAPERS[type] || WALLPAPERS["none"];
+    var wallpaper = WALLPAPERS[type] || WALLPAPERS["none"];
 
     if (wallpaper.type === "gradient") {
       document.body.style.background = wallpaper.css;
       document.body.style.backgroundImage = "none";
     } else {
-      document.body.style.backgroundImage = `linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url('${wallpaper.url}')`;
+      document.body.style.backgroundImage =
+        'linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url("' +
+        wallpaper.url +
+        '")';
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundPosition = "center";
       document.body.style.backgroundAttachment = "fixed";
@@ -552,54 +576,67 @@ class WallpaperManager {
   }
 
   updateActiveStates() {
-    document.querySelectorAll(".wallpaper-option").forEach((opt) => {
-      opt.classList.remove("active");
-      if (opt.dataset.wallpaper === this.currentWallpaper) {
-        opt.classList.add("active");
-      }
-    });
+    document.querySelectorAll(".wallpaper-option").forEach(
+      function (opt) {
+        opt.classList.remove("active");
+        if (opt.dataset.wallpaper === this.currentWallpaper) {
+          opt.classList.add("active");
+        }
+      }.bind(this),
+    );
   }
 
   createPanel() {
-    const existingPanel = document.getElementById("wallpaperPanel");
+    var existingPanel = document.getElementById("wallpaperPanel");
     if (existingPanel) existingPanel.remove();
 
-    const panel = document.createElement("div");
+    var panel = document.createElement("div");
     panel.id = "wallpaperPanel";
     panel.className = "wallpaper-panel";
 
-    panel.innerHTML = `
-            <div class="wallpaper-panel-header">
-                <h3><i class="fas fa-image"></i> Wallpapers</h3>
-                <button class="wallpaper-panel-close" onclick="closeWallpaperPanel()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="wallpaper-panel-grid">
-                ${Object.entries(WALLPAPERS)
-                  .map(
-                    ([key, wallpaper]) => `
-                    <div class="wallpaper-option ${key === this.currentWallpaper ? "active" : ""}" 
-                         data-wallpaper="${key}" 
-                         onclick="setWallpaper('${key}')"
-                         title="${wallpaper.name}">
-                        <i class="fas ${wallpaper.icon}"></i>
-                        <span>${wallpaper.name}</span>
-                    </div>
-                `,
-                  )
-                  .join("")}
-            </div>
-        `;
+    var html =
+      '<div class="wallpaper-panel-header">' +
+      '<h3><i class="fas fa-image"></i> Wallpapers</h3>' +
+      '<button class="wallpaper-panel-close" onclick="closeWallpaperPanel()">' +
+      '<i class="fas fa-times"></i>' +
+      "</button>" +
+      "</div>" +
+      '<div class="wallpaper-panel-grid">';
 
+    var keys = Object.keys(WALLPAPERS);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var wallpaper = WALLPAPERS[key];
+      var isActive = key === this.currentWallpaper ? " active" : "";
+      html +=
+        '<div class="wallpaper-option' +
+        isActive +
+        '" data-wallpaper="' +
+        key +
+        '" onclick="setWallpaper(\'' +
+        key +
+        '\')" title="' +
+        wallpaper.name +
+        '">' +
+        '<i class="fas ' +
+        wallpaper.icon +
+        '"></i>' +
+        "<span>" +
+        wallpaper.name +
+        "</span>" +
+        "</div>";
+    }
+
+    html += "</div>";
+    panel.innerHTML = html;
     document.body.appendChild(panel);
   }
 
   createToggleButton() {
-    const existingBtn = document.getElementById("wallpaperToggle");
+    var existingBtn = document.getElementById("wallpaperToggle");
     if (existingBtn) existingBtn.remove();
 
-    const button = document.createElement("button");
+    var button = document.createElement("button");
     button.id = "wallpaperToggle";
     button.className = "wallpaper-toggle";
     button.title = "Change Wallpaper";
@@ -612,64 +649,26 @@ class WallpaperManager {
   }
 }
 
-// ============ GLOBAL VARIABLES ============
-let wallpaperManager = null;
-
-// ============ GLOBAL FUNCTIONS ============
-function toggleWallpaperPanel() {
-  const panel = document.getElementById("wallpaperPanel");
-  if (panel) {
-    panel.classList.toggle("active");
-  }
-}
-
-function closeWallpaperPanel() {
-  const panel = document.getElementById("wallpaperPanel");
-  if (panel) {
-    panel.classList.remove("active");
-  }
-}
-
-function setWallpaper(type) {
-  if (wallpaperManager) {
-    wallpaperManager.applyWallpaper(type);
-  }
-  closeWallpaperPanel();
-}
-
-// ============ INITIALIZE ON DOM READY ============
 document.addEventListener("DOMContentLoaded", function () {
   wallpaperManager = new WallpaperManager();
-  console.log("✅ Wallpaper system initialized");
 });
 
-// Close panel on Escape key
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
     closeWallpaperPanel();
   }
 });
 
-// Close panel on outside click
 document.addEventListener("click", function (e) {
-  const panel = document.getElementById("wallpaperPanel");
-  const toggleBtn = document.getElementById("wallpaperToggle");
-  const taskbarBtn = document.querySelector(
-    '.taskbar-icon-btn[title="Change Wallpaper"]',
-  );
-
+  var panel = document.getElementById("wallpaperPanel");
+  var toggleBtn = document.getElementById("wallpaperToggle");
   if (panel && panel.classList.contains("active")) {
-    if (
-      !panel.contains(e.target) &&
-      !toggleBtn?.contains(e.target) &&
-      !taskbarBtn?.contains(e.target)
-    ) {
+    if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
       closeWallpaperPanel();
     }
   }
 });
 
-// Export to window
 window.WALLPAPERS = WALLPAPERS;
 window.toggleWallpaperPanel = toggleWallpaperPanel;
 window.closeWallpaperPanel = closeWallpaperPanel;
