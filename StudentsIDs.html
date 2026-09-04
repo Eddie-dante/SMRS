@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Student ID Cards | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -52,20 +52,33 @@
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
             width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
         }
         .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; width: auto; max-width: 95vw;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95vw;
         }
         .floating-navbar {
-            display: flex; align-items: center; justify-content: center;
-            gap: 12px; padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 24px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -75,12 +88,17 @@
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px; padding: 10px 22px;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
@@ -91,26 +109,42 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
         .btn-badge {
-            width: 28px; height: 28px; border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .dropdown-menu {
-            display: none; position: absolute;
-            bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
-            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
+            z-index: 1200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
             transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
@@ -119,27 +153,39 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1200px; margin: 0 auto;
+            max-width: 1200px;
+            margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em; font-weight: 900;
+            font-size: 2em;
+            font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
             background-clip: text;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); }
         
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -150,37 +196,52 @@
             padding: 12px 20px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
             display: inline-flex;
-            align-items: center; gap: 8px;
+            align-items: center;
+            gap: 8px;
             transition: var(--transition);
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
         
         .search-bar {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
         }
         .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
-            flex: 1; background: none; border: none;
-            color: #fff; font-size: 14px; outline: none;
+            flex: 1;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
             font-family: 'Inter', sans-serif;
         }
         
         .filters {
-            display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         .filters select {
             padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #fff;
+            border-radius: 10px;
+            color: #fff;
             font-family: 'Inter', sans-serif;
             outline: none;
         }
@@ -211,79 +272,136 @@
             background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
         }
         .student-id-card .id-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px; padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         .student-id-card .id-header .school-name {
-            font-size: 12px; font-weight: 700; color: #d4af37; letter-spacing: 1px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #d4af37;
+            letter-spacing: 1px;
         }
         .student-id-card .id-header .id-type {
-            font-size: 9px; color: rgba(255,255,255,0.4);
-            text-transform: uppercase; letter-spacing: 2px;
-            background: rgba(212,175,55,0.15); padding: 3px 10px; border-radius: 20px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(212,175,55,0.15);
+            padding: 3px 10px;
+            border-radius: 20px;
         }
         .student-id-card .id-body {
-            display: flex; gap: 15px; align-items: center;
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
         .student-id-card .id-avatar {
-            width: 70px; height: 70px; border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
             background: linear-gradient(135deg, #d4af37, #f0d060);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px; font-weight: 900; color: #0a0e27;
-            flex-shrink: 0; border: 3px solid #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 900;
+            color: #0a0e27;
+            flex-shrink: 0;
+            border: 3px solid #d4af37;
         }
         .student-id-card .id-details { flex: 1; min-width: 0; }
         .student-id-card .id-details .name {
-            font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 2px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
         }
         .student-id-card .id-details .adm {
-            font-size: 11px; color: #d4af37; font-weight: 600; letter-spacing: 1px;
+            font-size: 11px;
+            color: #d4af37;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
         .student-id-card .id-details .info-row {
-            display: flex; gap: 12px; margin-top: 4px; font-size: 10px;
-            color: rgba(255,255,255,0.5); flex-wrap: wrap;
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            flex-wrap: wrap;
         }
         .student-id-card .id-footer {
-            margin-top: 12px; padding-top: 10px;
+            margin-top: 12px;
+            padding-top: 10px;
             border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .student-id-card .id-footer .qr-code {
-            width: 55px; height: 55px; background: white; border-radius: 8px;
-            padding: 4px; display: flex; align-items: center; justify-content: center;
+            width: 55px;
+            height: 55px;
+            background: white;
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .student-id-card .id-footer .qr-code img { width: 100%; height: 100%; }
         .student-id-card .id-footer .qr-code .no-qr {
-            font-size: 8px; color: #999; text-align: center;
+            font-size: 8px;
+            color: #999;
+            text-align: center;
         }
         .student-id-card .id-footer .valid-date {
-            font-size: 8px; color: rgba(255,255,255,0.3); text-align: right;
+            font-size: 8px;
+            color: rgba(255,255,255,0.3);
+            text-align: right;
         }
         .student-id-card .id-actions {
-            margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
             justify-content: center;
         }
         .student-id-card .id-actions .btn { flex: 1; justify-content: center; font-size: 11px; padding: 8px 12px; }
         
         .no-students {
-            text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.4);
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.4);
             grid-column: 1 / -1;
         }
         .no-students i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
         
         .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1300;
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1300;
+            justify-content: center;
+            align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px; padding: 30px;
-            width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
@@ -291,16 +409,20 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input, .form-group select {
-            width: 100%; padding: 10px 15px;
+            width: 100%;
+            padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #fff;
+            border-radius: 10px;
+            color: #fff;
             font-family: 'Inter', sans-serif;
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         .loading-spinner {
-            text-align: center; padding: 40px; color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.5);
         }
         .loading-spinner i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
         
@@ -423,6 +545,7 @@
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
@@ -495,9 +618,9 @@
                 allQRCodes = results[1] || [];
                 renderStudents(allStudents);
             }).catch(function(err) {
-                document.getElementById('studentsGrid').innerHTML = 
-                    '<div class="no-students"><i class="fas fa-exclamation-triangle"></i><p>Error loading students</p></div>';
                 console.error(err);
+                document.getElementById('studentsGrid').innerHTML = 
+                    '<div class="no-students"><i class="fas fa-exclamation-triangle"></i><p>Error loading students. Please refresh.</p></div>';
             });
         }
         
@@ -978,7 +1101,12 @@
         // ============ LOGOUT ============
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
             } else {

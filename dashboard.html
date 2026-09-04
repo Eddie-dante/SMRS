@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Dashboard | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -42,80 +42,127 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
             width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
         }
-        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
+        .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; width: auto; max-width: 95vw;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95vw;
         }
         .floating-navbar {
-            display: flex; align-items: center; justify-content: center;
-            gap: 12px; padding: 12px 24px;
-            background: rgba(15, 18, 30, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 24px;
+            background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px; padding: 10px 22px;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
         .btn-badge {
-            width: 28px; height: 28px; border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .message-badge {
-            position: absolute; top: -5px; right: -5px;
-            background: #e94560; color: #fff;
-            border-radius: 50%; width: 20px; height: 20px;
-            display: none; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 700;
-            border: 2px solid #0a0e27; z-index: 1200;
-        }
-        .dropdown-menu {
-            display: none; position: absolute;
-            bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
-            background: rgba(10, 14, 39, 0.98);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e94560;
+            color: #ffffff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            border: 2px solid #0a0e27;
             z-index: 1200;
         }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 14, 39, 0.98);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
+            z-index: 1200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
+        .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
@@ -123,7 +170,8 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1600px; margin: 0 auto;
+            max-width: 1600px;
+            margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -131,58 +179,86 @@
         .welcome-banner {
             background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(233,69,96,0.15));
             border: 2px solid rgba(212,175,55,0.3);
-            border-radius: 20px; padding: 30px; margin-bottom: 20px;
-            text-align: center; backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            backdrop-filter: blur(15px);
         }
         .welcome-banner h1 {
-            font-size: 2em; font-weight: 900;
+            font-size: 2em;
+            font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
         .welcome-banner .school-name { font-size: 1.4em; color: var(--gold); font-weight: 700; }
         .welcome-banner .user-greeting { color: rgba(255,255,255,0.8); }
         .welcome-banner .date-display {
-            display: inline-block; margin-top: 12px; padding: 6px 16px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(212,175,55,0.3);
-            border-radius: 25px; font-size: 13px;
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 25px;
+            font-size: 13px;
         }
         
         .invite-code-banner {
             background: rgba(212,175,55,0.1);
             border: 2px dashed rgba(212,175,55,0.4);
-            border-radius: 16px; padding: 15px; text-align: center;
-            margin-bottom: 20px; display: none;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
         }
         .invite-code-banner .code {
             font-family: 'Courier New', monospace;
-            font-size: 1.8em; font-weight: 800; letter-spacing: 5px;
+            font-size: 1.8em;
+            font-weight: 800;
+            letter-spacing: 5px;
             color: var(--gold);
         }
         
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px; margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         .stat-card {
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px;
-            position: relative; overflow: hidden;
-            cursor: pointer; transition: var(--transition);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
         }
         .stat-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.3); }
         .stat-card::before {
-            content: ''; position: absolute; top: 0; left: 0;
-            width: 3px; height: 100%;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
             background: linear-gradient(135deg, #e94560, #c62a47);
         }
         .stat-icon {
-            width: 45px; height: 45px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; margin-bottom: 12px;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 12px;
         }
         .stat-value { font-size: 1.8em; font-weight: 900; color: #fff; }
         .stat-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
@@ -190,7 +266,9 @@
         .quick-actions {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
         .section-title { font-size: 1.1em; font-weight: 700; margin-bottom: 15px; }
         .section-title i { color: var(--accent); }
@@ -200,13 +278,20 @@
             gap: 10px;
         }
         .btn-action {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
             padding: 15px 10px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 12px; color: #fff;
-            cursor: pointer; transition: var(--transition);
-            font-family: 'Inter', sans-serif; font-size: 11px;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            text-decoration: none;
         }
         .btn-action i { font-size: 22px; color: var(--accent); }
         .btn-action:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
@@ -214,30 +299,48 @@
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 15px; margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         .recent-activity, .quick-stats {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px;
+            border-radius: 16px;
+            padding: 20px;
         }
         .activity-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .activity-icon {
-            width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 13px;
         }
         .activity-text { font-size: 12px; }
         .activity-time { font-size: 10px; color: rgba(255,255,255,0.4); }
         .quick-stat-item {
-            display: flex; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .quick-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); }
         .quick-stat-value { font-size: 15px; font-weight: 700; color: var(--gold); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+        .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
@@ -245,19 +348,28 @@
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
             .welcome-banner h1 { font-size: 1.5em; }
+            .welcome-banner { padding: 20px 15px; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .quick-actions-grid { grid-template-columns: 1fr 1fr; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
+            .stat-card { padding: 15px; }
+            .stat-value { font-size: 1.3em; }
+            .recent-activity, .quick-stats { padding: 15px; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .quick-actions-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+            <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
@@ -310,21 +422,23 @@
         <div class="quick-actions">
             <div class="section-title"><i class="fas fa-bolt"></i> Quick Actions</div>
             <div class="quick-actions-grid">
-                <button class="btn-action" onclick="location.href='library.html'"><i class="fas fa-book"></i><span>Issue Book</span></button>
-                <button class="btn-action" onclick="location.href='students.html'"><i class="fas fa-user-plus"></i><span>Add Student</span></button>
-                <button class="btn-action" onclick="location.href='furniture.html'"><i class="fas fa-chair"></i><span>Furniture</span></button>
-                <button class="btn-action" onclick="location.href='events.html'"><i class="fas fa-calendar-plus"></i><span>Add Event</span></button>
-                <button class="btn-action" onclick="location.href='fees.html'"><i class="fas fa-money-bill"></i><span>Record Fee</span></button>
-                <button class="btn-action" onclick="location.href='reports.html'"><i class="fas fa-chart-bar"></i><span>Reports</span></button>
-                <button class="btn-action" onclick="location.href='qrcodes.html'"><i class="fas fa-qrcode"></i><span>QR Codes</span></button>
-                <button class="btn-action" onclick="location.href='students.html'"><i class="fas fa-id-card"></i><span>Student ID</span></button>
+                <a class="btn-action" href="library.html"><i class="fas fa-book"></i><span>Issue Book</span></a>
+                <a class="btn-action" href="students.html"><i class="fas fa-user-plus"></i><span>Add Student</span></a>
+                <a class="btn-action" href="furniture.html"><i class="fas fa-chair"></i><span>Furniture</span></a>
+                <a class="btn-action" href="events.html"><i class="fas fa-calendar-plus"></i><span>Add Event</span></a>
+                <a class="btn-action" href="fees.html"><i class="fas fa-money-bill"></i><span>Record Fee</span></a>
+                <a class="btn-action" href="reports.html"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+                <a class="btn-action" href="qrcodes.html"><i class="fas fa-qrcode"></i><span>QR Codes</span></a>
+                <a class="btn-action" href="studentsids.html"><i class="fas fa-id-card"></i><span>Student ID</span></a>
             </div>
         </div>
         
         <div class="dashboard-grid">
             <div class="recent-activity">
                 <div class="section-title"><i class="fas fa-history"></i> Recent Activity</div>
-                <div id="recentActivity"><p style="text-align:center;color:rgba(255,255,255,0.5);">Loading...</p></div>
+                <div id="recentActivity">
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading activity...</p></div>
+                </div>
             </div>
             <div class="quick-stats">
                 <div class="section-title"><i class="fas fa-chart-pie"></i> Quick Stats</div>
@@ -342,6 +456,7 @@
             <button class="classy-btn active" onclick="location.href='dashboard.html'">
                 <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
             </button>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
@@ -352,6 +467,7 @@
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
@@ -360,8 +476,11 @@
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
@@ -373,6 +492,7 @@
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
@@ -399,12 +519,217 @@
     <script src="js/app.js"></script>
     
     <script>
+        // ============ LOGOUT ============
         function logoutWithConfirm() {
-            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                if (result === 'confirm') logout();
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
+                    if (result === 'confirm') logout();
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) logout();
+            }
+        }
+        
+        function logout() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(function() {
+                    localStorage.removeItem('srms_user');
+                    localStorage.removeItem('srms_school');
+                    window.location.href = 'index.html';
+                });
+            } else {
+                localStorage.removeItem('srms_user');
+                localStorage.removeItem('srms_school');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // ============ LOAD DASHBOARD DATA ============
+        function loadDashboardData() {
+            var school = getCurrentSchool();
+            if (!school) {
+                var user = getCurrentUser();
+                if (user && user.school) {
+                    localStorage.setItem('srms_school', user.school);
+                    school = user.school;
+                } else {
+                    return;
+                }
+            }
+
+            var user = getCurrentUser();
+            if (user) {
+                var nameEl = document.getElementById('welcomeUserName');
+                var roleEl = document.getElementById('welcomeUserRole');
+                var schoolEl = document.getElementById('welcomeSchoolName');
+                var dateEl = document.getElementById('dateDisplay');
+                if (nameEl) nameEl.textContent = user.name || 'User';
+                if (roleEl) roleEl.textContent = user.role || 'Role';
+                if (schoolEl) schoolEl.textContent = school;
+                if (dateEl) dateEl.textContent = getDateDisplay();
+
+                if (user.role === 'admin') {
+                    API.getSchool(school).then(function(schoolInfo) {
+                        if (schoolInfo && schoolInfo.inviteCode) {
+                            var codeEl = document.getElementById('inviteCode');
+                            var bannerEl = document.getElementById('inviteCodeBanner');
+                            if (codeEl) codeEl.textContent = schoolInfo.inviteCode;
+                            if (bannerEl) bannerEl.style.display = 'block';
+                        }
+                    });
+                }
+            }
+
+            // Load all data in parallel
+            Promise.all([
+                API.getBooks(school),
+                API.getStudents(school),
+                API.getBorrowed(school),
+                API.getFurniture(school),
+                API.getTeachers(school),
+                API.getClasses(school),
+                API.getEvents(school),
+                API.getFees(school)
+            ]).then(function(results) {
+                var books = results[0] || [];
+                var students = results[1] || [];
+                var borrowed = results[2] || [];
+                var furniture = results[3] || [];
+                var teachers = results[4] || [];
+                var classes = results[5] || [];
+                var events = results[6] || [];
+                var fees = results[7] || [];
+
+                // Update stats
+                var totalBooks = books.reduce(function(s, b) { return s + (b.quantity || 0); }, 0);
+                var availableBooks = books.reduce(function(s, b) { return s + (b.available || 0); }, 0);
+                animateNumber('totalBooks', totalBooks);
+                animateNumber('availableBooks', availableBooks);
+
+                var totalStudents = students.length;
+                var seenAdms = {};
+                students.forEach(function(s) { if (s.adm) seenAdms[s.adm] = true; });
+                classes.forEach(function(c) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = st.ADM || st.adm || '';
+                        if (adm && !seenAdms[adm]) {
+                            seenAdms[adm] = true;
+                            totalStudents++;
+                        }
+                    });
+                });
+                animateNumber('totalStudents', totalStudents);
+
+                var activeLoans = borrowed.filter(function(b) { return !b.returned; });
+                animateNumber('activeLoans', activeLoans.length);
+                
+                var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
+                animateNumber('overdueBooks', overdue.length);
+                animateNumber('activeFurniture', furniture.length);
+
+                var teachersStat = document.getElementById('totalTeachersStat');
+                var classesStat = document.getElementById('totalClassesStat');
+                if (teachersStat) teachersStat.textContent = teachers.length;
+                if (classesStat) classesStat.textContent = classes.length;
+
+                var today = new Date().toISOString().split('T')[0];
+                var upcomingEvents = events.filter(function(e) { return e.eventDate >= today; });
+                var upcomingEl = document.getElementById('upcomingEventsStat');
+                if (upcomingEl) upcomingEl.textContent = upcomingEvents.length;
+
+                var totalBalance = fees.reduce(function(s, f) { return s + (f.balance || 0); }, 0);
+                var outstandingEl = document.getElementById('outstandingFeesStat');
+                if (outstandingEl) outstandingEl.textContent = 'KES ' + formatNumber(totalBalance);
+
+                displayRecentActivity(borrowed, furniture);
+            }).catch(function(err) {
+                console.error('Dashboard data error:', err);
+                var recentEl = document.getElementById('recentActivity');
+                if (recentEl) {
+                    recentEl.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Could not load activity</p></div>';
+                }
             });
         }
+
+        function displayRecentActivity(borrowed, furniture) {
+            var activityList = document.getElementById('recentActivity');
+            if (!activityList) return;
+
+            var activities = [];
+            (borrowed || []).slice(0, 10).forEach(function(b) {
+                activities.push({
+                    icon: 'fa-book',
+                    color: 'rgba(233, 69, 96, 0.2)',
+                    text: '<strong>' + (b.studentName || 'Unknown') + '</strong> borrowed "' + (b.bookTitle || '') + '"',
+                    time: b.createdAt || new Date().toISOString()
+                });
+            });
+
+            (furniture || []).slice(0, 10).forEach(function(f) {
+                activities.push({
+                    icon: 'fa-chair',
+                    color: 'rgba(255, 193, 7, 0.2)',
+                    text: '<strong>' + (f.studentName || 'Unknown') + '</strong> allocated ' + (f.chairNo || ''),
+                    time: f.createdAt || new Date().toISOString()
+                });
+            });
+
+            activities.sort(function(a, b) {
+                return new Date(b.time) - new Date(a.time);
+            });
+            activities = activities.slice(0, 8);
+
+            if (activities.length === 0) {
+                activityList.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No recent activity</p></div>';
+                return;
+            }
+
+            var html = '';
+            activities.forEach(function(a) {
+                html += '<div class="activity-item">' +
+                    '<div class="activity-icon" style="background:' + a.color + ';"><i class="fas ' + a.icon + '"></i></div>' +
+                    '<div><div class="activity-text">' + a.text + '</div>' +
+                    '<div class="activity-time">' + formatDateTime(a.time) + '</div></div>' +
+                    '</div>';
+            });
+            activityList.innerHTML = html;
+        }
+
+        function animateNumber(elementId, targetValue) {
+            var element = document.getElementById(elementId);
+            if (!element) return;
+            var startValue = parseInt(element.textContent) || 0;
+            var duration = 600;
+            var startTime = performance.now();
+
+            function update(currentTime) {
+                var elapsed = currentTime - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var currentValue = Math.round(startValue + (targetValue - startValue) * eased);
+                element.textContent = currentValue;
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load dashboard data
+            setTimeout(function() {
+                loadDashboardData();
+            }, 300);
+        });
+
+        // ============ EXPOSE ============
         window.logoutWithConfirm = logoutWithConfirm;
+        window.loadDashboardData = loadDashboardData;
+        window.animateNumber = animateNumber;
     </script>
 </body>
 </html>
