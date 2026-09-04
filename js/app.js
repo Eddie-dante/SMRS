@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// 100% Working - Full Version
+// 100% Working - Direct Firebase Access
 // ============================================
 
 // ============ GLOBAL VARIABLES ============
@@ -9,7 +9,6 @@ var unreadMessagesCount = 0;
 var messageCheckInterval = null;
 var currentNoteId = null;
 var currentEditingFeeId = null;
-var allNotesCache = [];
 
 // ============ INITIALIZATION ============
 document.addEventListener("DOMContentLoaded", function() {
@@ -24,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // Load page data
   setTimeout(function() {
     loadPageData(page);
-  }, 200);
+  }, 300);
 
   // Start message checking
   setTimeout(function() {
@@ -37,11 +36,9 @@ document.addEventListener("DOMContentLoaded", function() {
 // ============ DROPDOWN CONTROLLER ============
 function initDropdownController() {
   var navGroups = document.querySelectorAll(".nav-group");
-
   navGroups.forEach(function(group) {
     var dropdown = group.querySelector(".dropdown-menu");
     var button = group.querySelector(".classy-btn");
-
     if (!dropdown || !button) return;
 
     var closeTimeout = null;
@@ -63,13 +60,10 @@ function initDropdownController() {
       }, 300);
     }
 
-    // Clean up old listeners
     var newGroup = group.cloneNode(true);
     group.parentNode.replaceChild(newGroup, group);
-
     var newDropdown = newGroup.querySelector(".dropdown-menu");
     var newButton = newGroup.querySelector(".classy-btn");
-
     if (!newDropdown || !newButton) return;
 
     newGroup.addEventListener("mouseenter", openDropdown);
@@ -108,6 +102,9 @@ function loadPageData(page) {
       break;
     case "students.html":
       loadStudentsData();
+      break;
+    case "studentsids.html":
+      // StudentsIDs.html loads its own data
       break;
     case "furniture.html":
       loadFurnitureData();
@@ -155,7 +152,6 @@ function loadPageData(page) {
       loadQRCodeList();
       break;
     default:
-      // Check if on dashboard or unknown page
       if (document.getElementById("welcomeUserName")) {
         loadDashboardData();
       }
@@ -166,7 +162,15 @@ function loadPageData(page) {
 // ============ DASHBOARD ============
 function loadDashboardData() {
   var school = getCurrentSchool();
-  if (!school) return;
+  if (!school) {
+    var user = getCurrentUser();
+    if (user && user.school) {
+      localStorage.setItem("srms_school", user.school);
+      school = user.school;
+    } else {
+      return;
+    }
+  }
 
   var user = getCurrentUser();
   if (user) {
@@ -174,14 +178,24 @@ function loadDashboardData() {
     var roleEl = document.getElementById("welcomeUserRole");
     var schoolEl = document.getElementById("welcomeSchoolName");
     var dateEl = document.getElementById("dateDisplay");
-
     if (nameEl) nameEl.textContent = user.name || "User";
     if (roleEl) roleEl.textContent = user.role || "Role";
     if (schoolEl) schoolEl.textContent = school;
     if (dateEl) dateEl.textContent = getDateDisplay();
+
+    if (user.role === "admin") {
+      API.getSchool(school).then(function(schoolInfo) {
+        if (schoolInfo && schoolInfo.inviteCode) {
+          var codeEl = document.getElementById("inviteCode");
+          var bannerEl = document.getElementById("inviteCodeBanner");
+          if (codeEl) codeEl.textContent = schoolInfo.inviteCode;
+          if (bannerEl) bannerEl.style.display = "block";
+        }
+      });
+    }
   }
 
-  // Load stats
+  // Load all data
   Promise.all([
     API.getBooks(school),
     API.getStudents(school),
@@ -229,6 +243,8 @@ function loadDashboardData() {
     if (outstandingEl) outstandingEl.textContent = "KES " + formatNumber(totalBalance);
 
     displayRecentActivity(borrowed, furniture);
+  }).catch(function() {
+    // Silently handle errors - don't show loading forever
   });
 }
 
@@ -323,7 +339,6 @@ function loadLibraryData() {
       var borrowed = results[1] || [];
       var classes = results[2] || [];
 
-      // Books table
       var booksTbody = document.getElementById("booksTableBody");
       if (booksTbody) {
         if (books.length === 0) {
@@ -336,7 +351,6 @@ function loadLibraryData() {
           booksTbody.innerHTML = html;
         }
 
-        // Populate book selects
         var select = document.getElementById("issueBookTitle");
         if (select) {
           var selectHtml = '<option value="">Select Book</option>';
@@ -356,7 +370,6 @@ function loadLibraryData() {
         }
       }
 
-      // Returns table
       var returnsTbody = document.getElementById("returnsTableBody");
       if (returnsTbody) {
         var active = borrowed.filter(function(b) { return !b.returned; });
@@ -373,7 +386,6 @@ function loadLibraryData() {
         }
       }
 
-      // Bulk book classes
       var bulkClassSelect = document.getElementById("bulkBookClass");
       if (bulkClassSelect) {
         var classHtml = '<option value="">Select Class</option>';
@@ -486,7 +498,7 @@ function loadStudentsData() {
     }
 
     var html = "";
-    students.slice(0, 100).forEach(function(s) {
+    students.forEach(function(s) {
       html += "<tr><td>" + (s.name || '-') + "</td><td>" + (s.adm || '-') + "</td><td>" + (s.form || '-') + "</td><td>" + (s.stream || '-') + "</td><td>" + (s.gender || '-') + "</td><td>" + (s.parentPhone || '-') + '</td><td><button class="btn btn-sm btn-danger" onclick="deleteStudent(\'' + s.adm + '\')"><i class="fas fa-trash"></i></button></td></tr>';
     });
     tbody.innerHTML = html;
@@ -556,7 +568,7 @@ function loadFurnitureData() {
         activeList.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No active allocations</p>';
       } else {
         var html = "";
-        furniture.slice(0, 50).forEach(function(f) {
+        furniture.forEach(function(f) {
           html += '<div class="furniture-card">' +
             '<span class="status-badge status-active">Active</span>' +
             '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
@@ -632,7 +644,7 @@ function loadChatUsers() {
     if (!userList) return;
 
     var html = "";
-    (users || []).forEach(function(u) {
+    users.forEach(function(u) {
       if (u.email !== currentUser.email) {
         html += '<button class="chat-user-btn" onclick="selectChatUser(\'' + u.email + "', '" + u.name + "')\">' +
           '<div style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e27;">' + getInitials(u.name) + "</div>" +
@@ -764,7 +776,6 @@ function loadNotes() {
   if (!school || !user) return;
 
   API.getNotes(school, user.email).then(function(notes) {
-    allNotesCache = notes || [];
     var container = document.getElementById("notesList");
     if (!container) return;
 
@@ -789,6 +800,28 @@ function loadNotes() {
         "</div></div>";
     });
     container.innerHTML = html;
+  });
+}
+
+function loadNoteForEdit(noteId) {
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+  if (!school || !user) return;
+
+  API.getNotes(school, user.email).then(function(notes) {
+    var found = null;
+    notes.forEach(function(n) {
+      if (n.id === noteId) found = n;
+    });
+    if (found) {
+      currentNoteId = found.id;
+      var titleEl = document.getElementById("noteTitle");
+      var contentEl = document.getElementById("noteContent");
+      if (titleEl) titleEl.value = found.title || '';
+      if (contentEl) contentEl.innerHTML = found.content || '';
+      updateWordCount();
+      showNotification('Loaded: ' + (found.title || 'Untitled'), 'success');
+    }
   });
 }
 
@@ -949,6 +982,28 @@ function loadFeesData() {
   });
 }
 
+function editFee(feeId) {
+  if (!feeId) return;
+  var school = getCurrentSchool();
+  API.getFees(school).then(function(fees) {
+    fees.forEach(function(fee) {
+      if (fee.id === feeId) {
+        currentEditingFeeId = feeId;
+        var studentEl = document.getElementById("feeStudent");
+        var amountEl = document.getElementById("feeAmount");
+        var paidEl = document.getElementById("feePaid");
+        var termEl = document.getElementById("feeTerm");
+        var btnEl = document.getElementById("saveFeeBtn");
+        if (studentEl) studentEl.value = fee.studentAdm;
+        if (amountEl) amountEl.value = fee.amount;
+        if (paidEl) paidEl.value = fee.paid;
+        if (termEl) termEl.value = fee.term;
+        if (btnEl) btnEl.innerHTML = '<i class="fas fa-save"></i> Update Fee';
+      }
+    });
+  });
+}
+
 function saveFee(event) {
   event.preventDefault();
   var school = getCurrentSchool();
@@ -978,6 +1033,19 @@ function saveFee(event) {
   return false;
 }
 
+function deleteFee(feeId) {
+  if (!feeId) return;
+  DialogSystem.confirm("Delete this fee record?", { title: "Delete Fee", type: "danger", confirmText: "Delete", cancelText: "Cancel" })
+    .then(function(confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteFee(school, feeId).then(function() {
+        showNotification("Fee deleted!", "success");
+        loadFeesData();
+      });
+    });
+}
+
 // ============ TEACHERS ============
 function loadTeachersData() {
   var school = getCurrentSchool();
@@ -987,7 +1055,7 @@ function loadTeachersData() {
     var tbody = document.getElementById("teachersTableBody");
     if (!tbody) return;
 
-    if (!teachers || teachers.length === 0) {
+    if (teachers.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No teachers</td></tr>';
       return;
     }
@@ -1050,7 +1118,7 @@ function loadClassesData() {
     var container = document.getElementById("classesList");
     if (!container) return;
 
-    if (!classes || classes.length === 0) {
+    if (classes.length === 0) {
       container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No classes yet</p>';
       return;
     }
@@ -1070,6 +1138,162 @@ function loadClassesData() {
   });
 }
 
+function viewClassStudents(classId) {
+  if (!classId) return;
+  var school = getCurrentSchool();
+  API.getClasses(school).then(function(classes) {
+    classes.forEach(function(cls) {
+      if (cls.id === classId) {
+        var students = cls.students || [];
+        var existingModal = document.getElementById("viewStudentsModal");
+        if (existingModal) existingModal.remove();
+
+        var modal = document.createElement("div");
+        modal.className = "modal active";
+        modal.id = "viewStudentsModal";
+
+        var html = '<div class="modal-content">' +
+          '<div class="modal-header">' +
+          '<h3><i class="fas fa-users"></i> ' + (cls.name || '') + " Students</h3>" +
+          '<button class="modal-close" onclick="closeModal(\'viewStudentsModal\')"><i class="fas fa-times"></i></button>' +
+          "</div>";
+
+        if (students.length === 0) {
+          html += '<p style="text-align:center;">No students in this class</p>';
+        } else {
+          html += '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Gender</th></tr></thead><tbody>';
+          students.forEach(function(s, i) {
+            var name = s.Name || s.name || s["Full Name"] || "Unknown";
+            var adm = s.ADM || s.adm || s["ADM No"] || "-";
+            var gender = s.Gender || s.gender || "-";
+            html += "<tr><td>" + (i + 1) + "</td><td>" + name + "</td><td>" + adm + "</td><td>" + gender + "</td></tr>";
+          });
+          html += "</tbody></table>";
+        }
+        html += "</div>";
+        modal.innerHTML = html;
+        document.body.appendChild(modal);
+      }
+    });
+  });
+}
+
+function deleteClass(classId) {
+  if (!classId) return;
+  DialogSystem.confirm("Delete this class?", { title: "Delete Class", type: "danger", confirmText: "Delete", cancelText: "Cancel" })
+    .then(function(confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteClass(school, classId).then(function() {
+        showNotification("Class deleted!", "success");
+        loadClassesData();
+      });
+    });
+}
+
+// ============ TERMS ============
+function loadTerms() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getTerms(school).then(function(terms) {
+    var container = document.getElementById("termsList");
+    if (!container) return;
+
+    if (terms.length === 0) {
+      container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">No terms</p>';
+      return;
+    }
+
+    var html = "";
+    terms.forEach(function(term) {
+      var current = term.isCurrent ? "✅ Current" : "";
+      var border = term.isCurrent ? "border-left:4px solid #28a745;" : "";
+      html += '<div class="term-card" style="' + border + '">' +
+        "<h4>" + (term.name || '') + " " + current + "</h4>" +
+        "<p>" + (term.startDate || '') + " → " + (term.endDate || '') + "</p></div>";
+    });
+    container.innerHTML = html;
+  });
+}
+
+function addTerm(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+
+  var name = document.getElementById("termName");
+  var startDate = document.getElementById("termStartDate");
+  var endDate = document.getElementById("termEndDate");
+
+  if (!name || !name.value || !startDate || !startDate.value || !endDate || !endDate.value) {
+    showNotification("All fields are required", "warning");
+    return false;
+  }
+
+  API.addTerm(school, {
+    name: name.value,
+    startDate: startDate.value,
+    endDate: endDate.value,
+    createdBy: user ? user.name : "",
+  }).then(function() {
+    showNotification("Term added!", "success");
+    closeModal("addTermModal");
+    loadTerms();
+  });
+  return false;
+}
+
+// ============ AUDIT LOG ============
+function loadAuditLog() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getAuditLog(school).then(function(logs) {
+    var tbody = document.getElementById("auditLogBody");
+    if (!tbody) return;
+
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No audit log entries</td></tr>';
+      return;
+    }
+
+    var html = "";
+    logs.forEach(function(log) {
+      html += "<tr><td>" + formatDateTime(log.timestamp) + "</td><td>" + (log.user || '-') + "</td><td>" + (log.userEmail || '-') + "</td><td>" + (log.action || '-') + "</td><td>" + (log.details || '-') + "</td></tr>";
+    });
+    tbody.innerHTML = html;
+  });
+}
+
+// ============ REPORTS ============
+function loadReports() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  Promise.all([API.getBooks(school), API.getStudents(school), API.getBorrowed(school), API.getFurniture(school)])
+    .then(function(results) {
+      var books = results[0] || [];
+      var students = results[1] || [];
+      var borrowed = results[2] || [];
+      var furniture = results[3] || [];
+
+      var activeLoans = borrowed.filter(function(b) { return !b.returned; });
+      var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
+      var returned = borrowed.filter(function(b) { return b.returned; });
+      var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
+
+      var overdueEl = document.getElementById("overdueCount");
+      var activeEl = document.getElementById("activeLoansCount");
+      var rateEl = document.getElementById("returnRate");
+      var furnitureEl = document.getElementById("furnitureCount");
+      if (overdueEl) overdueEl.textContent = overdue.length;
+      if (activeEl) activeEl.textContent = activeLoans.length;
+      if (rateEl) rateEl.textContent = returnRate + "%";
+      if (furnitureEl) furnitureEl.textContent = furniture.length;
+    });
+}
+
 // ============ QR CODES ============
 function loadQRCodeList() {
   var school = getCurrentSchool();
@@ -1079,7 +1303,7 @@ function loadQRCodeList() {
     var container = document.getElementById('qrCodeList');
     if (!container) return;
 
-    if (!codes || codes.length === 0) {
+    if (codes.length === 0) {
       container.innerHTML = '<div class="empty-state"><i class="fas fa-list"></i><p>No QR codes in the system yet.</p></div>';
       return;
     }
@@ -1139,7 +1363,7 @@ function loadSettingsData() {
 
     var currentUser = getCurrentUser();
     var html = "";
-    (users || []).forEach(function(u) {
+    users.forEach(function(u) {
       var status = u.isActive !== false ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>';
       var roleBadge = u.role === "admin" ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-info">' + (u.role || '') + "</span>";
       var actions = "";
@@ -1157,32 +1381,90 @@ function loadSettingsData() {
   });
 }
 
-// ============ REPORTS ============
-function loadReports() {
-  var school = getCurrentSchool();
-  if (!school) return;
-
-  Promise.all([API.getBooks(school), API.getStudents(school), API.getBorrowed(school), API.getFurniture(school)])
-    .then(function(results) {
-      var books = results[0] || [];
-      var students = results[1] || [];
-      var borrowed = results[2] || [];
-      var furniture = results[3] || [];
-
-      var activeLoans = borrowed.filter(function(b) { return !b.returned; });
-      var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
-      var returned = borrowed.filter(function(b) { return b.returned; });
-      var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
-
-      var overdueEl = document.getElementById("overdueCount");
-      var activeEl = document.getElementById("activeLoansCount");
-      var rateEl = document.getElementById("returnRate");
-      var furnitureEl = document.getElementById("furnitureCount");
-      if (overdueEl) overdueEl.textContent = overdue.length;
-      if (activeEl) activeEl.textContent = activeLoans.length;
-      if (rateEl) rateEl.textContent = returnRate + "%";
-      if (furnitureEl) furnitureEl.textContent = furniture.length;
+function promoteToAdmin(email) {
+  if (!email) return;
+  DialogSystem.confirm("Promote this user to admin?", { title: "Promote User", type: "success", confirmText: "Promote", cancelText: "Cancel" })
+    .then(function(confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.updateUser(school, email, { role: "admin" }).then(function() {
+        showNotification("User promoted!", "success");
+        loadSettingsData();
+      });
     });
+}
+
+function deleteUser(email) {
+  if (!email) return;
+  DialogSystem.confirm("Deactivate this user?", { title: "Delete User", type: "danger", confirmText: "Deactivate", cancelText: "Cancel" })
+    .then(function(confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteUser(school, email).then(function() {
+        showNotification("User deactivated!", "success");
+        loadSettingsData();
+      });
+    });
+}
+
+// ============ DATABASE MANAGER ============
+function loadDatabaseTables() {
+  var tables = [
+    "books", "borrowed", "students", "furniture", "teachers",
+    "classes", "terms", "events", "fees", "qrcodes",
+    "auditLog", "users", "chat", "forum", "notes"
+  ];
+  var select = document.getElementById("databaseTableSelect");
+  if (!select) return;
+
+  var html = "";
+  tables.forEach(function(t) {
+    html += '<option value="' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + "</option>";
+  });
+  select.innerHTML = html;
+
+  setTimeout(loadDatabaseTable, 300);
+}
+
+function loadDatabaseTable() {
+  var school = getCurrentSchool();
+  var select = document.getElementById("databaseTableSelect");
+  if (!select || !select.value) return;
+
+  var tableName = select.value;
+
+  API.getTableData(school, tableName).then(function(data) {
+    var tbody = document.getElementById("databaseTableBody");
+    var thead = document.getElementById("databaseTableHead");
+    if (!tbody || !thead) return;
+
+    if (data.length === 0) {
+      thead.innerHTML = "";
+      tbody.innerHTML = "<tr><td>No data in this table</td></tr>";
+      return;
+    }
+
+    var columns = Object.keys(data[0]);
+    var filteredColumns = columns.filter(function(c) { return c !== "password"; });
+
+    var headHtml = "";
+    filteredColumns.forEach(function(col) {
+      headHtml += "<th>" + col + "</th>";
+    });
+    thead.innerHTML = headHtml;
+
+    var bodyHtml = "";
+    data.forEach(function(row) {
+      bodyHtml += "<tr>";
+      filteredColumns.forEach(function(col) {
+        var value = row[col];
+        if (typeof value === "object") value = JSON.stringify(value);
+        bodyHtml += "<td>" + (value || "-") + "</td>";
+      });
+      bodyHtml += "</tr>";
+    });
+    tbody.innerHTML = bodyHtml;
+  });
 }
 
 // ============ EXPORT ALL FUNCTIONS ============
@@ -1197,9 +1479,13 @@ window.loadEvents = loadEvents;
 window.loadFeesData = loadFeesData;
 window.loadTeachersData = loadTeachersData;
 window.loadClassesData = loadClassesData;
-window.loadSettingsData = loadSettingsData;
-window.loadQRCodeList = loadQRCodeList;
+window.loadTerms = loadTerms;
+window.loadAuditLog = loadAuditLog;
 window.loadReports = loadReports;
+window.loadSettingsData = loadSettingsData;
+window.loadDatabaseTables = loadDatabaseTables;
+window.loadDatabaseTable = loadDatabaseTable;
+window.loadQRCodeList = loadQRCodeList;
 window.addBook = addBook;
 window.issueBook = issueBook;
 window.returnBook = returnBook;
@@ -1212,11 +1498,19 @@ window.selectChatUser = selectChatUser;
 window.sendMessage = sendMessage;
 window.postForumMessage = postForumMessage;
 window.saveNote = saveNote;
+window.loadNoteForEdit = loadNoteForEdit;
 window.deleteNote = deleteNote;
 window.addEvent = addEvent;
 window.saveFee = saveFee;
+window.editFee = editFee;
+window.deleteFee = deleteFee;
 window.addTeacher = addTeacher;
 window.deleteTeacher = deleteTeacher;
+window.viewClassStudents = viewClassStudents;
+window.deleteClass = deleteClass;
+window.addTerm = addTerm;
+window.promoteToAdmin = promoteToAdmin;
+window.deleteUser = deleteUser;
 window.initDropdownController = initDropdownController;
 window.checkUnreadMessages = checkUnreadMessages;
 window.showNotification = showNotification;
