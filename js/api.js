@@ -1,6 +1,5 @@
 // ============================================
-// SRMS - Complete Firebase API
-// Full Version - Direct Database Access
+// SRMS - Firebase API (Complete Working Version)
 // ============================================
 
 var firebaseConfig = {
@@ -49,35 +48,62 @@ function hashPassword(password) {
   return hash.toString();
 }
 
-function generateUniqueQRCode(type, usedCodes) {
-  var code = "";
-  var unique = false;
-  var attempts = 0;
-  while (!unique && attempts < 100) {
-    var number = Math.floor(10000 + Math.random() * 90000);
-    code = type.toUpperCase() + "-" + number;
-    if (!usedCodes[code]) {
-      unique = true;
-      usedCodes[code] = true;
-    }
-    attempts++;
-  }
-  return code;
+// Generate a unique student QR code
+function generateStudentQRCode(schoolName, adm, studentName) {
+  var namePart = studentName
+    .split(" ")
+    .map(function (w) {
+      return w.charAt(0);
+    })
+    .join("")
+    .toUpperCase();
+  var schoolPart = schoolName
+    .substring(0, 3)
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+  var randomPart = Math.floor(1000 + Math.random() * 9000);
+  return "SRMS-" + schoolPart + "-" + adm + "-" + namePart + "-" + randomPart;
+}
+
+// Generate a deep link URL for the student
+function generateStudentDeepLink(schoolName, adm) {
+  return (
+    "https://srms-fd318.web.app/student.html?school=" +
+    encodeURIComponent(schoolName) +
+    "&adm=" +
+    encodeURIComponent(adm)
+  );
 }
 
 // ============ API OBJECT ============
 var API = {
-  // ============ SCHOOL OPERATIONS ============
-  getSchool: function (schoolName) {
+  // ============ AUTHENTICATION ============
+  login: function (schoolName, email, password) {
+    var emailKey = email.replace(/\./g, ",");
     return database
-      .ref("schools/" + schoolName)
+      .ref("schools/" + schoolName + "/users/" + emailKey)
       .once("value")
       .then(function (snapshot) {
-        return snapshot.val() || null;
+        var user = snapshot.val();
+        if (
+          user &&
+          user.password === hashPassword(password) &&
+          user.isActive !== false
+        ) {
+          var sessionUser = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            staffId: user.staffId,
+          };
+          localStorage.setItem("srms_user", JSON.stringify(sessionUser));
+          localStorage.setItem("srms_school", schoolName);
+          return { success: true, user: sessionUser };
+        }
+        return { success: false, error: "Invalid credentials" };
       })
       .catch(function (error) {
-        console.error("Get school error:", error);
-        return null;
+        return { success: false, error: error.message };
       });
   },
 
@@ -126,45 +152,15 @@ var API = {
       });
   },
 
-  updateSchool: function (schoolName, schoolData) {
+  getSchool: function (schoolName) {
     return database
       .ref("schools/" + schoolName)
-      .update(schoolData)
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ AUTHENTICATION ============
-  login: function (schoolName, email, password) {
-    var emailKey = email.replace(/\./g, ",");
-    return database
-      .ref("schools/" + schoolName + "/users/" + emailKey)
       .once("value")
       .then(function (snapshot) {
-        var user = snapshot.val();
-        if (
-          user &&
-          user.password === hashPassword(password) &&
-          user.isActive !== false
-        ) {
-          var sessionUser = {
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            staffId: user.staffId,
-          };
-          localStorage.setItem("srms_user", JSON.stringify(sessionUser));
-          localStorage.setItem("srms_school", schoolName);
-          return { success: true, user: sessionUser };
-        }
-        return { success: false, error: "Invalid credentials" };
+        return snapshot.val() || null;
       })
-      .catch(function (error) {
-        return { success: false, error: error.message };
+      .catch(function () {
+        return null;
       });
   },
 
@@ -174,9 +170,8 @@ var API = {
       .ref("schools/" + schoolName + "/users/" + emailKey)
       .once("value")
       .then(function (snapshot) {
-        if (snapshot.exists()) {
+        if (snapshot.exists())
           return { success: false, error: "User already exists" };
-        }
         return database
           .ref("schools/" + schoolName + "/users/" + emailKey)
           .set({
@@ -184,7 +179,6 @@ var API = {
             email: userData.email,
             role: userData.role || "teacher",
             staffId: userData.staffId || generateStaffId(),
-            phone: userData.phone || "",
             password: hashPassword(userData.password),
             createdAt: new Date().toISOString(),
             isActive: true,
@@ -216,11 +210,208 @@ var API = {
       });
   },
 
-  updateUser: function (schoolName, email, userData) {
-    var emailKey = email.replace(/\./g, ",");
+  // ============ STUDENTS ============
+  addStudent: function (schoolName, studentData) {
+    var adm = studentData.adm;
+
+    // Generate unique QR code for student
+    var qrCode = generateStudentQRCode(schoolName, adm, studentData.name);
+    var deepLink = generateStudentDeepLink(schoolName, adm);
+
     return database
-      .ref("schools/" + schoolName + "/users/" + emailKey)
-      .update(userData)
+      .ref("schools/" + schoolName + "/students/" + adm)
+      .once("value")
+      .then(function (snapshot) {
+        if (snapshot.exists()) {
+          return {
+            success: false,
+            error: "Student with this ADM already exists",
+          };
+        }
+
+        return database.ref("schools/" + schoolName + "/students/" + adm).set({
+          name: studentData.name,
+          adm: adm,
+          form: studentData.form || "",
+          stream: studentData.stream || "",
+          gender: studentData.gender || "",
+          dob: studentData.dob || "",
+          parentName: studentData.parentName || "",
+          parentPhone: studentData.parentPhone || "",
+          parentEmail: studentData.parentEmail || "",
+          address: studentData.address || "",
+          qrCode: qrCode,
+          deepLink: deepLink,
+          photoUrl: studentData.photoUrl || "",
+          addedBy: studentData.addedBy || "",
+          addedAt: new Date().toISOString(),
+        });
+      })
+      .then(function () {
+        // Also save QR code record
+        return database
+          .ref("schools/" + schoolName + "/qrcodes")
+          .push()
+          .set({
+            code: qrCode,
+            type: "student",
+            assigned: true,
+            assignedTo: studentData.name,
+            adm: adm,
+            className: studentData.form || "",
+            stream: studentData.stream || "",
+            deepLink: deepLink,
+            returned: false,
+            createdAt: new Date().toISOString(),
+          });
+      })
+      .then(function () {
+        return { success: true, qrCode: qrCode, deepLink: deepLink };
+      })
+      .catch(function (error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  getStudents: function (schoolName) {
+    return database
+      .ref("schools/" + schoolName + "/students")
+      .once("value")
+      .then(function (snapshot) {
+        var students = snapshot.val();
+        if (!students) return [];
+        var result = [];
+        Object.keys(students).forEach(function (key) {
+          result.push(Object.assign({ adm: key }, students[key]));
+        });
+        return result;
+      })
+      .catch(function () {
+        return [];
+      });
+  },
+
+  // Get complete student details including borrowed books, furniture, fees
+  getStudentCompleteDetails: function (schoolName, adm) {
+    var studentData = null;
+    var borrowedBooks = [];
+    var furniture = [];
+    var fees = [];
+
+    return database
+      .ref("schools/" + schoolName + "/students/" + adm)
+      .once("value")
+      .then(function (snapshot) {
+        studentData = snapshot.val();
+        if (!studentData) return null;
+        return database
+          .ref("schools/" + schoolName + "/borrowed")
+          .once("value");
+      })
+      .then(function (snapshot) {
+        if (!snapshot) return null;
+        var borrowed = snapshot.val();
+        if (borrowed) {
+          Object.keys(borrowed).forEach(function (key) {
+            if (borrowed[key].adm === adm) {
+              borrowedBooks.push(Object.assign({ id: key }, borrowed[key]));
+            }
+          });
+        }
+        return database
+          .ref("schools/" + schoolName + "/furniture")
+          .once("value");
+      })
+      .then(function (snapshot) {
+        if (!snapshot) return null;
+        var furn = snapshot.val();
+        if (furn) {
+          Object.keys(furn).forEach(function (key) {
+            if (furn[key].adm === adm) {
+              furniture.push(Object.assign({ id: key }, furn[key]));
+            }
+          });
+        }
+        return database.ref("schools/" + schoolName + "/fees").once("value");
+      })
+      .then(function (snapshot) {
+        if (snapshot) {
+          var feeData = snapshot.val();
+          if (feeData) {
+            Object.keys(feeData).forEach(function (key) {
+              if (feeData[key].studentAdm === adm) {
+                fees.push(Object.assign({ id: key }, feeData[key]));
+              }
+            });
+          }
+        }
+
+        return {
+          student: studentData,
+          borrowedBooks: borrowedBooks,
+          furniture: furniture,
+          fees: fees,
+        };
+      })
+      .catch(function (error) {
+        console.error("Get student details error:", error);
+        return null;
+      });
+  },
+
+  // Get student by QR code
+  getStudentByQRCode: function (schoolName, qrCode) {
+    return database
+      .ref("schools/" + schoolName + "/students")
+      .once("value")
+      .then(function (snapshot) {
+        var students = snapshot.val();
+        if (!students) return { success: false, error: "No students found" };
+
+        var foundStudent = null;
+        var foundAdm = null;
+        Object.keys(students).forEach(function (adm) {
+          if (students[adm].qrCode === qrCode) {
+            foundStudent = students[adm];
+            foundAdm = adm;
+          }
+        });
+
+        if (!foundStudent) {
+          return { success: false, error: "QR code not found in database" };
+        }
+
+        return { success: true, student: foundStudent, adm: foundAdm };
+      })
+      .catch(function (error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  deleteStudent: function (schoolName, adm) {
+    return database
+      .ref("schools/" + schoolName + "/students/" + adm)
+      .remove()
+      .then(function () {
+        // Also remove associated QR codes
+        return database.ref("schools/" + schoolName + "/qrcodes").once("value");
+      })
+      .then(function (snapshot) {
+        var qrcodes = snapshot.val();
+        var promises = [];
+        if (qrcodes) {
+          Object.keys(qrcodes).forEach(function (key) {
+            if (qrcodes[key].adm === adm && qrcodes[key].type === "student") {
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/qrcodes/" + key)
+                  .remove(),
+              );
+            }
+          });
+        }
+        return Promise.all(promises);
+      })
       .then(function () {
         return { success: true };
       })
@@ -229,20 +420,7 @@ var API = {
       });
   },
 
-  deleteUser: function (schoolName, email) {
-    var emailKey = email.replace(/\./g, ",");
-    return database
-      .ref("schools/" + schoolName + "/users/" + emailKey)
-      .update({ isActive: false })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ BOOK OPERATIONS ============
+  // ============ BOOKS ============
   addBook: function (schoolName, bookData) {
     var bookRef = database.ref("schools/" + schoolName + "/books").push();
     return bookRef
@@ -277,37 +455,12 @@ var API = {
         });
         return result;
       })
-      .catch(function (error) {
-        console.error("Get books error:", error);
+      .catch(function () {
         return [];
       });
   },
 
-  updateBook: function (schoolName, bookId, bookData) {
-    return database
-      .ref("schools/" + schoolName + "/books/" + bookId)
-      .update(bookData)
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  deleteBook: function (schoolName, bookId) {
-    return database
-      .ref("schools/" + schoolName + "/books/" + bookId)
-      .remove()
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ BORROWING OPERATIONS ============
+  // ============ BORROWING ============
   issueBook: function (schoolName, borrowData) {
     var borrowRef = database.ref("schools/" + schoolName + "/borrowed").push();
     return borrowRef
@@ -318,7 +471,6 @@ var API = {
         stream: borrowData.stream || "",
         bookTitle: borrowData.bookTitle,
         bookNo: borrowData.bookNo,
-        qrId: borrowData.qrId || null,
         borrowDate: borrowData.borrowDate,
         returnDate: borrowData.returnDate,
         returned: false,
@@ -354,336 +506,6 @@ var API = {
   returnBook: function (schoolName, borrowId) {
     return database
       .ref("schools/" + schoolName + "/borrowed/" + borrowId)
-      .once("value")
-      .then(function (snapshot) {
-        var borrowRecord = snapshot.val();
-        if (borrowRecord && borrowRecord.qrId) {
-          return API.returnQRCode(schoolName, borrowRecord.qrId);
-        }
-        return Promise.resolve();
-      })
-      .then(function () {
-        return database
-          .ref("schools/" + schoolName + "/borrowed/" + borrowId)
-          .remove();
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ QR CODE OPERATIONS ============
-  generateQRCodes: function (schoolName, type, start, end) {
-    var qrRef = database.ref("schools/" + schoolName + "/qrcodes");
-    return qrRef
-      .once("value")
-      .then(function (snapshot) {
-        var existingCodes = snapshot.val() || {};
-        var usedCodes = {};
-        Object.values(existingCodes).forEach(function (qr) {
-          usedCodes[qr.code] = true;
-        });
-        var generated = [];
-        var promises = [];
-        for (var i = start; i <= end; i++) {
-          var code = generateUniqueQRCode(type, usedCodes);
-          var newQRRef = qrRef.push();
-          promises.push(
-            newQRRef.set({
-              code: code,
-              type: type,
-              assigned: false,
-              assignedTo: null,
-              className: null,
-              stream: null,
-              adm: null,
-              returned: false,
-              createdAt: new Date().toISOString(),
-            }),
-          );
-          generated.push(code);
-        }
-        return Promise.all(promises).then(function () {
-          return { success: true, codes: generated };
-        });
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  getQRCodes: function (schoolName) {
-    return database
-      .ref("schools/" + schoolName + "/qrcodes")
-      .once("value")
-      .then(function (snapshot) {
-        var codes = snapshot.val();
-        if (!codes) return [];
-        var result = [];
-        Object.keys(codes).forEach(function (key) {
-          result.push(Object.assign({ id: key }, codes[key]));
-        });
-        return result;
-      })
-      .catch(function () {
-        return [];
-      });
-  },
-
-  scanQRCode: function (schoolName, code) {
-    return API.getQRCodes(schoolName)
-      .then(function (codes) {
-        var foundQR = null;
-        var foundId = null;
-        for (var i = 0; i < codes.length; i++) {
-          if (codes[i].code === code) {
-            foundQR = codes[i];
-            foundId = codes[i].id;
-            break;
-          }
-        }
-        if (!foundQR) {
-          return { success: false, error: "Code not found in database" };
-        }
-        if (foundQR.assigned && !foundQR.returned) {
-          return {
-            success: true,
-            status: "assigned",
-            qr: foundQR,
-            id: foundId,
-          };
-        }
-        return { success: true, status: "available", qr: foundQR, id: foundId };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  assignQRCode: function (schoolName, qrId, assignmentData) {
-    return database
-      .ref("schools/" + schoolName + "/qrcodes/" + qrId)
-      .update({
-        assigned: true,
-        assignedTo: assignmentData.studentName,
-        className: assignmentData.className || "",
-        stream: assignmentData.stream || "",
-        adm: assignmentData.adm || "",
-        assignedAt: new Date().toISOString(),
-        returned: false,
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  returnQRCode: function (schoolName, qrId) {
-    return database
-      .ref("schools/" + schoolName + "/qrcodes/" + qrId)
-      .update({
-        returned: true,
-        returnedAt: new Date().toISOString(),
-        assigned: false,
-        assignedTo: null,
-        className: null,
-        stream: null,
-        adm: null,
-      })
-      .then(function () {
-        return database
-          .ref("schools/" + schoolName + "/borrowed")
-          .once("value");
-      })
-      .then(function (snapshot) {
-        var borrowed = snapshot.val();
-        if (borrowed) {
-          var promises = [];
-          Object.keys(borrowed).forEach(function (key) {
-            if (borrowed[key].qrId === qrId) {
-              promises.push(
-                database
-                  .ref("schools/" + schoolName + "/borrowed/" + key)
-                  .remove(),
-              );
-            }
-          });
-          return Promise.all(promises);
-        }
-        return Promise.resolve();
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  generateStudentID: function (schoolName, adm) {
-    var student = null;
-    return database
-      .ref("schools/" + schoolName + "/students/" + adm)
-      .once("value")
-      .then(function (snapshot) {
-        student = snapshot.val();
-        if (!student) {
-          return { success: false, error: "Student not found" };
-        }
-        return database
-          .ref("schools/" + schoolName + "/qrcodes")
-          .orderByChild("adm")
-          .equalTo(adm)
-          .once("value");
-      })
-      .then(function (snapshot) {
-        var existingQRs = snapshot.val();
-        if (existingQRs) {
-          var keys = Object.keys(existingQRs);
-          for (var i = 0; i < keys.length; i++) {
-            if (!existingQRs[keys[i]].returned) {
-              return {
-                success: true,
-                qrCode: existingQRs[keys[i]].code,
-                student: student,
-                existing: true,
-              };
-            }
-          }
-        }
-        var qrRef = database.ref("schools/" + schoolName + "/qrcodes");
-        return qrRef.once("value").then(function (snap) {
-          var existingCodes = snap.val() || {};
-          var usedCodes = {};
-          Object.values(existingCodes).forEach(function (qr) {
-            usedCodes[qr.code] = true;
-          });
-          var qrCode = generateUniqueQRCode("STUDENT", usedCodes);
-          var newQRRef = qrRef.push();
-          return newQRRef
-            .set({
-              code: qrCode,
-              type: "student",
-              assigned: true,
-              assignedTo: student.name,
-              className: student.form || "",
-              stream: student.stream || "",
-              adm: adm,
-              returned: false,
-              createdAt: new Date().toISOString(),
-            })
-            .then(function () {
-              return database
-                .ref("schools/" + schoolName + "/students/" + adm)
-                .update({
-                  qrCode: qrCode,
-                  idGeneratedAt: new Date().toISOString(),
-                });
-            })
-            .then(function () {
-              return { success: true, qrCode: qrCode, student: student };
-            });
-        });
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  getStudentByQRCode: function (schoolName, qrCode) {
-    return database
-      .ref("schools/" + schoolName + "/students")
-      .orderByChild("qrCode")
-      .equalTo(qrCode)
-      .once("value")
-      .then(function (snapshot) {
-        var students = snapshot.val();
-        if (!students) {
-          return {
-            success: false,
-            error: "No student found with this QR code",
-          };
-        }
-        var adm = Object.keys(students)[0];
-        var student = students[adm];
-        return database
-          .ref("schools/" + schoolName + "/qrcodes")
-          .orderByChild("code")
-          .equalTo(qrCode)
-          .once("value")
-          .then(function (qrSnapshot) {
-            var qrData = qrSnapshot.val();
-            var qrInfo = null;
-            if (qrData) {
-              var qrId = Object.keys(qrData)[0];
-              qrInfo = qrData[qrId];
-              qrInfo.id = qrId;
-            }
-            return {
-              success: true,
-              student: student,
-              adm: adm,
-              qrInfo: qrInfo,
-            };
-          });
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ STUDENT OPERATIONS ============
-  addStudent: function (schoolName, studentData) {
-    return database
-      .ref("schools/" + schoolName + "/students/" + studentData.adm)
-      .set({
-        name: studentData.name,
-        adm: studentData.adm,
-        form: studentData.form || "",
-        stream: studentData.stream || "",
-        gender: studentData.gender || "",
-        dob: studentData.dob || "",
-        parentName: studentData.parentName || "",
-        parentPhone: studentData.parentPhone || "",
-        parentEmail: studentData.parentEmail || "",
-        addedBy: studentData.addedBy || "",
-        addedAt: new Date().toISOString(),
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  getStudents: function (schoolName) {
-    return database
-      .ref("schools/" + schoolName + "/students")
-      .once("value")
-      .then(function (snapshot) {
-        var students = snapshot.val();
-        if (!students) return [];
-        var result = [];
-        Object.keys(students).forEach(function (key) {
-          result.push(Object.assign({ adm: key }, students[key]));
-        });
-        return result;
-      })
-      .catch(function (error) {
-        console.error("Get students error:", error);
-        return [];
-      });
-  },
-
-  deleteStudent: function (schoolName, adm) {
-    return database
-      .ref("schools/" + schoolName + "/students/" + adm)
       .remove()
       .then(function () {
         return { success: true };
@@ -693,77 +515,23 @@ var API = {
       });
   },
 
-  // ============ CLASS OPERATIONS ============
-  addClass: function (schoolName, classData) {
-    var classRef = database.ref("schools/" + schoolName + "/classes").push();
-    return classRef
+  // ============ FURNITURE ============
+  allocateFurniture: function (schoolName, furnitureData) {
+    var furnitureRef = database
+      .ref("schools/" + schoolName + "/furniture")
+      .push();
+    return furnitureRef
       .set({
-        name: classData.name,
-        stream: classData.stream || "",
-        teacher: classData.teacher || "",
-        students: classData.students || [],
-        createdBy: classData.createdBy || "",
+        studentName: furnitureData.studentName,
+        adm: furnitureData.adm,
+        form: furnitureData.form || "",
+        stream: furnitureData.stream || "",
+        chairNo: furnitureData.chairNo,
+        lockerNo: furnitureData.lockerNo || "",
+        allocationDate: furnitureData.allocationDate,
+        issuedBy: furnitureData.issuedBy || "",
         createdAt: new Date().toISOString(),
-        isActive: true,
       })
-      .then(function () {
-        var students = classData.students || [];
-        var promises = [];
-        for (var i = 0; i < students.length; i++) {
-          var student = students[i];
-          var adm = student.ADM || student.adm || student["ADM No"] || "";
-          var name =
-            student.Name || student.name || student["Full Name"] || "Unknown";
-          if (adm) {
-            promises.push(
-              database.ref("schools/" + schoolName + "/students/" + adm).set({
-                name: name,
-                adm: adm,
-                form: classData.name,
-                stream: classData.stream || "",
-                gender: student.Gender || student.gender || "",
-                dob: student.DOB || student.dob || "",
-                parentName: student["Parent Name"] || "",
-                parentPhone: student["Parent Phone"] || "",
-                parentEmail: student["Parent Email"] || "",
-                addedBy: classData.createdBy || "",
-                addedAt: new Date().toISOString(),
-              }),
-            );
-          }
-        }
-        return Promise.all(promises);
-      })
-      .then(function () {
-        return { success: true, classId: classRef.key };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  getClasses: function (schoolName) {
-    return database
-      .ref("schools/" + schoolName + "/classes")
-      .once("value")
-      .then(function (snapshot) {
-        var classes = snapshot.val();
-        if (!classes) return [];
-        var result = [];
-        Object.keys(classes).forEach(function (key) {
-          result.push(Object.assign({ id: key }, classes[key]));
-        });
-        return result;
-      })
-      .catch(function () {
-        return [];
-      });
-  },
-
-  deleteClass: function (schoolName, classId) {
-    return database
-      .ref("schools/" + schoolName + "/classes/" + classId)
-      .remove()
       .then(function () {
         return { success: true };
       })
@@ -772,7 +540,25 @@ var API = {
       });
   },
 
-  // ============ FEES OPERATIONS ============
+  getFurniture: function (schoolName) {
+    return database
+      .ref("schools/" + schoolName + "/furniture")
+      .once("value")
+      .then(function (snapshot) {
+        var furniture = snapshot.val();
+        if (!furniture) return [];
+        var result = [];
+        Object.keys(furniture).forEach(function (key) {
+          result.push(Object.assign({ id: key }, furniture[key]));
+        });
+        return result;
+      })
+      .catch(function () {
+        return [];
+      });
+  },
+
+  // ============ FEES ============
   saveFee: function (schoolName, feeData) {
     var balance = (feeData.amount || 0) - (feeData.paid || 0);
     if (feeData.id) {
@@ -833,53 +619,92 @@ var API = {
       });
   },
 
-  deleteFee: function (schoolName, feeId) {
-    return database
-      .ref("schools/" + schoolName + "/fees/" + feeId)
-      .remove()
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
+  // ============ CLASSES ============
+  addClass: function (schoolName, classData) {
+    var classRef = database.ref("schools/" + schoolName + "/classes").push();
+    var classKey = classRef.key;
 
-  // ============ FURNITURE OPERATIONS ============
-  allocateFurniture: function (schoolName, furnitureData) {
-    var furnitureRef = database
-      .ref("schools/" + schoolName + "/furniture")
-      .push();
-    return furnitureRef
+    return classRef
       .set({
-        studentName: furnitureData.studentName,
-        adm: furnitureData.adm,
-        form: furnitureData.form || "",
-        stream: furnitureData.stream || "",
-        chairNo: furnitureData.chairNo,
-        lockerNo: furnitureData.lockerNo || "",
-        allocationDate: furnitureData.allocationDate,
-        issuedBy: furnitureData.issuedBy || "",
+        name: classData.name,
+        stream: classData.stream || "",
+        teacher: classData.teacher || "",
+        students: classData.students || [],
+        createdBy: classData.createdBy || "",
         createdAt: new Date().toISOString(),
+        isActive: true,
       })
       .then(function () {
-        return { success: true };
+        var students = classData.students || [];
+        var promises = [];
+        for (var i = 0; i < students.length; i++) {
+          var student = students[i];
+          var adm = student.ADM || student.adm || student["ADM No"] || "";
+          var name =
+            student.Name || student.name || student["Full Name"] || "Unknown";
+          if (adm) {
+            // Generate QR code for each student
+            var qrCode = generateStudentQRCode(schoolName, adm, name);
+            var deepLink = generateStudentDeepLink(schoolName, adm);
+
+            promises.push(
+              database.ref("schools/" + schoolName + "/students/" + adm).set({
+                name: name,
+                adm: adm,
+                form: classData.name,
+                stream: classData.stream || "",
+                gender: student.Gender || student.gender || "",
+                dob: student.DOB || student.dob || "",
+                parentName: student["Parent Name"] || "",
+                parentPhone: student["Parent Phone"] || "",
+                parentEmail: student["Parent Email"] || "",
+                qrCode: qrCode,
+                deepLink: deepLink,
+                addedBy: classData.createdBy || "",
+                addedAt: new Date().toISOString(),
+              }),
+            );
+
+            // Save QR code record
+            promises.push(
+              database
+                .ref("schools/" + schoolName + "/qrcodes")
+                .push()
+                .set({
+                  code: qrCode,
+                  type: "student",
+                  assigned: true,
+                  assignedTo: name,
+                  adm: adm,
+                  className: classData.name,
+                  stream: classData.stream || "",
+                  deepLink: deepLink,
+                  returned: false,
+                  createdAt: new Date().toISOString(),
+                }),
+            );
+          }
+        }
+        return Promise.all(promises);
+      })
+      .then(function () {
+        return { success: true, classId: classKey };
       })
       .catch(function (error) {
         return { success: false, error: error.message };
       });
   },
 
-  getFurniture: function (schoolName) {
+  getClasses: function (schoolName) {
     return database
-      .ref("schools/" + schoolName + "/furniture")
+      .ref("schools/" + schoolName + "/classes")
       .once("value")
       .then(function (snapshot) {
-        var furniture = snapshot.val();
-        if (!furniture) return [];
+        var classes = snapshot.val();
+        if (!classes) return [];
         var result = [];
-        Object.keys(furniture).forEach(function (key) {
-          result.push(Object.assign({ id: key }, furniture[key]));
+        Object.keys(classes).forEach(function (key) {
+          result.push(Object.assign({ id: key }, classes[key]));
         });
         return result;
       })
@@ -888,19 +713,7 @@ var API = {
       });
   },
 
-  returnFurniture: function (schoolName, furnitureId) {
-    return database
-      .ref("schools/" + schoolName + "/furniture/" + furnitureId)
-      .remove()
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ TEACHER OPERATIONS ============
+  // ============ TEACHERS ============
   addTeacher: function (schoolName, teacherData) {
     var teacherRef = database.ref("schools/" + schoolName + "/teachers").push();
     return teacherRef
@@ -939,19 +752,7 @@ var API = {
       });
   },
 
-  deleteTeacher: function (schoolName, teacherId) {
-    return database
-      .ref("schools/" + schoolName + "/teachers/" + teacherId)
-      .remove()
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ EVENTS OPERATIONS ============
+  // ============ EVENTS ============
   addEvent: function (schoolName, eventData) {
     var eventRef = database.ref("schools/" + schoolName + "/events").push();
     return eventRef
@@ -989,15 +790,15 @@ var API = {
       });
   },
 
-  // ============ TIMETABLE OPERATIONS ============
+  // ============ TIMETABLE ============
   addTimetableEntry: function (schoolName, entryData) {
-    var classEntryRef = database
+    var entryRef = database
       .ref(
         "schools/" + schoolName + "/timetable/classes/" + entryData.className,
       )
       .push();
-    var promises = [
-      classEntryRef.set({
+    return entryRef
+      .set({
         day: entryData.day,
         period: entryData.period,
         subject: entryData.subject,
@@ -1005,29 +806,7 @@ var API = {
         room: entryData.room || "",
         createdBy: entryData.createdBy || "",
         createdAt: new Date().toISOString(),
-      }),
-    ];
-    if (entryData.teacher) {
-      var teacherEntryRef = database
-        .ref(
-          "schools/" +
-            schoolName +
-            "/timetable/teachers/" +
-            entryData.teacher.replace(/\./g, ","),
-        )
-        .push();
-      promises.push(
-        teacherEntryRef.set({
-          day: entryData.day,
-          period: entryData.period,
-          subject: entryData.subject,
-          className: entryData.className,
-          room: entryData.room || "",
-          createdAt: new Date().toISOString(),
-        }),
-      );
-    }
-    return Promise.all(promises)
+      })
       .then(function () {
         return { success: true };
       })
@@ -1062,7 +841,7 @@ var API = {
       });
   },
 
-  // ============ TERMS OPERATIONS ============
+  // ============ TERMS ============
   addTerm: function (schoolName, termData) {
     var termRef = database.ref("schools/" + schoolName + "/terms").push();
     return termRef
@@ -1100,7 +879,7 @@ var API = {
       });
   },
 
-  // ============ CHAT OPERATIONS ============
+  // ============ CHAT ============
   sendChatMessage: function (schoolName, messageData) {
     var msgRef = database.ref("schools/" + schoolName + "/chat").push();
     return msgRef
@@ -1131,11 +910,6 @@ var API = {
         Object.keys(messages).forEach(function (key) {
           result.push(Object.assign({ id: key }, messages[key]));
         });
-        if (otherEmail === userEmail) {
-          return result.filter(function (msg) {
-            return msg.toEmail === userEmail && !msg.readStatus;
-          });
-        }
         return result
           .filter(function (msg) {
             return (
@@ -1152,97 +926,42 @@ var API = {
       });
   },
 
-  markMessagesAsRead: function (schoolName, userEmail, otherEmail) {
-    return database
-      .ref("schools/" + schoolName + "/chat")
-      .once("value")
-      .then(function (snapshot) {
-        var messages = snapshot.val();
-        if (!messages) return { success: true };
-        var promises = [];
-        Object.keys(messages).forEach(function (key) {
-          var msg = messages[key];
-          if (
-            msg.fromEmail === otherEmail &&
-            msg.toEmail === userEmail &&
-            !msg.readStatus
-          ) {
-            promises.push(
-              database
-                .ref("schools/" + schoolName + "/chat/" + key)
-                .update({ readStatus: true }),
-            );
-          }
-        });
-        return Promise.all(promises);
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  // ============ FORUM OPERATIONS ============
-  postForumMessage: function (schoolName, messageData) {
-    var msgRef = database.ref("schools/" + schoolName + "/forum").push();
-    return msgRef
-      .set({
-        fromEmail: messageData.fromEmail,
-        fromName: messageData.fromName,
-        role: messageData.role || "teacher",
-        message: messageData.message,
-        timestamp: new Date().toISOString(),
-        isDeleted: false,
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
-  },
-
-  getForumMessages: function (schoolName) {
-    return database
-      .ref("schools/" + schoolName + "/forum")
-      .once("value")
-      .then(function (snapshot) {
-        var messages = snapshot.val();
-        if (!messages) return [];
-        var result = [];
-        Object.keys(messages).forEach(function (key) {
-          result.push(Object.assign({ id: key }, messages[key]));
-        });
-        return result.filter(function (msg) {
-          return !msg.isDeleted;
-        });
-      })
-      .catch(function () {
-        return [];
-      });
-  },
-
-  // ============ NOTEPAD OPERATIONS ============
+  // ============ NOTEPAD ============
   saveNote: function (schoolName, noteData) {
-    var noteRef = database.ref("schools/" + schoolName + "/notes").push();
-    return noteRef
-      .set({
-        author: noteData.author,
-        authorEmail: noteData.authorEmail,
-        title: noteData.title || "Untitled",
-        content: noteData.content,
-        timestamp: new Date().toISOString(),
-        isPrivate: true,
-        isDeleted: false,
-      })
-      .then(function () {
-        return { success: true };
-      })
-      .catch(function (error) {
-        return { success: false, error: error.message };
-      });
+    if (noteData.noteId) {
+      return database
+        .ref("schools/" + schoolName + "/notes/" + noteData.noteId)
+        .update({
+          title: noteData.title,
+          content: noteData.content,
+          updatedAt: new Date().toISOString(),
+        })
+        .then(function () {
+          return { success: true };
+        })
+        .catch(function (error) {
+          return { success: false, error: error.message };
+        });
+    } else {
+      var noteRef = database.ref("schools/" + schoolName + "/notes").push();
+      return noteRef
+        .set({
+          author: noteData.author,
+          authorEmail: noteData.authorEmail,
+          title: noteData.title || "Untitled",
+          content: noteData.content,
+          timestamp: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isPrivate: true,
+          isDeleted: false,
+        })
+        .then(function () {
+          return { success: true };
+        })
+        .catch(function (error) {
+          return { success: false, error: error.message };
+        });
+    }
   },
 
   getNotes: function (schoolName, userEmail) {
@@ -1279,41 +998,6 @@ var API = {
 
   // ============ AUDIT LOG ============
   addAuditLog: function (schoolName, logData) {
-    var importantActions = [
-      "Book Added",
-      "Book Issued",
-      "Book Returned",
-      "Book Deleted",
-      "Student Added",
-      "Student Deleted",
-      "Student ID Generated",
-      "Student ID Scanned",
-      "Class Added",
-      "Class Deleted",
-      "Teacher Added",
-      "Teacher Deleted",
-      "Furniture Allocated",
-      "Furniture Returned",
-      "Fee Recorded",
-      "Fee Updated",
-      "Fee Deleted",
-      "User Added",
-      "User Deactivated",
-      "User Promoted",
-      "School Created",
-      "School Info Updated",
-      "Settings Updated",
-      "QR Code Generated",
-      "QR Code Assigned",
-      "QR Code Returned",
-      "Event Added",
-      "Term Added",
-      "Timetable Added",
-      "Note Saved",
-    ];
-    if (importantActions.indexOf(logData.action) === -1) {
-      return Promise.resolve({ success: true, skipped: true });
-    }
     var logRef = database.ref("schools/" + schoolName + "/auditLog").push();
     return logRef
       .set({
@@ -1380,6 +1064,25 @@ var API = {
       });
   },
 
+  // ============ QR CODES ============
+  getQRCodes: function (schoolName) {
+    return database
+      .ref("schools/" + schoolName + "/qrcodes")
+      .once("value")
+      .then(function (snapshot) {
+        var codes = snapshot.val();
+        if (!codes) return [];
+        var result = [];
+        Object.keys(codes).forEach(function (key) {
+          result.push(Object.assign({ id: key }, codes[key]));
+        });
+        return result;
+      })
+      .catch(function () {
+        return [];
+      });
+  },
+
   // ============ DATABASE MANAGER ============
   getTableData: function (schoolName, tableName) {
     return database
@@ -1400,5 +1103,6 @@ var API = {
   },
 };
 
-// Export
 window.API = API;
+window.generateStudentQRCode = generateStudentQRCode;
+window.generateStudentDeepLink = generateStudentDeepLink;
