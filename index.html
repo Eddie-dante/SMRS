@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -186,6 +187,20 @@
         .error-message.show { display: flex; }
         .error-message i { font-size: 18px; }
         
+        .success-message {
+            background: rgba(40, 167, 69, 0.15);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #34ce57;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 13px;
+            align-items: center;
+            gap: 10px;
+        }
+        .success-message.show { display: flex; }
+        
         .back-link {
             position: fixed;
             top: 20px;
@@ -216,7 +231,7 @@
 
     <div class="particles" id="particles"></div>
 
-    <div class="login-container">
+    <div class="login-container" id="loginContainer">
         <div class="login-logo">
             <div class="logo-icon"><i class="fas fa-school"></i></div>
             <h1>SRMS</h1>
@@ -226,6 +241,11 @@
         <div id="errorMessage" class="error-message">
             <i class="fas fa-exclamation-circle"></i>
             <span id="errorText">Invalid credentials</span>
+        </div>
+        
+        <div id="successMessage" class="success-message">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText">Success!</span>
         </div>
 
         <form onsubmit="return handleLogin(event)" id="loginForm">
@@ -247,9 +267,8 @@
         </form>
 
         <div class="login-footer">
-            <a onclick="showSignup(event)"><i class="fas fa-user-plus"></i> Sign Up</a>
-            <a onclick="showForgotPassword(event)"><i class="fas fa-key"></i> Forgot Password?</a>
-            <a onclick="showCreateSchool(event)"><i class="fas fa-plus-circle"></i> Create School</a>
+            <a onclick="showCreateSchoolForm(event)"><i class="fas fa-plus-circle"></i> Create School</a>
+            <a onclick="showSignupForm(event)"><i class="fas fa-user-plus"></i> Sign Up</a>
         </div>
     </div>
 
@@ -262,7 +281,7 @@
     <script>
         // ============ PARTICLES ============
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("✅ DOM loaded");
+            console.log("✅ DOM loaded - Index page");
             
             var container = document.getElementById('particles');
             for (var i = 0; i < 30; i++) {
@@ -276,60 +295,30 @@
                 container.appendChild(particle);
             }
             
-            // Check if auth functions are loaded
-            if (typeof handleLogin === 'function') {
-                console.log("✅ handleLogin function found");
+            // Check if Firebase is loaded
+            if (typeof firebase !== 'undefined' && firebase.apps.length) {
+                console.log("✅ Firebase is initialized");
             } else {
-                console.error("❌ handleLogin function NOT found");
+                console.error("❌ Firebase NOT initialized!");
+            }
+            
+            // Check if API is loaded
+            if (typeof API !== 'undefined') {
+                console.log("✅ API object loaded");
+                if (typeof API.testConnection === 'function') {
+                    console.log("✅ testConnection function available");
+                }
+            } else {
+                console.error("❌ API object NOT loaded!");
             }
         });
 
-        // ============ FORM SWITCH FUNCTIONS ============
-        function showSignup(event) {
+        // ============ FORM FUNCTIONS ============
+        function showCreateSchoolForm(event) {
             if (event) event.preventDefault();
-            var container = document.querySelector('.login-container');
-            container.innerHTML = `
-                <div class="login-logo">
-                    <div class="logo-icon"><i class="fas fa-user-plus"></i></div>
-                    <h1>Sign Up</h1>
-                    <p>Create your staff account</p>
-                </div>
-                <div id="errorMessage" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="errorText"></span>
-                </div>
-                <form onsubmit="return handleSignup(event)">
-                    <div class="form-group">
-                        <label><i class="fas fa-school"></i> School Name</label>
-                        <input type="text" id="signupSchoolName" placeholder="Enter school name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" id="signupName" placeholder="Enter full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="signupEmail" placeholder="Enter email" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-key"></i> Invite Code</label>
-                        <input type="text" id="signupInviteCode" placeholder="Enter invite code" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password (min 6 chars)</label>
-                        <input type="password" id="signupPassword" placeholder="Enter password" required>
-                    </div>
-                    <button type="submit" class="btn-login"><i class="fas fa-user-plus"></i> Sign Up</button>
-                </form>
-                <div class="login-footer">
-                    <a onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a>
-                </div>
-            `;
-        }
-
-        function showCreateSchool(event) {
-            if (event) event.preventDefault();
-            var container = document.querySelector('.login-container');
+            console.log("🔄 Switching to Create School form");
+            
+            var container = document.getElementById('loginContainer');
             container.innerHTML = `
                 <div class="login-logo">
                     <div class="logo-icon"><i class="fas fa-plus-circle"></i></div>
@@ -339,6 +328,10 @@
                 <div id="errorMessage" class="error-message">
                     <i class="fas fa-exclamation-circle"></i>
                     <span id="errorText"></span>
+                </div>
+                <div id="successMessage" class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
                 </div>
                 <form onsubmit="return handleCreateSchool(event)">
                     <div class="form-group">
@@ -361,50 +354,73 @@
                         <label><i class="fas fa-lock"></i> Confirm Password</label>
                         <input type="password" id="createConfirmPassword" placeholder="Confirm password" required>
                     </div>
-                    <button type="submit" class="btn-login"><i class="fas fa-plus-circle"></i> Create School</button>
+                    <button type="submit" class="btn-login" id="createSchoolBtn">
+                        <i class="fas fa-plus-circle"></i> Create School
+                    </button>
                 </form>
                 <div class="login-footer">
-                    <a onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a>
+                    <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
                 </div>
             `;
         }
 
-        function showForgotPassword(event) {
+        function showSignupForm(event) {
             if (event) event.preventDefault();
-            var container = document.querySelector('.login-container');
+            console.log("🔄 Switching to Signup form");
+            
+            var container = document.getElementById('loginContainer');
             container.innerHTML = `
                 <div class="login-logo">
-                    <div class="logo-icon"><i class="fas fa-key"></i></div>
-                    <h1>Reset Password</h1>
-                    <p>Enter your email to reset</p>
+                    <div class="logo-icon"><i class="fas fa-user-plus"></i></div>
+                    <h1>Sign Up</h1>
+                    <p>Create your staff account</p>
                 </div>
                 <div id="errorMessage" class="error-message">
                     <i class="fas fa-exclamation-circle"></i>
                     <span id="errorText"></span>
                 </div>
-                <form onsubmit="return handleForgotPassword(event)">
+                <div id="successMessage" class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
+                </div>
+                <form onsubmit="return handleSignup(event)">
                     <div class="form-group">
                         <label><i class="fas fa-school"></i> School Name</label>
-                        <input type="text" id="resetSchoolName" placeholder="Enter school name" required>
+                        <input type="text" id="signupSchoolName" placeholder="Enter school name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="signupName" placeholder="Enter full name" required>
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="forgotEmail" placeholder="Enter email" required>
+                        <input type="email" id="signupEmail" placeholder="Enter email" required>
                     </div>
-                    <button type="submit" class="btn-login"><i class="fas fa-key"></i> Reset Password</button>
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> Invite Code</label>
+                        <input type="text" id="signupInviteCode" placeholder="Enter invite code" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password (min 6 chars)</label>
+                        <input type="password" id="signupPassword" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
                 </form>
                 <div class="login-footer">
-                    <a onclick="showLoginForm(event)"><i class="fas fa-arrow-left"></i> Back to Login</a>
+                    <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
                 </div>
             `;
         }
 
-        function showLoginForm(event) {
-            if (event) event.preventDefault();
+        function showLoginForm() {
+            console.log("🔄 Reloading login form");
             window.location.reload();
         }
 
         function showError(message) {
+            console.error("❌ Error:", message);
             var errorMessage = document.getElementById('errorMessage');
             var errorText = document.getElementById('errorText');
             if (errorMessage && errorText) {
@@ -418,17 +434,30 @@
             }
         }
 
+        function showSuccess(message) {
+            console.log("✅ Success:", message);
+            var successMessage = document.getElementById('successMessage');
+            var successText = document.getElementById('successText');
+            if (successMessage && successText) {
+                successText.textContent = message;
+                successMessage.classList.add('show');
+                setTimeout(function() {
+                    successMessage.classList.remove('show');
+                }, 5000);
+            }
+        }
+
         function hideError() {
             var errorMessage = document.getElementById('errorMessage');
             if (errorMessage) errorMessage.classList.remove('show');
         }
 
-        // Expose functions
-        window.showSignup = showSignup;
-        window.showCreateSchool = showCreateSchool;
-        window.showForgotPassword = showForgotPassword;
+        // Expose functions globally
+        window.showCreateSchoolForm = showCreateSchoolForm;
+        window.showSignupForm = showSignupForm;
         window.showLoginForm = showLoginForm;
         window.showError = showError;
+        window.showSuccess = showSuccess;
         window.hideError = hideError;
     </script>
 
