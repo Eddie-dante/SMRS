@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Choose Wallpaper | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -97,15 +97,8 @@
             font-size: 13px;
             transition: all 0.3s ease;
         }
-        .category-filters button:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
-        .category-filters button.active {
-            background: rgba(212,175,55,0.2);
-            border-color: #d4af37;
-            color: #d4af37;
-        }
+        .category-filters button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .category-filters button.active { background: rgba(212,175,55,0.2); border-color: #d4af37; color: #d4af37; }
         
         .wallpaper-grid {
             display: grid;
@@ -198,7 +191,7 @@
     
     <div class="wallpaper-page">
         <div class="page-header">
-            <h1>Choose Wallpaper</h1>
+            <h1><i class="fas fa-image" style="color:var(--accent);"></i> Choose Wallpaper</h1>
             <p>Select a beautiful background for your dashboard</p>
         </div>
         
@@ -216,10 +209,12 @@
             <button onclick="filterCategory('Default')">🌙 Default</button>
         </div>
         
-        <div class="wallpaper-grid" id="wallpaperGrid"></div>
+        <div class="wallpaper-grid" id="wallpaperGrid">
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading wallpapers...</p></div>
+        </div>
     </div>
     
-    <script src="js/wallpaper-loader.js"></script>
+    <script src="assets/js/wallpaper-loader.js"></script>
     
     <script>
         var currentCategory = 'all';
@@ -236,10 +231,7 @@
                 var wallpaper = WALLPAPER_DATA[key];
                 var category = wallpaper.category || 'Default';
                 
-                // Check category filter
                 if (currentCategory !== 'all' && category !== currentCategory) continue;
-                
-                // Check search
                 if (searchTerm && !wallpaper.name.toLowerCase().includes(searchTerm.toLowerCase())) continue;
                 
                 found = true;

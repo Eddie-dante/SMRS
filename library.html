@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Library Management | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -11,14 +11,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
         :root {
             --primary: #e94560;
-            --primary-dark: #c62a47;
             --accent: #d4af37;
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
@@ -42,20 +41,27 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
             width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
         }
-        .taskbar-icon-btn:hover { background: rgba(255,255,255,0.2); }
+        .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -64,24 +70,30 @@
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
             gap: 12px; padding: 12px 24px;
-            background: rgba(15, 18, 30, 0.65);
+            background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px; padding: 10px 22px;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -91,23 +103,38 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .dropdown-menu {
-            display: none; position: absolute;
-            bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
             z-index: 1200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
+        .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
@@ -115,44 +142,77 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1400px; margin: 0 auto;
+            max-width: 1400px;
+            margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .page-header h1 {
-            font-size: 1.8em; font-weight: 900;
+            font-size: 1.8em;
+            font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
+        
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             transition: var(--transition);
         }
-        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
         .btn-secondary {
             padding: 12px 20px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
+        .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
+        .btn-danger:hover { background: rgba(220,53,69,0.4); }
+        .btn-success { background: rgba(40,167,69,0.2); color: #34ce57; border: 1px solid rgba(40,167,69,0.4); }
+        .btn-success:hover { background: rgba(40,167,69,0.4); }
         
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab {
             padding: 10px 18px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 10px; color: rgba(255,255,255,0.7);
-            cursor: pointer; font-family: 'Inter', sans-serif;
-            font-size: 13px; transition: var(--transition);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            transition: var(--transition);
         }
         .tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
@@ -160,30 +220,41 @@
         .tab-content.active { display: block; }
         
         .search-bar {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
         }
         .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
-            flex: 1; background: none; border: none;
-            color: #fff; font-size: 14px; outline: none;
+            flex: 1;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
             font-family: 'Inter', sans-serif;
         }
         
         .table-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px;
+            border-radius: 16px;
+            padding: 20px;
             overflow-x: auto;
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
             background: rgba(233, 69, 96, 0.8);
-            padding: 15px; text-align: left;
-            font-weight: 700; font-size: 12px; text-transform: uppercase;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
             white-space: nowrap;
         }
         .data-table td {
@@ -193,50 +264,68 @@
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         .badge {
-            display: inline-block; padding: 4px 12px;
-            border-radius: 20px; font-size: 11px; font-weight: 600;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
         }
         .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
         .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
-        .btn-sm {
-            padding: 6px 12px; font-size: 11px;
-            border: none; border-radius: 6px; cursor: pointer;
-            font-family: 'Inter', sans-serif; font-weight: 600;
-        }
         
         .form-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 25px;
+            border-radius: 16px;
+            padding: 25px;
         }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input, .form-group select {
-            width: 100%; padding: 10px 15px;
+            width: 100%;
+            padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #fff;
+            border-radius: 10px;
+            color: #fff;
             font-family: 'Inter', sans-serif;
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1300;
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1300;
+            justify-content: center;
+            align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px; padding: 30px;
-            width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
         .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+        .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
@@ -249,21 +338,23 @@
 <body>
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+            <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <div class="main-content">
         <div class="page-header">
             <div>
-                <h1>Library Management</h1>
+                <h1><i class="fas fa-book" style="color:var(--accent);"></i> Library Management</h1>
                 <p>Manage books, issue, and returns</p>
             </div>
-            <button class="btn-primary" onclick="openModal('addBookModal')"><i class="fas fa-plus"></i> Add Book</button>
+            <button class="btn-primary" onclick="openModal('addBookModal')">
+                <i class="fas fa-plus"></i> Add Book
+            </button>
         </div>
         
         <div class="tabs">
@@ -285,7 +376,7 @@
                         <tr><th>Title</th><th>Author</th><th>Type</th><th>Subject</th><th>Quantity</th><th>Available</th><th>Actions</th></tr>
                     </thead>
                     <tbody id="booksTableBody">
-                        <tr><td colspan="7" style="text-align:center;">Loading books...</td></tr>
+                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading books...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -296,7 +387,6 @@
             <div class="form-container">
                 <h3 style="color:var(--accent);margin-bottom:20px;"><i class="fas fa-book"></i> Issue Book</h3>
                 
-                <!-- Issue Type Toggle -->
                 <div style="display:flex;gap:10px;margin-bottom:20px;">
                     <button class="btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
                     <button class="btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
@@ -350,7 +440,7 @@
                         <tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
                     </thead>
                     <tbody id="returnsTableBody">
-                        <tr><td colspan="7" style="text-align:center;">Loading active loans...</td></tr>
+                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading active loans...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -364,7 +454,7 @@
                         <tr><th>Student</th><th>Book</th><th>Borrow Date</th><th>Return Date</th><th>Status</th></tr>
                     </thead>
                     <tbody id="borrowedTableBody">
-                        <tr><td colspan="5" style="text-align:center;">Loading records...</td></tr>
+                        <tr><td colspan="5" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading records...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -396,33 +486,49 @@
     <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'"><span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard</button>
+            <button class="classy-btn" onclick="location.href='dashboard.html'">
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+            </button>
+            
             <div class="nav-group">
-                <button class="classy-btn active"><span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn active">
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
                     <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
                     <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Forum</a>
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
                     <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
@@ -438,33 +544,37 @@
         </div>
     </div>
     
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/dialog.js"></script>
-    <script src="js/wallpaper-loader.js"></script>
-    <script src="js/app.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/dialog.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/wallpaper-loader.js"></script>
+    <script src="assets/js/app.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            initDropdownController();
             document.getElementById('issueBorrowDate').value = getCurrentDate();
             document.getElementById('issueReturnDate').value = addDays(getCurrentDate(), 14);
+            
             var bulkBorrowDate = document.getElementById('bulkBookBorrowDate');
             var bulkReturnDate = document.getElementById('bulkBookReturnDate');
             if (bulkBorrowDate) bulkBorrowDate.value = getCurrentDate();
             if (bulkReturnDate) bulkReturnDate.value = addDays(getCurrentDate(), 14);
+            
+            if (typeof loadLibraryData === 'function') {
+                loadLibraryData();
+            }
         });
         
         function switchLibraryTab(tabName) {
             document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-            var tabIndex = 0;
-            if (tabName === 'catalog') tabIndex = 0;
-            if (tabName === 'issue') tabIndex = 1;
-            if (tabName === 'returns') tabIndex = 2;
-            if (tabName === 'borrowed') tabIndex = 3;
-            document.querySelectorAll('.tab')[tabIndex].classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            var tabs = ['catalog', 'issue', 'returns', 'borrowed'];
+            var index = tabs.indexOf(tabName);
+            if (index !== -1) {
+                document.querySelectorAll('.tab')[index].classList.add('active');
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            }
         }
         
         function showIndividualIssue() {
@@ -480,13 +590,19 @@
         function filterBooks() {
             var searchInput = document.getElementById('searchBooks');
             var tbody = document.getElementById('booksTableBody');
-            filterTable(searchInput, tbody);
+            if (typeof filterTable === 'function') {
+                filterTable(searchInput, tbody);
+            }
         }
         
         function logoutWithConfirm() {
-            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                if (result === 'confirm') logout();
-            });
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                    if (result === 'confirm') logout();
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) logout();
+            }
         }
         
         window.switchLibraryTab = switchLibraryTab;

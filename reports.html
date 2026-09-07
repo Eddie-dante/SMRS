@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Reports & Analytics | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -12,9 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
         :root {
@@ -42,19 +42,27 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
             width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
         }
+        .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -63,10 +71,11 @@
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
             gap: 12px; padding: 12px 24px;
-            background: rgba(15, 18, 30, 0.65);
+            background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
@@ -75,12 +84,16 @@
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px; padding: 10px 22px;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -90,23 +103,36 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .dropdown-menu {
-            display: none; position: absolute;
-            bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
             z-index: 1200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
+        .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
@@ -114,44 +140,73 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1400px; margin: 0 auto;
+            max-width: 1400px;
+            margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .page-header h1 {
             font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
+        
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
         .btn-secondary {
             padding: 12px 20px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px; margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         .stat-card {
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px; text-align: center;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
         }
         .stat-card .value { font-size: 1.8em; font-weight: 900; color: var(--gold); }
         .stat-card .label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
@@ -165,7 +220,8 @@
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px;
+            border-radius: 16px;
+            padding: 20px;
         }
         .chart-container h3 { color: var(--accent); margin-bottom: 15px; font-size: 1em; }
         
@@ -176,22 +232,23 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        .report-section h3 {
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
+        .report-section h3 { color: var(--accent); margin-bottom: 15px; font-size: 1.1em; }
+        
         .table-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 15px;
+            border-radius: 16px;
+            padding: 15px;
             overflow-x: auto;
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
             background: rgba(233, 69, 96, 0.8);
-            padding: 12px; text-align: left;
-            font-weight: 700; font-size: 11px; text-transform: uppercase;
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
             white-space: nowrap;
         }
         .data-table td {
@@ -200,23 +257,29 @@
             font-size: 13px;
         }
         .badge {
-            display: inline-block; padding: 4px 10px;
-            border-radius: 20px; font-size: 10px; font-weight: 600;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
         }
         .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
         .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
         .badge-info { background: rgba(23,162,184,0.2); color: #17a2b8; }
         
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+        .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
+        
         @media print {
             body { background: #fff; color: #000; padding: 0; }
-            .taskbar, .floating-navbar-container, .page-header .btn-primary, .page-header .btn-secondary {
-                display: none !important;
-            }
+            .taskbar, .floating-navbar-container, .page-header .btn-primary, .page-header .btn-secondary { display: none !important; }
             .main-content { padding: 20px; margin: 0; }
-            .stat-card, .chart-container, .report-section {
-                background: #f5f5f5; border: 1px solid #ddd;
-            }
+            .stat-card, .chart-container, .report-section { background: #f5f5f5; border: 1px solid #ddd; }
             .stat-card .value { color: #333; }
             .stat-card .label { color: #666; }
             .chart-container h3, .report-section h3 { color: #333; }
@@ -237,18 +300,18 @@
 <body>
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+            <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <div class="main-content">
         <div class="page-header">
             <div>
-                <h1>Reports & Analytics</h1>
+                <h1><i class="fas fa-chart-bar" style="color:var(--accent);"></i> Reports & Analytics</h1>
                 <p>Visual insights and statistics</p>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -270,11 +333,9 @@
             <h3><i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Overdue Books Report</h3>
             <div class="table-container">
                 <table class="data-table">
-                    <thead>
-                        <tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Days Overdue</th></tr>
-                    </thead>
+                    <thead><tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Days Overdue</th></tr></thead>
                     <tbody id="overdueReportBody">
-                        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -303,46 +364,61 @@
             <h3><i class="fas fa-chart-line"></i> Monthly Summary</h3>
             <div class="table-container">
                 <table class="data-table">
-                    <thead>
-                        <tr><th>Month</th><th>Books Issued</th><th>Books Returned</th><th>Furniture Allocated</th></tr>
-                    </thead>
+                    <thead><tr><th>Month</th><th>Books Issued</th><th>Books Returned</th><th>Furniture Allocated</th></tr></thead>
                     <tbody id="monthlySummaryBody">
-                        <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                        <tr><td colspan="4" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     
+    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'"><span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard</button>
+            <button class="classy-btn" onclick="location.href='dashboard.html'">
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+            </button>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
                     <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
                     <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Forum</a>
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn active"><span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn active">
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
                     <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
@@ -358,254 +434,18 @@
         </div>
     </div>
     
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/wallpaper-loader.js"></script>
-    <script src="js/app.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/dialog.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/wallpaper-loader.js"></script>
+    <script src="assets/js/app.js"></script>
     
     <script>
-        var reportData = {
-            books: [],
-            students: [],
-            borrowed: [],
-            furniture: [],
-            classes: []
-        };
-        
         document.addEventListener('DOMContentLoaded', function() {
-            initDropdownController();
-            loadReportData();
+            if (typeof loadReports === 'function') {
+                loadReports();
+            }
         });
-        
-        function loadReportData() {
-            var school = getCurrentSchool();
-            
-            Promise.all([
-                API.getBooks(school),
-                API.getStudents(school),
-                API.getBorrowed(school),
-                API.getFurniture(school),
-                API.getClasses(school)
-            ]).then(function(results) {
-                reportData.books = results[0];
-                reportData.students = results[1];
-                reportData.borrowed = results[2];
-                reportData.furniture = results[3];
-                reportData.classes = results[4];
-                
-                var totalStudents = reportData.students.length;
-                var seenAdms = {};
-                reportData.students.forEach(function(s) { seenAdms[s.adm] = true; });
-                reportData.classes.forEach(function(c) {
-                    (c.students || []).forEach(function(st) {
-                        var adm = st.ADM || st.adm || '';
-                        if (adm && !seenAdms[adm]) { seenAdms[adm] = true; totalStudents++; }
-                    });
-                });
-                
-                document.getElementById('totalBooksCount').textContent = reportData.books.reduce(function(s, b) { return s + (b.quantity || 0); }, 0);
-                document.getElementById('totalStudentsCount').textContent = totalStudents;
-                
-                var activeLoans = reportData.borrowed.filter(function(b) { return !b.returned; });
-                document.getElementById('activeLoansCount').textContent = activeLoans.length;
-                
-                var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
-                document.getElementById('overdueCount').textContent = overdue.length;
-                
-                var returned = reportData.borrowed.filter(function(b) { return b.returned; });
-                var returnRate = reportData.borrowed.length > 0 ? Math.round((returned.length / reportData.borrowed.length) * 100) : 0;
-                document.getElementById('returnRate').textContent = returnRate + '%';
-                
-                document.getElementById('furnitureCount').textContent = reportData.furniture.length;
-                
-                renderOverdueReport(overdue);
-                renderMonthlySummary();
-                
-                if (typeof Chart !== 'undefined') {
-                    createBooksByTypeChart();
-                    createStudentsByFormChart();
-                    createFurnitureChart();
-                    createBorrowingTrendChart();
-                }
-            });
-        }
-        
-        function renderOverdueReport(overdue) {
-            var tbody = document.getElementById('overdueReportBody');
-            if (!tbody) return;
-            
-            if (overdue.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No overdue books 🎉</td></tr>';
-                return;
-            }
-            
-            var html = '';
-            overdue.forEach(function(b) {
-                html += '<tr>' +
-                    '<td>' + b.studentName + '</td>' +
-                    '<td>' + b.adm + '</td>' +
-                    '<td>' + b.bookTitle + '</td>' +
-                    '<td>' + b.bookNo + '</td>' +
-                    '<td>' + b.returnDate + '</td>' +
-                    '<td><span class="badge badge-danger">' + daysOverdue(b.returnDate) + ' days</span></td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
-        }
-        
-        function renderMonthlySummary() {
-            var tbody = document.getElementById('monthlySummaryBody');
-            if (!tbody) return;
-            
-            var monthlyData = {};
-            
-            reportData.borrowed.forEach(function(b) {
-                var date = new Date(b.borrowDate);
-                var key = date.getFullYear() + '-' + (date.getMonth() + 1);
-                if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
-                monthlyData[key].issued++;
-                if (b.returned) monthlyData[key].returned++;
-            });
-            
-            reportData.furniture.forEach(function(f) {
-                var date = new Date(f.allocationDate);
-                var key = date.getFullYear() + '-' + (date.getMonth() + 1);
-                if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
-                monthlyData[key].furniture++;
-            });
-            
-            var months = Object.keys(monthlyData).sort().reverse();
-            
-            if (months.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No data</td></tr>';
-                return;
-            }
-            
-            var html = '';
-            months.slice(0, 12).forEach(function(key) {
-                var parts = key.split('-');
-                var monthName = getMonthName(parseInt(parts[1]) - 1) + ' ' + parts[0];
-                var data = monthlyData[key];
-                html += '<tr>' +
-                    '<td>' + monthName + '</td>' +
-                    '<td>' + data.issued + '</td>' +
-                    '<td>' + data.returned + '</td>' +
-                    '<td>' + data.furniture + '</td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
-        }
-        
-        function createBooksByTypeChart() {
-            var canvas = document.getElementById('booksByTypeChart');
-            if (!canvas) return;
-            
-            var types = {};
-            reportData.books.forEach(function(b) {
-                var type = b.type || 'Other';
-                types[type] = (types[type] || 0) + (b.quantity || 0);
-            });
-            
-            new Chart(canvas, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(types),
-                    datasets: [{ data: Object.values(types), backgroundColor: ['#e94560', '#0f3460', '#d4af37', '#28a745', '#17a2b8', '#6f42c1'] }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
-                }
-            });
-        }
-        
-        function createStudentsByFormChart() {
-            var canvas = document.getElementById('studentsByFormChart');
-            if (!canvas) return;
-            
-            var forms = {};
-            reportData.students.forEach(function(s) {
-                var form = s.form || 'Unknown';
-                forms[form] = (forms[form] || 0) + 1;
-            });
-            
-            new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(forms),
-                    datasets: [{ label: 'Students', data: Object.values(forms), backgroundColor: '#e94560' }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                        x: { ticks: { color: 'white' } }
-                    }
-                }
-            });
-        }
-        
-        function createFurnitureChart() {
-            var canvas = document.getElementById('furnitureChart');
-            if (!canvas) return;
-            
-            var statuses = { 'Allocated': 0 };
-            reportData.furniture.forEach(function() {
-                statuses['Allocated']++;
-            });
-            
-            new Chart(canvas, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(statuses),
-                    datasets: [{ data: Object.values(statuses), backgroundColor: ['#ffc107'] }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: 'bottom', labels: { color: 'white' } } }
-                }
-            });
-        }
-        
-        function createBorrowingTrendChart() {
-            var canvas = document.getElementById('borrowingTrendChart');
-            if (!canvas) return;
-            
-            var months = {};
-            reportData.borrowed.forEach(function(b) {
-                var date = new Date(b.borrowDate);
-                var key = date.getFullYear() + '-' + (date.getMonth() + 1);
-                months[key] = (months[key] || 0) + 1;
-            });
-            
-            var sortedKeys = Object.keys(months).sort();
-            
-            new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: sortedKeys.map(function(k) {
-                        var parts = k.split('-');
-                        return getMonthShortName(parseInt(parts[1]) - 1) + ' ' + parts[0];
-                    }),
-                    datasets: [{
-                        label: 'Books Borrowed',
-                        data: sortedKeys.map(function(k) { return months[k]; }),
-                        borderColor: '#d4af37',
-                        backgroundColor: 'rgba(212,175,55,0.2)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: 'white' } } },
-                    scales: {
-                        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                        x: { ticks: { color: 'white' } }
-                    }
-                }
-            });
-        }
         
         function printReport() {
             window.print();
@@ -616,9 +456,13 @@
         }
         
         function logoutWithConfirm() {
-            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                if (result === 'confirm') logout();
-            });
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                    if (result === 'confirm') logout();
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) logout();
+            }
         }
         
         window.printReport = printReport;

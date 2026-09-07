@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Academic Terms | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -11,9 +11,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
         :root {
@@ -41,19 +41,27 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 0 20px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
             width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
         }
+        .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -62,10 +70,11 @@
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
             gap: 12px; padding: 12px 24px;
-            background: rgba(15, 18, 30, 0.65);
+            background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
@@ -74,12 +83,16 @@
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px; padding: 10px 22px;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
+            border-radius: 30px;
+            padding: 10px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold);
@@ -89,23 +102,36 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .dropdown-menu {
-            display: none; position: absolute;
-            bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 200px;
             z-index: 1200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
+        .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
@@ -113,30 +139,50 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 800px; margin: 0 auto;
+            max-width: 800px;
+            margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .page-header h1 {
             font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text; -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none; border-radius: 10px; color: #fff;
-            cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
+        
         .term-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
             transition: var(--transition);
         }
         .term-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.4); }
@@ -145,17 +191,25 @@
         .term-card p { font-size: 13px; color: rgba(255,255,255,0.6); }
         
         .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1300;
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1300;
+            justify-content: center;
+            align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px; padding: 30px;
-            width: 90%; max-width: 500px;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
@@ -163,44 +217,58 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input {
-            width: 100%; padding: 10px 15px;
+            width: 100%;
+            padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #fff;
+            border-radius: 10px;
+            color: #fff;
             font-family: 'Inter', sans-serif;
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+        .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
             .classy-btn { padding: 8px 12px; font-size: 11px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .page-header .btn { justify-content: center; }
         }
     </style>
 </head>
 <body>
     <div class="taskbar">
         <div class="taskbar-left">
-            <div class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></div>
+            <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
-            <button class="taskbar-icon-btn" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
     <div class="main-content">
         <div class="page-header">
-            <h1>Academic Terms</h1>
-            <button class="btn-primary" onclick="openModal('addTermModal')"><i class="fas fa-plus"></i> Add Term</button>
+            <h1><i class="fas fa-calendar-alt" style="color:var(--accent);"></i> Academic Terms</h1>
+            <button class="btn-primary" onclick="openModal('addTermModal')">
+                <i class="fas fa-plus"></i> Add Term
+            </button>
         </div>
         
         <div id="termsList">
-            <p style="text-align:center;color:rgba(255,255,255,0.5);">Loading terms...</p>
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading terms...</p></div>
         </div>
     </div>
     
+    <!-- Add Term Modal -->
     <div class="modal" id="addTermModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -221,33 +289,49 @@
     <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
-            <button class="classy-btn" onclick="location.href='dashboard.html'"><span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard</button>
+            <button class="classy-btn" onclick="location.href='dashboard.html'">
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+            </button>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
                     <a class="dropdown-item" href="furniture.html"><i class="fas fa-chair"></i> Furniture</a>
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn"><span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn">
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
                     <a class="dropdown-item" href="forum.html"><i class="fas fa-bullhorn"></i> Forum</a>
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
+            
             <div class="nav-group">
-                <button class="classy-btn active"><span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i></button>
+                <button class="classy-btn active">
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
                     <a class="dropdown-item" href="fees.html"><i class="fas fa-money-bill"></i> Fees</a>
@@ -263,23 +347,32 @@
         </div>
     </div>
     
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/wallpaper-loader.js"></script>
-    <script src="js/app.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/dialog.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/wallpaper-loader.js"></script>
+    <script src="assets/js/app.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            initDropdownController();
             document.getElementById('termStartDate').value = getCurrentDate();
             document.getElementById('termEndDate').value = addDays(getCurrentDate(), 90);
+            
+            if (typeof loadTerms === 'function') {
+                loadTerms();
+            }
         });
         
         function logoutWithConfirm() {
-            DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                if (result === 'confirm') logout();
-            });
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                    if (result === 'confirm') logout();
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) logout();
+            }
         }
+        
         window.logoutWithConfirm = logoutWithConfirm;
     </script>
 </body>

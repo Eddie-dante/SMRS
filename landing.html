@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
             overflow-x: hidden;
         }
         
-        /* ============ LOADER ============ */
+        /* LOADER */
         #loader {
             position: fixed;
             top: 0; left: 0;
@@ -41,10 +41,7 @@
             justify-content: center;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-        #loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
+        #loader.hidden { opacity: 0; visibility: hidden; }
         .loader-logo {
             width: 100px; height: 100px;
             background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
@@ -67,10 +64,9 @@
             font-size: 2em;
             font-weight: 900;
             background: linear-gradient(180deg, #f0d060, #d4af37);
-            background-clip: text;
-                background-clip: text;
-                -webkit-background-clip: text;
+            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 30px;
         }
         .loader-bar-container {
@@ -98,7 +94,7 @@
             margin-top: 10px;
         }
         
-        /* ============ PARTICLES ============ */
+        /* PARTICLES */
         .particles {
             position: fixed;
             top: 0; left: 0;
@@ -117,7 +113,7 @@
             50% { transform: translateY(-100px) rotate(180deg); }
         }
         
-        /* ============ NAVBAR ============ */
+        /* NAVBAR */
         .navbar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -167,7 +163,7 @@
             box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
         }
         
-        /* ============ HERO ============ */
+        /* HERO */
         .hero {
             position: relative;
             z-index: 1;
@@ -197,9 +193,9 @@
             font-size: 4em;
             font-weight: 900;
             background: linear-gradient(180deg, #f0d060, #d4af37, #b8941f);
-            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 15px;
             letter-spacing: 3px;
         }
@@ -253,7 +249,7 @@
             transform: translateY(-3px);
         }
         
-        /* ============ FEATURES ============ */
+        /* FEATURES */
         .features-section {
             position: relative;
             z-index: 1;
@@ -265,10 +261,9 @@
             font-weight: 900;
             margin-bottom: 40px;
             background: linear-gradient(180deg, #ffffff, #d4af37);
-                background-clip: text;
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .features-grid {
             display: grid;
@@ -301,14 +296,8 @@
             color: #d4af37;
             margin: 0 auto 20px;
         }
-        .feature-card h3 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-        .feature-card p {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.6);
-        }
+        .feature-card h3 { font-size: 1.2em; margin-bottom: 10px; }
+        .feature-card p { font-size: 0.9em; color: rgba(255, 255, 255, 0.6); }
         
         .footer {
             text-align: center;
@@ -325,6 +314,7 @@
             .hero-title { font-size: 2.5em; }
             .hero-logo { width: 100px; height: 100px; font-size: 40px; }
             .loader-bar-container { width: 250px; }
+            .features-section { padding: 40px 20px; }
         }
     </style>
 </head>
@@ -355,7 +345,7 @@
         <div class="hero-logo"><i class="fas fa-school"></i></div>
         <div class="hero-title">SRMS</div>
         <div class="hero-subtitle">School Resource Management System</div>
-        <div class="hero-by">by <strong>WeGEM</strong> (Edwin)</div>
+        <div class="hero-by">by <strong>WeGEM</strong></div>
         <div class="hero-buttons">
             <button class="btn-primary-hero" onclick="location.href='index.html'"><i class="fas fa-sign-in-alt"></i> Login</button>
             <button class="btn-secondary-hero" onclick="location.href='index.html'"><i class="fas fa-user-plus"></i> Sign Up</button>
@@ -411,7 +401,7 @@
     
     <!-- FOOTER -->
     <div class="footer">
-        <p>SRMS v2.0 | School Resource Management System | © 2026 WeGEM | Edwin</p>
+        <p>SRMS v2.0 | School Resource Management System | © 2026 WeGEM</p>
     </div>
     
     <script>

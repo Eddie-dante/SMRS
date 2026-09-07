@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SRMS - Student ID Cards</title>
+    <title>SRMS - Student ID Cards | School Resource Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -11,9 +11,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
         :root {
@@ -24,7 +24,6 @@
             --glass-border: rgba(255, 255, 255, 0.1);
             --transition: all 0.2s ease;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -65,20 +64,12 @@
         .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            width: auto;
-            max-width: 95vw;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; width: auto; max-width: 95vw;
         }
         .floating-navbar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 12px 24px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; padding: 12px 24px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -88,8 +79,7 @@
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
@@ -109,9 +99,7 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
         .btn-badge {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
+            width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
             display: flex;
@@ -135,9 +123,7 @@
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             padding: 10px 15px;
             color: rgba(255,255,255,0.8);
             text-decoration: none;
@@ -168,8 +154,7 @@
             gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em;
-            font-weight: 900;
+            font-size: 2em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
             background-clip: text;
             -webkit-background-clip: text;
@@ -208,6 +193,8 @@
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
+        .btn-success { background: rgba(40,167,69,0.2); color: #34ce57; border: 1px solid rgba(40,167,69,0.4); }
+        .btn-success:hover { background: rgba(40,167,69,0.4); }
         
         .search-bar {
             display: flex;
@@ -372,14 +359,6 @@
         }
         .student-id-card .id-actions .btn { flex: 1; justify-content: center; font-size: 11px; padding: 8px 12px; }
         
-        .no-students {
-            text-align: center;
-            padding: 60px 20px;
-            color: rgba(255,255,255,0.4);
-            grid-column: 1 / -1;
-        }
-        .no-students i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
-        
         .modal {
             display: none;
             position: fixed;
@@ -425,6 +404,20 @@
             color: rgba(255,255,255,0.5);
         }
         .loading-spinner i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.4);
+            grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
+        .no-students {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.4);
+            grid-column: 1 / -1;
+        }
+        .no-students i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 12px; gap: 6px; }
@@ -580,11 +573,11 @@
         </div>
     </div>
     
-    <script src="js/api.js"></script>
-    <script src="js/dialog.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/wallpaper-loader.js"></script>
-    <script src="js/app.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/dialog.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/wallpaper-loader.js"></script>
+    <script src="assets/js/app.js"></script>
     
     <script>
         var allStudents = [];
@@ -603,7 +596,6 @@
                     '<div class="no-students"><i class="fas fa-exclamation-circle"></i><p>Please login to view students</p></div>';
                 return;
             }
-            
             document.getElementById('studentsGrid').innerHTML = 
                 '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading students...</div>';
             
@@ -624,12 +616,10 @@
         function renderStudents(students) {
             var grid = document.getElementById('studentsGrid');
             var school = getCurrentSchool();
-            
             if (!students || students.length === 0) {
                 grid.innerHTML = '<div class="no-students"><i class="fas fa-user-graduate"></i><p>No students found. Add students first!</p></div>';
                 return;
             }
-            
             var html = '';
             students.forEach(function(student) {
                 var qrCode = null;
@@ -638,13 +628,11 @@
                         qrCode = qr;
                     }
                 });
-                
                 var initials = getInitials(student.name);
                 var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
                 var today = new Date();
                 var expiryDate = new Date(today);
                 expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-                
                 html += `
                     <div class="student-id-card" data-adm="${student.adm}">
                         <div class="id-header">
@@ -688,25 +676,20 @@
             var formFilter = document.getElementById('filterForm').value;
             var streamFilter = document.getElementById('filterStream').value;
             var qrFilter = document.getElementById('filterQR').value;
-            
             var filtered = allStudents.filter(function(student) {
                 var matchesSearch = student.name.toLowerCase().includes(searchTerm) || 
                                    student.adm.toLowerCase().includes(searchTerm);
                 var matchesForm = !formFilter || student.form === formFilter;
                 var matchesStream = !streamFilter || student.stream === streamFilter;
-                
                 var hasQR = false;
                 allQRCodes.forEach(function(qr) {
                     if (qr.adm === student.adm && qr.type === 'student' && !qr.returned) hasQR = true;
                 });
-                
                 var matchesQR = true;
                 if (qrFilter === 'has') matchesQR = hasQR;
                 if (qrFilter === 'no') matchesQR = !hasQR;
-                
                 return matchesSearch && matchesForm && matchesStream && matchesQR;
             });
-            
             renderStudents(filtered);
         }
         
@@ -719,11 +702,9 @@
         function loadStudentSelect() {
             var school = getCurrentSchool();
             if (!school) return;
-            
             API.getStudents(school).then(function(students) {
                 var select = document.getElementById('studentSelect');
                 if (!select) return;
-                
                 var html = '<option value="">Select a student...</option>';
                 students.forEach(function(s) {
                     html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
@@ -736,31 +717,26 @@
             var adm = document.getElementById('studentSelect').value;
             var preview = document.getElementById('idPreview');
             var actions = document.getElementById('idActions');
-            
             if (!adm) {
                 preview.innerHTML = '';
                 actions.style.display = 'none';
                 return;
             }
-            
             var student = null;
             allStudents.forEach(function(s) {
                 if (s.adm === adm) student = s;
             });
-            
             if (!student) {
                 preview.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">Student not found</p>';
                 actions.style.display = 'none';
                 return;
             }
-            
             selectedStudentId = adm;
             var initials = getInitials(student.name);
             var hasQR = false;
             allQRCodes.forEach(function(qr) {
                 if (qr.adm === adm && qr.type === 'student' && !qr.returned) hasQR = true;
             });
-            
             preview.innerHTML = `
                 <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:15px;">
                     <div style="display:flex;align-items:center;gap:15px;margin-bottom:10px;">
@@ -790,11 +766,8 @@
                 showNotification('Please select a student first', 'warning');
                 return;
             }
-            
             var school = getCurrentSchool();
-            
             showNotification('Generating ID card...', 'info');
-            
             API.generateStudentID(school, selectedStudentId).then(function(result) {
                 if (result.success) {
                     showNotification('ID Card generated with QR code!', 'success');
@@ -810,9 +783,7 @@
         
         function generateIDForStudent(adm) {
             var school = getCurrentSchool();
-            
             showNotification('Generating QR code...', 'info');
-            
             API.generateStudentID(school, adm).then(function(result) {
                 if (result.success) {
                     showNotification('QR Code generated for ' + result.student.name + '!', 'success');
@@ -829,150 +800,44 @@
             allStudents.forEach(function(s) {
                 if (s.adm === adm) student = s;
             });
-            
             if (!student) {
                 showNotification('Student not found', 'error');
                 return;
             }
-            
             var qrCode = null;
             allQRCodes.forEach(function(qr) {
                 if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
                     qrCode = qr;
                 }
             });
-            
             var school = getCurrentSchool();
             var initials = getInitials(student.name);
             var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
             var today = new Date();
             var expiryDate = new Date(today);
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-            
             var printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <html>
-                    <head>
-                        <title>Student ID Card - ${student.name}</title>
+                    <head><title>Student ID Card - ${student.name}</title>
                         <style>
-                            body {
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                height: 100vh;
-                                margin: 0;
-                                background: #f0f0f0;
-                                font-family: Arial, sans-serif;
-                            }
-                            .student-id-card {
-                                background: linear-gradient(135deg, #0a0e27, #1a1f4e);
-                                border: 3px solid #d4af37;
-                                border-radius: 16px;
-                                padding: 25px;
-                                width: 380px;
-                                position: relative;
-                                overflow: hidden;
-                                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                                color: white;
-                            }
-                            .student-id-card::before {
-                                content: '';
-                                position: absolute;
-                                top: 0; left: 0; right: 0;
-                                height: 5px;
-                                background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
-                            }
-                            .id-header {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-bottom: 15px;
-                                padding-bottom: 10px;
-                                border-bottom: 1px solid rgba(255,255,255,0.1);
-                            }
-                            .id-header .school-name {
-                                font-size: 14px;
-                                font-weight: 700;
-                                color: #d4af37;
-                                letter-spacing: 1px;
-                            }
-                            .id-header .id-type {
-                                font-size: 10px;
-                                color: rgba(255,255,255,0.4);
-                                text-transform: uppercase;
-                                letter-spacing: 2px;
-                                background: rgba(212,175,55,0.15);
-                                padding: 4px 12px;
-                                border-radius: 20px;
-                            }
-                            .id-body {
-                                display: flex;
-                                gap: 15px;
-                                align-items: center;
-                            }
-                            .id-avatar {
-                                width: 80px;
-                                height: 80px;
-                                border-radius: 50%;
-                                background: linear-gradient(135deg, #d4af37, #f0d060);
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-size: 30px;
-                                font-weight: 900;
-                                color: #0a0e27;
-                                flex-shrink: 0;
-                                border: 3px solid #d4af37;
-                            }
+                            body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; font-family: Arial, sans-serif; }
+                            .student-id-card { background: linear-gradient(135deg, #0a0e27, #1a1f4e); border: 3px solid #d4af37; border-radius: 16px; padding: 25px; width: 380px; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); color: white; }
+                            .student-id-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #e94560, #d4af37, #28a745); }
+                            .id-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+                            .id-header .school-name { font-size: 14px; font-weight: 700; color: #d4af37; letter-spacing: 1px; }
+                            .id-header .id-type { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; background: rgba(212,175,55,0.15); padding: 4px 12px; border-radius: 20px; }
+                            .id-body { display: flex; gap: 15px; align-items: center; }
+                            .id-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #f0d060); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; color: #0a0e27; flex-shrink: 0; border: 3px solid #d4af37; }
                             .id-details { flex: 1; }
-                            .id-details .name {
-                                font-size: 18px;
-                                font-weight: 700;
-                                color: #ffffff;
-                                margin-bottom: 3px;
-                            }
-                            .id-details .adm {
-                                font-size: 12px;
-                                color: #d4af37;
-                                font-weight: 600;
-                                letter-spacing: 1px;
-                            }
-                            .id-details .info-row {
-                                display: flex;
-                                gap: 15px;
-                                margin-top: 5px;
-                                font-size: 11px;
-                                color: rgba(255,255,255,0.6);
-                            }
-                            .id-footer {
-                                margin-top: 15px;
-                                padding-top: 12px;
-                                border-top: 1px solid rgba(255,255,255,0.1);
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                            }
-                            .id-footer .qr-code {
-                                width: 70px;
-                                height: 70px;
-                                background: white;
-                                border-radius: 8px;
-                                padding: 5px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                            }
+                            .id-details .name { font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 3px; }
+                            .id-details .adm { font-size: 12px; color: #d4af37; font-weight: 600; letter-spacing: 1px; }
+                            .id-details .info-row { display: flex; gap: 15px; margin-top: 5px; font-size: 11px; color: rgba(255,255,255,0.6); }
+                            .id-footer { margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+                            .id-footer .qr-code { width: 70px; height: 70px; background: white; border-radius: 8px; padding: 5px; display: flex; align-items: center; justify-content: center; }
                             .id-footer .qr-code img { width: 100%; height: 100%; }
-                            .id-footer .valid-date {
-                                font-size: 9px;
-                                color: rgba(255,255,255,0.3);
-                                text-align: right;
-                            }
-                            .id-footer .valid-date .date {
-                                font-size: 12px;
-                                font-weight: 600;
-                                color: rgba(255,255,255,0.5);
-                            }
+                            .id-footer .valid-date { font-size: 9px; color: rgba(255,255,255,0.3); text-align: right; }
+                            .id-footer .valid-date .date { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); }
                         </style>
                     </head>
                     <body>
@@ -1007,9 +872,7 @@
                 </html>
             `);
             printWindow.document.close();
-            setTimeout(function() {
-                printWindow.print();
-            }, 500);
+            setTimeout(function() { printWindow.print(); }, 500);
         }
         
         function viewStudentDetails(adm) {
@@ -1017,19 +880,16 @@
             allStudents.forEach(function(s) {
                 if (s.adm === adm) student = s;
             });
-            
             if (!student) {
                 showNotification('Student not found', 'error');
                 return;
             }
-            
             var qrCode = null;
             allQRCodes.forEach(function(qr) {
                 if (qr.adm === adm && qr.type === 'student' && !qr.returned) {
                     qrCode = qr;
                 }
             });
-            
             var html = `
                 <div style="background:rgba(212,175,55,0.1);border:1px solid var(--accent);border-radius:12px;padding:20px;max-width:400px;margin:0 auto;">
                     <h4 style="color:var(--accent);margin-bottom:15px;"><i class="fas fa-user-graduate"></i> Student Details</h4>
@@ -1051,7 +911,6 @@
                     </div>
                 </div>
             `;
-            
             var modal = document.createElement('div');
             modal.className = 'modal active';
             modal.id = 'viewStudentModal';
@@ -1077,12 +936,7 @@
         
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { 
-                    title: 'Logout', 
-                    type: 'info', 
-                    confirmText: 'Logout', 
-                    cancelText: 'Cancel' 
-                }).then(function(result) {
+                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
             } else {
@@ -1091,17 +945,9 @@
         }
         
         function logout() {
-            if (typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().signOut().then(function() {
-                    localStorage.removeItem('srms_user');
-                    localStorage.removeItem('srms_school');
-                    window.location.href = 'index.html';
-                });
-            } else {
-                localStorage.removeItem('srms_user');
-                localStorage.removeItem('srms_school');
-                window.location.href = 'index.html';
-            }
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
         }
         
         function showNotification(message, type) {
