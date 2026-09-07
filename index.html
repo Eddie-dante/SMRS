@@ -253,14 +253,17 @@
         </div>
     </div>
 
+    <!-- Load scripts in correct order -->
     <script src="assets/js/api.js"></script>
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/dialog.js"></script>
     <script src="assets/js/auth.js"></script>
 
     <script>
-        // Particles
+        // ============ PARTICLES ============
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("✅ DOM loaded");
+            
             var container = document.getElementById('particles');
             for (var i = 0; i < 30; i++) {
                 var particle = document.createElement('div');
@@ -272,9 +275,16 @@
                 particle.style.animationDuration = Math.random() * 10 + 10 + 's';
                 container.appendChild(particle);
             }
+            
+            // Check if auth functions are loaded
+            if (typeof handleLogin === 'function') {
+                console.log("✅ handleLogin function found");
+            } else {
+                console.error("❌ handleLogin function NOT found");
+            }
         });
 
-        // Form switch functions
+        // ============ FORM SWITCH FUNCTIONS ============
         function showSignup(event) {
             if (event) event.preventDefault();
             var container = document.querySelector('.login-container');
@@ -413,6 +423,7 @@
             if (errorMessage) errorMessage.classList.remove('show');
         }
 
+        // Expose functions
         window.showSignup = showSignup;
         window.showCreateSchool = showCreateSchool;
         window.showForgotPassword = showForgotPassword;
