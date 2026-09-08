@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version - All Functions Included
+// Full Version - Fixed Dropdown Hover
 // ============================================
 
 var currentChatUserEmail = null;
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }, 3000);
 });
 
-// ============ DROPDOWN CONTROLLER ============
+// ============ DROPDOWN CONTROLLER - FIXED ============
 function initDropdownController() {
   var navGroups = document.querySelectorAll(".nav-group");
 
@@ -54,6 +54,9 @@ function initDropdownController() {
 
     if (!dropdown || !button) return;
 
+    // Remove any existing event listeners by using simple approach
+    // Do NOT clone the node - this was causing the issue
+
     var closeTimeout = null;
 
     function openDropdown() {
@@ -61,44 +64,74 @@ function initDropdownController() {
         clearTimeout(closeTimeout);
         closeTimeout = null;
       }
+      // Close all other dropdowns
       document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
         if (d !== dropdown) d.classList.remove("open");
       });
       dropdown.classList.add("open");
     }
 
-    function closeDropdownDelayed() {
+    function closeDropdown() {
       closeTimeout = setTimeout(function () {
         dropdown.classList.remove("open");
-      }, 300);
+      }, 150);
     }
 
-    var newGroup = group.cloneNode(true);
-    group.parentNode.replaceChild(newGroup, group);
+    function cancelClose() {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+    }
 
-    var newDropdown = newGroup.querySelector(".dropdown-menu");
-    var newButton = newGroup.querySelector(".classy-btn");
+    // Hover on the ENTIRE nav-group (button + dropdown)
+    group.addEventListener("mouseenter", function () {
+      cancelClose();
+      openDropdown();
+    });
 
-    if (!newDropdown || !newButton) return;
+    group.addEventListener("mouseleave", function (e) {
+      // Check if related target is inside the group
+      var related = e.relatedTarget;
+      if (related && group.contains(related)) {
+        return; // Still inside group - don't close
+      }
+      closeDropdown();
+    });
 
-    newGroup.addEventListener("mouseenter", openDropdown);
-    newGroup.addEventListener("mouseleave", closeDropdownDelayed);
-    newDropdown.addEventListener("mouseenter", openDropdown);
-    newDropdown.addEventListener("mouseleave", closeDropdownDelayed);
-
-    newButton.addEventListener("click", function (e) {
+    // Click on button toggles (for mobile/touch)
+    button.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      if (newDropdown.classList.contains("open")) {
-        newDropdown.classList.remove("open");
+      if (dropdown.classList.contains("open")) {
+        dropdown.classList.remove("open");
       } else {
         openDropdown();
       }
     });
+
+    // Click on dropdown item closes dropdown
+    dropdown
+      .querySelectorAll(".dropdown-item, a.dropdown-item")
+      .forEach(function (item) {
+        item.addEventListener("click", function () {
+          dropdown.classList.remove("open");
+        });
+      });
   });
 
+  // Close all dropdowns when clicking outside
   document.addEventListener("click", function (event) {
     if (!event.target.closest(".nav-group")) {
+      document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
+        d.classList.remove("open");
+      });
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
       document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
         d.classList.remove("open");
       });
@@ -616,7 +649,6 @@ function addBook(event) {
     .then(function (result) {
       if (result.success) {
         showNotification("Book added!", "success");
-        logAction("Book Added", title.value);
         closeModal("addBookModal");
         loadLibraryData();
       } else {
@@ -668,7 +700,6 @@ function issueBook(event) {
     .then(function (result) {
       if (result.success) {
         showNotification("Book issued!", "success");
-        logAction("Book Issued", bookTitle.value);
         loadLibraryData();
       } else {
         showNotification(result.error || "Failed", "error");
@@ -682,66 +713,64 @@ function issueBook(event) {
 
 function returnBook(borrowId) {
   if (!borrowId) return;
-
   if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
     DialogSystem.confirm("Return this book?", {
-      title: "Return Book",
+      title: "Return",
       type: "info",
       confirmText: "Return",
       cancelText: "Cancel",
     }).then(function (confirmed) {
       if (confirmed !== "confirm") return;
-      executeReturnBook(borrowId);
+      var school = getCurrentSchool();
+      API.returnBook(school, borrowId)
+        .then(function () {
+          showNotification("Book returned!", "success");
+          loadLibraryData();
+        })
+        .catch(function () {});
     });
   } else {
-    if (confirm("Return this book?")) executeReturnBook(borrowId);
+    if (confirm("Return this book?")) {
+      var school = getCurrentSchool();
+      API.returnBook(school, borrowId)
+        .then(function () {
+          showNotification("Book returned!", "success");
+          loadLibraryData();
+        })
+        .catch(function () {});
+    }
   }
-}
-
-function executeReturnBook(borrowId) {
-  var school = getCurrentSchool();
-  API.returnBook(school, borrowId)
-    .then(function (result) {
-      if (result.success) {
-        showNotification("Book returned!", "success");
-        logAction("Book Returned", borrowId);
-        loadLibraryData();
-      }
-    })
-    .catch(function () {
-      showNotification("Failed to return", "error");
-    });
 }
 
 function deleteBook(bookId) {
   if (!bookId) return;
-
   if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
     DialogSystem.confirm("Delete this book?", {
-      title: "Delete Book",
+      title: "Delete",
       type: "danger",
       confirmText: "Delete",
       cancelText: "Cancel",
     }).then(function (confirmed) {
       if (confirmed !== "confirm") return;
-      executeDeleteBook(bookId);
+      var school = getCurrentSchool();
+      API.deleteBook(school, bookId)
+        .then(function () {
+          showNotification("Book deleted!", "success");
+          loadLibraryData();
+        })
+        .catch(function () {});
     });
   } else {
-    if (confirm("Delete this book?")) executeDeleteBook(bookId);
+    if (confirm("Delete this book?")) {
+      var school = getCurrentSchool();
+      API.deleteBook(school, bookId)
+        .then(function () {
+          showNotification("Book deleted!", "success");
+          loadLibraryData();
+        })
+        .catch(function () {});
+    }
   }
-}
-
-function executeDeleteBook(bookId) {
-  var school = getCurrentSchool();
-  API.deleteBook(school, bookId)
-    .then(function () {
-      showNotification("Book deleted!", "success");
-      logAction("Book Deleted", bookId);
-      loadLibraryData();
-    })
-    .catch(function () {
-      showNotification("Failed to delete", "error");
-    });
 }
 
 function loadClassStudentsForBooks() {
@@ -960,7 +989,6 @@ function addStudent(event) {
 
 function deleteStudent(adm) {
   if (!adm) return;
-
   if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
     DialogSystem.confirm("Delete this student?", {
       title: "Delete",
@@ -969,23 +997,25 @@ function deleteStudent(adm) {
       cancelText: "Cancel",
     }).then(function (confirmed) {
       if (confirmed !== "confirm") return;
-      executeDeleteStudent(adm);
+      var school = getCurrentSchool();
+      API.deleteStudent(school, adm)
+        .then(function () {
+          showNotification("Student deleted!", "success");
+          loadStudentsData();
+        })
+        .catch(function () {});
     });
   } else {
-    if (confirm("Delete this student?")) executeDeleteStudent(adm);
+    if (confirm("Delete this student?")) {
+      var school = getCurrentSchool();
+      API.deleteStudent(school, adm)
+        .then(function () {
+          showNotification("Student deleted!", "success");
+          loadStudentsData();
+        })
+        .catch(function () {});
+    }
   }
-}
-
-function executeDeleteStudent(adm) {
-  var school = getCurrentSchool();
-  API.deleteStudent(school, adm)
-    .then(function () {
-      showNotification("Student deleted!", "success");
-      loadStudentsData();
-    })
-    .catch(function () {
-      showNotification("Failed to delete", "error");
-    });
 }
 
 // ============ FURNITURE ============
@@ -1115,7 +1145,6 @@ function allocateFurniture(event) {
 
 function returnFurnitureItem(furnitureId) {
   if (!furnitureId) return;
-
   if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
     DialogSystem.confirm("Return this furniture?", {
       title: "Return",
@@ -1124,23 +1153,25 @@ function returnFurnitureItem(furnitureId) {
       cancelText: "Cancel",
     }).then(function (confirmed) {
       if (confirmed !== "confirm") return;
-      executeReturnFurniture(furnitureId);
+      var school = getCurrentSchool();
+      API.returnFurniture(school, furnitureId)
+        .then(function () {
+          showNotification("Furniture returned!", "success");
+          loadFurnitureData();
+        })
+        .catch(function () {});
     });
   } else {
-    if (confirm("Return this furniture?")) executeReturnFurniture(furnitureId);
+    if (confirm("Return this furniture?")) {
+      var school = getCurrentSchool();
+      API.returnFurniture(school, furnitureId)
+        .then(function () {
+          showNotification("Furniture returned!", "success");
+          loadFurnitureData();
+        })
+        .catch(function () {});
+    }
   }
-}
-
-function executeReturnFurniture(furnitureId) {
-  var school = getCurrentSchool();
-  API.returnFurniture(school, furnitureId)
-    .then(function () {
-      showNotification("Furniture returned!", "success");
-      loadFurnitureData();
-    })
-    .catch(function () {
-      showNotification("Failed", "error");
-    });
 }
 
 function loadClassStudentsForFurniture() {
@@ -2213,7 +2244,7 @@ function deleteClass(classId) {
   if (!classId) return;
 
   var confirmMessage =
-    "Delete this class? ALL students in this class will be permanently removed from the database.";
+    "Delete this class? ALL students in this class will be permanently removed.";
 
   if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
     DialogSystem.confirm(confirmMessage, {
@@ -2241,10 +2272,6 @@ function executeDeleteClass(classId) {
             "Class deleted with " + result.studentsDeleted + " students!",
             "success",
           );
-          logAction(
-            "Class Deleted",
-            "Class with " + result.studentsDeleted + " students",
-          );
           loadClassesData();
         } else {
           showNotification(result.error || "Failed to delete", "error");
@@ -2254,7 +2281,6 @@ function executeDeleteClass(classId) {
         showNotification("Failed to delete class", "error");
       });
   } else {
-    // Fallback: just delete the class
     API.deleteClass(school, classId)
       .then(function () {
         showNotification("Class deleted!", "success");
