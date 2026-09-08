@@ -1,6 +1,6 @@
 /* ============================================
    SRMS - Component Styles
-   Complete Version
+   Complete Version - Fixed Dropdown Hover
    ============================================ */
 
 /* ============ HEADER BAR (TASKBAR) ============ */
@@ -125,12 +125,14 @@
     inset 0 1px 2px rgba(255, 223, 138, 0.4);
   position: relative;
   z-index: 1100;
+  white-space: nowrap;
 }
 
 .classy-btn i {
   color: #d4af37;
   font-size: 15px;
   transition: transform 0.3s ease;
+  pointer-events: none;
 }
 
 .classy-btn .fa-chevron-up {
@@ -173,6 +175,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 .message-badge {
@@ -193,11 +196,11 @@
   z-index: 1200;
 }
 
-/* ============ DROPDOWN MENU ============ */
+/* ============ DROPDOWN MENU - FIXED HOVER ============ */
 .dropdown-menu {
   display: none;
   position: absolute;
-  bottom: calc(100% + 12px);
+  bottom: calc(100% + 5px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(10, 14, 39, 0.98);
@@ -211,11 +214,25 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
 }
 
+/* Invisible bridge to prevent hover gap */
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: transparent;
+  z-index: -1;
+}
+
 .dropdown-menu.open {
   display: block !important;
 }
 
+/* Keep dropdown open when hovering over nav-group or dropdown */
 .nav-group:hover .dropdown-menu,
+.nav-group:focus-within .dropdown-menu,
 .dropdown-menu:hover {
   display: block !important;
 }
@@ -228,7 +245,7 @@
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-size: 13px;
   cursor: pointer;
   font-family: "Inter", sans-serif;
@@ -244,12 +261,13 @@
   color: #d4af37;
   width: 20px;
   text-align: center;
+  pointer-events: none;
 }
 
 .dropdown-item:hover {
   background: rgba(212, 175, 55, 0.15);
   color: #ffffff;
-  transform: translateX(5px);
+  padding-left: 20px;
 }
 
 .dropdown-divider {
@@ -288,6 +306,17 @@
   max-height: 85vh;
   overflow-y: auto;
   animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -853,62 +882,34 @@
   display: flex;
 }
 
-/* ============ STUDENT ID CARD ============ */
-.student-id-card {
-  background: linear-gradient(135deg, #0a0e27, #1a1f4e);
-  border: 2px solid #d4af37;
-  border-radius: 16px;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
+/* ============ EMPTY STATE ============ */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.4);
+  grid-column: 1 / -1;
 }
 
-.student-id-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+  color: #d4af37;
 }
 
-.student-id-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+/* ============ LOADING SPINNER ============ */
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.5);
+  grid-column: 1 / -1;
 }
 
-/* ============ EXCEL PREVIEW ============ */
-.excel-preview-container {
-  margin-top: 15px;
-  overflow-x: auto;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.excel-preview-container table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.excel-preview-container table th {
-  background: rgba(233, 69, 96, 0.8);
-  padding: 8px 10px;
-  text-align: left;
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  white-space: nowrap;
-}
-
-.excel-preview-container table td {
-  padding: 6px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  white-space: nowrap;
+.loading-spinner i {
+  font-size: 36px;
+  color: #d4af37;
+  margin-bottom: 10px;
+  display: block;
 }
 
 /* ============ UPLOAD AREA ============ */
@@ -945,34 +946,35 @@
   margin-top: 8px;
 }
 
-/* ============ EMPTY STATE ============ */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: rgba(255, 255, 255, 0.4);
-  grid-column: 1 / -1;
+/* ============ EXCEL PREVIEW ============ */
+.excel-preview-container {
+  margin-top: 15px;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-.empty-state i {
-  font-size: 48px;
-  margin-bottom: 15px;
-  opacity: 0.5;
-  color: #d4af37;
+.excel-preview-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
 }
 
-/* ============ LOADING SPINNER ============ */
-.loading-spinner {
-  text-align: center;
-  padding: 40px;
-  color: rgba(255, 255, 255, 0.5);
-  grid-column: 1 / -1;
+.excel-preview-container table th {
+  background: rgba(233, 69, 96, 0.8);
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: nowrap;
 }
 
-.loading-spinner i {
-  font-size: 36px;
-  color: #d4af37;
-  margin-bottom: 10px;
-  display: block;
+.excel-preview-container table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
 }
 
 /* ============ RESPONSIVE ============ */
@@ -1085,15 +1087,6 @@
   .taskbar-icon-btn {
     width: 35px;
     height: 35px;
-  }
-
-  .student-id-card {
-    padding: 15px;
-  }
-
-  .student-id-card .id-body {
-    flex-direction: column;
-    text-align: center;
   }
 }
 
