@@ -242,8 +242,9 @@
         .detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.55rem; }
         
         .side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; gap: 4px; }
-        .qr-code-box { background: #fff; padding: 2px; border-radius: 4px; border: 1px solid #e2e8f0; cursor: pointer; }
+        .qr-code-box { background: #fff; padding: 3px; border-radius: 4px; border: 1px solid #e2e8f0; cursor: pointer; }
         .qr-code-box:active { transform: scale(0.95); }
+        .qr-code-box canvas, .qr-code-box img { display: block !important; width: 55px !important; height: 55px !important; }
         .signature-box { text-align: center; }
         .signature-line { font-family: 'Great Vibes', cursive; font-size: 0.65rem; color: #0f172a; line-height: 1; }
         .signature-title { font-size: 0.35rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 1px; }
@@ -268,19 +269,6 @@
             margin-top: 12px;
         }
         .action-buttons .btn { flex: 1; justify-content: center; min-width: 80px; }
-        
-        .saved-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .saved-card-thumb {
-            border-radius: 6px; overflow: hidden;
-            border: 1.5px solid var(--secondary-color);
-            cursor: pointer;
-        }
-        .saved-card-thumb img { width: 100%; display: block; }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 6px 8px; gap: 4px; }
@@ -378,7 +366,7 @@
                 </div>
                 
                 <p style="font-size:0.6rem;color:rgba(255,255,255,0.4);margin-top:8px;">
-                    💡 Click QR code to download it separately
+                    💡 Click QR code to download separately
                 </p>
                 
                 <div class="action-buttons">
@@ -455,7 +443,6 @@
     <script>
         var allStudentsData = [];
         var currentQRData = '';
-        var savedCards = [];
         var APP_URL = 'https://smrs-eight.vercel.app';
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -563,7 +550,7 @@
             var academicYear = document.getElementById('editAcademicYear').value || '';
             var school = getCurrentSchool() || '';
             
-            // Save full data to Firebase for retrieval
+            // Save full data to Firebase
             if (school && adm) {
                 database.ref('schools/' + school + '/idCardData/' + adm).set({
                     fullName: name,
@@ -578,14 +565,8 @@
                 }).catch(function() {});
             }
             
-            // Simple QR data for reliable scanning
-            var qrData = JSON.stringify({
-                type: 'STUDENT_ID',
-                adm: adm,
-                school: school,
-                appUrl: APP_URL
-            });
-            
+            // SIMPLE URL format for maximum scannability
+            var qrData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school);
             currentQRData = qrData;
             
             var container = document.getElementById('qrcode');
@@ -594,11 +575,11 @@
             try {
                 new QRCode(container, {
                     text: qrData,
-                    width: 45,
-                    height: 45,
+                    width: 55,
+                    height: 55,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
+                    correctLevel: QRCode.CorrectLevel.L
                 });
                 showNotification('QR generated!', 'success');
             } catch(e) {
@@ -613,9 +594,9 @@
             }
             
             var container = document.getElementById('qrcode');
-            var canvas = container.querySelector('canvas') || container.querySelector('img');
+            var canvas = container.querySelector('canvas');
             
-            if (canvas && canvas.tagName === 'CANVAS') {
+            if (canvas) {
                 var qrUrl = canvas.toDataURL('image/png');
                 var adm = document.getElementById('editAdm').value || 'student';
                 var link = document.createElement('a');
@@ -624,7 +605,7 @@
                 link.click();
                 showNotification('QR downloaded!', 'success');
             } else {
-                var qrServerUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(currentQRData);
+                var qrServerUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(currentQRData);
                 var link = document.createElement('a');
                 link.download = 'qr_code.png';
                 link.href = qrServerUrl;
@@ -638,7 +619,7 @@
             var card = document.getElementById('card');
             
             html2canvas(card, {
-                scale: 3,
+                scale: 4,
                 backgroundColor: '#ffffff',
                 allowTaint: true,
                 useCORS: true
@@ -654,11 +635,8 @@
                 var school = getCurrentSchool();
                 if (school) {
                     database.ref('schools/' + school + '/students/' + adm + '/idCardImage').set(imageData)
-                        .then(function() {
-                            showNotification('Card saved!', 'success');
-                        }).catch(function() {
-                            showNotification('Card downloaded!', 'success');
-                        });
+                        .then(function() { showNotification('Card saved!', 'success'); })
+                        .catch(function() { showNotification('Card downloaded!', 'success'); });
                 } else {
                     showNotification('Card saved!', 'success');
                 }
@@ -669,10 +647,7 @@
         
         function printCard() {
             updateCardFromEditor();
-            
-            if (!currentQRData) {
-                generateQRCode();
-            }
+            if (!currentQRData) generateQRCode();
             
             setTimeout(function() {
                 var cardElement = document.getElementById('card');
@@ -680,9 +655,10 @@
                 
                 var printWindow = window.open('', '_blank', 'width=600,height=400');
                 printWindow.document.write('<html><head><title>Print ID Card</title>' +
+                    '<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">' +
                     '<style>' +
                     '@page { size: 3.37in 2.125in; margin: 0; }' +
-                    'body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }' +
+                    'body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Inter, Arial, sans-serif; }' +
                     '.id-card { width: 3.37in; height: 2.125in; background: #ffffff; color: #1e293b; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #ccc; }' +
                     '.card-header { background: #800020; color: #fff; padding: 5px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #d4af37; }' +
                     '.header-title h3 { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin: 0; letter-spacing: 0.3px; }' +
@@ -694,19 +670,17 @@
                     '.photo-box img { width: 100%; height: 100%; object-fit: cover; }' +
                     '.details-box { display: flex; flex-direction: column; gap: 2px; }' +
                     '.detail-item { font-size: 0.5rem; line-height: 1.1; }' +
-                    '.detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.4rem; display: block; letter-spacing: 0.3px; }' +
+                    '.detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.4rem; display: block; }' +
                     '.detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.55rem; }' +
                     '.side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; gap: 4px; }' +
-                    '.qr-code-box { background: #fff; padding: 2px; border-radius: 4px; border: 1px solid #e2e8f0; }' +
-                    '.qr-code-box img, .qr-code-box canvas { width: 45px; height: 45px; }' +
+                    '.qr-code-box { background: #fff; padding: 3px; border-radius: 4px; border: 1px solid #e2e8f0; }' +
+                    '.qr-code-box canvas, .qr-code-box img { width: 55px !important; height: 55px !important; display: block; }' +
                     '.signature-box { text-align: center; }' +
                     '.signature-line { font-family: "Great Vibes", cursive; font-size: 0.65rem; color: #0f172a; line-height: 1; }' +
-                    '.signature-title { font-size: 0.35rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 1px; }' +
-                    '.card-footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 3px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.4rem; font-weight: 700; color: #475569; }' +
+                    '.signature-title { font-size: 0.35rem; color: #64748b; font-weight: 700; text-transform: uppercase; }' +
+                    '.card-footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 3px 10px; display: flex; justify-content: space-between; font-size: 0.4rem; font-weight: 700; color: #475569; }' +
                     '@media print { body { padding: 0; margin: 0; } .id-card { border: none; box-shadow: none; } }' +
-                    '</style>' +
-                    '<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">' +
-                    '</head><body>' +
+                    '</style></head><body>' +
                     cardHTML +
                     '</body></html>');
                 printWindow.document.close();
