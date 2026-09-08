@@ -1,5 +1,6 @@
 // ============================================
 // SRMS - Dialog System
+// Complete Working Version
 // ============================================
 
 var DialogSystem = {
@@ -15,6 +16,10 @@ var DialogSystem = {
     var type = options.type || "warning";
 
     return new Promise(function (resolve) {
+      // Remove existing dialog
+      var existingDialog = document.getElementById("dialogOverlay");
+      if (existingDialog) existingDialog.remove();
+
       var overlay = document.createElement("div");
       overlay.className = "dialog-overlay";
       overlay.id = "dialogOverlay";
@@ -40,10 +45,10 @@ var DialogSystem = {
           <h3 class="dialog-title">${title}</h3>
           <p class="dialog-message">${message}</p>
           <div class="dialog-buttons">
-            <button class="dialog-btn dialog-cancel" onclick="DialogSystem.close('cancel')">
+            <button class="dialog-btn dialog-cancel" id="dialogCancelBtn">
               <i class="fas fa-times"></i> ${cancelText}
             </button>
-            <button class="dialog-btn dialog-confirm" style="background: ${colors[type]};" onclick="DialogSystem.close('confirm')">
+            <button class="dialog-btn dialog-confirm" id="dialogConfirmBtn" style="background: ${colors[type]};">
               <i class="fas fa-check"></i> ${confirmText}
             </button>
           </div>
@@ -52,6 +57,7 @@ var DialogSystem = {
 
       document.body.appendChild(overlay);
 
+      // Add styles if not present
       if (!document.getElementById("dialogStyles")) {
         var styleEl = document.createElement("style");
         styleEl.id = "dialogStyles";
@@ -59,20 +65,40 @@ var DialogSystem = {
         document.head.appendChild(styleEl);
       }
 
+      // Animate in
       requestAnimationFrame(function () {
         overlay.classList.add("active");
-        overlay.querySelector(".dialog-box").classList.add("active");
+        var box = overlay.querySelector(".dialog-box");
+        if (box) box.classList.add("active");
       });
 
       DialogSystem._resolve = resolve;
       DialogSystem._overlay = overlay;
 
+      // Click outside to close
       overlay.addEventListener("click", function (e) {
         if (e.target === overlay) {
           DialogSystem.close("cancel");
         }
       });
 
+      // Cancel button
+      var cancelBtn = overlay.querySelector("#dialogCancelBtn");
+      if (cancelBtn) {
+        cancelBtn.addEventListener("click", function () {
+          DialogSystem.close("cancel");
+        });
+      }
+
+      // Confirm button
+      var confirmBtn = overlay.querySelector("#dialogConfirmBtn");
+      if (confirmBtn) {
+        confirmBtn.addEventListener("click", function () {
+          DialogSystem.close("confirm");
+        });
+      }
+
+      // Escape key
       DialogSystem._escHandler = function (e) {
         if (e.key === "Escape") {
           DialogSystem.close("cancel");
@@ -89,6 +115,9 @@ var DialogSystem = {
     var type = options.type || "info";
 
     return new Promise(function (resolve) {
+      var existingDialog = document.getElementById("dialogOverlay");
+      if (existingDialog) existingDialog.remove();
+
       var overlay = document.createElement("div");
       overlay.className = "dialog-overlay";
       overlay.id = "dialogOverlay";
@@ -114,7 +143,7 @@ var DialogSystem = {
           <h3 class="dialog-title">${title}</h3>
           <p class="dialog-message">${message}</p>
           <div class="dialog-buttons">
-            <button class="dialog-btn dialog-confirm" style="background: ${colors[type]}; width: 100%;" onclick="DialogSystem.close('confirm')">
+            <button class="dialog-btn dialog-confirm" id="dialogConfirmBtn" style="background: ${colors[type]}; width: 100%;">
               <i class="fas fa-check"></i> ${confirmText}
             </button>
           </div>
@@ -132,7 +161,8 @@ var DialogSystem = {
 
       requestAnimationFrame(function () {
         overlay.classList.add("active");
-        overlay.querySelector(".dialog-box").classList.add("active");
+        var box = overlay.querySelector(".dialog-box");
+        if (box) box.classList.add("active");
       });
 
       DialogSystem._resolve = resolve;
@@ -143,6 +173,13 @@ var DialogSystem = {
           DialogSystem.close("confirm");
         }
       });
+
+      var confirmBtn = overlay.querySelector("#dialogConfirmBtn");
+      if (confirmBtn) {
+        confirmBtn.addEventListener("click", function () {
+          DialogSystem.close("confirm");
+        });
+      }
 
       DialogSystem._escHandler = function (e) {
         if (e.key === "Escape" || e.key === "Enter") {
@@ -157,10 +194,12 @@ var DialogSystem = {
     if (DialogSystem._overlay) {
       var overlay = DialogSystem._overlay;
       var box = overlay.querySelector(".dialog-box");
-      box.classList.remove("active");
+
+      if (box) box.classList.remove("active");
       overlay.classList.remove("active");
+
       setTimeout(function () {
-        overlay.remove();
+        if (overlay.parentNode) overlay.remove();
       }, 200);
 
       if (DialogSystem._escHandler) {
@@ -245,3 +284,5 @@ var DialogSystem = {
 };
 
 window.DialogSystem = DialogSystem;
+
+console.log("✅ DialogSystem loaded successfully");
