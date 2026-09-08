@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Classes | School Resource Management System</title>
+    <meta name="description" content="SRMS Class Management with Excel Upload">
+    <meta name="theme-color" content="#0a0e27">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -12,9 +16,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
@@ -23,9 +27,8 @@
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.2s ease;
+            --transition: all 0.3s ease;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -43,9 +46,7 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
         }
         .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
@@ -55,13 +56,9 @@
             width: 40px; height: 40px; border-radius: 10px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: var(--transition);
+            color: var(--accent); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: var(--transition);
         }
         .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
@@ -70,31 +67,26 @@
             z-index: 1000; width: auto; max-width: 95vw;
         }
         .floating-navbar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 12px 24px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; padding: 12px 20px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px; font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
             border-radius: 30px;
-            padding: 10px 22px;
+            padding: 10px 18px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 8px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
@@ -108,37 +100,23 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .dropdown-menu {
             display: none;
-            position: absolute;
-            bottom: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px;
-            padding: 10px;
-            min-width: 200px;
-            z-index: 1200;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-radius: 14px; padding: 10px; min-width: 200px;
+            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
             transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
@@ -154,53 +132,27 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em;
-            font-weight: 900;
+            font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
-        .page-header p { color: rgba(255,255,255,0.6); }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
         .btn-primary {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
+            background: linear-gradient(135deg, #e94560, #c62a47); color: #fff;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
-        .btn-secondary {
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
         .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
         .btn-danger:hover { background: rgba(220,53,69,0.4); }
@@ -225,27 +177,17 @@
         .class-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1300;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1300;
+            justify-content: center; align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
-            overflow-y: auto;
+            border-radius: 20px; padding: 30px;
+            width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
@@ -254,23 +196,18 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 15px;
+            width: 100%; padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: #fff;
+            border-radius: 10px; color: #fff;
             font-family: 'Inter', sans-serif;
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         .upload-area {
             border: 2px dashed rgba(212, 175, 55, 0.4);
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
+            border-radius: 12px; padding: 25px; text-align: center;
+            cursor: pointer; transition: var(--transition);
             background: rgba(255,255,255,0.02);
         }
         .upload-area:hover { border-color: var(--gold); background: rgba(212,175,55,0.1); }
@@ -279,57 +216,38 @@
         .upload-area .file-name { color: #34ce57; font-weight: 600; margin-top: 8px; }
         
         .excel-preview-container {
-            margin-top: 15px;
-            overflow-x: auto;
-            max-height: 300px;
-            overflow-y: auto;
+            margin-top: 15px; overflow-x: auto; max-height: 300px; overflow-y: auto;
         }
-        .excel-preview-container table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
+        .excel-preview-container table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .excel-preview-container table th {
             background: rgba(233, 69, 96, 0.8);
-            padding: 8px 10px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            padding: 8px 10px; text-align: left;
+            font-weight: 600; position: sticky; top: 0; z-index: 10;
             white-space: nowrap;
         }
         .excel-preview-container table td {
-            padding: 6px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
             white-space: nowrap;
         }
-        .excel-preview-container table tr:hover { background: rgba(255,255,255,0.05); }
         
         .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: rgba(255,255,255,0.4);
+            text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.4);
             grid-column: 1 / -1;
         }
         .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
         .loading-spinner {
-            text-align: center;
-            padding: 40px;
-            color: rgba(255,255,255,0.5);
+            text-align: center; padding: 40px; color: rgba(255,255,255,0.5);
             grid-column: 1 / -1;
         }
         .loading-spinner i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
         
         @media (max-width: 768px) {
-            .floating-navbar { padding: 8px 12px; gap: 6px; }
-            .classy-btn { padding: 8px 12px; font-size: 11px; }
+            .floating-navbar { padding: 8px 10px; gap: 4px; }
+            .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
             .classes-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
             .page-header { flex-direction: column; align-items: stretch; }
-            .page-header .btn { justify-content: center; }
-            .modal-content { padding: 20px; }
         }
     </style>
 </head>
@@ -339,7 +257,7 @@
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
             <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
@@ -350,7 +268,7 @@
                 <h1><i class="fas fa-door-open" style="color:var(--accent);"></i> Classes</h1>
                 <p>Manage class lists with Excel upload</p>
             </div>
-            <button class="btn-primary" onclick="openModal('addClassModal')">
+            <button class="btn btn-primary" onclick="openModal('addClassModal')">
                 <i class="fas fa-plus"></i> Add Class
             </button>
         </div>
@@ -363,7 +281,6 @@
         </div>
     </div>
     
-    <!-- Add Class Modal -->
     <div class="modal" id="addClassModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -398,29 +315,15 @@
                     <input type="hidden" id="excelStudentsData" data-loaded="false">
                 </div>
                 
-                <div id="excelPreviewContainer" class="excel-preview-container" style="display:none;"></div>
+                <div id="excelPreview" class="excel-preview-container" style="display:none;"></div>
                 
-                <button type="submit" class="btn-primary" style="width:100%;margin-top:15px;">
+                <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px;">
                     <i class="fas fa-plus"></i> Create Class
                 </button>
             </form>
         </div>
     </div>
     
-    <!-- View Students Modal -->
-    <div class="modal" id="viewStudentsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-users"></i> <span id="viewClassName">Class Name</span> Students</h3>
-                <button class="modal-close" onclick="closeModal('viewStudentsModal')"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="viewStudentsContent">
-                <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading...</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -453,7 +356,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Comms <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -481,31 +384,35 @@
         </div>
     </div>
     
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/wallpaper-loader.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof loadClassesData === 'function') loadClassesData();
+        });
+        
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) logout();
+                if (confirm('Logout?')) logout();
             }
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load classes from app.js
-            if (typeof loadClassesData === 'function') {
-                loadClassesData();
-            }
-        });
+        function logout() {
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
+        }
         
         window.logoutWithConfirm = logoutWithConfirm;
+        window.logout = logout;
         window.handleExcelUpload = handleExcelUpload;
         window.addClassWithExcel = addClassWithExcel;
         window.viewClassStudents = viewClassStudents;
