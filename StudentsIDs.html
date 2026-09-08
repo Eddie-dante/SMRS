@@ -270,6 +270,34 @@
         }
         .action-buttons .btn { flex: 1; justify-content: center; min-width: 80px; }
         
+        .students-list-panel {
+            margin-top: 15px;
+        }
+        .student-list-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 10px; margin-bottom: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; cursor: pointer;
+            transition: var(--transition);
+        }
+        .student-list-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(212,175,55,0.3); }
+        .student-list-item .avatar-small {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #f0d060);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800; color: #0a0e27; flex-shrink: 0;
+        }
+        .student-list-item .info { flex: 1; min-width: 0; }
+        .student-list-item .info .name { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .student-list-item .info .adm { font-size: 9px; color: rgba(255,255,255,0.5); }
+        .student-list-item .id-badge {
+            font-size: 8px; padding: 2px 6px; border-radius: 10px;
+            font-weight: 700; flex-shrink: 0;
+        }
+        .id-badge.generated { background: rgba(40,167,69,0.2); color: #34ce57; }
+        .id-badge.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 6px 8px; gap: 4px; }
             .classy-btn { padding: 6px 8px; font-size: 9px; }
@@ -294,7 +322,7 @@
         <div class="page-header">
             <div>
                 <h1><i class="fas fa-id-card"></i> Student ID Cards</h1>
-                <p>Generate, edit, save, and print ID cards</p>
+                <p>Auto-generated IDs for all registered students</p>
             </div>
         </div>
         
@@ -303,7 +331,7 @@
                 <h3><i class="fas fa-user-edit"></i> Card Editor</h3>
                 
                 <div class="form-group">
-                    <label>Select Student</label>
+                    <label>Select Student (Auto-loads details)</label>
                     <select id="studentSelect" onchange="loadStudentForCard()">
                         <option value="">-- Select a student --</option>
                     </select>
@@ -315,7 +343,7 @@
                 <div class="form-group"><label>🎂 Date of Birth (DD/MM/YYYY)</label><input type="text" id="editDob" placeholder="DD/MM/YYYY" oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>🎓 Class/Form</label><input type="text" id="editForm" oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>🏠 House/Stream</label><input type="text" id="editStream" oninput="updateCardFromEditor()"></div>
-                <div class="form-group"><label>📅 Academic Year</label><input type="text" id="editAcademicYear" oninput="updateCardFromEditor()"></div>
+                <div class="form-group"><label>📅 Issued Date</label><input type="text" id="editIssuedDate" readonly style="background:rgba(255,255,255,0.02);"></div>
                 
                 <div class="form-group">
                     <label>📷 Photo (Optional)</label>
@@ -347,7 +375,6 @@
                             <div class="detail-item"><span class="label">DOB</span><span class="value" id="cardDob">-</span></div>
                             <div class="detail-item"><span class="label">Class</span><span class="value" id="cardForm">-</span></div>
                             <div class="detail-item"><span class="label">House</span><span class="value" id="cardStream">-</span></div>
-                            <div class="detail-item"><span class="label">Year</span><span class="value" id="cardYear">-</span></div>
                         </div>
                         
                         <div class="side-box">
@@ -360,13 +387,13 @@
                     </div>
                     
                     <div class="card-footer">
-                        <span>Valid: <span id="cardExpiry">-</span></span>
+                        <span>Issued: <span id="cardIssuedDate">-</span></span>
                         <span>Scan for Details</span>
                     </div>
                 </div>
                 
                 <p style="font-size:0.6rem;color:rgba(255,255,255,0.4);margin-top:8px;">
-                    💡 Click QR code to download separately
+                    💡 Click QR code to download separately | ID auto-generates on registration
                 </p>
                 
                 <div class="action-buttons">
@@ -374,6 +401,13 @@
                     <button class="btn btn-green" onclick="saveCardAsImage()"><i class="fas fa-save"></i> Save</button>
                     <button class="btn btn-blue" onclick="printCard()"><i class="fas fa-print"></i> Print</button>
                 </div>
+            </div>
+        </div>
+        
+        <div class="panel students-list-panel">
+            <h3><i class="fas fa-users"></i> All Students & ID Status</h3>
+            <div id="studentsList">
+                <p style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Loading students...</p>
             </div>
         </div>
     </div>
@@ -446,61 +480,132 @@
         var APP_URL = 'https://smrs-eight.vercel.app';
         
         document.addEventListener('DOMContentLoaded', function() {
-            loadStudentsForSelect();
-            setDefaultAcademicYear();
+            loadAllStudents();
+            setIssuedDate();
+            generateStudentIDsForAll();
         });
         
-        function setDefaultAcademicYear() {
+        function setIssuedDate() {
             var now = new Date();
-            var year = now.getFullYear();
-            var month = now.getMonth() + 1;
-            var academicYear = (month >= 9) ? year + '/' + (year + 1) : (year - 1) + '/' + year;
-            document.getElementById('editAcademicYear').value = academicYear;
-            document.getElementById('cardYear').textContent = academicYear;
+            var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+            var issuedStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+            document.getElementById('editIssuedDate').value = issuedStr;
+            document.getElementById('cardIssuedDate').textContent = issuedStr;
         }
         
-        function loadStudentsForSelect() {
+        function loadAllStudents() {
             var school = getCurrentSchool();
             if (!school) return;
+            
             Promise.all([API.getStudents(school), API.getClasses(school)]).then(function(results) {
                 var students = results[0] || [];
                 var classes = results[1] || [];
                 var allStudents = [];
                 var seenAdms = {};
+                
                 students.forEach(function(s) {
-                    if (s.adm && !seenAdms[s.adm]) { seenAdms[s.adm] = true; allStudents.push(s); }
+                    if (s.adm && !seenAdms[s.adm]) {
+                        seenAdms[s.adm] = true;
+                        s.source = 'db';
+                        allStudents.push(s);
+                    }
                 });
+                
                 classes.forEach(function(c) {
                     (c.students || []).forEach(function(st) {
                         var adm = st.ADM || st.adm || st["ADM No"] || "";
                         var name = st.Name || st.name || st["Full Name"] || "Unknown";
                         if (adm && !seenAdms[adm]) {
                             seenAdms[adm] = true;
-                            allStudents.push({ name: name, adm: adm, form: c.name, stream: c.stream || '', dob: st.DOB || st.dob || '' });
+                            allStudents.push({
+                                name: name, adm: adm, form: c.name,
+                                stream: c.stream || '', dob: st.DOB || st.dob || '',
+                                source: 'class'
+                            });
                         }
                     });
                 });
+                
                 allStudentsData = allStudents;
+                
+                // Populate select
                 var select = document.getElementById('studentSelect');
                 var html = '<option value="">-- Select a student --</option>';
                 allStudents.forEach(function(s) {
                     html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
                 });
                 select.innerHTML = html;
+                
+                // Render students list
+                renderStudentsList(allStudents);
+            });
+        }
+        
+        function renderStudentsList(students) {
+            var container = document.getElementById('studentsList');
+            if (!container) return;
+            
+            if (!students || students.length === 0) {
+                container.innerHTML = '<p style="font-size:0.65rem;color:rgba(255,255,255,0.4);">No students found.</p>';
+                return;
+            }
+            
+            var html = '';
+            students.forEach(function(s) {
+                var hasID = s.qrCode ? true : false;
+                var badge = hasID 
+                    ? '<span class="id-badge generated">✅ ID Generated</span>' 
+                    : '<span class="id-badge pending">⏳ Pending</span>';
+                
+                html += '<div class="student-list-item" onclick="selectStudent(\'' + s.adm + '\')">' +
+                    '<div class="avatar-small">' + getInitials(s.name) + '</div>' +
+                    '<div class="info"><div class="name">' + s.name + '</div>' +
+                    '<div class="adm">ADM: ' + s.adm + ' | ' + (s.form || 'Form: N/A') + '</div></div>' +
+                    badge + '</div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        function selectStudent(adm) {
+            document.getElementById('studentSelect').value = adm;
+            loadStudentForCard();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function generateStudentIDsForAll() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            // Auto-generate IDs for students without one
+            allStudentsData.forEach(function(student) {
+                if (student.adm && !student.qrCode) {
+                    API.generateStudentID(school, student.adm).then(function(result) {
+                        if (result.success) {
+                            console.log('✅ ID generated for:', student.name);
+                            // Update local data
+                            student.qrCode = result.qrCode;
+                        }
+                    }).catch(function() {});
+                    
+                    // Update the list
+                    setTimeout(function() {
+                        renderStudentsList(allStudentsData);
+                    }, 500);
+                }
             });
         }
         
         function loadStudentForCard() {
             var adm = document.getElementById('studentSelect').value;
             if (!adm) return;
+            
             var student = null;
             allStudentsData.forEach(function(s) { if (s.adm === adm) student = s; });
             if (!student) return;
             
-            var now = new Date();
-            var year = now.getFullYear();
-            var month = now.getMonth() + 1;
-            var academicYear = (month >= 9) ? year + '/' + (year + 1) : (year - 1) + '/' + year;
+            var schoolName = getCurrentSchool() || 'SCHOOL NAME';
             
             document.getElementById('editName').value = student.name || '';
             document.getElementById('editAdm').value = student.adm || '';
@@ -508,8 +613,8 @@
             document.getElementById('editDob').value = student.dob || '';
             document.getElementById('editForm').value = student.form || '';
             document.getElementById('editStream').value = student.stream || '';
-            document.getElementById('editAcademicYear').value = academicYear;
             
+            setIssuedDate();
             updateCardFromEditor();
         }
         
@@ -521,7 +626,7 @@
             var dob = document.getElementById('editDob').value || '-';
             var form = document.getElementById('editForm').value || '-';
             var stream = document.getElementById('editStream').value || '-';
-            var academicYear = document.getElementById('editAcademicYear').value || '-';
+            var issuedDate = document.getElementById('editIssuedDate').value || '-';
             
             document.getElementById('cardSchool').textContent = schoolName.toUpperCase();
             document.getElementById('cardName').textContent = name.toUpperCase();
@@ -530,42 +635,32 @@
             document.getElementById('cardDob').textContent = dob;
             document.getElementById('cardForm').textContent = form.toUpperCase();
             document.getElementById('cardStream').textContent = stream.toUpperCase();
-            document.getElementById('cardYear').textContent = academicYear;
+            document.getElementById('cardIssuedDate').textContent = issuedDate;
             document.getElementById('cardPhotoInitials').textContent = getInitials(name);
             document.getElementById('cardSignature').textContent = name;
-            
-            var expiry = new Date();
-            expiry.setFullYear(expiry.getFullYear() + 1);
-            var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-            document.getElementById('cardExpiry').textContent = expiry.getDate() + ' ' + months[expiry.getMonth()] + ' ' + expiry.getFullYear();
         }
         
         function generateQRCode() {
             var name = document.getElementById('editName').value || '';
             var adm = document.getElementById('editAdm').value || '';
-            var studentId = document.getElementById('editStudentId').value || adm;
-            var dob = document.getElementById('editDob').value || '';
-            var form = document.getElementById('editForm').value || '';
-            var stream = document.getElementById('editStream').value || '';
-            var academicYear = document.getElementById('editAcademicYear').value || '';
             var school = getCurrentSchool() || '';
             
-            // Save full data to Firebase
-            if (school && adm) {
-                database.ref('schools/' + school + '/idCardData/' + adm).set({
-                    fullName: name,
-                    admissionNo: adm,
-                    studentIdNo: studentId,
-                    dateOfBirth: dob,
-                    classForm: form,
-                    houseStream: stream,
-                    academicYear: academicYear,
-                    school: school,
-                    updatedAt: new Date().toISOString()
-                }).catch(function() {});
-            }
+            if (!adm) { showNotification('Select a student first', 'warning'); return; }
             
-            // SIMPLE URL format for maximum scannability
+            // Save full data to Firebase
+            database.ref('schools/' + school + '/idCardData/' + adm).set({
+                fullName: name,
+                admissionNo: adm,
+                studentIdNo: document.getElementById('editStudentId').value || adm,
+                dateOfBirth: document.getElementById('editDob').value || '',
+                classForm: document.getElementById('editForm').value || '',
+                houseStream: document.getElementById('editStream').value || '',
+                issuedDate: document.getElementById('editIssuedDate').value || '',
+                school: school,
+                updatedAt: new Date().toISOString()
+            }).catch(function() {});
+            
+            // Simple URL for QR
             var qrData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school);
             currentQRData = qrData;
             
@@ -604,13 +699,6 @@
                 link.href = qrUrl;
                 link.click();
                 showNotification('QR downloaded!', 'success');
-            } else {
-                var qrServerUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(currentQRData);
-                var link = document.createElement('a');
-                link.download = 'qr_code.png';
-                link.href = qrServerUrl;
-                link.target = '_blank';
-                link.click();
             }
         }
         
@@ -637,11 +725,9 @@
                     database.ref('schools/' + school + '/students/' + adm + '/idCardImage').set(imageData)
                         .then(function() { showNotification('Card saved!', 'success'); })
                         .catch(function() { showNotification('Card downloaded!', 'success'); });
-                } else {
-                    showNotification('Card saved!', 'success');
                 }
             }).catch(function() {
-                showNotification('Failed to save. Try again.', 'error');
+                showNotification('Failed to save', 'error');
             });
         }
         
@@ -659,11 +745,11 @@
                     '<style>' +
                     '@page { size: 3.37in 2.125in; margin: 0; }' +
                     'body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Inter, Arial, sans-serif; }' +
-                    '.id-card { width: 3.37in; height: 2.125in; background: #ffffff; color: #1e293b; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #ccc; }' +
+                    '.id-card { width: 3.37in; height: 2.125in; background: #fff; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #ccc; }' +
                     '.card-header { background: #800020; color: #fff; padding: 5px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #d4af37; }' +
-                    '.header-title h3 { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin: 0; letter-spacing: 0.3px; }' +
+                    '.header-title h3 { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin: 0; }' +
                     '.header-title p { font-size: 0.45rem; color: rgba(255,255,255,0.7); margin: 0; }' +
-                    '.card-badge { background: #0b1d3a; color: #d4af37; font-size: 0.4rem; font-weight: 800; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; }' +
+                    '.card-badge { background: #0b1d3a; color: #d4af37; font-size: 0.4rem; font-weight: 800; padding: 2px 5px; border-radius: 3px; }' +
                     '.card-body { padding: 5px 8px; display: grid; grid-template-columns: 65px 1fr auto; gap: 6px; flex: 1; align-items: start; }' +
                     '.photo-box { width: 65px; height: 80px; border-radius: 4px; border: 1.5px solid #d4af37; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; }' +
                     '.photo-box .initials { font-size: 18px; font-weight: 800; color: #334155; }' +
@@ -677,7 +763,7 @@
                     '.qr-code-box canvas, .qr-code-box img { width: 55px !important; height: 55px !important; display: block; }' +
                     '.signature-box { text-align: center; }' +
                     '.signature-line { font-family: "Great Vibes", cursive; font-size: 0.65rem; color: #0f172a; line-height: 1; }' +
-                    '.signature-title { font-size: 0.35rem; color: #64748b; font-weight: 700; text-transform: uppercase; }' +
+                    '.signature-title { font-size: 0.35rem; color: #64748b; text-transform: uppercase; }' +
                     '.card-footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 3px 10px; display: flex; justify-content: space-between; font-size: 0.4rem; font-weight: 700; color: #475569; }' +
                     '@media print { body { padding: 0; margin: 0; } .id-card { border: none; box-shadow: none; } }' +
                     '</style></head><body>' +
@@ -741,6 +827,7 @@
         window.saveCardAsImage = saveCardAsImage;
         window.printCard = printCard;
         window.loadPhoto = loadPhoto;
+        window.selectStudent = selectStudent;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
     </script>

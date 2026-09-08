@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Students | School Resource Management System</title>
-    <meta name="description" content="SRMS Student Management - All students from database and classes">
+    <meta name="description" content="SRMS Student Management - Search and manage all students">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -149,17 +149,15 @@
             font-family: 'Inter', sans-serif; transition: var(--transition);
             display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #e94560, #c62a47); color: #fff;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(233,69,96,0.5); }
-        .btn-secondary {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
-        }
+        .btn-primary { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 10px; font-size: 10px; border-radius: 6px; }
         .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
         .btn-danger:hover { background: rgba(220,53,69,0.4); }
+        .btn-view { background: rgba(23,162,184,0.2); color: #17a2b8; border: 1px solid rgba(23,162,184,0.4); }
+        .btn-view:hover { background: rgba(23,162,184,0.4); }
         
         .stats-row {
             display: grid;
@@ -179,17 +177,23 @@
         
         .search-bar {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; margin-bottom: 15px;
+            padding: 12px 15px; margin-bottom: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
         }
-        .search-bar i { color: rgba(255,255,255,0.5); }
+        .search-bar i { color: rgba(255,255,255,0.5); font-size: 16px; }
         .search-bar input {
             flex: 1; background: none; border: none;
             color: #fff; font-size: 14px; outline: none;
             font-family: 'Inter', sans-serif;
         }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
+        .search-bar .clear-btn {
+            background: none; border: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; font-size: 14px; display: none;
+        }
+        .search-bar .clear-btn:hover { color: #fff; }
         
         .filters { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .filters select {
@@ -218,6 +222,13 @@
             font-size: 12px;
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
+        
+        .source-badge {
+            display: inline-block; padding: 2px 6px; border-radius: 10px;
+            font-size: 8px; font-weight: 700; text-transform: uppercase;
+        }
+        .source-db { background: rgba(23,162,184,0.2); color: #17a2b8; }
+        .source-class { background: rgba(212,175,55,0.2); color: var(--gold); }
         
         .modal {
             display: none; position: fixed; top: 0; left: 0;
@@ -253,13 +264,6 @@
         }
         .empty-state i { font-size: 30px; margin-bottom: 8px; opacity: 0.5; color: var(--accent); }
         
-        .source-badge {
-            display: inline-block; padding: 2px 6px; border-radius: 10px;
-            font-size: 8px; font-weight: 700; text-transform: uppercase;
-        }
-        .source-db { background: rgba(23,162,184,0.2); color: #17a2b8; }
-        .source-class { background: rgba(212,175,55,0.2); color: var(--gold); }
-        
         @media (max-width: 768px) {
             .floating-navbar { padding: 6px 8px; gap: 4px; }
             .classy-btn { padding: 6px 8px; font-size: 9px; }
@@ -284,10 +288,11 @@
         <div class="page-header">
             <div>
                 <h1><i class="fas fa-user-graduate" style="color:var(--accent);"></i> Student Management</h1>
-                <p>Students from database AND class rosters</p>
+                <p>Search, view, and manage all students</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button class="btn btn-secondary" onclick="refreshStudents()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn btn-secondary" onclick="location.href='StudentsIDs.html'"><i class="fas fa-id-card"></i> ID Cards</button>
                 <button class="btn btn-primary" onclick="openModal('addStudentModal')"><i class="fas fa-plus"></i> Add Student</button>
             </div>
         </div>
@@ -301,7 +306,8 @@
         
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchStudents" placeholder="Search by name, ADM, or form..." onkeyup="filterStudents()">
+            <input type="text" id="searchStudents" placeholder="Search by name, ADM number, form, or stream..." onkeyup="filterStudents()">
+            <button class="clear-btn" id="clearSearchBtn" onclick="clearSearch()"><i class="fas fa-times"></i></button>
         </div>
         
         <div class="filters">
@@ -339,6 +345,7 @@
                 <button class="modal-close" onclick="closeModal('addStudentModal')"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="return addStudent(event)">
+                <h4 style="color:var(--accent);margin-bottom:10px;font-size:0.85em;">Basic Information</h4>
                 <div class="form-row">
                     <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" required></div>
                     <div class="form-group"><label>ADM Number *</label><input type="text" id="studentADM" required></div>
@@ -444,12 +451,10 @@
                 studentsFromClasses = [];
                 var seenAdms = {};
                 
-                // Mark DB students
                 studentsFromDB.forEach(function(s) {
                     if (s.adm) seenAdms[s.adm] = true;
                 });
                 
-                // Extract students from classes
                 classes.forEach(function(cls) {
                     (cls.students || []).forEach(function(st) {
                         var adm = st.ADM || st.adm || st["ADM No"] || "";
@@ -458,11 +463,8 @@
                         if (adm && !seenAdms[adm]) {
                             seenAdms[adm] = true;
                             studentsFromClasses.push({
-                                name: name,
-                                adm: adm,
-                                form: cls.name || '',
-                                stream: cls.stream || '',
-                                gender: st.Gender || st.gender || '',
+                                name: name, adm: adm, form: cls.name || '',
+                                stream: cls.stream || '', gender: st.Gender || st.gender || '',
                                 dob: st.DOB || st.dob || '',
                                 parentName: st["Parent Name"] || st.parentName || '',
                                 parentPhone: st["Parent Phone"] || st.parentPhone || '',
@@ -473,7 +475,6 @@
                     });
                 });
                 
-                // Merge all students
                 allStudentsMerged = studentsFromDB.map(function(s) {
                     s.source = 'db';
                     return s;
@@ -493,7 +494,7 @@
             if (!tbody) return;
             
             if (!students || students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-user-graduate"></i><p>No students found</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-search"></i><p>No students found</p></div></td></tr>';
                 return;
             }
             
@@ -510,27 +511,21 @@
                     '<td>' + (s.stream || '-') + '</td>' +
                     '<td>' + (s.gender || '-') + '</td>' +
                     '<td>' + sourceBadge + '</td>' +
-                    '<td><button class="btn btn-sm btn-danger" onclick="deleteStudent(\'' + s.adm + '\')"><i class="fas fa-trash"></i></button></td>' +
+                    '<td><button class="btn btn-sm btn-view" onclick="viewStudent(\'' + s.adm + '\')"><i class="fas fa-eye"></i></button> ' +
+                    '<button class="btn btn-sm btn-danger" onclick="deleteStudent(\'' + s.adm + '\')"><i class="fas fa-trash"></i></button></td>' +
                     '</tr>';
             });
             tbody.innerHTML = html;
         }
         
         function updateStats() {
-            var totalEl = document.getElementById('statTotal');
-            var dbEl = document.getElementById('statFromDB');
-            var classEl = document.getElementById('statFromClasses');
-            var formsEl = document.getElementById('statForms');
-            
-            if (totalEl) totalEl.textContent = allStudentsMerged.length;
-            if (dbEl) dbEl.textContent = studentsFromDB.length;
-            if (classEl) classEl.textContent = studentsFromClasses.length;
+            document.getElementById('statTotal').textContent = allStudentsMerged.length;
+            document.getElementById('statFromDB').textContent = studentsFromDB.length;
+            document.getElementById('statFromClasses').textContent = studentsFromClasses.length;
             
             var forms = {};
-            allStudentsMerged.forEach(function(s) {
-                if (s.form) forms[s.form] = true;
-            });
-            if (formsEl) formsEl.textContent = Object.keys(forms).length;
+            allStudentsMerged.forEach(function(s) { if (s.form) forms[s.form] = true; });
+            document.getElementById('statForms').textContent = Object.keys(forms).length;
         }
         
         function filterStudents() {
@@ -539,9 +534,15 @@
             var streamFilter = document.getElementById('filterStream').value;
             var sourceFilter = document.getElementById('filterSource').value;
             
+            // Show/hide clear button
+            var clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
+            
             var filtered = allStudentsMerged.filter(function(s) {
                 var matchesSearch = (s.name || '').toLowerCase().includes(searchTerm) || 
-                                   (s.adm || '').toLowerCase().includes(searchTerm);
+                                   (s.adm || '').toLowerCase().includes(searchTerm) ||
+                                   (s.form || '').toLowerCase().includes(searchTerm) ||
+                                   (s.stream || '').toLowerCase().includes(searchTerm);
                 var matchesForm = !formFilter || s.form === formFilter;
                 var matchesStream = !streamFilter || s.stream === streamFilter;
                 var matchesSource = true;
@@ -553,6 +554,12 @@
             renderStudents(filtered);
         }
         
+        function clearSearch() {
+            document.getElementById('searchStudents').value = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            filterStudents();
+        }
+        
         function refreshStudents() {
             loadAllStudents();
             showNotification('Students refreshed!', 'success');
@@ -562,7 +569,6 @@
             event.preventDefault();
             var school = getCurrentSchool();
             var user = getCurrentUser();
-            
             var name = document.getElementById('studentName').value.trim();
             var adm = document.getElementById('studentADM').value.trim();
             
@@ -572,8 +578,7 @@
             }
             
             API.addStudent(school, {
-                name: name,
-                adm: adm,
+                name: name, adm: adm,
                 form: document.getElementById('studentForm').value,
                 stream: document.getElementById('studentStream').value,
                 gender: document.getElementById('studentGender').value,
@@ -596,9 +601,37 @@
             return false;
         }
         
+        function viewStudent(adm) {
+            var student = null;
+            allStudentsMerged.forEach(function(s) { if (s.adm === adm) student = s; });
+            if (!student) return;
+            
+            var html = '<div style="background:rgba(212,175,55,0.1);border:1px solid var(--accent);border-radius:12px;padding:20px;">' +
+                '<h4 style="color:var(--accent);margin-bottom:10px;">📋 Student Details</h4>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">' +
+                '<div><strong>Name:</strong></div><div>' + student.name + '</div>' +
+                '<div><strong>ADM:</strong></div><div>' + student.adm + '</div>' +
+                '<div><strong>Form:</strong></div><div>' + (student.form || '-') + '</div>' +
+                '<div><strong>Stream:</strong></div><div>' + (student.stream || '-') + '</div>' +
+                '<div><strong>Gender:</strong></div><div>' + (student.gender || '-') + '</div>' +
+                '<div><strong>Parent:</strong></div><div>' + (student.parentName || '-') + '</div>' +
+                '<div><strong>Phone:</strong></div><div>' + (student.parentPhone || '-') + '</div>' +
+                '</div>' +
+                '<div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">' +
+                '<button class="btn btn-primary btn-sm" onclick="closeModal(\'viewStudentModal\');location.href=\'StudentsIDs.html\'"><i class="fas fa-id-card"></i> Generate ID</button>' +
+                '</div></div>';
+            
+            var modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'viewStudentModal';
+            modal.innerHTML = '<div class="modal-content"><div class="modal-header"><h3>Student Details</h3>' +
+                '<button class="modal-close" onclick="closeModal(\'viewStudentModal\')"><i class="fas fa-times"></i></button></div>' + html + '</div>';
+            document.body.appendChild(modal);
+        }
+        
         function deleteStudent(adm) {
             if (!adm) return;
-            DialogSystem.confirm('Delete this student?', { title: 'Delete Student', type: 'danger', confirmText: 'Delete', cancelText: 'Cancel' }).then(function(confirmed) {
+            DialogSystem.confirm('Delete this student?', { title: 'Delete', type: 'danger', confirmText: 'Delete', cancelText: 'Cancel' }).then(function(confirmed) {
                 if (confirmed !== 'confirm') return;
                 var school = getCurrentSchool();
                 API.deleteStudent(school, adm).then(function() {
@@ -627,7 +660,9 @@
         }
         
         window.filterStudents = filterStudents;
+        window.clearSearch = clearSearch;
         window.refreshStudents = refreshStudents;
+        window.viewStudent = viewStudent;
         window.deleteStudent = deleteStudent;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
