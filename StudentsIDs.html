@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Student ID Cards | School Resource Management System</title>
-    <meta name="description" content="Generate beautiful student ID cards with QR codes">
+    <meta name="description" content="Generate and save student ID cards as images">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Great+Vibes&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -39,26 +40,10 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: 
-                radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(170, 124, 17, 0.06) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, #05070a 100%),
-                linear-gradient(135deg, #090d16 0%, #030407 100%);
-            background-attachment: fixed;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
             color: #ffffff;
             overflow-x: hidden;
             padding-bottom: 120px;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-            opacity: 0.4;
-            z-index: 0;
         }
         
         .taskbar {
@@ -150,8 +135,6 @@
             padding: 75px 20px 20px;
             max-width: 1050px;
             margin: 0 auto;
-            position: relative;
-            z-index: 1;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -171,19 +154,25 @@
         .page-header p { color: rgba(255,255,255,0.6); font-size: 12px; }
         
         .btn {
-            padding: 10px 18px; border: none; border-radius: 8px;
-            font-size: 13px; font-weight: 700; cursor: pointer;
+            padding: 10px 16px; border: none; border-radius: 8px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
             font-family: 'Inter', sans-serif; transition: var(--transition);
             display: inline-flex; align-items: center; gap: 6px;
         }
         .btn-primary {
             background: linear-gradient(135deg, var(--secondary-color), #b89228);
-            color: #0f172a;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            color: #0f172a; font-weight: 800;
             box-shadow: 0 6px 15px rgba(212, 175, 55, 0.25);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-green {
+            background: linear-gradient(135deg, #28a745, #20c997); color: #fff;
+        }
+        .btn-green:hover { transform: translateY(-2px); }
+        .btn-blue {
+            background: linear-gradient(135deg, #17a2b8, #0dcaf0); color: #fff;
+        }
+        .btn-blue:hover { transform: translateY(-2px); }
         
         .app-grid {
             display: grid;
@@ -203,11 +192,8 @@
         }
         
         .panel h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-bottom: 15px;
-            display: flex; align-items: center; gap: 8px;
+            font-size: 1rem; font-weight: 700; color: #f8fafc;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
         }
         
         .form-group { margin-bottom: 12px; }
@@ -218,8 +204,7 @@
         }
         .form-group select, .form-group input {
             width: 100%; padding: 9px 11px;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: #0f172a; border: 1px solid #334155;
             border-radius: 8px; color: #fff;
             font-size: 0.8rem; font-family: 'Inter', sans-serif;
             transition: border 0.3s ease;
@@ -229,7 +214,6 @@
         }
         .form-group select option { background: #1a1f4e; }
         
-        /* ID CARD - Your Exact Design */
         .id-card {
             width: var(--card-width);
             max-width: 100%;
@@ -293,6 +277,20 @@
             gap: 15px;
         }
         
+        .saved-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .saved-card-thumb {
+            border-radius: 8px; overflow: hidden;
+            border: 2px solid var(--secondary-color);
+            cursor: pointer; transition: var(--transition);
+        }
+        .saved-card-thumb:hover { transform: translateY(-3px); }
+        .saved-card-thumb img { width: 100%; height: auto; display: block; }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 6px 8px; gap: 4px; }
             .classy-btn { padding: 6px 8px; font-size: 9px; }
@@ -301,17 +299,6 @@
             .id-card { width: 100%; max-width: 450px; height: auto; min-height: 250px; }
             .card-body { grid-template-columns: 70px 1fr auto; gap: 8px; padding: 8px; }
             .photo-box { width: 70px; height: 90px; }
-            .page-header { flex-direction: column; align-items: stretch; }
-        }
-        
-        @media print {
-            body { background: #fff; padding: 0; }
-            body::before { display: none; }
-            .taskbar, .floating-navbar-container, .panel:first-child, .btn-primary, .page-header { display: none !important; }
-            .main-content { padding: 15px; margin: 0; }
-            .app-grid { display: block; }
-            .panel { border: none; box-shadow: none; padding: 0; background: transparent; backdrop-filter: none; }
-            .id-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -330,9 +317,8 @@
         <div class="page-header">
             <div>
                 <h1><i class="fas fa-id-card"></i> Student ID Cards</h1>
-                <p>Generate beautiful ID cards with rich QR codes</p>
+                <p>Generate, save, and print student ID cards</p>
             </div>
-            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Card</button>
         </div>
         
         <div class="app-grid">
@@ -348,11 +334,17 @@
                     <label>Student Photo (Optional)</label>
                     <input type="file" id="photoUpload" accept="image/*" onchange="loadPhoto(event)">
                 </div>
-                <button class="btn btn-primary" style="width:100%;" onclick="window.print()">
-                    <i class="fas fa-print"></i> Print Student ID Card
+                <button class="btn btn-green" style="width:100%;margin-bottom:8px;" onclick="saveCardAsImage()">
+                    <i class="fas fa-save"></i> Save Card as Image
+                </button>
+                <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="saveCardToDatabase()">
+                    <i class="fas fa-database"></i> Save to Student Record
+                </button>
+                <button class="btn btn-blue" style="width:100%;" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Card
                 </button>
                 <p style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:10px;text-align:center;">
-                    QR encodes: ADM, Name, School, Form, Stream,<br>Parent details, and App URL for scanning
+                    Card is saved as PNG image and stored in Firebase
                 </p>
             </div>
             
@@ -414,6 +406,13 @@
                         <span>SCAN FOR DETAILS</span>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <div class="panel" style="margin-top:20px;">
+            <h3><i class="fas fa-images"></i> Saved ID Cards</h3>
+            <div class="saved-cards-grid" id="savedCardsGrid">
+                <p style="font-size:0.7rem;color:rgba(255,255,255,0.4);">No saved cards yet. Generate and save a card to see it here.</p>
             </div>
         </div>
     </div>
@@ -489,9 +488,11 @@
         var allStudentsData = [];
         var currentStudentData = null;
         var APP_URL = 'https://smrs-eight.vercel.app/students.html';
+        var savedCardImages = [];
         
         document.addEventListener('DOMContentLoaded', function() {
             loadStudentsForSelect();
+            loadSavedCards();
         });
         
         function loadStudentsForSelect() {
@@ -501,7 +502,6 @@
             Promise.all([API.getStudents(school), API.getClasses(school)]).then(function(results) {
                 var students = results[0] || [];
                 var classes = results[1] || [];
-                
                 var allStudents = [];
                 var seenAdms = {};
                 
@@ -522,24 +522,19 @@
                                 name: name, adm: adm, form: c.name,
                                 stream: c.stream || "", gender: st.Gender || st.gender || "",
                                 parentName: st["Parent Name"] || st.parentName || "",
-                                parentPhone: st["Parent Phone"] || st.parentPhone || "",
-                                parentEmail: st["Parent Email"] || st.parentEmail || ""
+                                parentPhone: st["Parent Phone"] || st.parentPhone || ""
                             });
                         }
                     });
                 });
                 
                 allStudentsData = allStudents;
-                
                 var select = document.getElementById('studentSelect');
-                if (!select) return;
                 var html = '<option value="">-- Select a student --</option>';
                 allStudents.forEach(function(s) {
                     html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
                 });
                 select.innerHTML = html;
-            }).catch(function(err) {
-                console.error('Error loading students:', err);
             });
         }
         
@@ -550,11 +545,9 @@
             var student = null;
             allStudentsData.forEach(function(s) { if (s.adm === adm) student = s; });
             if (!student) return;
-            
             currentStudentData = student;
             
             var schoolName = getCurrentSchool() || 'SCHOOL NAME';
-            
             document.getElementById('cardSchool').textContent = schoolName.toUpperCase();
             document.getElementById('cardLocation').textContent = 'School Location';
             document.getElementById('cardName').textContent = student.name.toUpperCase();
@@ -570,67 +563,155 @@
             var expiryDate = new Date();
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
             var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-            var expiryStr = expiryDate.getDate() + ' ' + months[expiryDate.getMonth()] + ' ' + expiryDate.getFullYear();
-            document.getElementById('cardExpiry').textContent = expiryStr;
+            document.getElementById('cardExpiry').textContent = expiryDate.getDate() + ' ' + months[expiryDate.getMonth()] + ' ' + expiryDate.getFullYear();
             
-            // Generate rich QR code after ALL details are set
             generateRichQRCode(student, schoolName);
-            
-            // Fetch additional data (borrowed books, fees) and update QR
-            var school = getCurrentSchool();
-            if (school && student.adm) {
-                Promise.all([API.getBorrowed(school), API.getFees(school)]).then(function(results) {
-                    var borrowed = results[0] || [];
-                    var fees = results[1] || [];
-                    
-                    currentStudentData.borrowedBooks = borrowed.filter(function(b) { return b.adm === student.adm; });
-                    currentStudentData.fees = fees.filter(function(f) { return f.studentAdm === student.adm; });
-                    
-                    generateRichQRCode(student, schoolName);
-                }).catch(function() {});
-            }
         }
         
         function generateRichQRCode(student, schoolName) {
             var container = document.getElementById('qrcode');
             container.innerHTML = '';
-            
             var qrData = {
-                type: 'STUDENT_ID',
-                version: '1.0',
-                adm: student.adm,
-                name: student.name,
-                school: schoolName,
-                form: student.form || '',
-                stream: student.stream || '',
-                gender: student.gender || '',
-                parentName: student.parentName || '',
-                parentPhone: student.parentPhone || '',
-                parentEmail: student.parentEmail || '',
-                appUrl: APP_URL,
+                type: 'STUDENT_ID', adm: student.adm, name: student.name,
+                school: schoolName, form: student.form || '', stream: student.stream || '',
+                gender: student.gender || '', parentName: student.parentName || '',
+                parentPhone: student.parentPhone || '', appUrl: APP_URL,
                 query: '?adm=' + encodeURIComponent(student.adm)
             };
-            
-            var qrString = JSON.stringify(qrData);
-            
             try {
-                qrcodeInstance = new QRCode(container, {
-                    text: qrString,
-                    width: 58,
-                    height: 58,
-                    colorDark: '#0f172a',
-                    colorLight: '#ffffff',
+                new QRCode(container, {
+                    text: JSON.stringify(qrData), width: 58, height: 58,
+                    colorDark: '#0f172a', colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H
                 });
-            } catch(e) {
-                console.error('QR generation error:', e);
+            } catch(e) {}
+        }
+        
+        function saveCardAsImage() {
+            if (!currentStudentData) {
+                showNotification('Select a student first', 'warning');
+                return;
             }
+            
+            var card = document.getElementById('card');
+            
+            html2canvas(card, {
+                scale: 3,
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+                useCORS: true
+            }).then(function(canvas) {
+                var imageData = canvas.toDataURL('image/png');
+                
+                // Download the image
+                var link = document.createElement('a');
+                link.download = currentStudentData.adm + '_id_card.png';
+                link.href = imageData;
+                link.click();
+                
+                // Add to saved cards
+                savedCardImages.push({
+                    adm: currentStudentData.adm,
+                    name: currentStudentData.name,
+                    image: imageData,
+                    savedAt: new Date().toISOString()
+                });
+                
+                renderSavedCards();
+                showNotification('Card saved as image!', 'success');
+            }).catch(function(error) {
+                console.error('Error capturing card:', error);
+                showNotification('Failed to capture card', 'error');
+            });
+        }
+        
+        function saveCardToDatabase() {
+            if (!currentStudentData) {
+                showNotification('Select a student first', 'warning');
+                return;
+            }
+            
+            var school = getCurrentSchool();
+            var card = document.getElementById('card');
+            
+            html2canvas(card, {
+                scale: 3,
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+                useCORS: true
+            }).then(function(canvas) {
+                var imageData = canvas.toDataURL('image/png');
+                
+                // Save to Firebase under student record
+                database.ref('schools/' + school + '/students/' + currentStudentData.adm + '/idCardImage').set(imageData)
+                    .then(function() {
+                        showNotification('Card saved to database!', 'success');
+                        logAction('Student ID Card Saved', currentStudentData.name);
+                    })
+                    .catch(function(error) {
+                        console.error('Save to DB error:', error);
+                        showNotification('Failed to save to database', 'error');
+                    });
+            });
+        }
+        
+        function loadSavedCards() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            database.ref('schools/' + school + '/students').orderByChild('idCardImage').once('value')
+                .then(function(snapshot) {
+                    var students = snapshot.val();
+                    if (!students) return;
+                    
+                    Object.keys(students).forEach(function(adm) {
+                        if (students[adm].idCardImage) {
+                            savedCardImages.push({
+                                adm: adm,
+                                name: students[adm].name,
+                                image: students[adm].idCardImage,
+                                savedAt: students[adm].idCardSavedAt || ''
+                            });
+                        }
+                    });
+                    
+                    renderSavedCards();
+                })
+                .catch(function(error) {
+                    console.error('Load saved cards error:', error);
+                });
+        }
+        
+        function renderSavedCards() {
+            var grid = document.getElementById('savedCardsGrid');
+            if (!grid) return;
+            
+            if (savedCardImages.length === 0) {
+                grid.innerHTML = '<p style="font-size:0.7rem;color:rgba(255,255,255,0.4);">No saved cards yet.</p>';
+                return;
+            }
+            
+            var html = '';
+            savedCardImages.forEach(function(card, index) {
+                html += '<div class="saved-card-thumb" onclick="downloadSavedCard(' + index + ')" title="' + card.name + '">' +
+                    '<img src="' + card.image + '" alt="' + card.name + '">' +
+                    '<p style="font-size:0.55rem;text-align:center;padding:4px;">' + card.name + '</p></div>';
+            });
+            grid.innerHTML = html;
+        }
+        
+        function downloadSavedCard(index) {
+            var card = savedCardImages[index];
+            if (!card) return;
+            var link = document.createElement('a');
+            link.download = card.adm + '_id_card.png';
+            link.href = card.image;
+            link.click();
         }
         
         function resetCard() {
             currentStudentData = null;
             document.getElementById('cardSchool').textContent = 'SCHOOL NAME';
-            document.getElementById('cardLocation').textContent = 'Location';
             document.getElementById('cardName').textContent = 'Student Name';
             document.getElementById('cardId').textContent = 'ADM Number';
             document.getElementById('cardGrade').textContent = 'Form';
@@ -641,17 +722,6 @@
             document.getElementById('cardPhotoInitials').textContent = 'ST';
             document.getElementById('cardSignature').textContent = 'Signature';
             document.getElementById('cardExpiry').textContent = '31 DEC 2026';
-            
-            var container = document.getElementById('qrcode');
-            container.innerHTML = '';
-            try {
-                new QRCode(container, {
-                    text: JSON.stringify({ type: 'STUDENT_ID', adm: 'NONE', appUrl: APP_URL }),
-                    width: 58, height: 58,
-                    colorDark: '#0f172a', colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            } catch(e) {}
         }
         
         function loadPhoto(event) {
@@ -690,10 +760,11 @@
         
         window.loadStudentForCard = loadStudentForCard;
         window.loadPhoto = loadPhoto;
+        window.saveCardAsImage = saveCardAsImage;
+        window.saveCardToDatabase = saveCardToDatabase;
+        window.downloadSavedCard = downloadSavedCard;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
-        
-        resetCard();
     </script>
 </body>
 </html>
