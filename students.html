@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Students | School Resource Management System</title>
-    <meta name="description" content="SRMS Student Management">
+    <meta name="description" content="SRMS Student Management - All students from database and classes">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -264,7 +264,7 @@
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 <button class="btn btn-primary" onclick="openModal('addStudentModal')"><i class="fas fa-plus"></i> Add Student</button>
-                <button class="btn btn-secondary" onclick="location.href='studentsids.html'"><i class="fas fa-id-card"></i> ID Cards</button>
+                <button class="btn btn-secondary" onclick="location.href='StudentsIDs.html'"><i class="fas fa-id-card"></i> ID Cards</button>
             </div>
         </div>
         
@@ -287,7 +287,7 @@
         <div class="table-container">
             <table class="data-table">
                 <thead>
-                    <tr><th>Name</th><th>ADM</th><th>Form</th><th>Stream</th><th>Gender</th><th>QR Code</th><th>Actions</th></tr>
+                    <tr><th>Name</th><th>ADM</th><th>Form</th><th>Stream</th><th>Gender</th><th>Parent Phone</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="studentsTableBody">
                     <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading students...</p></div></td></tr>
@@ -354,7 +354,7 @@
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
+                    <a class="dropdown-item" href="StudentsIDs.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
             
@@ -395,8 +395,12 @@
     <script src="js/app.js"></script>
     
     <script>
+        var allStudentsForFilter = [];
+        
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof loadStudentsData === 'function') loadStudentsData();
+            if (typeof loadStudentsData === 'function') {
+                loadStudentsData();
+            }
         });
         
         function filterStudents() {
@@ -411,10 +415,10 @@
                 var row = rows[i];
                 if (row.cells.length < 7) continue;
                 var text = row.textContent.toLowerCase();
-                var form = row.querySelector('td:nth-child(3)');
-                var stream = row.querySelector('td:nth-child(4)');
-                var formText = form ? form.textContent : '';
-                var streamText = stream ? stream.textContent : '';
+                var formCell = row.querySelector('td:nth-child(3)');
+                var streamCell = row.querySelector('td:nth-child(4)');
+                var formText = formCell ? formCell.textContent : '';
+                var streamText = streamCell ? streamCell.textContent : '';
                 var matchesSearch = text.indexOf(searchTerm) > -1;
                 var matchesForm = !formFilter || formText.indexOf(formFilter) > -1;
                 var matchesStream = !streamFilter || streamText.indexOf(streamFilter) > -1;
