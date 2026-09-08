@@ -4,478 +4,251 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Dashboard | School Resource Management System</title>
-    
     <meta name="description" content="SRMS Dashboard - Manage your school resources">
     <meta name="theme-color" content="#0a0e27">
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- App Styles -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
             --primary: #e94560;
-            --primary-dark: #c62a47;
             --accent: #d4af37;
             --gold: #f0d060;
-            --dark: #0a0e27;
-            --dark-light: #1a1f4e;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
             --transition: all 0.3s ease;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
-            background-attachment: fixed;
             color: #ffffff;
             overflow-x: hidden;
             padding-bottom: 120px;
         }
         
-        /* Taskbar */
         .taskbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            position: fixed; top: 0; left: 0; right: 0;
             height: 65px;
             background: rgba(10, 14, 39, 0.9);
             backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
-        .taskbar-left { display: flex; align-items: center; gap: 15px; }
-        .taskbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #f0d060;
-            font-weight: 900;
-            font-size: 22px;
-            letter-spacing: 1px;
-            text-decoration: none;
-            font-family: 'Cinzel', serif;
-        }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
-        .taskbar-right { display: flex; align-items: center; gap: 8px; }
+        .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #d4af37;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: var(--transition);
-            position: relative;
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--accent); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: var(--transition);
         }
-        .taskbar-icon-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
-        }
+        .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
-        /* Main Content */
+        .floating-navbar-container {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; width: auto; max-width: 95vw;
+        }
+        .floating-navbar {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; padding: 12px 20px;
+            background: rgba(15, 18, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+        }
+        .nav-group { position: relative; display: inline-block; }
+        .classy-btn {
+            font-family: 'Cinzel', serif;
+            font-size: 13px; font-weight: 600;
+            color: #f0e6d2;
+            background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 30px;
+            padding: 10px 18px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            transition: var(--transition);
+        }
+        .classy-btn i { color: var(--accent); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
+        .classy-btn.active {
+            background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+        .btn-badge {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
+            border: 1px solid rgba(212,175,55,0.4);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .message-badge {
+            position: absolute; top: -5px; right: -5px;
+            background: #e94560; color: #fff;
+            border-radius: 50%; width: 20px; height: 20px;
+            display: none; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700;
+            border: 2px solid #0a0e27; z-index: 1200;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+            background: rgba(10, 14, 39, 0.98);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 14px; padding: 10px; min-width: 200px;
+            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        }
+        .dropdown-menu.open { display: block !important; }
+        .nav-group:hover .dropdown-menu { display: block; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
+            transition: var(--transition);
+        }
+        .dropdown-item i { color: var(--accent); width: 20px; }
+        .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
+        .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
+        
         .main-content {
             padding: 85px 25px 25px;
             max-width: 1600px;
             margin: 0 auto;
             animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Welcome Banner */
         .welcome-banner {
             background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(233,69,96,0.15));
             border: 2px solid rgba(212,175,55,0.3);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 20px;
-            text-align: center;
-            backdrop-filter: blur(15px);
-            position: relative;
-            overflow: hidden;
-        }
-        .welcome-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
+            border-radius: 20px; padding: 30px; margin-bottom: 20px;
+            text-align: center; backdrop-filter: blur(15px);
         }
         .welcome-banner h1 {
-            font-size: 2em;
-            font-weight: 900;
-            background: linear-gradient(180deg, #ffffff, #d4af37);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
+            font-size: 2em; font-weight: 900;
+            background: linear-gradient(180deg, #fff, #d4af37);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 10px;
         }
-        .welcome-banner .school-name {
-            font-size: 1.4em;
-            color: #f0d060;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .welcome-banner .user-greeting {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1em;
-        }
-        .welcome-banner .user-greeting i { margin-right: 5px; color: #d4af37; }
+        .welcome-banner .school-name { font-size: 1.4em; color: var(--gold); font-weight: 700; }
+        .welcome-banner .user-greeting { color: rgba(255,255,255,0.8); }
         .welcome-banner .date-display {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 6px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 25px;
-            font-size: 13px;
+            display: inline-block; margin-top: 12px; padding: 6px 16px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 25px; font-size: 13px;
         }
         
-        /* Invite Code Banner */
         .invite-code-banner {
-            background: rgba(212, 175, 55, 0.1);
-            border: 2px dashed rgba(212, 175, 55, 0.4);
-            border-radius: 16px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none;
+            background: rgba(212,175,55,0.1); border: 2px dashed rgba(212,175,55,0.4);
+            border-radius: 16px; padding: 15px; text-align: center;
+            margin-bottom: 20px; display: none;
         }
         .invite-code-banner .code {
-            font-family: 'Courier New', monospace;
-            font-size: 1.8em;
-            font-weight: 800;
-            letter-spacing: 5px;
-            color: #f0d060;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-family: 'Courier New', monospace; font-size: 1.8em;
+            font-weight: 800; letter-spacing: 5px; color: var(--gold);
         }
         
-        /* Stats Grid */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 20px;
         }
         .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
-            cursor: pointer;
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            padding: 20px; position: relative; overflow: hidden;
+            cursor: pointer; transition: var(--transition);
         }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(212, 175, 55, 0.4);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
+        .stat-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.3); }
         .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 3px;
-            height: 100%;
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 3px; height: 100%;
             background: linear-gradient(135deg, #e94560, #c62a47);
         }
         .stat-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 12px;
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 12px;
         }
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: 900;
-            color: #ffffff;
-            margin: 8px 0;
-            line-height: 1;
-        }
-        .stat-label {
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 500;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .stat-value { font-size: 1.8em; font-weight: 900; color: #fff; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
         
-        /* Quick Actions */
         .quick-actions {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
         }
-        .section-title {
-            font-size: 1.1em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-title i { color: #d4af37; }
+        .section-title { font-size: 1.1em; font-weight: 700; margin-bottom: 15px; }
+        .section-title i { color: var(--accent); }
         .quick-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
         }
         .btn-action {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 15px 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #ffffff;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            font-weight: 500;
-            text-decoration: none;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            padding: 15px 10px; background: var(--glass-bg);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            color: #fff; cursor: pointer; transition: var(--transition);
+            font-family: 'Inter', sans-serif; font-size: 11px; text-decoration: none;
         }
-        .btn-action i { font-size: 22px; color: #d4af37; transition: var(--transition); }
-        .btn-action span { font-size: 11px; }
-        .btn-action:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-            border-color: rgba(212, 175, 55, 0.3);
-        }
-        .btn-action:hover i { transform: scale(1.1); }
+        .btn-action i { font-size: 22px; color: var(--accent); }
+        .btn-action:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
         
-        /* Dashboard Grid */
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+            display: grid; grid-template-columns: 2fr 1fr;
+            gap: 15px; margin-bottom: 20px;
         }
         .recent-activity, .quick-stats {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 20px;
         }
         .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: var(--transition);
-            border-radius: 8px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .activity-item:hover { background: rgba(255, 255, 255, 0.03); }
-        .activity-item:last-child { border-bottom: none; }
         .activity-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 13px;
+            width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
         }
-        .activity-details { flex: 1; min-width: 0; }
-        .activity-text { font-size: 12px; font-weight: 500; color: #ffffff; }
-        .activity-time { font-size: 10px; color: rgba(255, 255, 255, 0.4); margin-top: 2px; }
-        
+        .activity-text { font-size: 12px; }
+        .activity-time { font-size: 10px; color: rgba(255,255,255,0.4); }
         .quick-stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; justify-content: space-between; padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .quick-stat-item:last-child { border-bottom: none; }
-        .quick-stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.6); }
-        .quick-stat-value { font-size: 15px; font-weight: 700; color: #d4af37; }
+        .quick-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .quick-stat-value { font-size: 15px; font-weight: 700; color: var(--gold); }
         
         .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: rgba(255, 255, 255, 0.4);
+            text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.4);
         }
-        .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: #d4af37; }
+        .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
-        /* Floating Navbar */
-        .floating-navbar-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            width: auto;
-            max-width: 95vw;
-        }
-        .floating-navbar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 12px 24px;
-            background: rgba(15, 18, 30, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        .nav-group { position: relative; display: inline-block; }
-        .classy-btn {
-            font-family: 'Cinzel', 'Inter', serif;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.8px;
-            color: #f0e6d2;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            background: linear-gradient(135deg, rgba(35, 30, 25, 0.85) 0%, rgba(10, 8, 5, 0.95) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px;
-            padding: 10px 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: var(--transition);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 223, 138, 0.4);
-        }
-        .classy-btn i { color: #d4af37; font-size: 15px; }
-        .classy-btn .fa-chevron-up { font-size: 9px; color: rgba(212, 175, 55, 0.7); }
-        .classy-btn:hover { color: #ffffff; transform: translateY(-2px); border-color: #f0d060; }
-        .classy-btn.active {
-            background: linear-gradient(135deg, rgba(80, 60, 25, 0.9) 0%, rgba(30, 20, 5, 0.95) 100%);
-            border-color: #f0d060;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-        }
-        .btn-badge {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(0,0,0,0.4) 100%);
-            border: 1px solid rgba(212,175,55,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .message-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #e94560;
-            color: #ffffff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            border: 2px solid #0a0e27;
-            z-index: 1200;
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 14, 39, 0.98);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px;
-            padding: 10px;
-            min-width: 200px;
-            z-index: 1200;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-        }
-        .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: var(--transition);
-            font-size: 13px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            width: 100%;
-            background: none;
-            border: none;
-            text-align: left;
-            white-space: nowrap;
-        }
-        .dropdown-item i { font-size: 14px; color: #d4af37; width: 20px; text-align: center; }
-        .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #ffffff; transform: translateX(5px); }
-        .dropdown-divider { height: 1px; background: rgba(255, 255, 255, 0.1); margin: 5px 0; }
-        
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
-            .floating-navbar { padding: 8px 12px; gap: 6px; }
-            .classy-btn { padding: 8px 12px; font-size: 11px; flex-direction: column; gap: 5px; }
-            .classy-btn .fa-chevron-up { display: none; }
+            .floating-navbar { padding: 8px 10px; gap: 4px; }
+            .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
             .welcome-banner h1 { font-size: 1.5em; }
-            .welcome-banner { padding: 20px 15px; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .quick-actions-grid { grid-template-columns: 1fr 1fr; }
             .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
@@ -485,51 +258,33 @@
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
             .quick-actions-grid { grid-template-columns: 1fr; }
-            .taskbar { height: 55px; padding: 0 10px; }
-            .taskbar-logo { font-size: 18px; }
-            .taskbar-icon-btn { width: 35px; height: 35px; }
         }
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
-            <a href="dashboard.html" class="taskbar-logo">
-                <i class="fas fa-school"></i><span>SRMS</span>
-            </a>
+            <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'">
-                <i class="fas fa-image"></i>
-            </button>
-            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <button class="taskbar-icon-btn" title="Wallpaper" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
     
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Welcome Banner -->
         <div class="welcome-banner">
             <h1>Welcome Back!</h1>
             <div class="school-name" id="welcomeSchoolName">School Name</div>
-            <p class="user-greeting">
-                <i class="fas fa-user-circle"></i> 
-                <span id="welcomeUserName">User</span> | 
-                <span id="welcomeUserRole">Role</span>
-            </p>
+            <p class="user-greeting"><i class="fas fa-user-circle"></i> <span id="welcomeUserName">User</span> | <span id="welcomeUserRole">Role</span></p>
             <div class="date-display" id="dateDisplay"></div>
         </div>
         
-        <!-- Invite Code Banner -->
         <div class="invite-code-banner" id="inviteCodeBanner">
-            <p style="margin-bottom:8px;color:rgba(255,255,255,0.7);">School Invite Code</p>
+            <p style="margin-bottom:8px;">School Invite Code</p>
             <div class="code" id="inviteCode">CODE</div>
         </div>
         
-        <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card" onclick="location.href='library.html'">
                 <div class="stat-icon" style="background:rgba(233,69,96,0.15);color:#e94560;"><i class="fas fa-book"></i></div>
@@ -563,7 +318,6 @@
             </div>
         </div>
         
-        <!-- Quick Actions -->
         <div class="quick-actions">
             <div class="section-title"><i class="fas fa-bolt"></i> Quick Actions</div>
             <div class="quick-actions-grid">
@@ -578,44 +332,24 @@
             </div>
         </div>
         
-        <!-- Dashboard Grid -->
         <div class="dashboard-grid">
             <div class="recent-activity">
                 <div class="section-title"><i class="fas fa-history"></i> Recent Activity</div>
                 <div id="recentActivity">
-                    <div class="empty-state">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading activity...</p>
-                    </div>
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading activity...</p></div>
                 </div>
             </div>
             <div class="quick-stats">
                 <div class="section-title"><i class="fas fa-chart-pie"></i> Quick Stats</div>
-                <div class="quick-stat-item">
-                    <span class="quick-stat-label">Return Rate</span>
-                    <span class="quick-stat-value" id="returnRateStat">0%</span>
-                </div>
-                <div class="quick-stat-item">
-                    <span class="quick-stat-label">Teachers</span>
-                    <span class="quick-stat-value" id="totalTeachersStat">0</span>
-                </div>
-                <div class="quick-stat-item">
-                    <span class="quick-stat-label">Classes</span>
-                    <span class="quick-stat-value" id="totalClassesStat">0</span>
-                </div>
-                <div class="quick-stat-item">
-                    <span class="quick-stat-label">Upcoming Events</span>
-                    <span class="quick-stat-value" id="upcomingEventsStat">0</span>
-                </div>
-                <div class="quick-stat-item">
-                    <span class="quick-stat-label">Outstanding Fees</span>
-                    <span class="quick-stat-value" id="outstandingFeesStat">KES 0</span>
-                </div>
+                <div class="quick-stat-item"><span>Return Rate</span><span class="quick-stat-value" id="returnRateStat">0%</span></div>
+                <div class="quick-stat-item"><span>Teachers</span><span class="quick-stat-value" id="totalTeachersStat">0</span></div>
+                <div class="quick-stat-item"><span>Classes</span><span class="quick-stat-value" id="totalClassesStat">0</span></div>
+                <div class="quick-stat-item"><span>Upcoming Events</span><span class="quick-stat-value" id="upcomingEventsStat">0</span></div>
+                <div class="quick-stat-item"><span>Outstanding Fees</span><span class="quick-stat-value" id="outstandingFeesStat">KES 0</span></div>
             </div>
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn active" onclick="location.href='dashboard.html'">
@@ -648,7 +382,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Comms <i class="fas fa-chevron-up"></i>
                     <span class="message-badge" id="communicationBadge">0</span>
                 </button>
                 <div class="dropdown-menu">
@@ -677,40 +411,16 @@
         </div>
     </div>
     
-    <!-- Scripts -->
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/wallpaper-loader.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Dashboard page loaded');
-            
-            // Check auth
-            var user = checkAuth();
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Load dashboard data
-            if (typeof loadDashboardData === 'function') {
-                setTimeout(loadDashboardData, 300);
-            } else {
-                console.error('❌ loadDashboardData not found');
-            }
-        });
-        
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', {
-                    title: 'Logout',
-                    type: 'info',
-                    confirmText: 'Logout',
-                    cancelText: 'Cancel'
-                }).then(function(result) {
+                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
             } else {
@@ -723,6 +433,15 @@
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = checkAuth();
+            if (!user) return;
+            
+            if (typeof loadDashboardData === 'function') {
+                setTimeout(loadDashboardData, 300);
+            }
+        });
         
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
