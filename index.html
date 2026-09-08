@@ -8,12 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs - MUST be before any other scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/components.css">
     
     <style>
         :root {
@@ -172,49 +169,27 @@
         }
         .login-footer a:hover { color: #f0d060; }
         
-        .error-message {
+        .message {
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 13px;
+            align-items: center;
+            gap: 10px;
+        }
+        .message.error {
             background: rgba(220, 53, 69, 0.15);
             border: 1px solid rgba(220, 53, 69, 0.3);
             color: #ff4757;
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: none;
-            font-size: 13px;
-            align-items: center;
-            gap: 10px;
+            display: flex;
         }
-        .error-message.show { display: flex; }
-        .error-message i { font-size: 18px; }
-        
-        .success-message {
+        .message.success {
             background: rgba(40, 167, 69, 0.15);
             border: 1px solid rgba(40, 167, 69, 0.3);
             color: #34ce57;
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: none;
-            font-size: 13px;
-            align-items: center;
-            gap: 10px;
-        }
-        .success-message.show { display: flex; }
-        
-        .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 14px;
-            z-index: 10;
             display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
         }
-        .back-link:hover { color: #d4af37; }
         
         @media (max-width: 480px) {
             .login-container { padding: 25px 20px; }
@@ -227,8 +202,6 @@
 </head>
 <body>
 
-    <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
-
     <div class="particles" id="particles"></div>
 
     <div class="login-container" id="loginContainer">
@@ -238,51 +211,132 @@
             <p>School Resource Management System</p>
         </div>
 
-        <div id="errorMessage" class="error-message">
+        <div id="errorMessage" class="message error">
             <i class="fas fa-exclamation-circle"></i>
-            <span id="errorText">Invalid credentials</span>
+            <span id="errorText">Error</span>
         </div>
         
-        <div id="successMessage" class="success-message">
+        <div id="successMessage" class="message success">
             <i class="fas fa-check-circle"></i>
             <span id="successText">Success!</span>
         </div>
 
-        <form onsubmit="return handleLogin(event)" id="loginForm">
-            <div class="form-group">
-                <label><i class="fas fa-school"></i> School Name</label>
-                <input type="text" id="schoolName" placeholder="Enter school name" required autocomplete="off">
+        <!-- Login Form -->
+        <div id="loginFormDiv">
+            <form onsubmit="return handleLogin(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-school"></i> School Name</label>
+                    <input type="text" id="schoolName" placeholder="Enter school name" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="email" placeholder="Enter email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+            <div class="login-footer">
+                <a onclick="showCreateSchoolForm()"><i class="fas fa-plus-circle"></i> Create School</a>
+                <a onclick="showSignupForm()"><i class="fas fa-user-plus"></i> Sign Up</a>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="email" placeholder="Enter email" required autocomplete="email">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
-            </div>
-            <button type="submit" class="btn-login" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-        </form>
+        </div>
 
-        <div class="login-footer">
-            <a onclick="showCreateSchoolForm(event)"><i class="fas fa-plus-circle"></i> Create School</a>
-            <a onclick="showSignupForm(event)"><i class="fas fa-user-plus"></i> Sign Up</a>
+        <!-- Create School Form -->
+        <div id="createSchoolFormDiv" style="display:none;">
+            <form onsubmit="return handleCreateSchool(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-school"></i> School Name</label>
+                    <input type="text" id="createSchoolName" placeholder="Enter school name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Admin Name</label>
+                    <input type="text" id="createAdminName" placeholder="Enter admin name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Admin Email</label>
+                    <input type="email" id="createAdminEmail" placeholder="Enter admin email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password (min 8 chars)</label>
+                    <input type="password" id="createPassword" placeholder="Enter password" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Confirm Password</label>
+                    <input type="password" id="createConfirmPassword" placeholder="Confirm password" required>
+                </div>
+                <button type="submit" class="btn-login" id="createSchoolBtn">
+                    <i class="fas fa-plus-circle"></i> Create School
+                </button>
+            </form>
+            <div class="login-footer">
+                <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupFormDiv" style="display:none;">
+            <form onsubmit="return handleSignup(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-school"></i> School Name</label>
+                    <input type="text" id="signupSchoolName" placeholder="Enter school name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" id="signupName" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> Invite Code</label>
+                    <input type="text" id="signupInviteCode" placeholder="Enter invite code" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password (min 6 chars)</label>
+                    <input type="password" id="signupPassword" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+            </form>
+            <div class="login-footer">
+                <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
+            </div>
         </div>
     </div>
 
-    <!-- Load scripts in correct order -->
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/auth.js"></script>
-
     <script>
+        // ============ FIREBASE INITIALIZATION ============
+        var firebaseConfig = {
+            apiKey: "AIzaSyACefHWvbETo2siNZy4ETCWZVTwIrtaNMs",
+            authDomain: "srms-fd318.firebaseapp.com",
+            databaseURL: "https://srms-fd318-default-rtdb.firebaseio.com",
+            projectId: "srms-fd318",
+            storageBucket: "srms-fd318.firebasestorage.app",
+            messagingSenderId: "828888967437",
+            appId: "1:828888967437:web:90461f6b1bc79854ea6844",
+        };
+
+        var database;
+
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            database = firebase.database();
+            console.log('✅ Firebase initialized in index.html');
+        } catch (error) {
+            console.error('❌ Firebase init error:', error);
+        }
+
         // ============ PARTICLES ============
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("✅ DOM loaded - Index page");
-            
             var container = document.getElementById('particles');
             for (var i = 0; i < 30; i++) {
                 var particle = document.createElement('div');
@@ -294,171 +348,274 @@
                 particle.style.animationDuration = Math.random() * 10 + 10 + 's';
                 container.appendChild(particle);
             }
-            
-            // Check if Firebase is loaded
-            if (typeof firebase !== 'undefined' && firebase.apps.length) {
-                console.log("✅ Firebase is initialized");
-            } else {
-                console.error("❌ Firebase NOT initialized!");
-            }
-            
-            // Check if API is loaded
-            if (typeof API !== 'undefined') {
-                console.log("✅ API object loaded");
-                if (typeof API.testConnection === 'function') {
-                    console.log("✅ testConnection function available");
-                }
-            } else {
-                console.error("❌ API object NOT loaded!");
-            }
         });
 
-        // ============ FORM FUNCTIONS ============
-        function showCreateSchoolForm(event) {
-            if (event) event.preventDefault();
-            console.log("🔄 Switching to Create School form");
-            
-            var container = document.getElementById('loginContainer');
-            container.innerHTML = `
-                <div class="login-logo">
-                    <div class="logo-icon"><i class="fas fa-plus-circle"></i></div>
-                    <h1>Create School</h1>
-                    <p>Register your school</p>
-                </div>
-                <div id="errorMessage" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="errorText"></span>
-                </div>
-                <div id="successMessage" class="success-message">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="successText"></span>
-                </div>
-                <form onsubmit="return handleCreateSchool(event)">
-                    <div class="form-group">
-                        <label><i class="fas fa-school"></i> School Name</label>
-                        <input type="text" id="createSchoolName" placeholder="Enter school name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Admin Name</label>
-                        <input type="text" id="createAdminName" placeholder="Enter admin name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Admin Email</label>
-                        <input type="email" id="createAdminEmail" placeholder="Enter admin email" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password (min 8 chars)</label>
-                        <input type="password" id="createPassword" placeholder="Enter password" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Confirm Password</label>
-                        <input type="password" id="createConfirmPassword" placeholder="Confirm password" required>
-                    </div>
-                    <button type="submit" class="btn-login" id="createSchoolBtn">
-                        <i class="fas fa-plus-circle"></i> Create School
-                    </button>
-                </form>
-                <div class="login-footer">
-                    <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
-                </div>
-            `;
+        // ============ HELPERS ============
+        function generateInviteCode() {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var code = "";
+            for (var i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
         }
 
-        function showSignupForm(event) {
-            if (event) event.preventDefault();
-            console.log("🔄 Switching to Signup form");
-            
-            var container = document.getElementById('loginContainer');
-            container.innerHTML = `
-                <div class="login-logo">
-                    <div class="logo-icon"><i class="fas fa-user-plus"></i></div>
-                    <h1>Sign Up</h1>
-                    <p>Create your staff account</p>
-                </div>
-                <div id="errorMessage" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="errorText"></span>
-                </div>
-                <div id="successMessage" class="success-message">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="successText"></span>
-                </div>
-                <form onsubmit="return handleSignup(event)">
-                    <div class="form-group">
-                        <label><i class="fas fa-school"></i> School Name</label>
-                        <input type="text" id="signupSchoolName" placeholder="Enter school name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" id="signupName" placeholder="Enter full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="signupEmail" placeholder="Enter email" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-key"></i> Invite Code</label>
-                        <input type="text" id="signupInviteCode" placeholder="Enter invite code" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password (min 6 chars)</label>
-                        <input type="password" id="signupPassword" placeholder="Enter password" required>
-                    </div>
-                    <button type="submit" class="btn-login">
-                        <i class="fas fa-user-plus"></i> Sign Up
-                    </button>
-                </form>
-                <div class="login-footer">
-                    <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
-                </div>
-            `;
-        }
-
-        function showLoginForm() {
-            console.log("🔄 Reloading login form");
-            window.location.reload();
+        function hashPassword(password) {
+            var hash = 0;
+            for (var i = 0; i < password.length; i++) {
+                var char = password.charCodeAt(i);
+                hash = (hash << 5) - hash + char;
+                hash = hash & hash;
+            }
+            return hash.toString();
         }
 
         function showError(message) {
-            console.error("❌ Error:", message);
-            var errorMessage = document.getElementById('errorMessage');
-            var errorText = document.getElementById('errorText');
-            if (errorMessage && errorText) {
-                errorText.textContent = message;
-                errorMessage.classList.add('show');
-                setTimeout(function() {
-                    errorMessage.classList.remove('show');
-                }, 5000);
-            } else {
-                alert(message);
-            }
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'flex';
+            document.getElementById('successMessage').style.display = 'none';
+            setTimeout(function() {
+                document.getElementById('errorMessage').style.display = 'none';
+            }, 5000);
         }
 
         function showSuccess(message) {
-            console.log("✅ Success:", message);
-            var successMessage = document.getElementById('successMessage');
-            var successText = document.getElementById('successText');
-            if (successMessage && successText) {
-                successText.textContent = message;
-                successMessage.classList.add('show');
-                setTimeout(function() {
-                    successMessage.classList.remove('show');
-                }, 5000);
+            document.getElementById('successText').textContent = message;
+            document.getElementById('successMessage').style.display = 'flex';
+            document.getElementById('errorMessage').style.display = 'none';
+            setTimeout(function() {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 5000);
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginFormDiv').style.display = 'block';
+            document.getElementById('createSchoolFormDiv').style.display = 'none';
+            document.getElementById('signupFormDiv').style.display = 'none';
+        }
+
+        function showCreateSchoolForm() {
+            document.getElementById('loginFormDiv').style.display = 'none';
+            document.getElementById('createSchoolFormDiv').style.display = 'block';
+            document.getElementById('signupFormDiv').style.display = 'none';
+        }
+
+        function showSignupForm() {
+            document.getElementById('loginFormDiv').style.display = 'none';
+            document.getElementById('createSchoolFormDiv').style.display = 'none';
+            document.getElementById('signupFormDiv').style.display = 'block';
+        }
+
+        // ============ HANDLE CREATE SCHOOL ============
+        function handleCreateSchool(event) {
+            event.preventDefault();
+            console.log('🔄 Creating school...');
+            
+            var schoolName = document.getElementById('createSchoolName').value.trim();
+            var adminName = document.getElementById('createAdminName').value.trim();
+            var adminEmail = document.getElementById('createAdminEmail').value.trim();
+            var password = document.getElementById('createPassword').value;
+            var confirmPassword = document.getElementById('createConfirmPassword').value;
+
+            if (!schoolName || !adminName || !adminEmail || !password) {
+                showError('Please fill in all fields');
+                return false;
             }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return false;
+            }
+
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters');
+                return false;
+            }
+
+            var btn = document.getElementById('createSchoolBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            btn.disabled = true;
+
+            var inviteCode = generateInviteCode();
+            var emailKey = adminEmail.replace(/\./g, ',');
+
+            var updates = {};
+            updates['schools/' + schoolName] = {
+                name: schoolName,
+                adminName: adminName,
+                adminEmail: adminEmail,
+                inviteCode: inviteCode,
+                motto: '',
+                createdAt: new Date().toISOString(),
+                isActive: true
+            };
+            updates['schools/' + schoolName + '/settings'] = {
+                maxBorrowDays: 14,
+                maxBooksPerStudent: 3,
+                finePerDay: 10
+            };
+            updates['schools/' + schoolName + '/users/' + emailKey] = {
+                name: adminName,
+                email: adminEmail,
+                role: 'admin',
+                staffId: 'ADMIN-001',
+                password: hashPassword(password),
+                createdAt: new Date().toISOString(),
+                isActive: true
+            };
+
+            database.ref().update(updates).then(function() {
+                console.log('✅ School created successfully!');
+                console.log('📝 School:', schoolName);
+                console.log('📝 Invite Code:', inviteCode);
+                
+                btn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
+                btn.disabled = false;
+                
+                showSuccess('School created successfully!');
+                
+                // Show dialog with invite code
+                alert('✅ School Created Successfully!\n\nSchool: ' + schoolName + '\nInvite Code: ' + inviteCode + '\n\nPlease save this invite code. You can now login.');
+                
+                // Reset form
+                document.getElementById('createSchoolName').value = '';
+                document.getElementById('createAdminName').value = '';
+                document.getElementById('createAdminEmail').value = '';
+                document.getElementById('createPassword').value = '';
+                document.getElementById('createConfirmPassword').value = '';
+                
+                // Switch to login form with pre-filled values
+                showLoginForm();
+                document.getElementById('schoolName').value = schoolName;
+                document.getElementById('email').value = adminEmail;
+            }).catch(function(error) {
+                console.error('❌ Create school error:', error);
+                btn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
+                btn.disabled = false;
+                showError('Error: ' + error.message);
+            });
+            
+            return false;
         }
 
-        function hideError() {
-            var errorMessage = document.getElementById('errorMessage');
-            if (errorMessage) errorMessage.classList.remove('show');
+        // ============ HANDLE LOGIN ============
+        function handleLogin(event) {
+            event.preventDefault();
+            console.log('🔄 Logging in...');
+            
+            var schoolName = document.getElementById('schoolName').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+
+            if (!schoolName || !email || !password) {
+                showError('Please fill in all fields');
+                return false;
+            }
+
+            var btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            btn.disabled = true;
+
+            var emailKey = email.replace(/\./g, ',');
+
+            database.ref('schools/' + schoolName + '/users/' + emailKey).once('value').then(function(snapshot) {
+                var user = snapshot.val();
+                console.log('📝 User found:', user ? 'Yes' : 'No');
+                
+                if (user && user.password === hashPassword(password) && user.isActive !== false) {
+                    console.log('✅ Login successful!');
+                    
+                    localStorage.setItem('srms_user', JSON.stringify({
+                        name: user.name,
+                        email: user.email,
+                        role: user.role,
+                        staffId: user.staffId
+                    }));
+                    localStorage.setItem('srms_school', schoolName);
+                    
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(function() {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    showError('Invalid credentials');
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                    btn.disabled = false;
+                }
+            }).catch(function(error) {
+                console.error('❌ Login error:', error);
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                btn.disabled = false;
+                showError('Error: ' + error.message);
+            });
+            
+            return false;
         }
 
-        // Expose functions globally
+        // ============ HANDLE SIGNUP ============
+        function handleSignup(event) {
+            event.preventDefault();
+            console.log('🔄 Signing up...');
+            
+            var schoolName = document.getElementById('signupSchoolName').value.trim();
+            var name = document.getElementById('signupName').value.trim();
+            var email = document.getElementById('signupEmail').value.trim();
+            var password = document.getElementById('signupPassword').value;
+            var inviteCode = document.getElementById('signupInviteCode').value.trim();
+
+            if (!schoolName || !name || !email || !password || !inviteCode) {
+                showError('Please fill in all fields');
+                return false;
+            }
+
+            // First verify invite code
+            database.ref('schools/' + schoolName).once('value').then(function(snapshot) {
+                var school = snapshot.val();
+                if (!school) {
+                    showError('School not found');
+                    return;
+                }
+                
+                if (school.inviteCode !== inviteCode) {
+                    showError('Invalid invite code');
+                    return;
+                }
+                
+                var emailKey = email.replace(/\./g, ',');
+                var updates = {};
+                updates['schools/' + schoolName + '/users/' + emailKey] = {
+                    name: name,
+                    email: email,
+                    role: 'teacher',
+                    password: hashPassword(password),
+                    createdAt: new Date().toISOString(),
+                    isActive: true
+                };
+                
+                return database.ref().update(updates);
+            }).then(function() {
+                console.log('✅ Signup successful!');
+                showSuccess('Account created! Please login.');
+                setTimeout(function() {
+                    showLoginForm();
+                    document.getElementById('schoolName').value = schoolName;
+                    document.getElementById('email').value = email;
+                }, 1500);
+            }).catch(function(error) {
+                console.error('❌ Signup error:', error);
+                showError('Error: ' + error.message);
+            });
+            
+            return false;
+        }
+
+        // Expose functions
+        window.showLoginForm = showLoginForm;
         window.showCreateSchoolForm = showCreateSchoolForm;
         window.showSignupForm = showSignupForm;
-        window.showLoginForm = showLoginForm;
-        window.showError = showError;
-        window.showSuccess = showSuccess;
-        window.hideError = hideError;
+        window.handleLogin = handleLogin;
+        window.handleCreateSchool = handleCreateSchool;
+        window.handleSignup = handleSignup;
     </script>
 
 </body>
