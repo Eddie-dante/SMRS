@@ -28,10 +28,6 @@
             --gold: #f0d060;
             --dark: #0a0e27;
             --dark-light: #1a1f4e;
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
             --transition: all 0.3s ease;
@@ -47,38 +43,10 @@
             justify-content: center;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
             background-attachment: fixed;
-            position: relative;
-            overflow: hidden;
             padding: 20px;
         }
         
-        /* Animated Particles Background */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .particle {
-            position: absolute;
-            background: rgba(212, 175, 55, 0.15);
-            border-radius: 50%;
-            animation: floatAnimation 15s infinite ease-in-out;
-        }
-        @keyframes floatAnimation {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-50px) rotate(90deg); }
-            50% { transform: translateY(-100px) rotate(180deg); }
-            75% { transform: translateY(-50px) rotate(270deg); }
-        }
-        
-        /* Main Container */
         .auth-container {
-            position: relative;
-            z-index: 1;
             width: 100%;
             max-width: 440px;
             background: var(--glass-bg);
@@ -95,7 +63,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Logo Section */
         .auth-logo { text-align: center; margin-bottom: 30px; }
         .auth-logo .logo-icon {
             width: 80px;
@@ -106,15 +73,9 @@
             align-items: center;
             justify-content: center;
             font-size: 35px;
-            font-weight: 900;
             color: #0a0e27;
             margin: 0 auto 15px;
             box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
-            animation: logoPulse 2s infinite;
-        }
-        @keyframes logoPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
         .auth-logo h1 {
             font-size: 28px;
@@ -132,7 +93,6 @@
             margin-top: 5px;
         }
         
-        /* Form Elements */
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label {
             display: block;
@@ -161,7 +121,6 @@
         }
         .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
         
-        /* Buttons */
         .btn {
             width: 100%;
             padding: 14px;
@@ -187,10 +146,8 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
         }
-        .btn-primary:active { transform: scale(0.98); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
-        /* Links */
         .auth-links {
             text-align: center;
             margin-top: 20px;
@@ -207,7 +164,6 @@
         }
         .auth-links a:hover { color: var(--gold); }
         
-        /* Messages */
         .message {
             padding: 12px 15px;
             border-radius: 10px;
@@ -216,7 +172,6 @@
             font-size: 13px;
             align-items: center;
             gap: 10px;
-            animation: fadeIn 0.3s ease;
         }
         .message.show { display: flex; }
         .message.error {
@@ -229,36 +184,7 @@
             border: 1px solid rgba(40, 167, 69, 0.3);
             color: #34ce57;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
         
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 12px;
-            color: #fff;
-            z-index: 9999;
-            max-width: 350px;
-            font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-        }
-        .toast.show { transform: translateX(0); }
-        .toast.success { background: linear-gradient(135deg, #28a745, #20c997); }
-        .toast.error { background: linear-gradient(135deg, #dc3545, #ff4757); }
-        .toast.warning { background: linear-gradient(135deg, #ffc107, #ff9800); color: #0a0e27; }
-        .toast.info { background: linear-gradient(135deg, #17a2b8, #0dcaf0); }
-        
-        /* Divider */
         .divider {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin: 20px 0;
@@ -276,7 +202,6 @@
             color: rgba(255, 255, 255, 0.4);
         }
         
-        /* Back Link */
         .back-link {
             position: fixed;
             top: 20px;
@@ -292,11 +217,9 @@
             background: rgba(255,255,255,0.05);
             padding: 8px 15px;
             border-radius: 8px;
-            backdrop-filter: blur(10px);
         }
         .back-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); }
         
-        /* Responsive */
         @media (max-width: 480px) {
             .auth-container { padding: 25px 20px; }
             .auth-logo .logo-icon { width: 60px; height: 60px; font-size: 26px; }
@@ -310,9 +233,6 @@
 <body>
     <!-- Back to Landing -->
     <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
-    
-    <!-- Particles -->
-    <div class="particles" id="particles"></div>
     
     <!-- Auth Container -->
     <div class="auth-container">
@@ -330,17 +250,17 @@
         <div id="loginFormDiv">
             <div class="form-group">
                 <label><i class="fas fa-school"></i> School Name</label>
-                <input type="text" id="loginSchool" placeholder="Enter school name" autocomplete="off">
+                <input type="text" id="schoolName" placeholder="Enter school name" autocomplete="off">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="email">
+                <input type="email" id="email" placeholder="Enter your email" autocomplete="email">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
             </div>
-            <button type="button" class="btn btn-primary" onclick="doLogin()">
+            <button type="button" class="btn btn-primary" id="loginBtn" onclick="handleLogin()">
                 <i class="fas fa-sign-in-alt"></i> Login
             </button>
             
@@ -374,7 +294,7 @@
                 <label><i class="fas fa-lock"></i> Confirm Password</label>
                 <input type="password" id="createConfirmPassword" placeholder="Confirm your password" autocomplete="new-password">
             </div>
-            <button type="button" class="btn btn-primary" id="createSchoolBtn" onclick="doCreateSchool()">
+            <button type="button" class="btn btn-primary" id="createSchoolBtn" onclick="handleCreateSchool()">
                 <i class="fas fa-plus-circle"></i> Create School
             </button>
             
@@ -386,96 +306,11 @@
         </div>
     </div>
 
+    <!-- Load JS files -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/utils.js"></script>
+
     <script>
-        // ============ FIREBASE CONFIGURATION ============
-        var firebaseConfig = {
-            apiKey: "AIzaSyACefHWvbETo2siNZy4ETCWZVTwIrtaNMs",
-            authDomain: "srms-fd318.firebaseapp.com",
-            databaseURL: "https://srms-fd318-default-rtdb.firebaseio.com",
-            projectId: "srms-fd318",
-            storageBucket: "srms-fd318.firebasestorage.app",
-            messagingSenderId: "828888967437",
-            appId: "1:828888967437:web:90461f6b1bc79854ea6844"
-        };
-
-        var database;
-        var isSubmitting = false;
-
-        // ============ INITIALIZE FIREBASE ============
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            database = firebase.database();
-            console.log('✅ Firebase initialized successfully');
-        } catch (error) {
-            console.error('❌ Firebase initialization error:', error);
-            showToast('Failed to connect to database', 'error');
-        }
-
-        // ============ UTILITY FUNCTIONS ============
-        function generateInviteCode() {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var code = "";
-            for (var i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
-        function hashPassword(password) {
-            var hash = 0;
-            for (var i = 0; i < password.length; i++) {
-                var char = password.charCodeAt(i);
-                hash = (hash << 5) - hash + char;
-                hash = hash & hash;
-            }
-            return hash.toString();
-        }
-
-        function validateEmail(email) {
-            var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            return pattern.test(email);
-        }
-
-        function showMessage(text, type) {
-            var msg = document.getElementById('message');
-            msg.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
-            msg.className = 'message show ' + type;
-            setTimeout(function() {
-                msg.className = 'message';
-            }, 5000);
-        }
-
-        function showToast(text, type) {
-            var existingToast = document.querySelector('.toast');
-            if (existingToast) existingToast.remove();
-            
-            var toast = document.createElement('div');
-            toast.className = 'toast ' + type;
-            toast.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'check-circle') + '"></i> ' + text;
-            document.body.appendChild(toast);
-            
-            setTimeout(function() { toast.classList.add('show'); }, 100);
-            setTimeout(function() {
-                toast.classList.remove('show');
-                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
-            }, 3000);
-        }
-
-        function setLoading(buttonId, loading, loadingText) {
-            var btn = document.getElementById(buttonId);
-            if (btn) {
-                if (loading) {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + loadingText;
-                } else {
-                    btn.disabled = false;
-                    btn.innerHTML = btn.getAttribute('data-original-text') || btn.textContent;
-                }
-            }
-        }
-
         // ============ FORM NAVIGATION ============
         function showLoginForm() {
             document.getElementById('loginFormDiv').style.display = 'block';
@@ -489,174 +324,155 @@
             document.getElementById('message').className = 'message';
         }
 
-        // ============ LOGIN ============
-        function doLogin() {
-            if (isSubmitting) return;
-            
-            var school = document.getElementById('loginSchool').value.trim();
-            var email = document.getElementById('loginEmail').value.trim();
-            var password = document.getElementById('loginPassword').value;
+        // ============ MESSAGE ============
+        function showMessage(text, type) {
+            var msg = document.getElementById('message');
+            msg.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
+            msg.className = 'message show ' + type;
+            setTimeout(function() {
+                msg.className = 'message';
+            }, 5000);
+        }
 
-            if (!school || !email || !password) {
+        // ============ TOAST ============
+        function showToast(text, type) {
+            var existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+            
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:12px;color:#fff;z-index:9999;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform 0.3s ease;';
+            
+            var colors = { success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8' };
+            toast.style.background = colors[type] || colors.info;
+            toast.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
+            document.body.appendChild(toast);
+            
+            setTimeout(function() { toast.style.transform = 'translateX(0)'; }, 100);
+            setTimeout(function() {
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
+            }, 3000);
+        }
+
+        // ============ LOGIN ============
+        function handleLogin() {
+            console.log('🔄 Login attempt');
+            
+            var schoolName = document.getElementById('schoolName').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+            
+            if (!schoolName || !email || !password) {
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
-
-            if (!validateEmail(email)) {
-                showMessage('Please enter a valid email address', 'error');
-                return;
-            }
-
-            isSubmitting = true;
-            var loginBtn = event.target;
             
-            var emailKey = email.replace(/\./g, ',');
-
-            database.ref('schools/' + school + '/users/' + emailKey).once('value')
-                .then(function(snapshot) {
-                    var user = snapshot.val();
-                    
-                    if (user && user.password === hashPassword(password) && user.isActive !== false) {
-                        // Save session
-                        localStorage.setItem('srms_user', JSON.stringify({
-                            name: user.name,
-                            email: user.email,
-                            role: user.role,
-                            staffId: user.staffId || ''
-                        }));
-                        localStorage.setItem('srms_school', school);
-                        
+            var loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            
+            // Use the API from api.js
+            API.login(schoolName, email, password)
+                .then(function(result) {
+                    if (result.success) {
                         showToast('Login successful! Redirecting...', 'success');
-                        
                         setTimeout(function() {
                             window.location.href = 'dashboard.html';
                         }, 800);
                     } else {
-                        showMessage('Invalid school, email, or password', 'error');
-                        isSubmitting = false;
+                        showMessage(result.error || 'Invalid credentials', 'error');
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
                     }
                 })
                 .catch(function(error) {
                     console.error('Login error:', error);
                     showMessage('Login failed: ' + error.message, 'error');
-                    isSubmitting = false;
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
                 });
         }
 
         // ============ CREATE SCHOOL ============
-        function doCreateSchool() {
-            if (isSubmitting) return;
+        function handleCreateSchool() {
+            console.log('🔄 Create School attempt');
             
             var schoolName = document.getElementById('createSchoolName').value.trim();
             var adminName = document.getElementById('createAdminName').value.trim();
             var adminEmail = document.getElementById('createAdminEmail').value.trim();
             var password = document.getElementById('createPassword').value;
             var confirmPassword = document.getElementById('createConfirmPassword').value;
-
+            
             // Validation
             if (!schoolName || !adminName || !adminEmail || !password) {
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
-
-            if (!validateEmail(adminEmail)) {
+            
+            var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(adminEmail)) {
                 showMessage('Please enter a valid email address', 'error');
                 return;
             }
-
+            
             if (password.length < 8) {
                 showMessage('Password must be at least 8 characters', 'error');
                 return;
             }
-
+            
             if (password !== confirmPassword) {
                 showMessage('Passwords do not match', 'error');
                 return;
             }
-
-            isSubmitting = true;
-            var btn = document.getElementById('createSchoolBtn');
-            var originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating School...';
-
-            var inviteCode = generateInviteCode();
-            var emailKey = adminEmail.replace(/\./g, ',');
-
-            // Check if school already exists
-            database.ref('schools/' + schoolName).once('value')
-                .then(function(snapshot) {
-                    if (snapshot.exists()) {
-                        throw new Error('School name already exists');
-                    }
+            
+            var createBtn = document.getElementById('createSchoolBtn');
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating School...';
+            
+            // Use the API from api.js
+            API.createSchool({
+                name: schoolName,
+                adminName: adminName,
+                adminEmail: adminEmail,
+                password: password
+            }).then(function(result) {
+                if (result.success) {
+                    console.log('✅ School created:', schoolName);
                     
-                    // Step 1: Create school record
-                    return database.ref('schools/' + schoolName).set({
-                        name: schoolName,
-                        address: '',
-                        adminName: adminName,
-                        adminEmail: adminEmail,
-                        adminPhone: '',
-                        inviteCode: inviteCode,
-                        motto: '',
-                        createdAt: new Date().toISOString(),
-                        isActive: true
-                    });
-                })
-                .then(function() {
-                    // Step 2: Create settings
-                    return database.ref('schools/' + schoolName + '/settings').set({
-                        maxBorrowDays: 14,
-                        maxBooksPerStudent: 3,
-                        finePerDay: 10
-                    });
-                })
-                .then(function() {
-                    // Step 3: Create admin user
-                    return database.ref('schools/' + schoolName + '/users/' + emailKey).set({
-                        name: adminName,
-                        email: adminEmail,
-                        role: 'admin',
-                        staffId: 'ADMIN-001',
-                        password: hashPassword(password),
-                        createdAt: new Date().toISOString(),
-                        isActive: true
-                    });
-                })
-                .then(function() {
-                    console.log('✅ School created successfully');
+                    createBtn.disabled = false;
+                    createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
                     
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    isSubmitting = false;
-                    
-                    // Show success dialog
-                    showSuccessDialog(schoolName, inviteCode);
+                    // Show invite code dialog
+                    showInviteCodeDialog(schoolName, result.inviteCode);
                     
                     // Pre-fill login form
-                    document.getElementById('loginSchool').value = schoolName;
-                    document.getElementById('loginEmail').value = adminEmail;
+                    document.getElementById('schoolName').value = schoolName;
+                    document.getElementById('email').value = adminEmail;
                     showLoginForm();
-                })
-                .catch(function(error) {
-                    console.error('❌ Create school error:', error);
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    isSubmitting = false;
-                    showMessage(error.message || 'Failed to create school', 'error');
-                });
+                } else {
+                    showMessage(result.error || 'Failed to create school', 'error');
+                    createBtn.disabled = false;
+                    createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
+                }
+            }).catch(function(error) {
+                console.error('Create school error:', error);
+                showMessage('Failed to create school: ' + error.message, 'error');
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
+            });
         }
 
-        // ============ SUCCESS DIALOG ============
-        function showSuccessDialog(schoolName, inviteCode) {
+        // ============ INVITE CODE DIALOG ============
+        function showInviteCodeDialog(schoolName, inviteCode) {
             var overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);';
             
             var dialog = document.createElement('div');
-            dialog.style.cssText = 'background:linear-gradient(135deg,#1a1f4e,#0a0e27);border:2px solid #d4af37;border-radius:20px;padding:30px;max-width:400px;width:100%;text-align:center;animation:slideUp 0.3s ease;';
+            dialog.style.cssText = 'background:linear-gradient(135deg,#1a1f4e,#0a0e27);border:2px solid #d4af37;border-radius:20px;padding:30px;max-width:400px;width:100%;text-align:center;';
             dialog.innerHTML = `
                 <i class="fas fa-check-circle" style="font-size:60px;color:#34ce57;margin-bottom:15px;"></i>
-                <h3 style="color:#f0d060;margin-bottom:10px;font-size:20px;">School Created!</h3>
+                <h3 style="color:#f0d060;margin-bottom:10px;font-size:20px;">School Created Successfully!</h3>
                 <p style="color:rgba(255,255,255,0.7);margin-bottom:15px;font-size:14px;">
                     Share this invite code with your staff:
                 </p>
@@ -674,7 +490,6 @@
             overlay.appendChild(dialog);
             document.body.appendChild(overlay);
             
-            // Close on overlay click
             overlay.addEventListener('click', function(e) {
                 if (e.target === overlay) {
                     overlay.remove();
@@ -682,23 +497,9 @@
             });
         }
 
-        // ============ PARTICLES INITIALIZATION ============
+        // ============ INITIALIZATION ============
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ SRMS Login page loaded');
-            
-            // Create particles
-            var container = document.getElementById('particles');
-            for (var i = 0; i < 35; i++) {
-                var particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.width = Math.random() * 5 + 2 + 'px';
-                particle.style.height = particle.style.width;
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDuration = Math.random() * 15 + 10 + 's';
-                particle.style.animationDelay = Math.random() * 5 + 's';
-                container.appendChild(particle);
-            }
             
             // Check if already logged in
             var existingUser = localStorage.getItem('srms_user');
@@ -709,18 +510,18 @@
             }
             
             // Enter key to submit login
-            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            document.getElementById('password').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    doLogin();
+                    handleLogin();
                 }
             });
         });
 
-        // ============ EXPOSE FUNCTIONS ============
-        window.doLogin = doLogin;
-        window.doCreateSchool = doCreateSchool;
+        // Expose functions globally
         window.showLoginForm = showLoginForm;
         window.showCreateForm = showCreateForm;
+        window.handleLogin = handleLogin;
+        window.handleCreateSchool = handleCreateSchool;
     </script>
 </body>
 </html>
