@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Full Version - With Unique Student IDs
+// Full Version - Fixed Class Creation
 // ============================================
 
 var firebaseConfig = {
@@ -108,9 +108,7 @@ function generateUniqueQRCode(type, usedCodes) {
   return code;
 }
 
-// Generate unique Student ID with school initials
 function generateUniqueStudentId(schoolName, adm) {
-  // Get school initials (first letter of each word, up to 3 letters)
   var schoolInitials = "";
   var words = schoolName.split(/\s+/);
   for (var i = 0; i < words.length && i < 3; i++) {
@@ -118,19 +116,15 @@ function generateUniqueStudentId(schoolName, adm) {
       schoolInitials += words[i].charAt(0).toUpperCase();
     }
   }
-  // If no initials (empty school name), use "SCH"
   if (!schoolInitials) schoolInitials = "SCH";
 
   var year = new Date().getFullYear().toString().slice(-2);
-
-  // Generate random unique component
   var randomPart = "";
   var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   for (var j = 0; j < 4; j++) {
     randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
   }
 
-  // Format: NHS-24-AB12
   var studentId = schoolInitials + "-" + year + "-" + randomPart;
   return studentId;
 }
@@ -591,7 +585,6 @@ var API = {
       });
     }
 
-    // Generate unique Student ID with school initials
     var studentId = generateUniqueStudentId(schoolName, studentData.adm);
 
     return database
@@ -642,65 +635,73 @@ var API = {
       });
   },
 
-  // ============ CLASSES ============
+  // ============ CLASSES (FIXED - Sequential Writes) ============
   addClass: function (schoolName, classData) {
     var classRef = database.ref("schools/" + schoolName + "/classes").push();
     var classId = classRef.key;
-    var updates = {};
-
-    updates["schools/" + schoolName + "/classes/" + classId] = {
-      name: classData.name,
-      stream: classData.stream || "",
-      teacher: classData.teacher || "",
-      students: classData.students || [],
-      createdBy: classData.createdBy || "",
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    };
-
     var students = classData.students || [];
     var studentIdsGenerated = 0;
 
-    for (var i = 0; i < students.length; i++) {
-      var student = students[i];
-      var adm = student.ADM || student.adm || student["ADM No"] || "";
-      var name =
-        student.Name || student.name || student["Full Name"] || "Unknown";
+    // Step 1: Create class with empty students array
+    return classRef
+      .set({
+        name: classData.name,
+        stream: classData.stream || "",
+        teacher: classData.teacher || "",
+        students: [],
+        createdBy: classData.createdBy || "",
+        createdAt: new Date().toISOString(),
+        isActive: true,
+      })
+      .then(function () {
+        // Step 2: Save each student individually
+        var studentPromises = [];
 
-      if (adm) {
-        // Generate unique Student ID with school initials
-        var studentId = generateUniqueStudentId(schoolName, adm);
+        for (var i = 0; i < students.length; i++) {
+          var student = students[i];
+          var adm = student.ADM || student.adm || student["ADM No"] || "";
+          var name =
+            student.Name || student.name || student["Full Name"] || "Unknown";
 
-        updates["schools/" + schoolName + "/students/" + adm] = {
-          name: name,
-          adm: adm,
-          studentId: studentId,
-          form: classData.name,
-          stream: classData.stream || "",
-          gender: student.Gender || student.gender || "",
-          dob: student.DOB || student.dob || "",
-          parentName: student["Parent Name"] || student.parentName || "",
-          parentPhone: student["Parent Phone"] || student.parentPhone || "",
-          parentEmail: student["Parent Email"] || student.parentEmail || "",
-          addedBy: classData.createdBy || "",
-          addedAt: new Date().toISOString(),
-          idGeneratedAt: new Date().toISOString(),
-        };
+          if (adm) {
+            var studentId = generateUniqueStudentId(schoolName, adm);
 
-        // Update student in class array with their ID
-        students[i].studentId = studentId;
-        students[i].StudentID = studentId;
-        studentIdsGenerated++;
-      }
-    }
+            studentPromises.push(
+              database.ref("schools/" + schoolName + "/students/" + adm).set({
+                name: name,
+                adm: adm,
+                studentId: studentId,
+                form: classData.name,
+                stream: classData.stream || "",
+                gender: student.Gender || student.gender || "",
+                dob: student.DOB || student.dob || "",
+                parentName: student["Parent Name"] || student.parentName || "",
+                parentPhone:
+                  student["Parent Phone"] || student.parentPhone || "",
+                parentEmail:
+                  student["Parent Email"] || student.parentEmail || "",
+                addedBy: classData.createdBy || "",
+                addedAt: new Date().toISOString(),
+                idGeneratedAt: new Date().toISOString(),
+              }),
+            );
 
-    // Update class with students that now have IDs
-    updates["schools/" + schoolName + "/classes/" + classId + "/students"] =
-      students;
+            students[i].studentId = studentId;
+            students[i].StudentID = studentId;
+            studentIdsGenerated++;
+          }
+        }
 
-    return database
-      .ref()
-      .update(updates)
+        return Promise.all(studentPromises);
+      })
+      .then(function () {
+        // Step 3: Update class with students (with IDs)
+        return database
+          .ref("schools/" + schoolName + "/classes/" + classId)
+          .update({
+            students: students,
+          });
+      })
       .then(function () {
         clearCache("classes_" + schoolName);
         clearCache("students_" + schoolName);
@@ -758,7 +759,6 @@ var API = {
           .remove()
           .then(function () {
             var promises = [];
-
             studentAdms.forEach(function (adm) {
               promises.push(
                 database
@@ -878,7 +878,6 @@ var API = {
                   }),
               );
             });
-
             return Promise.all(promises);
           })
           .then(function () {
@@ -889,7 +888,6 @@ var API = {
             clearCache("fees_" + schoolName);
             clearCache("assignments_" + schoolName);
             clearCache("qrcodes_" + schoolName);
-
             return { success: true, studentsDeleted: studentAdms.length };
           });
       })
