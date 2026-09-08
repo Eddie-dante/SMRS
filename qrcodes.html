@@ -216,12 +216,55 @@
             display: flex; gap: 4px; justify-content: center; margin-top: 6px; flex-wrap: wrap;
         }
         
-        .scanner-container { text-align: center; }
-        #scannerVideo {
-            width: 100%; max-width: 320px;
-            border-radius: 8px; border: 2px solid var(--accent);
-            margin: 10px auto; display: none;
+        /* SCANNING ANIMATION */
+        .scanner-container {
+            text-align: center;
+            position: relative;
         }
+        .scanner-frame {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 15px auto;
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.3);
+        }
+        .scanner-frame .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            box-shadow: 0 0 15px var(--gold), 0 0 30px var(--gold);
+            animation: scanAnimation 2s linear infinite;
+        }
+        @keyframes scanAnimation {
+            0% { top: 0; }
+            50% { top: calc(100% - 3px); }
+            100% { top: 0; }
+        }
+        .scanner-frame .corner {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-color: var(--gold);
+            border-style: solid;
+        }
+        .scanner-frame .corner-tl { top: 8px; left: 8px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+        .scanner-frame .corner-tr { top: 8px; right: 8px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+        .scanner-frame .corner-bl { bottom: 8px; left: 8px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+        .scanner-frame .corner-br { bottom: 8px; right: 8px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+        
+        #scannerVideo {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
         .scan-result {
             background: rgba(40, 167, 69, 0.15);
             border: 1px solid #28a745;
@@ -242,18 +285,11 @@
             margin-top: 10px;
             text-align: left;
         }
-        .student-info-display h4 {
-            color: var(--accent);
-            margin: 8px 0 5px;
-            font-size: 0.8em;
-        }
+        .student-info-display h4 { color: var(--accent); margin: 8px 0 5px; font-size: 0.8em; }
         .student-info-display .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 12px;
-            gap: 10px;
+            display: flex; justify-content: space-between;
+            padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 12px; gap: 10px;
         }
         .student-info-display .info-row:last-child { border-bottom: none; }
         .student-info-display .info-label { color: rgba(255,255,255,0.5); font-weight: 600; flex-shrink: 0; }
@@ -286,6 +322,7 @@
             .main-content { padding: 65px 10px 10px; }
             .form-row { grid-template-columns: 1fr; }
             .qr-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .scanner-frame { width: 240px; height: 240px; }
         }
     </style>
 </head>
@@ -346,7 +383,7 @@
             <div class="panel">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-paste"></i> Paste QR Data</h3>
                 <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">
-                    Paste JSON data copied from a Student ID card QR code
+                    Paste JSON data or URL from a Student ID card QR code
                 </p>
                 <div class="form-group">
                     <label>Paste QR Data</label>
@@ -368,7 +405,16 @@
                 <button class="btn btn-success" id="startScanBtn" onclick="startScanner()" style="margin-left:5px;"><i class="fas fa-camera"></i> Camera</button>
                 <button class="btn btn-stop" id="stopScanBtn" onclick="stopScanner()" style="display:none;margin-left:5px;"><i class="fas fa-stop"></i> Stop</button>
                 
-                <video id="scannerVideo" autoplay playsinline></video>
+                <!-- Scanner Frame with Animation -->
+                <div class="scanner-frame" id="scannerFrame">
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+                    <div class="scan-line" id="scanLine"></div>
+                    <video id="scannerVideo" autoplay playsinline></video>
+                </div>
+                
                 <canvas id="scannerCanvas" style="display:none;"></canvas>
                 
                 <div class="scan-result" id="scanResult">
@@ -502,18 +548,22 @@
             if (!rawData) { showNotification('Paste QR data first', 'warning'); return; }
             
             var resultDiv = document.getElementById('pastedResult');
-            resultDiv.innerHTML = '<div class="panel"><i class="fas fa-spinner fa-spin"></i> Retrieving data...</div>';
+            resultDiv.innerHTML = '<div class="panel"><i class="fas fa-spinner fa-spin"></i> Retrieving...</div>';
             resultDiv.style.display = 'block';
             
             try {
                 var data = JSON.parse(rawData);
-                
                 if (data.type === 'STUDENT_ID' && (data.adm || data.admissionNo)) {
                     var school = data.school || getCurrentSchool();
                     var adm = data.adm || data.admissionNo;
                     fetchStudentData(school, adm, resultDiv);
+                } else if (rawData.includes('adm=')) {
+                    var url = new URL(rawData);
+                    var adm = url.searchParams.get('adm');
+                    var school = url.searchParams.get('school') || getCurrentSchool();
+                    fetchStudentData(school, adm, resultDiv);
                 } else {
-                    resultDiv.innerHTML = '<div class="panel"><p style="font-size:12px;">Data received but not a student ID.</p></div>';
+                    resultDiv.innerHTML = '<div class="panel"><p style="font-size:12px;">Data received but not recognized.</p></div>';
                 }
             } catch(err) {
                 if (rawData.includes('adm=')) {
@@ -526,12 +576,12 @@
                         showNotification('Invalid data format', 'error');
                     }
                 } else {
-                    showNotification('Invalid QR data. Paste the exact JSON.', 'error');
+                    showNotification('Invalid QR data', 'error');
                 }
             }
         }
         
-        function fetchStudentData(school, adm, resultDiv) {
+        function fetchStudentData(school, adm, targetDiv) {
             Promise.all([
                 API.getStudents(school),
                 API.getClasses(school),
@@ -546,9 +596,7 @@
                 var furniture = results[4] || [];
                 
                 var student = null;
-                students.forEach(function(s) {
-                    if (s.adm === adm) student = s;
-                });
+                students.forEach(function(s) { if (s.adm === adm) student = s; });
                 
                 if (!student) {
                     classes.forEach(function(c) {
@@ -557,14 +605,10 @@
                             if (stAdm === adm) {
                                 student = {
                                     name: st.Name || st.name || st["Full Name"] || "Unknown",
-                                    adm: adm,
-                                    form: c.name,
-                                    stream: c.stream || "",
-                                    gender: st.Gender || st.gender || "",
-                                    dob: st.DOB || st.dob || "",
-                                    parentName: st["Parent Name"] || st.parentName || "",
-                                    parentPhone: st["Parent Phone"] || st.parentPhone || "",
-                                    parentEmail: st["Parent Email"] || st.parentEmail || ""
+                                    adm: adm, form: c.name, stream: c.stream || "",
+                                    gender: st.Gender || st.gender || "", dob: st.DOB || st.dob || "",
+                                    parentName: st["Parent Name"] || "", parentPhone: st["Parent Phone"] || "",
+                                    parentEmail: st["Parent Email"] || ""
                                 };
                             }
                         });
@@ -576,31 +620,28 @@
                 var studentFurniture = furniture.filter(function(f) { return f.adm === adm; });
                 
                 var html = '<div class="student-info-display">';
-                
                 if (student) {
                     html += '<h4>📋 Student Details</h4>';
                     html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + student.name + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🔢 ADM No</span><span class="info-value">' + student.adm + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + student.adm + '</span></div>';
                     if (student.dob) html += '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + student.dob + '</span></div>';
                     html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
                     html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">⚧ Gender</span><span class="info-value">' + (student.gender || 'N/A') + '</span></div>';
                     
                     if (student.parentName) {
-                        html += '<h4>👨‍👩‍👧 Parent Details</h4>';
-                        html += '<div class="info-row"><span class="info-label">Parent</span><span class="info-value">' + student.parentName + '</span></div>';
+                        html += '<h4>👨‍👩‍👧 Parent</h4>';
+                        html += '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + student.parentName + '</span></div>';
                         if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
-                        if (student.parentEmail) html += '<div class="info-row"><span class="info-label">✉️ Email</span><span class="info-value">' + student.parentEmail + '</span></div>';
                     }
                 } else {
-                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found in database.</p>';
+                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
                 }
                 
                 if (studentBorrowed.length > 0) {
-                    html += '<h4>📚 Borrowed Books (' + studentBorrowed.length + ')</h4>';
+                    html += '<h4>📚 Books (' + studentBorrowed.length + ')</h4>';
                     studentBorrowed.forEach(function(b) {
-                        html += '<div class="info-row"><span class="info-label">' + (b.bookTitle || 'Unknown') + '</span>' +
-                            '<span class="info-value">' + (b.returned ? '✅ Returned' : '❌ Active') + '</span></div>';
+                        html += '<div class="info-row"><span class="info-label">' + b.bookTitle + '</span>' +
+                            '<span class="info-value">' + (b.returned ? 'Returned' : 'Active') + '</span></div>';
                     });
                 }
                 
@@ -608,7 +649,7 @@
                     html += '<h4>💰 Fees</h4>';
                     studentFees.forEach(function(f) {
                         html += '<div class="info-row"><span class="info-label">' + (f.term || 'Term') + '</span>' +
-                            '<span class="info-value">KES ' + (f.balance || 0) + ' balance</span></div>';
+                            '<span class="info-value">KES ' + (f.balance || 0) + '</span></div>';
                     });
                 }
                 
@@ -621,13 +662,10 @@
                 }
                 
                 html += '</div>';
-                resultDiv.innerHTML = html;
+                targetDiv.innerHTML = html;
                 showNotification('Student data retrieved!', 'success');
-                
             }).catch(function(error) {
-                console.error('Fetch student data error:', error);
-                resultDiv.innerHTML = '<div class="panel"><p style="color:#ff4757;">Failed to retrieve data.</p></div>';
-                showNotification('Failed to retrieve student data', 'error');
+                targetDiv.innerHTML = '<div class="panel"><p style="color:#ff4757;">Failed to retrieve data.</p></div>';
             });
         }
         
@@ -678,7 +716,7 @@
                 
                 if (window.jsQR) {
                     var code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: 'dontInvert'
+                        inversionAttempts: 'attemptBoth'
                     });
                     if (code && code.data) {
                         scannerActive = false;
@@ -700,35 +738,61 @@
             reader.onload = function(e) {
                 var img = new Image();
                 img.onload = function() {
-                    var canvas = document.getElementById('scannerCanvas');
-                    var ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    var found = false;
+                    var sizes = [0, 800, 600, 400];
                     
-                    var code = null;
-                    if (window.jsQR) {
-                        code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+                    for (var s = 0; s < sizes.length && !found; s++) {
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        var w, h;
+                        if (sizes[s] === 0) { w = img.width; h = img.height; }
+                        else {
+                            var ratio = Math.min(sizes[s] / img.width, sizes[s] / img.height);
+                            w = Math.floor(img.width * ratio);
+                            h = Math.floor(img.height * ratio);
+                        }
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        var imageData = ctx.getImageData(0, 0, w, h);
+                        
+                        if (window.jsQR) {
+                            var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+                            if (code && code.data) {
+                                found = true;
+                                displayScanResult(code.data);
+                                showNotification('QR detected!', 'success');
+                                break;
+                            }
+                        }
                     }
                     
-                    if (!code && window.jsQR && (img.width > 800 || img.height > 800)) {
-                        var maxSize = 800;
-                        var ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                        var scaledCanvas = document.createElement('canvas');
-                        scaledCanvas.width = Math.floor(img.width * ratio);
-                        scaledCanvas.height = Math.floor(img.height * ratio);
-                        var scaledCtx = scaledCanvas.getContext('2d');
-                        scaledCtx.drawImage(img, 0, 0, scaledCanvas.width, scaledCanvas.height);
-                        var scaledData = scaledCtx.getImageData(0, 0, scaledCanvas.width, scaledCanvas.height);
-                        code = jsQR(scaledData.data, scaledData.width, scaledData.height, { inversionAttempts: 'attemptBoth' });
-                    }
-                    
-                    if (code && code.data) {
-                        displayScanResult(code.data);
-                        showNotification('QR code detected!', 'success');
-                    } else {
-                        showNotification('No QR code found. Try a clearer image.', 'warning');
+                    if (!found) {
+                        var canvas = document.createElement('canvas');
+                        var maxSize = 500;
+                        var ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+                        canvas.width = Math.floor(img.width * ratio);
+                        canvas.height = Math.floor(img.height * ratio);
+                        var ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        var pixels = imageData.data;
+                        
+                        for (var p = 0; p < pixels.length; p += 4) {
+                            var gray = (pixels[p] * 0.299 + pixels[p+1] * 0.587 + pixels[p+2] * 0.114);
+                            var val = gray > 128 ? 255 : 0;
+                            pixels[p] = val; pixels[p+1] = val; pixels[p+2] = val;
+                        }
+                        
+                        ctx.putImageData(imageData, 0, 0);
+                        var enhancedData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        var code = jsQR(enhancedData.data, enhancedData.width, enhancedData.height, { inversionAttempts: 'attemptBoth' });
+                        
+                        if (code && code.data) {
+                            displayScanResult(code.data);
+                            showNotification('QR detected!', 'success');
+                        } else {
+                            showNotification('No QR found. Take a closer photo.', 'warning');
+                        }
                     }
                 };
                 img.src = e.target.result;
@@ -739,122 +803,33 @@
         function displayScanResult(data) {
             document.getElementById('scannedCode').textContent = data;
             document.getElementById('scanResult').style.display = 'block';
-            document.getElementById('scanDetails').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrieving student data...';
+            document.getElementById('scanDetails').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrieving data...';
             
-            try {
-                var parsed = JSON.parse(data);
-                
-                if (parsed.type === 'STUDENT_ID' && (parsed.adm || parsed.admissionNo)) {
-                    var school = parsed.school || getCurrentSchool();
-                    var adm = parsed.adm || parsed.admissionNo;
-                    
-                    var detailsDiv = document.getElementById('scanDetails');
-                    fetchStudentDataToElement(school, adm, detailsDiv);
-                } else {
-                    document.getElementById('scanDetails').textContent = '✅ QR code detected!';
-                }
-            } catch(err) {
-                if (data.includes('adm=')) {
-                    try {
-                        var url = new URL(data);
-                        var adm = url.searchParams.get('adm');
-                        var school = url.searchParams.get('school') || getCurrentSchool();
-                        var detailsDiv = document.getElementById('scanDetails');
-                        fetchStudentDataToElement(school, adm, detailsDiv);
-                    } catch(e2) {
-                        document.getElementById('scanDetails').textContent = '✅ QR code detected!';
-                    }
-                } else {
-                    document.getElementById('scanDetails').textContent = '✅ QR code detected!';
-                }
+            var adm = null;
+            var school = getCurrentSchool();
+            
+            if (data.includes('adm=')) {
+                try {
+                    var url = new URL(data);
+                    adm = url.searchParams.get('adm');
+                    school = url.searchParams.get('school') || school;
+                } catch(e) {}
             }
-        }
-        
-        function fetchStudentDataToElement(school, adm, targetElement) {
-            Promise.all([
-                API.getStudents(school),
-                API.getClasses(school),
-                API.getBorrowed(school),
-                API.getFees(school),
-                API.getFurniture(school)
-            ]).then(function(results) {
-                var students = results[0] || [];
-                var classes = results[1] || [];
-                var borrowed = results[2] || [];
-                var fees = results[3] || [];
-                var furniture = results[4] || [];
-                
-                var student = null;
-                students.forEach(function(s) { if (s.adm === adm) student = s; });
-                
-                if (!student) {
-                    classes.forEach(function(c) {
-                        (c.students || []).forEach(function(st) {
-                            var stAdm = st.ADM || st.adm || st["ADM No"] || "";
-                            if (stAdm === adm) {
-                                student = {
-                                    name: st.Name || st.name || st["Full Name"] || "Unknown",
-                                    adm: adm, form: c.name, stream: c.stream || "",
-                                    gender: st.Gender || st.gender || "", dob: st.DOB || st.dob || "",
-                                    parentName: st["Parent Name"] || "", parentPhone: st["Parent Phone"] || ""
-                                };
-                            }
-                        });
-                    });
-                }
-                
-                var studentBorrowed = borrowed.filter(function(b) { return b.adm === adm; });
-                var studentFees = fees.filter(function(f) { return f.studentAdm === adm; });
-                var studentFurniture = furniture.filter(function(f) { return f.adm === adm; });
-                
-                var html = '<div class="student-info-display">';
-                if (student) {
-                    html += '<h4>📋 Student Details</h4>';
-                    html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + student.name + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + student.adm + '</span></div>';
-                    if (student.dob) html += '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + student.dob + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
-                    if (student.parentName) {
-                        html += '<h4>👨‍👩‍👧 Parent</h4>';
-                        html += '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + student.parentName + '</span></div>';
-                        if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
-                    }
-                } else {
-                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
-                }
-                
-                if (studentBorrowed.length > 0) {
-                    html += '<h4>📚 Books (' + studentBorrowed.length + ')</h4>';
-                    studentBorrowed.forEach(function(b) {
-                        html += '<div class="info-row"><span class="info-label">' + b.bookTitle + '</span>' +
-                            '<span class="info-value">' + (b.returned ? 'Returned' : 'Active') + '</span></div>';
-                    });
-                }
-                
-                if (studentFees.length > 0) {
-                    html += '<h4>💰 Fees</h4>';
-                    studentFees.forEach(function(f) {
-                        html += '<div class="info-row"><span class="info-label">' + (f.term || 'Term') + '</span>' +
-                            '<span class="info-value">KES ' + (f.balance || 0) + '</span></div>';
-                    });
-                }
-                
-                if (studentFurniture.length > 0) {
-                    html += '<h4>🪑 Furniture</h4>';
-                    studentFurniture.forEach(function(f) {
-                        html += '<div class="info-row"><span class="info-label">Chair: ' + (f.chairNo || 'N/A') + '</span>' +
-                            '<span class="info-value">Locker: ' + (f.lockerNo || 'N/A') + '</span></div>';
-                    });
-                }
-                
-                html += '</div>';
-                targetElement.innerHTML = '✅ Student found!' + html;
-                
-            }).catch(function(error) {
-                console.error('Error:', error);
-                targetElement.textContent = 'Failed to retrieve data.';
-            });
+            
+            if (!adm) {
+                try {
+                    var parsed = JSON.parse(data);
+                    adm = parsed.adm || parsed.admissionNo;
+                    school = parsed.school || school;
+                } catch(e) {}
+            }
+            
+            if (adm) {
+                var detailsDiv = document.getElementById('scanDetails');
+                fetchStudentData(school, adm, detailsDiv);
+            } else {
+                document.getElementById('scanDetails').textContent = '✅ QR detected!';
+            }
         }
         
         function loadQRCodeList() {
