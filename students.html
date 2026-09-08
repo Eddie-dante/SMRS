@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SRMS - Student Management | School Resource Management System</title>
+    <title>SRMS - Students | School Resource Management System</title>
+    <meta name="description" content="SRMS Student Management">
+    <meta name="theme-color" content="#0a0e27">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
@@ -22,7 +26,7 @@
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.2s ease;
+            --transition: all 0.3s ease;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -41,9 +45,7 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
         }
         .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
@@ -53,13 +55,9 @@
             width: 40px; height: 40px; border-radius: 10px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: var(--transition);
+            color: var(--accent); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: var(--transition);
         }
         .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
@@ -69,26 +67,25 @@
         }
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
-            gap: 12px; padding: 12px 24px;
+            gap: 10px; padding: 12px 20px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px; font-weight: 600;
+            font-size: 13px; font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
             border-radius: 30px;
-            padding: 10px 22px;
+            padding: 10px 18px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 8px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
@@ -102,35 +99,23 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .dropdown-menu {
             display: none;
-            position: absolute;
-            bottom: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px;
-            padding: 10px;
-            min-width: 200px;
-            z-index: 1200;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-radius: 14px; padding: 10px; min-width: 200px;
+            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
             transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
@@ -146,95 +131,56 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
             font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
         .btn-primary {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
+            background: linear-gradient(135deg, #e94560, #c62a47); color: #fff;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
         .btn-secondary {
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
         .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
         .btn-danger:hover { background: rgba(220,53,69,0.4); }
-        .btn-view { background: rgba(23,162,184,0.2); color: #17a2b8; border: 1px solid rgba(23,162,184,0.4); }
-        .btn-view:hover { background: rgba(23,162,184,0.4); }
-        .btn-qr { background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid rgba(212,175,55,0.4); }
-        .btn-qr:hover { background: rgba(212,175,55,0.4); }
         
         .search-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            margin-bottom: 15px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; margin-bottom: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
         }
         .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
+            flex: 1; background: none; border: none;
+            color: #fff; font-size: 14px; outline: none;
             font-family: 'Inter', sans-serif;
         }
         
-        .filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
+        .filters { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .filters select {
             padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            outline: none;
+            border-radius: 10px; color: #fff;
+            font-family: 'Inter', sans-serif; outline: none;
         }
         .filters select option { background: #1a1f4e; }
         
@@ -242,48 +188,32 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 20px;
-            overflow-x: auto;
+            padding: 20px; overflow-x: auto;
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
             background: rgba(233, 69, 96, 0.8);
-            padding: 15px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            white-space: nowrap;
+            padding: 15px; text-align: left;
+            font-weight: 700; font-size: 12px; text-transform: uppercase; white-space: nowrap;
         }
         .data-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 13px;
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1300;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1300;
+            justify-content: center; align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
-            overflow-y: auto;
+            border-radius: 20px; padding: 30px;
+            width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
@@ -291,45 +221,27 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px 15px;
+            width: 100%; padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: #fff;
+            border-radius: 10px; color: #fff;
             font-family: 'Inter', sans-serif;
         }
+        .form-group select option { background: #1a1f4e; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        .student-id-preview {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .student-id-preview .qr-preview {
-            display: inline-block;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-        .student-id-preview .qr-preview img { width: 100px; height: 100px; }
-        
         .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: rgba(255,255,255,0.4);
+            text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);
         }
         .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 768px) {
-            .floating-navbar { padding: 8px 12px; gap: 6px; }
-            .classy-btn { padding: 8px 12px; font-size: 11px; }
+            .floating-navbar { padding: 8px 10px; gap: 4px; }
+            .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -339,7 +251,7 @@
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
             <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
@@ -351,8 +263,8 @@
                 <p>All students from database and classes</p>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button class="btn-primary" onclick="openModal('addStudentModal')"><i class="fas fa-plus"></i> Add Student</button>
-                <button class="btn-secondary" onclick="openModal('generateIDModal')"><i class="fas fa-id-card"></i> Generate ID</button>
+                <button class="btn btn-primary" onclick="openModal('addStudentModal')"><i class="fas fa-plus"></i> Add Student</button>
+                <button class="btn btn-secondary" onclick="location.href='studentsids.html'"><i class="fas fa-id-card"></i> ID Cards</button>
             </div>
         </div>
         
@@ -384,7 +296,6 @@
         </div>
     </div>
     
-    <!-- Add Student Modal -->
     <div class="modal" id="addStudentModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -412,39 +323,11 @@
                 </div>
                 <div class="form-group"><label>Parent Email</label><input type="email" id="studentParentEmail"></div>
                 <div class="form-group"><label>Address</label><textarea id="studentAddress" rows="2"></textarea></div>
-                <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Student</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Student</button>
             </form>
         </div>
     </div>
     
-    <!-- Generate ID Modal -->
-    <div class="modal" id="generateIDModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-id-card"></i> Generate Student ID Card</h3>
-                <button class="modal-close" onclick="closeModal('generateIDModal')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="form-group">
-                <label>Select Student</label>
-                <select id="generateIDStudent" onchange="previewStudentID()">
-                    <option value="">Select a student...</option>
-                </select>
-            </div>
-            <div id="idPreviewContainer" class="student-id-preview" style="display:none;">
-                <h4 style="color:var(--accent);">Student ID Preview</h4>
-                <div id="idPreviewContent"></div>
-                <button class="btn-primary" onclick="generateStudentIDCard()" style="margin-top:10px;width:100%;">
-                    <i class="fas fa-qrcode"></i> Generate ID Card with QR
-                </button>
-            </div>
-            <div id="noStudentMsg" style="text-align:center;padding:20px;color:rgba(255,255,255,0.5);">
-                <i class="fas fa-user-graduate" style="font-size:36px;display:block;margin-bottom:10px;"></i>
-                Select a student to generate their ID card
-            </div>
-        </div>
-    </div>
-    
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -477,7 +360,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Comms <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -505,106 +388,16 @@
         </div>
     </div>
     
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/wallpaper-loader.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof loadStudentsData === 'function') {
-                loadStudentsData();
-            }
-            loadStudentsForIDSelect();
+            if (typeof loadStudentsData === 'function') loadStudentsData();
         });
-        
-        function loadStudentsForIDSelect() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            API.getStudents(school).then(function(students) {
-                var select = document.getElementById('generateIDStudent');
-                if (!select) return;
-                var html = '<option value="">Select a student...</option>';
-                students.forEach(function(s) {
-                    html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
-                });
-                select.innerHTML = html;
-            });
-        }
-        
-        function previewStudentID() {
-            var adm = document.getElementById('generateIDStudent').value;
-            var container = document.getElementById('idPreviewContainer');
-            var noMsg = document.getElementById('noStudentMsg');
-            var content = document.getElementById('idPreviewContent');
-            
-            if (!adm) {
-                container.style.display = 'none';
-                noMsg.style.display = 'block';
-                return;
-            }
-            container.style.display = 'block';
-            noMsg.style.display = 'none';
-            
-            var school = getCurrentSchool();
-            API.getStudents(school).then(function(students) {
-                var student = null;
-                students.forEach(function(s) {
-                    if (s.adm === adm) student = s;
-                });
-                if (!student) {
-                    content.innerHTML = '<p style="color:var(--danger);">Student not found</p>';
-                    return;
-                }
-                var initials = getInitials(student.name);
-                content.innerHTML = `
-                    <div style="display:flex;align-items:center;gap:15px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;">
-                        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#0a0e27;flex-shrink:0;">
-                            ${initials}
-                        </div>
-                        <div style="text-align:left;">
-                            <div style="font-weight:700;font-size:16px;">${student.name}</div>
-                            <div style="font-size:12px;color:#d4af37;">ADM: ${student.adm}</div>
-                            <div style="font-size:11px;color:rgba(255,255,255,0.5);">${student.form || 'Form: -'} | ${student.stream || 'Stream: -'}</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.4);">
-                        <i class="fas fa-info-circle"></i> Click "Generate ID Card" to create a QR code and full ID card
-                    </div>
-                `;
-            });
-        }
-        
-        function generateStudentIDCard() {
-            var adm = document.getElementById('generateIDStudent').value;
-            if (!adm) {
-                showNotification('Please select a student', 'warning');
-                return;
-            }
-            var school = getCurrentSchool();
-            showNotification('Generating ID card...', 'info');
-            API.generateStudentID(school, adm).then(function(result) {
-                if (result.success) {
-                    showNotification('ID Card generated with QR code!', 'success');
-                    logAction('Student ID Generated', result.student.name + ' (' + adm + ')');
-                    closeModal('generateIDModal');
-                    loadStudentsData();
-                    DialogSystem.confirm('ID Card generated successfully! View it in QR Codes section?', {
-                        title: 'Success',
-                        type: 'success',
-                        confirmText: 'View ID',
-                        cancelText: 'Later'
-                    }).then(function(confirm) {
-                        if (confirm === 'confirm') {
-                            window.location.href = 'qrcodes.html';
-                        }
-                    });
-                } else {
-                    showNotification('Error: ' + result.error, 'error');
-                }
-            });
-        }
         
         function filterStudents() {
             var searchInput = document.getElementById('searchStudents');
@@ -631,18 +424,23 @@
         
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) logout();
+                if (confirm('Logout?')) logout();
             }
+        }
+        
+        function logout() {
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
         }
         
         window.filterStudents = filterStudents;
         window.logoutWithConfirm = logoutWithConfirm;
-        window.previewStudentID = previewStudentID;
-        window.generateStudentIDCard = generateStudentIDCard;
+        window.logout = logout;
     </script>
 </body>
 </html>
