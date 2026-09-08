@@ -8,17 +8,16 @@
     <meta name="description" content="SRMS - School Resource Management System Login">
     <meta name="theme-color" content="#0a0e27">
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
@@ -27,14 +26,8 @@
             --accent: #d4af37;
             --gold: #f0d060;
             --dark: #0a0e27;
-            --dark-light: #1a1f4e;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.3s ease;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -42,44 +35,30 @@
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
-            background-attachment: fixed;
             padding: 20px;
         }
-        
         .auth-container {
             width: 100%;
             max-width: 440px;
-            background: var(--glass-bg);
+            background: rgba(255,255,255,0.05);
             backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
             padding: 40px 35px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.5s ease;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
         .auth-logo { text-align: center; margin-bottom: 30px; }
         .auth-logo .logo-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #d4af37, #f0d060);
             border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            color: #0a0e27;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 35px; color: #0a0e27;
             margin: 0 auto 15px;
-            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 60px rgba(212,175,55,0.3);
         }
         .auth-logo h1 {
-            font-size: 28px;
-            font-weight: 900;
+            font-size: 28px; font-weight: 900;
             font-family: 'Cinzel', serif;
             background: linear-gradient(180deg, #f0d060, #d4af37);
             -webkit-background-clip: text;
@@ -87,166 +66,80 @@
             background-clip: text;
             letter-spacing: 2px;
         }
-        .auth-logo p {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-            margin-top: 5px;
-        }
-        
+        .auth-logo p { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 5px; }
         .form-group { margin-bottom: 18px; text-align: left; }
-        .form-group label {
-            display: block;
-            color: rgba(255, 255, 255, 0.75);
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 13px;
-        }
-        .form-group label i { margin-right: 8px; color: var(--accent); width: 16px; }
+        .form-group label { display: block; color: rgba(255,255,255,0.75); margin-bottom: 6px; font-weight: 600; font-size: 13px; }
+        .form-group label i { margin-right: 8px; color: #d4af37; }
         .form-group input {
-            width: 100%;
-            padding: 13px 16px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%; padding: 13px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 12px;
-            color: #ffffff;
-            font-size: 14px;
+            color: #fff; font-size: 14px;
             font-family: 'Inter', sans-serif;
-            transition: var(--transition);
             outline: none;
+            transition: all 0.3s ease;
         }
-        .form-group input:focus {
-            border-color: rgba(212, 175, 55, 0.6);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
-        
+        .form-group input:focus { border-color: rgba(212,175,55,0.6); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
+        .form-group input::placeholder { color: rgba(255,255,255,0.3); }
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
+            width: 100%; padding: 14px;
+            border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 700;
             cursor: pointer;
-            transition: var(--transition);
             font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-top: 10px;
+            transition: all 0.3s ease;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
-        }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        
-        .auth-links {
-            text-align: center;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .auth-links a {
-            color: rgba(212, 175, 55, 0.7);
-            text-decoration: none;
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .auth-links a:hover { color: var(--gold); }
-        
+        .btn-primary { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .auth-links { text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .auth-links a { color: rgba(212,175,55,0.7); text-decoration: none; font-size: 13px; cursor: pointer; }
+        .auth-links a:hover { color: #f0d060; }
         .message {
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: none;
-            font-size: 13px;
-            align-items: center;
-            gap: 10px;
+            padding: 12px 15px; border-radius: 10px;
+            margin-bottom: 15px; display: none;
+            font-size: 13px; align-items: center; gap: 10px;
         }
         .message.show { display: flex; }
-        .message.error {
-            background: rgba(220, 53, 69, 0.15);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #ff4757;
-        }
-        .message.success {
-            background: rgba(40, 167, 69, 0.15);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            color: #34ce57;
-        }
-        
-        .divider {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin: 20px 0;
-            position: relative;
-        }
+        .message.error { background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.3); color: #ff4757; }
+        .message.success { background: rgba(40,167,69,0.15); border: 1px solid rgba(40,167,69,0.3); color: #34ce57; }
+        .divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0; position: relative; }
         .divider::after {
-            content: 'OR';
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1f4e;
-            padding: 0 10px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.4);
+            content: 'OR'; position: absolute; top: -10px; left: 50%;
+            transform: translateX(-50%); background: #1a1f4e;
+            padding: 0 10px; font-size: 11px; color: rgba(255,255,255,0.4);
         }
-        
         .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 14px;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            background: rgba(255,255,255,0.05);
-            padding: 8px 15px;
-            border-radius: 8px;
+            position: fixed; top: 20px; left: 20px;
+            color: rgba(255,255,255,0.5); text-decoration: none;
+            font-size: 14px; z-index: 10;
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 8px;
         }
-        .back-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); }
-        
+        .back-link:hover { color: #d4af37; }
         @media (max-width: 480px) {
             .auth-container { padding: 25px 20px; }
             .auth-logo .logo-icon { width: 60px; height: 60px; font-size: 26px; }
             .auth-logo h1 { font-size: 24px; }
-            .form-group input { padding: 11px 14px; font-size: 13px; }
-            .btn { padding: 12px; font-size: 14px; }
             .back-link { top: 10px; left: 10px; padding: 6px 10px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
-    <!-- Back to Landing -->
     <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
     
-    <!-- Auth Container -->
     <div class="auth-container">
-        <!-- Logo -->
         <div class="auth-logo">
             <div class="logo-icon"><i class="fas fa-school"></i></div>
             <h1>SRMS</h1>
             <p>School Resource Management System</p>
         </div>
         
-        <!-- Message -->
         <div id="message" class="message"></div>
         
-        <!-- LOGIN FORM -->
         <div id="loginFormDiv">
             <div class="form-group">
                 <label><i class="fas fa-school"></i> School Name</label>
@@ -263,102 +156,65 @@
             <button type="button" class="btn btn-primary" id="loginBtn" onclick="handleLogin()">
                 <i class="fas fa-sign-in-alt"></i> Login
             </button>
-            
             <div class="divider"></div>
-            
             <div class="auth-links">
                 <a onclick="showCreateForm()"><i class="fas fa-plus-circle"></i> Create New School</a>
                 <a href="landing.html"><i class="fas fa-info-circle"></i> Learn More</a>
             </div>
         </div>
         
-        <!-- CREATE SCHOOL FORM -->
         <div id="createFormDiv" style="display:none;">
             <div class="form-group">
                 <label><i class="fas fa-school"></i> School Name</label>
-                <input type="text" id="createSchoolName" placeholder="Enter school name" autocomplete="off">
+                <input type="text" id="createSchoolName" placeholder="Enter school name">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-user"></i> Admin Name</label>
-                <input type="text" id="createAdminName" placeholder="Enter admin name" autocomplete="off">
+                <input type="text" id="createAdminName" placeholder="Enter admin name">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-envelope"></i> Admin Email</label>
-                <input type="email" id="createAdminEmail" placeholder="Enter admin email" autocomplete="off">
+                <input type="email" id="createAdminEmail" placeholder="Enter admin email">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="createPassword" placeholder="Minimum 8 characters" autocomplete="new-password">
+                <input type="password" id="createPassword" placeholder="Minimum 8 characters">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Confirm Password</label>
-                <input type="password" id="createConfirmPassword" placeholder="Confirm your password" autocomplete="new-password">
+                <input type="password" id="createConfirmPassword" placeholder="Confirm password">
             </div>
             <button type="button" class="btn btn-primary" id="createSchoolBtn" onclick="handleCreateSchool()">
                 <i class="fas fa-plus-circle"></i> Create School
             </button>
-            
             <div class="divider"></div>
-            
             <div class="auth-links">
                 <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
             </div>
         </div>
     </div>
 
-    <!-- Load JS files -->
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/utils.js"></script>
-
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
     <script>
-        // ============ FORM NAVIGATION ============
         function showLoginForm() {
             document.getElementById('loginFormDiv').style.display = 'block';
             document.getElementById('createFormDiv').style.display = 'none';
             document.getElementById('message').className = 'message';
         }
-
         function showCreateForm() {
             document.getElementById('loginFormDiv').style.display = 'none';
             document.getElementById('createFormDiv').style.display = 'block';
             document.getElementById('message').className = 'message';
         }
-
-        // ============ MESSAGE ============
         function showMessage(text, type) {
             var msg = document.getElementById('message');
             msg.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
             msg.className = 'message show ' + type;
-            setTimeout(function() {
-                msg.className = 'message';
-            }, 5000);
+            setTimeout(function() { msg.className = 'message'; }, 5000);
         }
-
-        // ============ TOAST ============
-        function showToast(text, type) {
-            var existingToast = document.querySelector('.toast-notification');
-            if (existingToast) existingToast.remove();
-            
-            var toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            toast.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:12px;color:#fff;z-index:9999;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform 0.3s ease;';
-            
-            var colors = { success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8' };
-            toast.style.background = colors[type] || colors.info;
-            toast.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
-            document.body.appendChild(toast);
-            
-            setTimeout(function() { toast.style.transform = 'translateX(0)'; }, 100);
-            setTimeout(function() {
-                toast.style.transform = 'translateX(120%)';
-                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
-            }, 3000);
-        }
-
-        // ============ LOGIN ============
         function handleLogin() {
-            console.log('🔄 Login attempt');
-            
             var schoolName = document.getElementById('schoolName').value.trim();
             var email = document.getElementById('email').value.trim();
             var password = document.getElementById('password').value;
@@ -372,55 +228,36 @@
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
             
-            // Use the API from api.js
-            API.login(schoolName, email, password)
-                .then(function(result) {
-                    if (result.success) {
-                        showToast('Login successful! Redirecting...', 'success');
-                        setTimeout(function() {
-                            window.location.href = 'dashboard.html';
-                        }, 800);
-                    } else {
-                        showMessage(result.error || 'Invalid credentials', 'error');
-                        loginBtn.disabled = false;
-                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Login error:', error);
-                    showMessage('Login failed: ' + error.message, 'error');
+            API.login(schoolName, email, password).then(function(result) {
+                if (result.success) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(function() { window.location.href = 'dashboard.html'; }, 800);
+                } else {
+                    showMessage(result.error || 'Invalid credentials', 'error');
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-                });
+                }
+            }).catch(function(error) {
+                showMessage('Login failed: ' + error.message, 'error');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            });
         }
-
-        // ============ CREATE SCHOOL ============
         function handleCreateSchool() {
-            console.log('🔄 Create School attempt');
-            
             var schoolName = document.getElementById('createSchoolName').value.trim();
             var adminName = document.getElementById('createAdminName').value.trim();
             var adminEmail = document.getElementById('createAdminEmail').value.trim();
             var password = document.getElementById('createPassword').value;
             var confirmPassword = document.getElementById('createConfirmPassword').value;
             
-            // Validation
             if (!schoolName || !adminName || !adminEmail || !password) {
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
-            
-            var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(adminEmail)) {
-                showMessage('Please enter a valid email address', 'error');
-                return;
-            }
-            
             if (password.length < 8) {
                 showMessage('Password must be at least 8 characters', 'error');
                 return;
             }
-            
             if (password !== confirmPassword) {
                 showMessage('Passwords do not match', 'error');
                 return;
@@ -428,9 +265,8 @@
             
             var createBtn = document.getElementById('createSchoolBtn');
             createBtn.disabled = true;
-            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating School...';
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
             
-            // Use the API from api.js
             API.createSchool({
                 name: schoolName,
                 adminName: adminName,
@@ -438,86 +274,33 @@
                 password: password
             }).then(function(result) {
                 if (result.success) {
-                    console.log('✅ School created:', schoolName);
-                    
                     createBtn.disabled = false;
                     createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
                     
-                    // Show invite code dialog
-                    showInviteCodeDialog(schoolName, result.inviteCode);
+                    alert('✅ School created successfully!\n\nSchool: ' + schoolName + '\nInvite Code: ' + result.inviteCode);
                     
-                    // Pre-fill login form
                     document.getElementById('schoolName').value = schoolName;
                     document.getElementById('email').value = adminEmail;
                     showLoginForm();
+                    showMessage('School created! Please login.', 'success');
                 } else {
                     showMessage(result.error || 'Failed to create school', 'error');
                     createBtn.disabled = false;
                     createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
                 }
             }).catch(function(error) {
-                console.error('Create school error:', error);
-                showMessage('Failed to create school: ' + error.message, 'error');
+                showMessage('Error: ' + error.message, 'error');
                 createBtn.disabled = false;
                 createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
             });
         }
-
-        // ============ INVITE CODE DIALOG ============
-        function showInviteCodeDialog(schoolName, inviteCode) {
-            var overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);';
-            
-            var dialog = document.createElement('div');
-            dialog.style.cssText = 'background:linear-gradient(135deg,#1a1f4e,#0a0e27);border:2px solid #d4af37;border-radius:20px;padding:30px;max-width:400px;width:100%;text-align:center;';
-            dialog.innerHTML = `
-                <i class="fas fa-check-circle" style="font-size:60px;color:#34ce57;margin-bottom:15px;"></i>
-                <h3 style="color:#f0d060;margin-bottom:10px;font-size:20px;">School Created Successfully!</h3>
-                <p style="color:rgba(255,255,255,0.7);margin-bottom:15px;font-size:14px;">
-                    Share this invite code with your staff:
-                </p>
-                <div style="background:rgba(212,175,55,0.15);border:2px dashed #d4af37;border-radius:12px;padding:20px;margin-bottom:20px;">
-                    <div style="font-family:'Courier New',monospace;font-size:28px;font-weight:800;letter-spacing:5px;color:#f0d060;">
-                        ${inviteCode}
-                    </div>
-                </div>
-                <button onclick="this.closest('div[style]').parentNode.remove()" 
-                    style="padding:12px 30px;background:linear-gradient(135deg,#e94560,#c62a47);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;width:100%;">
-                    <i class="fas fa-check"></i> Got it! Proceed to Login
-                </button>
-            `;
-            
-            overlay.appendChild(dialog);
-            document.body.appendChild(overlay);
-            
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) {
-                    overlay.remove();
-                }
-            });
-        }
-
-        // ============ INITIALIZATION ============
+        
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ SRMS Login page loaded');
-            
-            // Check if already logged in
-            var existingUser = localStorage.getItem('srms_user');
-            var existingSchool = localStorage.getItem('srms_school');
-            if (existingUser && existingSchool) {
-                console.log('✅ Session found, redirecting to dashboard');
+            if (localStorage.getItem('srms_user') && localStorage.getItem('srms_school')) {
                 window.location.href = 'dashboard.html';
             }
-            
-            // Enter key to submit login
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleLogin();
-                }
-            });
         });
-
-        // Expose functions globally
+        
         window.showLoginForm = showLoginForm;
         window.showCreateForm = showCreateForm;
         window.handleLogin = handleLogin;
