@@ -105,14 +105,15 @@
         }
         .dropdown-menu {
             display: none;
-            position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 12px; padding: 8px; min-width: 180px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
+        .dropdown-menu::before { content: ""; position: absolute; top: -15px; left: 0; right: 0; height: 15px; background: transparent; }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu { display: block; }
+        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
         .dropdown-item {
             display: flex; align-items: center; gap: 8px;
             padding: 8px 12px; color: rgba(255,255,255,0.8);
@@ -152,6 +153,7 @@
         .btn-success { background: linear-gradient(135deg, #28a745, #20c997); color: #fff; }
         .btn-stop { background: linear-gradient(135deg, #dc3545, #ff4757); color: #fff; }
         .btn-sm { padding: 6px 10px; font-size: 10px; border-radius: 6px; }
+        .btn-assign { background: linear-gradient(135deg, #d4af37, #b89228); color: #0f172a; font-weight: 800; }
         
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab {
@@ -306,16 +308,6 @@
         .fee-completed { background: rgba(40,167,69,0.2); color: #34ce57; }
         .fee-partial { background: rgba(255,193,7,0.2); color: #ffc107; }
         
-        .assign-form {
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 10px;
-            text-align: left;
-        }
-        .assign-form h4 { color: var(--accent); margin-bottom: 10px; font-size: 0.85em; }
-        
         .qr-list-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
@@ -384,14 +376,8 @@
                             <option value="custom">🔖 Custom</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Start</label>
-                        <input type="number" id="qrStart" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label>End</label>
-                        <input type="number" id="qrEnd" min="1" value="5">
-                    </div>
+                    <div class="form-group"><label>Start</label><input type="number" id="qrStart" min="1" value="1"></div>
+                    <div class="form-group"><label>End</label><input type="number" id="qrEnd" min="1" value="5"></div>
                 </div>
                 <button class="btn btn-primary" onclick="generateQRCodes()"><i class="fas fa-qrcode"></i> Generate</button>
             </div>
@@ -516,7 +502,7 @@
         var scannerStream = null;
         var scannerActive = false;
         var generatedQRCodes = [];
-        var currentScannedStudent = null; // Store scanned student info for assignment
+        var currentScannedStudent = null;
         
         function switchQRTab(tabName) {
             document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
@@ -631,7 +617,6 @@
                     });
                 }
                 
-                // Store for assignment
                 currentScannedStudent = student;
                 
                 var allAssignedItems = [];
@@ -670,7 +655,6 @@
                     html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
                 }
                 
-                // FEE STATUS
                 if (studentFees.length > 0) {
                     html += '<h4>💰 Fee Status</h4>';
                     studentFees.forEach(function(f) {
@@ -682,7 +666,6 @@
                     });
                 }
                 
-                // ASSIGNED ITEMS
                 if (allAssignedItems.length > 0) {
                     html += '<h4>📦 Assigned Items (' + allAssignedItems.length + ')</h4>';
                     allAssignedItems.forEach(function(item) {
@@ -695,25 +678,12 @@
                 
                 html += '</div>';
                 
-                // ASSIGNMENT FORM
+                // ASSIGN BUTTON
                 if (student && student.adm) {
-                    html += '<div class="assign-form">' +
-                        '<h4><i class="fas fa-box"></i> Assign Item to ' + student.name + '</h4>' +
-                        '<div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">' +
-                        '<div class="form-group"><label>Item Type</label><select id="assignItemType">' +
-                        '<option value="book">📚 Book</option>' +
-                        '<option value="chair">🪑 Chair</option>' +
-                        '<option value="locker">🔒 Locker</option>' +
-                        '<option value="labcoat">🥼 Lab Coat</option>' +
-                        '<option value="calculator">🧮 Calculator</option>' +
-                        '<option value="laptop">💻 Laptop</option>' +
-                        '<option value="sports">⚽ Sports</option>' +
-                        '<option value="uniform">👔 Uniform</option>' +
-                        '<option value="other">📦 Other</option>' +
-                        '</select></div>' +
-                        '<div class="form-group"><label>Item Number</label><input type="text" id="assignItemNo" placeholder="e.g., CH-001"></div>' +
-                        '<div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="assignItemToScannedStudent()"><i class="fas fa-check"></i> Assign</button></div>' +
-                        '</div></div>';
+                    html += '<div style="margin-top:10px;text-align:center;">' +
+                        '<button class="btn btn-assign" onclick="goToAssignPage(\'' + student.adm + '\', \'' + student.name.replace(/'/g, "\\'") + '\')" style="width:100%;justify-content:center;">' +
+                        '<i class="fas fa-box"></i> Assign Item to ' + student.name + '</button>' +
+                        '</div>';
                 }
                 
                 targetDiv.innerHTML = html;
@@ -724,44 +694,11 @@
             });
         }
         
-        function assignItemToScannedStudent() {
-            if (!currentScannedStudent || !currentScannedStudent.adm) {
-                showNotification('No student scanned', 'warning');
-                return;
-            }
-            
-            var itemType = document.getElementById('assignItemType').value;
-            var itemNo = document.getElementById('assignItemNo').value.trim();
-            
-            if (!itemType) { showNotification('Select item type', 'warning'); return; }
-            if (!itemNo) { showNotification('Enter item number', 'warning'); return; }
-            
+        // Navigate to assign page with student data
+        function goToAssignPage(adm, name) {
             var school = getCurrentSchool();
-            var user = getCurrentUser();
-            
-            API.assignItem(school, {
-                studentName: currentScannedStudent.name,
-                adm: currentScannedStudent.adm,
-                itemType: itemType,
-                itemNo: itemNo,
-                assignedBy: user ? user.name : ''
-            }).then(function(result) {
-                if (result.success) {
-                    showNotification('Item assigned to ' + currentScannedStudent.name + '!', 'success');
-                    logAction('Item Assigned', itemType + ' ' + itemNo + ' to ' + currentScannedStudent.name);
-                    document.getElementById('assignItemNo').value = '';
-                    
-                    // Refresh the display
-                    var detailsDiv = document.getElementById('scanDetails');
-                    if (detailsDiv) {
-                        fetchStudentDataWithAssign(school, currentScannedStudent.adm, detailsDiv);
-                    }
-                } else {
-                    showNotification(result.error || 'Failed to assign', 'error');
-                }
-            }).catch(function() {
-                showNotification('Failed to assign item', 'error');
-            });
+            var url = 'assign.html?adm=' + encodeURIComponent(adm) + '&name=' + encodeURIComponent(name) + '&school=' + encodeURIComponent(school);
+            window.location.href = url;
         }
         
         function getItemIcon(itemType) {
@@ -987,7 +924,7 @@
         window.startScanner = startScanner;
         window.stopScanner = stopScanner;
         window.scanImageFromFile = scanImageFromFile;
-        window.assignItemToScannedStudent = assignItemToScannedStudent;
+        window.goToAssignPage = goToAssignPage;
         window.downloadQR = downloadQR;
         window.copyQRCode = copyQRCode;
         window.logoutWithConfirm = logoutWithConfirm;
