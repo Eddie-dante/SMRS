@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Student ID Cards | School Resource Management System</title>
-    <meta name="description" content="Generate and manage student ID cards with QR codes">
+    <meta name="description" content="Generate beautiful student ID cards with QR codes">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Great+Vibes&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -21,21 +22,44 @@
     
     <style>
         :root {
+            --gold-primary: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #aa7c11;
+            --bg-dark: #080a0f;
+            --card-width: 450px;
+            --card-height: 270px;
             --primary: #e94560;
             --accent: #d4af37;
-            --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
             --transition: all 0.3s ease;
         }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(170, 124, 17, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, #05070a 100%),
+                linear-gradient(135deg, #090d16 0%, #030407 100%);
+            background-attachment: fixed;
             color: #ffffff;
             overflow-x: hidden;
             padding-bottom: 120px;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+            opacity: 0.4;
+            z-index: 0;
         }
         
         .taskbar {
@@ -48,7 +72,7 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
+        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold-primary); font-weight: 900; font-size: 22px; text-decoration: none; }
         .taskbar-logo i { font-size: 26px; }
         .taskbar-right { display: flex; gap: 8px; }
         .taskbar-icon-btn {
@@ -89,10 +113,10 @@
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold-primary); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
-            border-color: var(--gold);
+            border-color: var(--gold-primary);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
         .btn-badge {
@@ -124,21 +148,25 @@
         
         .main-content {
             padding: 85px 25px 25px;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
             font-size: 1.8em; font-weight: 900;
-            background: linear-gradient(180deg, #fff, #d4af37);
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(180deg, #f3e5ab, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 1px;
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         
@@ -149,164 +177,150 @@
             display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #e94560, #c62a47); color: #fff;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
+            color: #05070a;
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(212, 175, 55, 0.4); }
         .btn-secondary {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
-        .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
-        .btn-success { background: rgba(40,167,69,0.2); color: #34ce57; border: 1px solid rgba(40,167,69,0.4); }
         
-        .search-bar {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; margin-bottom: 15px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-        }
-        .search-bar i { color: rgba(255,255,255,0.5); }
-        .search-bar input {
-            flex: 1; background: none; border: none;
-            color: #fff; font-size: 14px; outline: none;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .filters { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .filters select {
-            padding: 10px 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #fff;
-            font-family: 'Inter', sans-serif; outline: none;
-        }
-        .filters select option { background: #1a1f4e; }
-        
-        .students-grid {
+        .app-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: 380px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        @media (max-width: 968px) { .app-grid { grid-template-columns: 1fr; } }
+        
+        .panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
-        .student-id-card {
-            background: linear-gradient(135deg, #0a0e27, #1a1f4e);
-            border: 2px solid #d4af37;
-            border-radius: 16px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            transition: var(--transition);
+        .panel h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 10px;
         }
-        .student-id-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
-        .student-id-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
-        }
-        .student-id-card .id-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px; padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .student-id-card .id-header .school-name {
-            font-size: 12px; font-weight: 700; color: #d4af37; letter-spacing: 1px;
-        }
-        .student-id-card .id-header .id-type {
-            font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase;
-            letter-spacing: 2px; background: rgba(212,175,55,0.15);
-            padding: 3px 10px; border-radius: 20px;
-        }
-        .student-id-card .id-body {
-            display: flex; gap: 15px; align-items: center;
-        }
-        .student-id-card .id-avatar {
-            width: 70px; height: 70px; border-radius: 50%;
-            background: linear-gradient(135deg, #d4af37, #f0d060);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px; font-weight: 900; color: #0a0e27;
-            flex-shrink: 0; border: 3px solid #d4af37;
-        }
-        .student-id-card .id-details { flex: 1; min-width: 0; }
-        .student-id-card .id-details .name {
-            font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 2px;
-        }
-        .student-id-card .id-details .adm {
-            font-size: 11px; color: #d4af37; font-weight: 600; letter-spacing: 1px;
-        }
-        .student-id-card .id-details .info-row {
-            display: flex; gap: 12px; margin-top: 4px;
-            font-size: 10px; color: rgba(255,255,255,0.5); flex-wrap: wrap;
-        }
-        .student-id-card .id-footer {
-            margin-top: 12px; padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .student-id-card .id-footer .qr-code {
-            width: 55px; height: 55px; background: white;
-            border-radius: 8px; padding: 4px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .student-id-card .id-footer .qr-code img { width: 100%; height: 100%; }
-        .student-id-card .id-footer .qr-code .no-qr {
-            font-size: 8px; color: #999; text-align: center;
-        }
-        .student-id-card .id-footer .valid-date {
-            font-size: 8px; color: rgba(255,255,255,0.3); text-align: right;
-        }
-        .student-id-card .id-actions {
-            margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-        }
-        .student-id-card .id-actions .btn { flex: 1; justify-content: center; font-size: 11px; padding: 8px 12px; }
         
-        .modal {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1300;
-            justify-content: center; align-items: center;
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block; font-size: 0.75rem; font-weight: 600;
+            color: rgba(243, 229, 171, 0.8); margin-bottom: 5px;
+            letter-spacing: 0.5px; text-transform: uppercase;
         }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: rgba(26, 31, 78, 0.95);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px; padding: 30px;
-            width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto;
-        }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .modal-header h3 { color: var(--accent); }
-        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
-        .form-group select {
-            width: 100%; padding: 10px 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
+        .form-group select, .form-group input {
+            width: 100%; padding: 10px 12px;
+            background: rgba(8, 11, 18, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.25);
             border-radius: 10px; color: #fff;
-            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .form-group select:focus, .form-group input:focus {
+            outline: none; border-color: var(--gold-primary);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
         }
         .form-group select option { background: #1a1f4e; }
         
-        .loading-spinner {
-            text-align: center; padding: 40px; color: rgba(255,255,255,0.5);
-            grid-column: 1 / -1;
+        .id-card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background: linear-gradient(135deg, #ffffff 0%, #f4f5f8 100%);
+            color: #1e293b;
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 25px rgba(212, 175, 55, 0.15);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(212, 175, 55, 0.4);
         }
-        .loading-spinner i { font-size: 36px; color: var(--accent); margin-bottom: 10px; display: block; }
-        .empty-state {
-            text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.4);
-            grid-column: 1 / -1;
+        
+        .card-header {
+            background: linear-gradient(135deg, #4a0014 0%, #200008 100%);
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--gold-primary);
         }
-        .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; color: var(--accent); }
+        .header-title h3 { font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gold-light); }
+        .header-title p { font-size: 0.6rem; color: rgba(255, 255, 255, 0.8); }
+        .card-badge { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-size: 0.55rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .card-body { padding: 12px 16px; display: grid; grid-template-columns: 90px 1fr auto; gap: 12px; height: 100%; align-items: start; }
+        .photo-box { width: 90px; height: 110px; border-radius: 6px; border: 2px solid var(--gold-primary); overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .photo-box .initials { font-size: 28px; font-weight: 900; color: #334155; font-family: 'Cinzel', serif; }
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .details-box { display: flex; flex-direction: column; gap: 3px; }
+        .detail-item { font-size: 0.65rem; line-height: 1.2; }
+        .detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.55rem; display: block; }
+        .detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.7rem; }
+        
+        .side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; padding-bottom: 5px; }
+        .qr-code-box { background: #fff; padding: 4px; border-radius: 6px; border: 1px solid var(--gold-primary); }
+        .signature-box { text-align: center; margin-top: 5px; }
+        .signature-line { font-family: 'Great Vibes', cursive; font-size: 1rem; color: #0f172a; line-height: 1; }
+        .signature-title { font-size: 0.45rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+        
+        .card-footer {
+            background: #f1f5f9;
+            border-top: 1px solid #cbd5e1;
+            padding: 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #334155;
+            margin-top: auto;
+        }
+        
+        .card-preview-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 10px; gap: 4px; }
             .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
-            .students-grid { grid-template-columns: 1fr; }
-            .student-id-card .id-body { flex-direction: column; text-align: center; }
+            .app-grid { grid-template-columns: 1fr; }
+            .id-card { width: 100%; max-width: 450px; height: auto; min-height: 250px; }
+            .card-body { grid-template-columns: 70px 1fr auto; gap: 8px; padding: 8px; }
+            .photo-box { width: 70px; height: 90px; }
             .page-header { flex-direction: column; align-items: stretch; }
+        }
+        
+        @media print {
+            body { background: #fff; padding: 0; }
+            body::before { display: none; }
+            .taskbar, .floating-navbar-container, .panel:first-child, .btn-primary { display: none !important; }
+            .main-content { padding: 20px; margin: 0; }
+            .app-grid { display: block; }
+            .panel { border: none; box-shadow: none; padding: 0; background: transparent; backdrop-filter: none; }
+            .id-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -324,68 +338,80 @@
     <div class="main-content">
         <div class="page-header">
             <div>
-                <h1><i class="fas fa-id-card" style="color:var(--accent);"></i> Student ID Cards</h1>
-                <p>Generate and manage student ID cards with QR codes</p>
+                <h1><i class="fas fa-id-card"></i> Student ID Cards</h1>
+                <p>Generate beautiful ID cards with QR codes</p>
             </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button class="btn btn-primary" onclick="openModal('generateIDModal')">
-                    <i class="fas fa-qrcode"></i> Generate ID Card
-                </button>
-                <button class="btn btn-secondary" onclick="refreshStudents()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Card</button>
         </div>
         
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchStudents" placeholder="Search by name or ADM..." onkeyup="filterStudents()">
-        </div>
-        
-        <div class="filters">
-            <select id="filterForm" onchange="filterStudents()">
-                <option value="">All Forms</option>
-                <option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option>
-            </select>
-            <select id="filterStream" onchange="filterStudents()">
-                <option value="">All Streams</option>
-                <option>East</option><option>West</option><option>North</option><option>South</option>
-            </select>
-            <select id="filterQR" onchange="filterStudents()">
-                <option value="">All Students</option>
-                <option value="has">Has QR Code</option>
-                <option value="no">No QR Code</option>
-            </select>
-        </div>
-        
-        <div class="students-grid" id="studentsGrid">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i>
-                Loading students...
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="generateIDModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-id-card"></i> Generate Student ID Card</h3>
-                <button class="modal-close" onclick="closeModal('generateIDModal')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="form-group">
-                <label>Select Student</label>
-                <select id="studentSelect" onchange="previewStudentForID()">
-                    <option value="">Select a student...</option>
-                </select>
-            </div>
-            <div id="idPreview" style="margin-top:15px;"></div>
-            <div id="idActions" style="display:none;margin-top:15px;gap:10px;flex-wrap:wrap;">
-                <button class="btn btn-primary" onclick="generateStudentID()" style="flex:1;">
-                    <i class="fas fa-qrcode"></i> Generate QR & ID
+        <div class="app-grid">
+            <div class="panel">
+                <h3><i class="fas fa-user-edit"></i> Select Student</h3>
+                <div class="form-group">
+                    <label>Choose Student</label>
+                    <select id="studentSelect" onchange="loadStudentForCard()">
+                        <option value="">-- Select a student --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Student Photo (Optional)</label>
+                    <input type="file" id="photoUpload" accept="image/*" onchange="loadPhoto(event)">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Student ID Card
                 </button>
-                <button class="btn btn-secondary" onclick="printStudentIDCard()" style="flex:1;">
-                    <i class="fas fa-print"></i> Print
-                </button>
+            </div>
+            
+            <div class="panel card-preview-wrapper">
+                <h3>Live Preview</h3>
+                
+                <div class="id-card" id="card">
+                    <div class="card-header">
+                        <div class="header-title">
+                            <h3 id="cardSchool">SCHOOL NAME</h3>
+                            <p id="cardLocation">Location</p>
+                        </div>
+                        <div class="card-badge">Student ID</div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="photo-box">
+                            <span class="initials" id="cardPhotoInitials">ST</span>
+                        </div>
+                        
+                        <div class="details-box">
+                            <div class="detail-item">
+                                <span class="label">Student Name</span>
+                                <span class="value" id="cardName">Student Name</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Student ID</span>
+                                <span class="value" id="cardId">ADM Number</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Class / Stream</span>
+                                <span class="value"><span id="cardGrade">Form</span> - <span id="cardStream">Stream</span></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Gender</span>
+                                <span class="value" id="cardGender">Gender</span>
+                            </div>
+                        </div>
+                        
+                        <div class="side-box">
+                            <div class="qr-code-box" id="qrcode"></div>
+                            <div class="signature-box">
+                                <div class="signature-line" id="cardSignature">Signature</div>
+                                <div class="signature-title">Authorized Signature</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <span>VALID UNTIL: <span id="cardExpiry">31 DEC 2026</span></span>
+                        <span>SRMS ID</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -416,7 +442,7 @@
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
+                    <a class="dropdown-item" href="StudentsIDs.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
             
@@ -457,247 +483,147 @@
     <script src="js/app.js"></script>
     
     <script>
-        var allStudents = [];
-        var allQRCodes = [];
-        var selectedStudentId = null;
+        var qrcodeInstance = null;
+        var allStudentsData = [];
         
         document.addEventListener('DOMContentLoaded', function() {
-            loadStudents();
-            loadStudentSelect();
+            loadStudentsForSelect();
         });
         
-        function loadStudents() {
+        function loadStudentsForSelect() {
             var school = getCurrentSchool();
             if (!school) return;
-            document.getElementById('studentsGrid').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i>Loading students...</div>';
             
-            Promise.all([API.getStudents(school), API.getQRCodes(school)]).then(function(results) {
-                allStudents = results[0] || [];
-                allQRCodes = results[1] || [];
-                renderStudents(allStudents);
-            }).catch(function(err) {
-                document.getElementById('studentsGrid').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading students</p></div>';
-            });
-        }
-        
-        function renderStudents(students) {
-            var grid = document.getElementById('studentsGrid');
-            var school = getCurrentSchool();
-            if (!students || students.length === 0) {
-                grid.innerHTML = '<div class="empty-state"><i class="fas fa-user-graduate"></i><p>No students found</p></div>';
-                return;
-            }
-            var html = '';
-            students.forEach(function(student) {
-                var qrCode = null;
-                allQRCodes.forEach(function(qr) {
-                    if (qr.adm === student.adm && qr.type === 'student' && !qr.returned) qrCode = qr;
+            Promise.all([API.getStudents(school), API.getClasses(school)]).then(function(results) {
+                var students = results[0] || [];
+                var classes = results[1] || [];
+                
+                var allStudents = [];
+                var seenAdms = {};
+                
+                students.forEach(function(s) {
+                    if (s.adm && !seenAdms[s.adm]) {
+                        seenAdms[s.adm] = true;
+                        allStudents.push(s);
+                    }
                 });
-                var initials = getInitials(student.name);
-                var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
-                var today = new Date();
-                var expiryDate = new Date(today);
-                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-                html += '<div class="student-id-card" data-adm="' + student.adm + '">' +
-                    '<div class="id-header"><span class="school-name">' + school + '</span><span class="id-type">' + (qrCode ? 'Active' : 'No QR') + '</span></div>' +
-                    '<div class="id-body"><div class="id-avatar">' + initials + '</div>' +
-                    '<div class="id-details"><div class="name">' + student.name + '</div>' +
-                    '<div class="adm">ADM: ' + student.adm + '</div>' +
-                    '<div class="info-row"><span>' + (student.form || 'Form: -') + '</span><span>' + (student.stream || 'Stream: -') + '</span><span>' + (student.gender || '-') + '</span></div></div></div>' +
-                    '<div class="id-footer"><div class="qr-code">' + (qrUrl ? '<img src="' + qrUrl + '" alt="QR">' : '<div class="no-qr">No QR<br>Code</div>') + '</div>' +
-                    '<div class="valid-date"><div>Valid Until</div><div>' + expiryDate.toLocaleDateString() + '</div></div></div>' +
-                    '<div class="id-actions">' +
-                    (!qrCode ? '<button class="btn btn-primary btn-sm" onclick="generateIDForStudent(\'' + student.adm + '\')"><i class="fas fa-qrcode"></i> Generate QR</button>' : '') +
-                    '<button class="btn btn-secondary btn-sm" onclick="printStudentCard(\'' + student.adm + '\')"><i class="fas fa-print"></i> Print</button>' +
-                    '<button class="btn btn-secondary btn-sm" onclick="viewStudentDetails(\'' + student.adm + '\')"><i class="fas fa-eye"></i> View</button></div></div>';
-            });
-            grid.innerHTML = html;
-        }
-        
-        function filterStudents() {
-            var searchTerm = document.getElementById('searchStudents').value.toLowerCase();
-            var formFilter = document.getElementById('filterForm').value;
-            var streamFilter = document.getElementById('filterStream').value;
-            var qrFilter = document.getElementById('filterQR').value;
-            var filtered = allStudents.filter(function(student) {
-                var matchesSearch = student.name.toLowerCase().includes(searchTerm) || student.adm.toLowerCase().includes(searchTerm);
-                var matchesForm = !formFilter || student.form === formFilter;
-                var matchesStream = !streamFilter || student.stream === streamFilter;
-                var hasQR = false;
-                allQRCodes.forEach(function(qr) {
-                    if (qr.adm === student.adm && qr.type === 'student' && !qr.returned) hasQR = true;
+                
+                classes.forEach(function(c) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = st.ADM || st.adm || st["ADM No"] || "";
+                        var name = st.Name || st.name || st["Full Name"] || "Unknown";
+                        if (adm && !seenAdms[adm]) {
+                            seenAdms[adm] = true;
+                            allStudents.push({
+                                name: name,
+                                adm: adm,
+                                form: c.name,
+                                stream: c.stream || "",
+                                gender: st.Gender || st.gender || ""
+                            });
+                        }
+                    });
                 });
-                var matchesQR = true;
-                if (qrFilter === 'has') matchesQR = hasQR;
-                if (qrFilter === 'no') matchesQR = !hasQR;
-                return matchesSearch && matchesForm && matchesStream && matchesQR;
-            });
-            renderStudents(filtered);
-        }
-        
-        function refreshStudents() {
-            loadStudents();
-            loadStudentSelect();
-            showNotification('Refreshed!', 'success');
-        }
-        
-        function loadStudentSelect() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            API.getStudents(school).then(function(students) {
+                
+                allStudentsData = allStudents;
+                
                 var select = document.getElementById('studentSelect');
                 if (!select) return;
-                var html = '<option value="">Select a student...</option>';
-                students.forEach(function(s) {
+                var html = '<option value="">-- Select a student --</option>';
+                allStudents.forEach(function(s) {
                     html += '<option value="' + s.adm + '">' + s.name + ' (' + s.adm + ')</option>';
                 });
                 select.innerHTML = html;
+            }).catch(function(err) {
+                console.error('Error loading students:', err);
             });
         }
         
-        function previewStudentForID() {
+        function loadStudentForCard() {
             var adm = document.getElementById('studentSelect').value;
-            var preview = document.getElementById('idPreview');
-            var actions = document.getElementById('idActions');
             if (!adm) {
-                preview.innerHTML = '';
-                actions.style.display = 'none';
+                resetCard();
                 return;
             }
+            
             var student = null;
-            allStudents.forEach(function(s) { if (s.adm === adm) student = s; });
-            if (!student) {
-                preview.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);">Student not found</p>';
-                actions.style.display = 'none';
-                return;
-            }
-            selectedStudentId = adm;
-            var initials = getInitials(student.name);
-            var hasQR = false;
-            allQRCodes.forEach(function(qr) { if (qr.adm === adm && qr.type === 'student' && !qr.returned) hasQR = true; });
-            preview.innerHTML = '<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:15px;">' +
-                '<div style="display:flex;align-items:center;gap:15px;margin-bottom:10px;">' +
-                '<div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#0a0e27;">' + initials + '</div>' +
-                '<div><div style="font-weight:700;font-size:16px;">' + student.name + '</div>' +
-                '<div style="font-size:12px;color:var(--accent);">ADM: ' + student.adm + '</div>' +
-                '<div style="font-size:11px;color:rgba(255,255,255,0.4);">' + (student.form || 'Form: -') + ' | ' + (student.stream || 'Stream: -') + '</div></div></div>' +
-                '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);font-size:11px;color:' + (hasQR ? '#34ce57' : 'rgba(255,255,255,0.3)') + ';">' +
-                '<i class="fas fa-qrcode"></i> ' + (hasQR ? 'QR Code generated' : 'No QR Code - Click Generate below') + '</div></div>';
-            actions.style.display = 'flex';
-        }
-        
-        function generateStudentID() {
-            if (!selectedStudentId) {
-                showNotification('Select a student first', 'warning');
-                return;
-            }
-            var school = getCurrentSchool();
-            API.generateStudentID(school, selectedStudentId).then(function(result) {
-                if (result.success) {
-                    showNotification('ID Card generated!', 'success');
-                    closeModal('generateIDModal');
-                    loadStudents();
-                    loadStudentSelect();
-                } else {
-                    showNotification('Error: ' + result.error, 'error');
-                }
-            }).catch(function() {
-                showNotification('Failed to generate ID', 'error');
+            allStudentsData.forEach(function(s) {
+                if (s.adm === adm) student = s;
             });
-        }
-        
-        function generateIDForStudent(adm) {
-            var school = getCurrentSchool();
-            API.generateStudentID(school, adm).then(function(result) {
-                if (result.success) {
-                    showNotification('QR Code generated!', 'success');
-                    loadStudents();
-                } else {
-                    showNotification('Error: ' + result.error, 'error');
-                }
-            }).catch(function() {
-                showNotification('Failed to generate QR', 'error');
-            });
-        }
-        
-        function printStudentCard(adm) {
-            var student = null;
-            allStudents.forEach(function(s) { if (s.adm === adm) student = s; });
+            
             if (!student) return;
-            var qrCode = null;
-            allQRCodes.forEach(function(qr) { if (qr.adm === adm && qr.type === 'student' && !qr.returned) qrCode = qr; });
-            var school = getCurrentSchool();
+            
+            var schoolName = getCurrentSchool() || 'SCHOOL NAME';
             var initials = getInitials(student.name);
-            var qrUrl = qrCode ? 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(qrCode.code) + '&format=png&bgcolor=ffffff&color=0a0e27&ecc=H' : '';
+            
+            document.getElementById('cardSchool').textContent = schoolName.toUpperCase();
+            document.getElementById('cardLocation').textContent = 'School Location';
+            document.getElementById('cardName').textContent = student.name.toUpperCase();
+            document.getElementById('cardId').textContent = student.adm;
+            document.getElementById('cardGrade').textContent = (student.form || 'Form').toUpperCase();
+            document.getElementById('cardStream').textContent = (student.stream || 'Stream').toUpperCase();
+            document.getElementById('cardGender').textContent = (student.gender || 'N/A').toUpperCase();
+            document.getElementById('cardPhotoInitials').textContent = initials;
+            document.getElementById('cardSignature').textContent = student.name;
+            
             var expiryDate = new Date();
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-            var printWindow = window.open('', '_blank');
-            printWindow.document.write('<html><head><title>Student ID - ' + student.name + '</title>' +
-                '<style>body{display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f0f0f0;font-family:Arial;}' +
-                '.card{background:linear-gradient(135deg,#0a0e27,#1a1f4e);border:3px solid #d4af37;border-radius:16px;padding:25px;width:380px;color:white;}' +
-                '.header{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:15px;}' +
-                '.school{font-size:14px;font-weight:700;color:#d4af37;}' +
-                '.body{display:flex;gap:15px;align-items:center;}' +
-                '.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#f0d060);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#0a0e27;border:3px solid #d4af37;}' +
-                '.name{font-size:18px;font-weight:700;}' +
-                '.adm{font-size:12px;color:#d4af37;}' +
-                '.footer{display:flex;justify-content:space-between;margin-top:15px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);}' +
-                '.qr{width:70px;height:70px;background:white;border-radius:8px;padding:5px;}' +
-                '</style></head><body><div class="card">' +
-                '<div class="header"><span class="school">' + school + '</span><span>Student ID</span></div>' +
-                '<div class="body"><div class="avatar">' + initials + '</div>' +
-                '<div><div class="name">' + student.name + '</div><div class="adm">ADM: ' + student.adm + '</div>' +
-                '<div style="font-size:11px;color:rgba(255,255,255,0.6);">' + (student.form || '') + ' | ' + (student.stream || '') + '</div></div></div>' +
-                '<div class="footer"><div class="qr">' + (qrUrl ? '<img src="' + qrUrl + '" width="60" height="60">' : 'No QR') + '</div>' +
-                '<div style="font-size:9px;text-align:right;">Valid Until<br>' + expiryDate.toLocaleDateString() + '</div></div></div></body></html>');
-            printWindow.document.close();
-            setTimeout(function() { printWindow.print(); }, 500);
+            var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+            var expiryStr = expiryDate.getDate() + ' ' + months[expiryDate.getMonth()] + ' ' + expiryDate.getFullYear();
+            document.getElementById('cardExpiry').textContent = expiryStr;
+            
+            generateQRCode(student.adm);
         }
         
-        function printStudentIDCard() {
-            if (selectedStudentId) printStudentCard(selectedStudentId);
-            else showNotification('Select a student first', 'warning');
+        function resetCard() {
+            document.getElementById('cardSchool').textContent = 'SCHOOL NAME';
+            document.getElementById('cardLocation').textContent = 'Location';
+            document.getElementById('cardName').textContent = 'Student Name';
+            document.getElementById('cardId').textContent = 'ADM Number';
+            document.getElementById('cardGrade').textContent = 'Form';
+            document.getElementById('cardStream').textContent = 'Stream';
+            document.getElementById('cardGender').textContent = 'Gender';
+            document.getElementById('cardPhotoInitials').textContent = 'ST';
+            document.getElementById('cardSignature').textContent = 'Signature';
+            document.getElementById('cardExpiry').textContent = '31 DEC 2026';
+            generateQRCode('STUDENT000000');
         }
         
-        function viewStudentDetails(adm) {
-            var student = null;
-            allStudents.forEach(function(s) { if (s.adm === adm) student = s; });
-            if (!student) return;
-            var qrCode = null;
-            allQRCodes.forEach(function(qr) { if (qr.adm === adm && qr.type === 'student' && !qr.returned) qrCode = qr; });
-            var html = '<div style="background:rgba(212,175,55,0.1);border:1px solid var(--accent);border-radius:12px;padding:20px;">' +
-                '<h4 style="color:var(--accent);margin-bottom:15px;"><i class="fas fa-user-graduate"></i> Student Details</h4>' +
-                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">' +
-                '<div><strong>Name:</strong></div><div>' + student.name + '</div>' +
-                '<div><strong>ADM:</strong></div><div>' + student.adm + '</div>' +
-                '<div><strong>Form:</strong></div><div>' + (student.form || '-') + '</div>' +
-                '<div><strong>Stream:</strong></div><div>' + (student.stream || '-') + '</div>' +
-                '<div><strong>Gender:</strong></div><div>' + (student.gender || '-') + '</div>' +
-                '<div><strong>Parent:</strong></div><div>' + (student.parentName || '-') + '</div>' +
-                '<div><strong>Parent Phone:</strong></div><div>' + (student.parentPhone || '-') + '</div>' +
-                '<div><strong>QR Code:</strong></div><div>' + (qrCode ? 'Generated' : 'Not generated') + '</div></div>' +
-                '<div style="margin-top:15px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">' +
-                '<button class="btn btn-primary btn-sm" onclick="printStudentCard(\'' + adm + '\')"><i class="fas fa-print"></i> Print ID</button>' +
-                (!qrCode ? '<button class="btn btn-success btn-sm" onclick="generateIDForStudent(\'' + adm + '\')"><i class="fas fa-qrcode"></i> Generate QR</button>' : '') +
-                '</div></div>';
-            var modal = document.createElement('div');
-            modal.className = 'modal active';
-            modal.id = 'viewStudentModal';
-            modal.innerHTML = '<div class="modal-content"><div class="modal-header"><h3>Student Details</h3>' +
-                '<button class="modal-close" onclick="closeModal(\'viewStudentModal\')"><i class="fas fa-times"></i></button></div>' + html + '</div>';
-            document.body.appendChild(modal);
-        }
-        
-        function showNotification(message, type) {
-            if (typeof window.showNotification === 'function') {
-                window.showNotification(message, type);
-            } else {
-                var div = document.createElement('div');
-                div.style.cssText = 'position:fixed;top:80px;right:20px;padding:15px 20px;background:#28a745;color:#fff;border-radius:10px;z-index:9999;font-size:14px;';
-                div.textContent = message;
-                document.body.appendChild(div);
-                setTimeout(function() { div.remove(); }, 3000);
+        function generateQRCode(text) {
+            var container = document.getElementById('qrcode');
+            container.innerHTML = '';
+            
+            try {
+                qrcodeInstance = new QRCode(container, {
+                    text: text || 'STUDENT000000',
+                    width: 58,
+                    height: 58,
+                    colorDark: '#05070a',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch(e) {
+                console.error('QR generation error:', e);
             }
+        }
+        
+        function loadPhoto(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var photoBox = document.querySelector('.photo-box');
+                photoBox.innerHTML = '<img src="' + e.target.result + '" alt="Student Photo">';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function getInitials(name) {
+            if (!name) return 'ST';
+            var parts = name.trim().split(' ');
+            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
         }
         
         function logoutWithConfirm() {
@@ -716,19 +642,12 @@
             window.location.href = 'index.html';
         }
         
-        window.loadStudents = loadStudents;
-        window.renderStudents = renderStudents;
-        window.filterStudents = filterStudents;
-        window.refreshStudents = refreshStudents;
-        window.generateStudentID = generateStudentID;
-        window.generateIDForStudent = generateIDForStudent;
-        window.printStudentCard = printStudentCard;
-        window.printStudentIDCard = printStudentIDCard;
-        window.viewStudentDetails = viewStudentDetails;
-        window.previewStudentForID = previewStudentForID;
+        window.loadStudentForCard = loadStudentForCard;
+        window.loadPhoto = loadPhoto;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
-        window.showNotification = showNotification;
+        
+        generateQRCode('STUDENT000000');
     </script>
 </body>
 </html>
