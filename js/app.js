@@ -1682,76 +1682,943 @@ function deleteNote(noteId) {
   });
 }
 
-// ============ EXPORT ALL FUNCTIONS ============
-window.loadDashboardData = loadDashboardData;
-window.loadLibraryData = loadLibraryData;
-window.loadStudentsData = loadStudentsData;
-window.loadFurnitureData = loadFurnitureData;
-window.loadChatUsers = loadChatUsers;
-window.loadForumMessages = loadForumMessages;
-window.loadNotes = loadNotes;
+// ============ MISSING FUNCTIONS ============
+
+function loadEvents() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getEvents(school)
+    .then(function (events) {
+      var container = document.getElementById("eventsList");
+      if (!container) return;
+
+      if (!events || events.length === 0) {
+        container.innerHTML =
+          '<p style="text-align:center;color:rgba(255,255,255,0.5);">No events</p>';
+        return;
+      }
+
+      events.sort(function (a, b) {
+        return new Date(a.eventDate) - new Date(b.eventDate);
+      });
+
+      var html = "";
+      events.forEach(function (event) {
+        html +=
+          '<div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;margin:10px 0;border-left:4px solid #e94560;">' +
+          '<div style="display:flex;justify-content:space-between;">' +
+          "<strong>" +
+          (event.title || "") +
+          "</strong>" +
+          '<span class="badge badge-info">' +
+          (event.eventType || "") +
+          "</span></div>" +
+          '<p style="margin:5px 0;">' +
+          (event.description || "") +
+          "</p>" +
+          "<small>" +
+          formatDate(event.eventDate) +
+          "</small></div>";
+      });
+      container.innerHTML = html;
+    })
+    .catch(function (error) {
+      console.error("Load events error:", error);
+    });
+}
+
+function addEvent(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+
+  var title = document.getElementById("eventTitle");
+  var eventDate = document.getElementById("eventDate");
+
+  if (!title || !title.value || !eventDate || !eventDate.value) {
+    showNotification("Title and date are required", "warning");
+    return false;
+  }
+
+  API.addEvent(school, {
+    title: title.value,
+    description: document.getElementById("eventDescription")
+      ? document.getElementById("eventDescription").value
+      : "",
+    eventDate: eventDate.value,
+    eventType: document.getElementById("eventType")
+      ? document.getElementById("eventType").value
+      : "Other",
+    createdBy: user ? user.name : "",
+  })
+    .then(function (result) {
+      if (result.success) {
+        showNotification("Event added!", "success");
+        logAction("Event Added", title.value);
+        closeModal("addEventModal");
+        loadEvents();
+      } else {
+        showNotification("Error: " + result.error, "error");
+      }
+    })
+    .catch(function (error) {
+      console.error("Add event error:", error);
+      showNotification("Failed to add event", "error");
+    });
+  return false;
+}
+
+function loadFeesData() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  Promise.all([API.getStudents(school), API.getFees(school)])
+    .then(function (results) {
+      var students = results[0] || [];
+      var fees = results[1] || [];
+
+      var select = document.getElementById("feeStudent");
+      if (select) {
+        var selectHtml = '<option value="">Select Student</option>';
+        students.forEach(function (s) {
+          selectHtml +=
+            '<option value="' +
+            s.adm +
+            '">' +
+            (s.name || "") +
+            " (" +
+            s.adm +
+            ")</option>";
+        });
+        select.innerHTML = selectHtml;
+      }
+
+      var tbody = document.getElementById("feesTableBody");
+      if (tbody) {
+        if (fees.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="8" style="text-align:center;">No fee records</td></tr>';
+        } else {
+          var html = "";
+          fees.forEach(function (fee) {
+            var badge =
+              fee.balance <= 0
+                ? '<span class="badge badge-success">Completed</span>'
+                : '<span class="badge badge-warning">Partial</span>';
+            html +=
+              "<tr>" +
+              "<td>" +
+              (fee.studentName || "-") +
+              "</td>" +
+              "<td>" +
+              (fee.studentAdm || "-") +
+              "</td>" +
+              "<td>KES " +
+              formatNumber(fee.amount || 0) +
+              "</td>" +
+              "<td>KES " +
+              formatNumber(fee.paid || 0) +
+              "</td>" +
+              "<td>KES " +
+              formatNumber(fee.balance || 0) +
+              "</td>" +
+              "<td>" +
+              (fee.term || "") +
+              "</td>" +
+              "<td>" +
+              badge +
+              "</td>" +
+              '<td><button class="btn btn-sm btn-primary" onclick="editFee(\'' +
+              fee.id +
+              '\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="deleteFee(\'' +
+              fee.id +
+              '\')"><i class="fas fa-trash"></i></button></td>' +
+              "</tr>";
+          });
+          tbody.innerHTML = html;
+        }
+      }
+
+      var totalFees = fees.reduce(function (s, f) {
+        return s + (f.amount || 0);
+      }, 0);
+      var totalPaid = fees.reduce(function (s, f) {
+        return s + (f.paid || 0);
+      }, 0);
+      var totalBalance = fees.reduce(function (s, f) {
+        return s + (f.balance || 0);
+      }, 0);
+
+      var totalEl = document.getElementById("totalFeesAmount");
+      var paidEl = document.getElementById("totalPaidAmount");
+      var balanceEl = document.getElementById("totalBalanceAmount");
+      if (totalEl) totalEl.textContent = formatCurrency(totalFees);
+      if (paidEl) paidEl.textContent = formatCurrency(totalPaid);
+      if (balanceEl) balanceEl.textContent = formatCurrency(totalBalance);
+    })
+    .catch(function (err) {
+      console.error("Fees data error:", err);
+    });
+}
+
+function saveFee(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var studentAdm = document.getElementById("feeStudent");
+  if (!studentAdm || !studentAdm.value) {
+    showNotification("Select a student", "warning");
+    return false;
+  }
+
+  var select = document.getElementById("feeStudent");
+  var studentName = select.options[select.selectedIndex].text.split(" (")[0];
+
+  var amount = document.getElementById("feeAmount");
+  var paid = document.getElementById("feePaid");
+  var term = document.getElementById("feeTerm");
+
+  API.saveFee(school, {
+    id: currentEditingFeeId,
+    studentAdm: studentAdm.value,
+    studentName: studentName,
+    amount: parseFloat(amount ? amount.value : 0) || 0,
+    paid: parseFloat(paid ? paid.value : 0) || 0,
+    term: term ? term.value || "Term 1" : "Term 1",
+  })
+    .then(function (result) {
+      if (result.success) {
+        showNotification(
+          currentEditingFeeId ? "Fee updated!" : "Fee saved!",
+          "success",
+        );
+        logAction(
+          currentEditingFeeId ? "Fee Updated" : "Fee Recorded",
+          studentName,
+        );
+        currentEditingFeeId = null;
+        var btn = document.getElementById("saveFeeBtn");
+        if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Save Fee';
+        loadFeesData();
+      } else {
+        showNotification("Error: " + result.error, "error");
+      }
+    })
+    .catch(function (error) {
+      console.error("Save fee error:", error);
+      showNotification("Failed to save fee", "error");
+    });
+  return false;
+}
+
+function editFee(feeId) {
+  if (!feeId) return;
+
+  var school = getCurrentSchool();
+  API.getFees(school).then(function (fees) {
+    fees.forEach(function (fee) {
+      if (fee.id === feeId) {
+        currentEditingFeeId = feeId;
+        var studentEl = document.getElementById("feeStudent");
+        var amountEl = document.getElementById("feeAmount");
+        var paidEl = document.getElementById("feePaid");
+        var termEl = document.getElementById("feeTerm");
+        var btnEl = document.getElementById("saveFeeBtn");
+
+        if (studentEl) studentEl.value = fee.studentAdm;
+        if (amountEl) amountEl.value = fee.amount;
+        if (paidEl) paidEl.value = fee.paid;
+        if (termEl) termEl.value = fee.term;
+        if (btnEl) btnEl.innerHTML = '<i class="fas fa-save"></i> Update Fee';
+      }
+    });
+  });
+}
+
+function deleteFee(feeId) {
+  if (!feeId) return;
+
+  DialogSystem.confirm("Delete this fee record?", {
+    title: "Delete Fee",
+    type: "danger",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+  }).then(function (confirmed) {
+    if (confirmed !== "confirm") return;
+
+    var school = getCurrentSchool();
+    API.deleteFee(school, feeId)
+      .then(function (result) {
+        if (result.success) {
+          showNotification("Fee deleted!", "success");
+          logAction("Fee Deleted", feeId);
+          loadFeesData();
+        }
+      })
+      .catch(function (error) {
+        console.error("Delete fee error:", error);
+        showNotification("Failed to delete fee", "error");
+      });
+  });
+}
+
+function loadTimetableData() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  Promise.all([
+    API.getTimetable(school),
+    API.getClasses(school),
+    API.getTeachers(school),
+  ])
+    .then(function (results) {
+      var timetable = results[0] || [];
+      var classes = results[1] || [];
+      var teachers = results[2] || [];
+
+      var tbody = document.getElementById("timetableBody");
+      if (tbody) {
+        if (timetable.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="6" style="text-align:center;">No entries</td></tr>';
+        } else {
+          var html = "";
+          timetable.forEach(function (t) {
+            html +=
+              "<tr><td>" +
+              (t.day || "-") +
+              "</td><td>" +
+              (t.period || "-") +
+              "</td><td>" +
+              (t.className || "-") +
+              "</td><td>" +
+              (t.subject || "-") +
+              "</td><td>" +
+              (t.teacher || "-") +
+              "</td><td>" +
+              (t.room || "-") +
+              "</td></tr>";
+          });
+          tbody.innerHTML = html;
+        }
+      }
+
+      var classSelect = document.getElementById("ttClass");
+      if (classSelect) {
+        var classHtml = "";
+        classes.forEach(function (c) {
+          classHtml +=
+            '<option value="' +
+            (c.name || "") +
+            '">' +
+            (c.name || "") +
+            " " +
+            (c.stream || "") +
+            "</option>";
+        });
+        classSelect.innerHTML = classHtml;
+      }
+
+      var teacherSelect = document.getElementById("ttTeacher");
+      if (teacherSelect) {
+        var teacherHtml = "";
+        teachers.forEach(function (t) {
+          teacherHtml +=
+            '<option value="' +
+            (t.name || "") +
+            '">' +
+            (t.name || "") +
+            "</option>";
+        });
+        teacherSelect.innerHTML = teacherHtml;
+      }
+    })
+    .catch(function (err) {
+      console.error("Timetable data error:", err);
+    });
+}
+
+function addTimetableEntry(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+
+  var className = document.getElementById("ttClass");
+  var day = document.getElementById("ttDay");
+  var period = document.getElementById("ttPeriod");
+  var subject = document.getElementById("ttSubject");
+  var teacher = document.getElementById("ttTeacher");
+  var room = document.getElementById("ttRoom");
+
+  if (
+    !className ||
+    !className.value ||
+    !day ||
+    !day.value ||
+    !period ||
+    !period.value ||
+    !subject ||
+    !subject.value
+  ) {
+    showNotification("Please fill in all required fields", "warning");
+    return false;
+  }
+
+  API.addTimetableEntry(school, {
+    className: className.value,
+    day: day.value,
+    period: period.value,
+    subject: subject.value,
+    teacher: teacher ? teacher.value : "",
+    room: room ? room.value : "",
+    createdBy: user ? user.name : "",
+  })
+    .then(function (result) {
+      if (result.success) {
+        showNotification("Entry added!", "success");
+        logAction("Timetable Added", subject.value);
+        if (subject) subject.value = "";
+        if (room) room.value = "";
+        loadTimetableData();
+      }
+    })
+    .catch(function (error) {
+      console.error("Add timetable error:", error);
+      showNotification("Failed to add entry", "error");
+    });
+  return false;
+}
+
+function loadTeachersData() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getTeachers(school)
+    .then(function (teachers) {
+      var tbody = document.getElementById("teachersTableBody");
+      if (!tbody) return;
+
+      if (!teachers || teachers.length === 0) {
+        tbody.innerHTML =
+          '<tr><td colspan="6" style="text-align:center;">No teachers</td></tr>';
+        return;
+      }
+
+      var html = "";
+      teachers.forEach(function (t) {
+        html +=
+          "<tr><td>" +
+          (t.name || "-") +
+          "</td><td>" +
+          (t.email || "-") +
+          "</td><td>" +
+          (t.phone || "-") +
+          "</td><td>" +
+          (t.subjects || "-") +
+          "</td><td>" +
+          (t.classes || "-") +
+          '</td><td><button class="btn btn-sm btn-danger" onclick="deleteTeacher(\'' +
+          t.id +
+          '\')"><i class="fas fa-trash"></i></button></td></tr>';
+      });
+      tbody.innerHTML = html;
+    })
+    .catch(function (error) {
+      console.error("Teachers data error:", error);
+    });
+}
+
+function addTeacher(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+
+  var name = document.getElementById("teacherName");
+  if (!name || !name.value) {
+    showNotification("Teacher name is required", "warning");
+    return false;
+  }
+
+  API.addTeacher(school, {
+    name: name.value,
+    email: document.getElementById("teacherEmail")
+      ? document.getElementById("teacherEmail").value
+      : "",
+    phone: document.getElementById("teacherPhone")
+      ? document.getElementById("teacherPhone").value
+      : "",
+    subjects: document.getElementById("teacherSubjects")
+      ? document.getElementById("teacherSubjects").value
+      : "",
+    classes: document.getElementById("teacherClasses")
+      ? document.getElementById("teacherClasses").value
+      : "",
+    addedBy: user ? user.name : "",
+  })
+    .then(function (result) {
+      if (result.success) {
+        showNotification("Teacher added!", "success");
+        logAction("Teacher Added", name.value);
+        closeModal("addTeacherModal");
+        loadTeachersData();
+      }
+    })
+    .catch(function (error) {
+      console.error("Add teacher error:", error);
+      showNotification("Failed to add teacher", "error");
+    });
+  return false;
+}
+
+function deleteTeacher(teacherId) {
+  if (!teacherId) return;
+
+  DialogSystem.confirm("Delete this teacher?", {
+    title: "Delete Teacher",
+    type: "danger",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+  }).then(function (confirmed) {
+    if (confirmed !== "confirm") return;
+
+    var school = getCurrentSchool();
+    API.deleteTeacher(school, teacherId)
+      .then(function (result) {
+        if (result.success) {
+          showNotification("Teacher deleted!", "success");
+          logAction("Teacher Deleted", teacherId);
+          loadTeachersData();
+        }
+      })
+      .catch(function (error) {
+        console.error("Delete teacher error:", error);
+        showNotification("Failed to delete teacher", "error");
+      });
+  });
+}
+
+function loadClassesData() {
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+  if (!school) return;
+
+  API.getClasses(school)
+    .then(function (classes) {
+      var container = document.getElementById("classesList");
+      if (!container) return;
+
+      if (!classes || classes.length === 0) {
+        container.innerHTML =
+          '<p style="text-align:center;color:rgba(255,255,255,0.5);">No classes yet</p>';
+        return;
+      }
+
+      var html = "";
+      classes.forEach(function (c) {
+        var studentCount = c.students ? c.students.length : 0;
+        var deleteBtn = "";
+        if (user && user.role === "admin") {
+          deleteBtn =
+            '<button class="btn btn-sm btn-danger" onclick="deleteClass(\'' +
+            c.id +
+            '\')"><i class="fas fa-trash"></i> Delete</button>';
+        }
+        html +=
+          '<div class="class-card">' +
+          "<h4>" +
+          (c.name || "") +
+          " " +
+          (c.stream || "") +
+          "</h4>" +
+          "<p>" +
+          studentCount +
+          " students</p>" +
+          "<p>Teacher: " +
+          (c.teacher || "Not assigned") +
+          "</p>" +
+          '<div class="class-actions">' +
+          '<button class="btn btn-sm btn-primary" onclick="viewClassStudents(\'' +
+          c.id +
+          '\')"><i class="fas fa-eye"></i> View</button> ' +
+          deleteBtn +
+          "</div></div>";
+      });
+      container.innerHTML = html;
+    })
+    .catch(function (error) {
+      console.error("Classes data error:", error);
+    });
+}
+
+function loadTerms() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getTerms(school)
+    .then(function (terms) {
+      var container = document.getElementById("termsList");
+      if (!container) return;
+
+      if (!terms || terms.length === 0) {
+        container.innerHTML =
+          '<p style="text-align:center;color:rgba(255,255,255,0.5);">No terms</p>';
+        return;
+      }
+
+      var html = "";
+      terms.forEach(function (term) {
+        var current = term.isCurrent ? "✅ Current" : "";
+        var border = term.isCurrent ? "border-left:4px solid #28a745;" : "";
+        html +=
+          '<div class="term-card" style="' +
+          border +
+          '">' +
+          "<h4>" +
+          (term.name || "") +
+          " " +
+          current +
+          "</h4>" +
+          "<p>" +
+          (term.startDate || "") +
+          " → " +
+          (term.endDate || "") +
+          "</p></div>";
+      });
+      container.innerHTML = html;
+    })
+    .catch(function (error) {
+      console.error("Terms data error:", error);
+    });
+}
+
+function addTerm(event) {
+  event.preventDefault();
+  var school = getCurrentSchool();
+  var user = getCurrentUser();
+
+  var name = document.getElementById("termName");
+  var startDate = document.getElementById("termStartDate");
+  var endDate = document.getElementById("termEndDate");
+
+  if (
+    !name ||
+    !name.value ||
+    !startDate ||
+    !startDate.value ||
+    !endDate ||
+    !endDate.value
+  ) {
+    showNotification("All fields are required", "warning");
+    return false;
+  }
+
+  API.addTerm(school, {
+    name: name.value,
+    startDate: startDate.value,
+    endDate: endDate.value,
+    createdBy: user ? user.name : "",
+  })
+    .then(function (result) {
+      if (result.success) {
+        showNotification("Term added!", "success");
+        logAction("Term Added", name.value);
+        closeModal("addTermModal");
+        loadTerms();
+      }
+    })
+    .catch(function (error) {
+      console.error("Add term error:", error);
+      showNotification("Failed to add term", "error");
+    });
+  return false;
+}
+
+function loadAuditLog() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getAuditLog(school)
+    .then(function (logs) {
+      var tbody = document.getElementById("auditLogBody");
+      if (!tbody) return;
+
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" style="text-align:center;">No audit log entries</td></tr>';
+        return;
+      }
+
+      var html = "";
+      logs.forEach(function (log) {
+        html +=
+          "<tr><td>" +
+          formatDateTime(log.timestamp) +
+          "</td><td>" +
+          (log.user || "-") +
+          "</td><td>" +
+          (log.userEmail || "-") +
+          "</td><td>" +
+          (log.action || "-") +
+          "</td><td>" +
+          (log.details || "-") +
+          "</td></tr>";
+      });
+      tbody.innerHTML = html;
+    })
+    .catch(function (error) {
+      console.error("Audit log error:", error);
+    });
+}
+
+function loadReports() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  Promise.all([
+    API.getBooks(school),
+    API.getStudents(school),
+    API.getBorrowed(school),
+    API.getFurniture(school),
+  ])
+    .then(function (results) {
+      var books = results[0] || [];
+      var students = results[1] || [];
+      var borrowed = results[2] || [];
+      var furniture = results[3] || [];
+
+      var activeLoans = borrowed.filter(function (b) {
+        return !b.returned;
+      });
+      var overdue = activeLoans.filter(function (b) {
+        return isOverdue(b.returnDate);
+      });
+      var returned = borrowed.filter(function (b) {
+        return b.returned;
+      });
+      var returnRate =
+        borrowed.length > 0
+          ? Math.round((returned.length / borrowed.length) * 100)
+          : 0;
+
+      var overdueEl = document.getElementById("overdueCount");
+      var activeEl = document.getElementById("activeLoansCount");
+      var rateEl = document.getElementById("returnRate");
+      var furnitureEl = document.getElementById("furnitureCount");
+
+      if (overdueEl) overdueEl.textContent = overdue.length;
+      if (activeEl) activeEl.textContent = activeLoans.length;
+      if (rateEl) rateEl.textContent = returnRate + "%";
+      if (furnitureEl) furnitureEl.textContent = furniture.length;
+
+      renderOverdueReport(overdue);
+      renderMonthlySummary(borrowed, furniture);
+
+      if (typeof Chart !== "undefined") {
+        try {
+          createBooksByTypeChart(books);
+          createStudentsByFormChart(students);
+          createFurnitureChart(furniture);
+          createBorrowingTrendChart(borrowed);
+        } catch (e) {
+          console.error("Chart error:", e);
+        }
+      }
+    })
+    .catch(function (error) {
+      console.error("Reports error:", error);
+    });
+}
+
+function loadSettingsData() {
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  API.getSchool(school).then(function (schoolInfo) {
+    if (schoolInfo) {
+      var nameEl = document.getElementById("schoolNameInput");
+      var addressEl = document.getElementById("schoolAddress");
+      var adminNameEl = document.getElementById("adminName");
+      var adminEmailEl = document.getElementById("adminEmail");
+      var mottoEl = document.getElementById("schoolMotto");
+
+      if (nameEl) nameEl.value = schoolInfo.name || "";
+      if (addressEl) addressEl.value = schoolInfo.address || "";
+      if (adminNameEl) adminNameEl.value = schoolInfo.adminName || "";
+      if (adminEmailEl) adminEmailEl.value = schoolInfo.adminEmail || "";
+      if (mottoEl) mottoEl.value = schoolInfo.motto || "";
+    }
+  });
+
+  API.getSettings(school).then(function (settings) {
+    if (settings) {
+      var borrowEl = document.getElementById("maxBorrowDays");
+      var maxBooksEl = document.getElementById("maxBooksPerStudent");
+      var fineEl = document.getElementById("finePerDay");
+
+      if (borrowEl) borrowEl.value = settings.maxBorrowDays || 14;
+      if (maxBooksEl) maxBooksEl.value = settings.maxBooksPerStudent || 3;
+      if (fineEl) fineEl.value = settings.finePerDay || 10;
+    }
+  });
+
+  API.getUsers(school)
+    .then(function (users) {
+      var tbody = document.getElementById("usersTableBody");
+      if (!tbody) return;
+
+      var currentUser = getCurrentUser();
+      var html = "";
+
+      (users || []).forEach(function (u) {
+        var status =
+          u.isActive !== false
+            ? '<span class="badge badge-success">Active</span>'
+            : '<span class="badge badge-danger">Inactive</span>';
+        var roleBadge =
+          u.role === "admin"
+            ? '<span class="badge badge-admin">Admin</span>'
+            : '<span class="badge badge-info">' + (u.role || "") + "</span>";
+
+        var actions = "";
+        if (u.role !== "admin") {
+          actions +=
+            '<button class="btn-promote" onclick="promoteToAdmin(\'' +
+            u.email +
+            '\')"><i class="fas fa-arrow-up"></i> Promote</button> ';
+        }
+        if (u.email !== currentUser.email) {
+          actions +=
+            '<button class="btn btn-sm btn-danger" onclick="deleteUser(\'' +
+            u.email +
+            '\')"><i class="fas fa-trash"></i></button>';
+        } else {
+          actions +=
+            '<span style="font-size:11px;color:rgba(255,255,255,0.4);">You</span>';
+        }
+
+        html +=
+          "<tr><td>" +
+          (u.name || "") +
+          "</td><td>" +
+          (u.email || "") +
+          "</td><td>" +
+          roleBadge +
+          "</td><td>" +
+          status +
+          "</td><td>" +
+          actions +
+          "</td></tr>";
+      });
+      tbody.innerHTML = html;
+    })
+    .catch(function (error) {
+      console.error("Users error:", error);
+    });
+}
+
+function loadDatabaseTables() {
+  var tables = [
+    "books",
+    "borrowed",
+    "students",
+    "furniture",
+    "teachers",
+    "classes",
+    "terms",
+    "events",
+    "fees",
+    "qrcodes",
+    "auditLog",
+    "users",
+    "chat",
+    "forum",
+    "notes",
+  ];
+  var select = document.getElementById("databaseTableSelect");
+  if (!select) return;
+
+  var html = "";
+  tables.forEach(function (t) {
+    html +=
+      '<option value="' +
+      t +
+      '">' +
+      t.charAt(0).toUpperCase() +
+      t.slice(1) +
+      "</option>";
+  });
+  select.innerHTML = html;
+
+  setTimeout(loadDatabaseTable, 300);
+}
+
+function loadDatabaseTable() {
+  var school = getCurrentSchool();
+  var select = document.getElementById("databaseTableSelect");
+  if (!select || !select.value) return;
+
+  var tableName = select.value;
+
+  API.getTableData(school, tableName)
+    .then(function (data) {
+      var tbody = document.getElementById("databaseTableBody");
+      var thead = document.getElementById("databaseTableHead");
+
+      if (!tbody || !thead) return;
+
+      if (!data || data.length === 0) {
+        thead.innerHTML = "";
+        tbody.innerHTML = "<tr><td>No data in this table</td></tr>";
+        return;
+      }
+
+      var columns = Object.keys(data[0]);
+      var filteredColumns = columns.filter(function (c) {
+        return c !== "password";
+      });
+
+      var headHtml = "";
+      filteredColumns.forEach(function (col) {
+        headHtml += "<th>" + col + "</th>";
+      });
+      thead.innerHTML = headHtml;
+
+      var bodyHtml = "";
+      data.forEach(function (row) {
+        bodyHtml += "<tr>";
+        filteredColumns.forEach(function (col) {
+          var value = row[col];
+          if (typeof value === "object") value = JSON.stringify(value);
+          bodyHtml += "<td>" + (value || "-") + "</td>";
+        });
+        bodyHtml += "</tr>";
+      });
+      tbody.innerHTML = bodyHtml;
+    })
+    .catch(function (error) {
+      console.error("Database table error:", error);
+    });
+}
+
+// Export missing functions
 window.loadEvents = loadEvents;
+window.addEvent = addEvent;
 window.loadFeesData = loadFeesData;
+window.saveFee = saveFee;
+window.editFee = editFee;
+window.deleteFee = deleteFee;
 window.loadTimetableData = loadTimetableData;
+window.addTimetableEntry = addTimetableEntry;
 window.loadTeachersData = loadTeachersData;
+window.addTeacher = addTeacher;
+window.deleteTeacher = deleteTeacher;
 window.loadClassesData = loadClassesData;
 window.loadTerms = loadTerms;
+window.addTerm = addTerm;
 window.loadAuditLog = loadAuditLog;
 window.loadReports = loadReports;
 window.loadSettingsData = loadSettingsData;
 window.loadDatabaseTables = loadDatabaseTables;
 window.loadDatabaseTable = loadDatabaseTable;
-window.loadWallpapers = loadWallpapers;
-window.selectWallpaper = selectWallpaper;
-window.loadQRCodeList = loadQRCodeList;
-window.generateAndDisplayQRCodes = generateAndDisplayQRCodes;
-window.downloadQRCode = downloadQRCode;
-window.copyQRCodeText = copyQRCodeText;
-window.initDropdownController = initDropdownController;
-window.checkUnreadMessages = checkUnreadMessages;
-window.logAction = logAction;
-window.addBook = addBook;
-window.issueBook = issueBook;
-window.returnBook = returnBook;
-window.deleteBook = deleteBook;
-window.addStudent = addStudent;
-window.deleteStudent = deleteStudent;
-window.allocateFurniture = allocateFurniture;
-window.returnFurnitureItem = returnFurnitureItem;
-window.selectChatUser = selectChatUser;
-window.sendMessage = sendMessage;
-window.postForumMessage = postForumMessage;
-window.saveNote = saveNote;
-window.loadNoteForEdit = loadNoteForEdit;
-window.deleteNote = deleteNote;
-window.addEvent = addEvent;
-window.saveFee = saveFee;
-window.editFee = editFee;
-window.deleteFee = deleteFee;
-window.addTimetableEntry = addTimetableEntry;
-window.addTeacher = addTeacher;
-window.deleteTeacher = deleteTeacher;
-window.addClassWithExcel = addClassWithExcel;
-window.handleExcelUpload = handleExcelUpload;
-window.viewClassStudents = viewClassStudents;
-window.deleteClass = deleteClass;
-window.addTerm = addTerm;
-window.promoteToAdmin = promoteToAdmin;
-window.deleteUser = deleteUser;
-window.loadClassStudentsForBooks = loadClassStudentsForBooks;
-window.issueBulkBooks = issueBulkBooks;
-window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
-window.allocateBulkFurniture = allocateBulkFurniture;
-window.saveSchoolInfo = saveSchoolInfo;
-window.saveSettings = saveSettings;
-window.addUser = addUser;
-window.animateNumber = animateNumber;
-window.updateWordCount = updateWordCount;
-window.renderOverdueReport = renderOverdueReport;
-window.renderMonthlySummary = renderMonthlySummary;
-window.createBooksByTypeChart = createBooksByTypeChart;
-window.createStudentsByFormChart = createStudentsByFormChart;
-window.createFurnitureChart = createFurnitureChart;
-window.createBorrowingTrendChart = createBorrowingTrendChart;
 
-console.log("✅ SRMS App loaded successfully!");
+console.log("✅ All SRMS functions loaded!");
