@@ -231,7 +231,8 @@
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
             box-shadow: 0 0 15px var(--gold), 0 0 30px var(--gold);
-            animation: scanAnimation 2s linear infinite;
+            animation: scanAnimation 1.5s linear infinite;
+            z-index: 5;
         }
         @keyframes scanAnimation {
             0% { top: 0; }
@@ -243,6 +244,7 @@
             width: 25px; height: 25px;
             border-color: var(--gold);
             border-style: solid;
+            z-index: 6;
         }
         .scanner-frame .corner-tl { top: 8px; left: 8px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
         .scanner-frame .corner-tr { top: 8px; right: 8px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
@@ -257,7 +259,6 @@
             display: none;
         }
         
-        /* Uploaded Image Preview */
         .uploaded-image-preview {
             position: absolute;
             top: 0; left: 0;
@@ -265,6 +266,7 @@
             object-fit: contain;
             background: rgba(0,0,0,0.5);
             display: none;
+            z-index: 1;
         }
         
         .scan-result {
@@ -303,7 +305,6 @@
         }
         .fee-completed { background: rgba(40,167,69,0.2); color: #34ce57; }
         .fee-partial { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .fee-none { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
         
         .qr-list-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
@@ -405,7 +406,7 @@
             <div class="panel scanner-container">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-camera"></i> Scan QR Code</h3>
                 <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">
-                    Upload an image OR use camera - Image will be displayed for 2 seconds
+                    Upload an image - it will be scanned with animation for 2 seconds
                 </p>
                 <input type="file" id="scanImageInput" accept="image/*" style="display:none;" onchange="scanImageFromFile(event)">
                 <button class="btn btn-secondary" onclick="document.getElementById('scanImageInput').click()"><i class="fas fa-image"></i> Upload Image</button>
@@ -655,7 +656,7 @@
                     html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
                 }
                 
-                // FEE STATUS (NEW)
+                // FEE STATUS
                 if (studentFees.length > 0) {
                     html += '<h4>💰 Fee Status</h4>';
                     studentFees.forEach(function(f) {
@@ -667,7 +668,7 @@
                     });
                 } else {
                     html += '<h4>💰 Fee Status</h4>';
-                    html += '<p style="font-size:11px;color:rgba(255,255,255,0.4);">No fee records found for this student.</p>';
+                    html += '<p style="font-size:11px;color:rgba(255,255,255,0.4);">No fee records found.</p>';
                 }
                 
                 // ASSIGNED ITEMS
@@ -769,12 +770,12 @@
             reader.onload = function(e) {
                 var img = new Image();
                 img.onload = function() {
-                    // Display uploaded image in scanner frame for 2 seconds
+                    // Display image in scanner frame
                     var previewImg = document.getElementById('uploadedImagePreview');
                     previewImg.src = e.target.result;
                     previewImg.style.display = 'block';
                     
-                    // Hide video if showing
+                    // Hide video
                     document.getElementById('scannerVideo').style.display = 'none';
                     
                     var found = false;
@@ -799,7 +800,7 @@
                             if (code && code.data) {
                                 found = true;
                                 
-                                // Keep image displayed for 2 seconds before showing result
+                                // Keep image displayed for 2 seconds with scanning effect
                                 setTimeout(function() {
                                     previewImg.style.display = 'none';
                                     displayScanResult(code.data);
@@ -812,7 +813,6 @@
                     }
                     
                     if (!found) {
-                        // Hide preview after 2 seconds
                         setTimeout(function() {
                             previewImg.style.display = 'none';
                             showNotification('No QR found. Try a clearer image.', 'warning');
