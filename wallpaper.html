@@ -1,387 +1,519 @@
-// ============================================
-// SRMS - Wallpaper Loader
-// Complete Version with All Wallpapers
-// ============================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SRMS - Choose Wallpaper | School Resource Management System</title>
+    <meta name="description" content="Choose your background wallpaper">
+    <meta name="theme-color" content="#0a0e27">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --gold-primary: #d4af37;
+            --gold-light: #f3e5ab;
+            --accent: #d4af37;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        .wallpaper-page {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+        }
+        .page-header h1 {
+            font-size: 2em;
+            font-weight: 900;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(180deg, #f3e5ab, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .page-header p { color: rgba(255,255,255,0.5); font-size: 14px; }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px; left: 20px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.15); color: var(--accent); }
+        
+        .search-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .search-bar i { color: rgba(255,255,255,0.4); }
+        .search-bar input {
+            flex: 1; background: none; border: none;
+            color: #fff; font-size: 15px; outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
+        
+        .category-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .category-filters button {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+        .category-filters button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .category-filters button.active {
+            background: rgba(212,175,55,0.2);
+            border-color: #d4af37;
+            color: #d4af37;
+            font-weight: 700;
+        }
+        
+        .wallpaper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+        }
+        
+        .wallpaper-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .wallpaper-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212,175,55,0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .wallpaper-card.active {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
+        
+        .wallpaper-preview {
+            width: 100%;
+            height: 130px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .wallpaper-info {
+            padding: 12px;
+            text-align: center;
+        }
+        .wallpaper-info h3 { font-size: 13px; margin-bottom: 3px; font-weight: 600; }
+        .wallpaper-info .category-tag {
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .check-badge {
+            position: absolute;
+            top: 10px; right: 10px;
+            width: 28px; height: 28px;
+            background: #d4af37;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #0a0e27;
+            font-weight: 900;
+            font-size: 13px;
+        }
+        .wallpaper-card.active .check-badge { display: flex; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: rgba(255,255,255,0.4);
+            grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+        
+        @media (max-width: 768px) {
+            .wallpaper-page { padding: 15px; }
+            .wallpaper-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+            .wallpaper-preview { height: 100px; }
+            .page-header h1 { font-size: 1.5em; }
+            .back-btn { top: 10px; left: 10px; padding: 8px 12px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    
+    <div class="wallpaper-page">
+        <div class="page-header">
+            <h1><i class="fas fa-image"></i> Choose Wallpaper</h1>
+            <p>Select a beautiful background for your dashboard</p>
+        </div>
+        
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="wallpaperSearch" placeholder="Search wallpapers..." onkeyup="searchWallpapers()">
+        </div>
+        
+        <div class="category-filters" id="categoryFilters">
+            <button class="active" onclick="filterCategory('all')">All</button>
+            <button onclick="filterCategory('School')">🏫 School</button>
+            <button onclick="filterCategory('Nature')">🌿 Nature</button>
+            <button onclick="filterCategory('City')">🏙️ City</button>
+            <button onclick="filterCategory('Abstract')">🎨 Abstract</button>
+            <button onclick="filterCategory('Default')">🌙 Default</button>
+        </div>
+        
+        <div class="wallpaper-grid" id="wallpaperGrid">
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading wallpapers...</p></div>
+        </div>
+    </div>
+    
+    <script>
+        // INLINE WALLPAPER DATA - No external dependency
+        var WALLPAPER_DATA = {
+            none: {
+                name: "Dark Gradient",
+                type: "gradient",
+                css: "linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%)",
+                category: "Default",
+                credit: "SRMS Default"
+            },
+            library: {
+                name: "Library Classic",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Susan Q Yin"
+            },
+            classroom: {
+                name: "Modern Classroom",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Nguyen Dang Hoang Nhu"
+            },
+            bookshelf: {
+                name: "Bookshelf Heaven",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Giammarco Boscaro"
+            },
+            graduation: {
+                name: "Graduation Day",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Vasily Koloda"
+            },
+            lecture: {
+                name: "Lecture Hall",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Dom Fou"
+            },
+            computer: {
+                name: "Computer Lab",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "John Schnobrich"
+            },
+            science: {
+                name: "Science Lab",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Hans Reniers"
+            },
+            playground: {
+                name: "Playground Fun",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Mi Pham"
+            },
+            campus: {
+                name: "Sunset Campus",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80&auto=format&fit=crop",
+                category: "School",
+                credit: "Vasily Koloda"
+            },
+            ocean: {
+                name: "Ocean View",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Sean Oulashin"
+            },
+            forest: {
+                name: "Forest Path",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Lukasz Szmigiel"
+            },
+            mountain: {
+                name: "Mountain Peak",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Bailey Zindel"
+            },
+            galaxy: {
+                name: "Galaxy Stars",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Guillermo Ferla"
+            },
+            autumn: {
+                name: "Autumn Leaves",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Bailey Zindel"
+            },
+            winter: {
+                name: "Winter Snow",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Aaron Burden"
+            },
+            spring: {
+                name: "Spring Flowers",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Jen Theodore"
+            },
+            summer: {
+                name: "Summer Beach",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
+                category: "Nature",
+                credit: "Sean Oulashin"
+            },
+            citynight: {
+                name: "City Lights",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80&auto=format&fit=crop",
+                category: "City",
+                credit: "Pedro Lastra"
+            },
+            architecture: {
+                name: "Architecture",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920&q=80&auto=format&fit=crop",
+                category: "City",
+                credit: "Patrick Tomasso"
+            },
+            castle: {
+                name: "Castle",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80&auto=format&fit=crop",
+                category: "City",
+                credit: "Anna Church"
+            },
+            abstract: {
+                name: "Abstract Art",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80&auto=format&fit=crop",
+                category: "Abstract",
+                credit: "Pawel Czerwinski"
+            },
+            geometric: {
+                name: "Geometric",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=1920&q=80&auto=format&fit=crop",
+                category: "Abstract",
+                credit: "Ricardo Gomez Angel"
+            },
+            minimalist: {
+                name: "Minimalist",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80&auto=format&fit=crop",
+                category: "Abstract",
+                credit: "Bench Accounting"
+            },
+            blueabstract: {
+                name: "Blue Abstract",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80&auto=format&fit=crop",
+                category: "Abstract",
+                credit: "Pawel Czerwinski"
+            },
+            purple: {
+                name: "Purple Haze",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80&auto=format&fit=crop",
+                category: "Abstract",
+                credit: "Milad Fakurian"
+            },
+            technology: {
+                name: "Technology",
+                type: "image",
+                url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80&auto=format&fit=crop",
+                category: "Abstract",
+                credit: "Alex Knight"
+            }
+        };
 
-var WALLPAPER_DATA = {
-  none: {
-    name: "Dark Gradient",
-    icon: "fa-moon",
-    type: "gradient",
-    css: "linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%)",
-    category: "Default",
-    credit: "SRMS Default",
-  },
-  library: {
-    name: "Library Classic",
-    icon: "fa-book",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Susan Q Yin",
-  },
-  classroom: {
-    name: "Modern Classroom",
-    icon: "fa-chalkboard",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Nguyen Dang Hoang Nhu",
-  },
-  bookshelf: {
-    name: "Bookshelf Heaven",
-    icon: "fa-layer-group",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Giammarco Boscaro",
-  },
-  graduation: {
-    name: "Graduation Day",
-    icon: "fa-graduation-cap",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Vasily Koloda",
-  },
-  lecture: {
-    name: "Lecture Hall",
-    icon: "fa-university",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Dom Fou",
-  },
-  computer: {
-    name: "Computer Lab",
-    icon: "fa-laptop",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "John Schnobrich",
-  },
-  science: {
-    name: "Science Lab",
-    icon: "fa-flask",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Hans Reniers",
-  },
-  playground: {
-    name: "Playground Fun",
-    icon: "fa-futbol",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Mi Pham",
-  },
-  campus: {
-    name: "Sunset Campus",
-    icon: "fa-building",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Vasily Koloda",
-  },
-  studydesk: {
-    name: "Study Desk",
-    icon: "fa-desk",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80&auto=format&fit=crop",
-    category: "School",
-    credit: "Green Chameleon",
-  },
-  ocean: {
-    name: "Ocean View",
-    icon: "fa-water",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Sean Oulashin",
-  },
-  forest: {
-    name: "Forest Path",
-    icon: "fa-tree",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Lukasz Szmigiel",
-  },
-  mountain: {
-    name: "Mountain Peak",
-    icon: "fa-mountain",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Bailey Zindel",
-  },
-  galaxy: {
-    name: "Galaxy Stars",
-    icon: "fa-star",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Guillermo Ferla",
-  },
-  cherryblossom: {
-    name: "Cherry Blossom",
-    icon: "fa-seedling",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "AJ",
-  },
-  northernlights: {
-    name: "Northern Lights",
-    icon: "fa-bolt",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Vincent Guth",
-  },
-  autumn: {
-    name: "Autumn Leaves",
-    icon: "fa-leaf",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Bailey Zindel",
-  },
-  winter: {
-    name: "Winter Snow",
-    icon: "fa-snowflake",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Aaron Burden",
-  },
-  spring: {
-    name: "Spring Flowers",
-    icon: "fa-flower",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Jen Theodore",
-  },
-  summer: {
-    name: "Summer Beach",
-    icon: "fa-umbrella-beach",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Sean Oulashin",
-  },
-  rainy: {
-    name: "Rainy Window",
-    icon: "fa-cloud-rain",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Maksym Kaharlytskyi",
-  },
-  starry: {
-    name: "Starry Night",
-    icon: "fa-moon",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Vincentiu Solomon",
-  },
-  goldenhour: {
-    name: "Golden Hour",
-    icon: "fa-sun",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Johannes Plenio",
-  },
-  lavender: {
-    name: "Lavender Field",
-    icon: "fa-spa",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Jen Theodore",
-  },
-  sunflower: {
-    name: "Sunflower Field",
-    icon: "fa-sunflower",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Lukasz Szmigiel",
-  },
-  rose: {
-    name: "Rose Garden",
-    icon: "fa-rose",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Annie Spratt",
-  },
-  sunrise: {
-    name: "Sunrise",
-    icon: "fa-sun",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=80&auto=format&fit=crop",
-    category: "Nature",
-    credit: "Bailey Zindel",
-  },
-  citynight: {
-    name: "City Lights",
-    icon: "fa-city",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Pedro Lastra",
-  },
-  architecture: {
-    name: "Architecture",
-    icon: "fa-landmark",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Patrick Tomasso",
-  },
-  castle: {
-    name: "Castle",
-    icon: "fa-chess-rook",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Anna Church",
-  },
-  cathedral: {
-    name: "Cathedral",
-    icon: "fa-church",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Chris Karidis",
-  },
-  bridge: {
-    name: "Bridge",
-    icon: "fa-bridge",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Lukasz Szmigiel",
-  },
-  lighthouse: {
-    name: "Lighthouse",
-    icon: "fa-lightbulb",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Sean Oulashin",
-  },
-  windmill: {
-    name: "Windmill",
-    icon: "fa-wind",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Johannes Plenio",
-  },
-  balloon: {
-    name: "Hot Air Balloon",
-    icon: "fa-balloon",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80&auto=format&fit=crop",
-    category: "City",
-    credit: "Johannes Plenio",
-  },
-  abstract: {
-    name: "Abstract Art",
-    icon: "fa-paint-brush",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Pawel Czerwinski",
-  },
-  geometric: {
-    name: "Geometric",
-    icon: "fa-shapes",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Ricardo Gomez Angel",
-  },
-  minimalist: {
-    name: "Minimalist",
-    icon: "fa-circle",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Bench Accounting",
-  },
-  blueabstract: {
-    name: "Blue Abstract",
-    icon: "fa-wave",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Pawel Czerwinski",
-  },
-  purple: {
-    name: "Purple Haze",
-    icon: "fa-feather",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Milad Fakurian",
-  },
-  technology: {
-    name: "Technology",
-    icon: "fa-microchip",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Alex Knight",
-  },
-  knowledge: {
-    name: "Knowledge",
-    icon: "fa-book-open",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Kimberly Farmer",
-  },
-  success: {
-    name: "Success Path",
-    icon: "fa-trophy",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1494178270175-e96de2971df9?w=1920&q=80&auto=format&fit=crop",
-    category: "Abstract",
-    credit: "Clark Tibbs",
-  },
-};
+        var currentCategory = 'all';
+        var searchTerm = '';
 
-// Auto-apply saved wallpaper on page load
-document.addEventListener("DOMContentLoaded", function () {
-  var savedWallpaper = localStorage.getItem("srms_wallpaper");
-  if (!savedWallpaper) {
-    savedWallpaper = "library";
-    localStorage.setItem("srms_wallpaper", "library");
-  }
+        function loadWallpapers() {
+            var grid = document.getElementById('wallpaperGrid');
+            var currentWallpaper = localStorage.getItem('srms_wallpaper') || 'library';
+            
+            var html = '';
+            var found = false;
+            
+            for (var key in WALLPAPER_DATA) {
+                var wallpaper = WALLPAPER_DATA[key];
+                var category = wallpaper.category || 'Default';
+                
+                if (currentCategory !== 'all' && category !== currentCategory) continue;
+                if (searchTerm && !wallpaper.name.toLowerCase().includes(searchTerm.toLowerCase())) continue;
+                
+                found = true;
+                var isActive = key === currentWallpaper ? ' active' : '';
+                
+                var previewStyle = '';
+                if (wallpaper.type === 'gradient') {
+                    previewStyle = 'background:' + wallpaper.css + ';';
+                } else {
+                    var thumbUrl = wallpaper.url.replace('w=1920', 'w=400&h=250&fit=crop&q=60');
+                    previewStyle = 'background-image:url("' + thumbUrl + '");background-size:cover;background-position:center;';
+                }
+                
+                html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\')">' +
+                    '<div class="check-badge"><i class="fas fa-check"></i></div>' +
+                    '<div class="wallpaper-preview" style="' + previewStyle + '"></div>' +
+                    '<div class="wallpaper-info">' +
+                    '<h3>' + wallpaper.name + '</h3>' +
+                    '<div class="category-tag">' + category + '</div>' +
+                    '</div></div>';
+            }
+            
+            if (!found) {
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>No wallpapers found</p></div>';
+            } else {
+                grid.innerHTML = html;
+            }
+        }
 
-  var wallpaper = WALLPAPER_DATA[savedWallpaper] || WALLPAPER_DATA["library"];
+        function selectWallpaper(key) {
+            localStorage.setItem('srms_wallpaper', key);
+            
+            var cards = document.querySelectorAll('.wallpaper-card');
+            for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
+            
+            var target = event ? event.target.closest('.wallpaper-card') : null;
+            if (target) target.classList.add('active');
+            
+            var wallpaper = WALLPAPER_DATA[key];
+            if (wallpaper.type === 'gradient') {
+                document.body.style.background = wallpaper.css;
+                document.body.style.backgroundImage = 'none';
+            } else {
+                document.body.style.backgroundImage = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + wallpaper.url + '")';
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+            }
+            
+            alert('✅ Wallpaper applied!');
+        }
 
-  if (wallpaper.type === "gradient") {
-    document.body.style.background = wallpaper.css;
-    document.body.style.backgroundImage = "none";
-  } else {
-    document.body.style.backgroundImage =
-      'linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url("' +
-      wallpaper.url + '")';
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundRepeat = "no-repeat";
-  }
-});
+        function searchWallpapers() {
+            searchTerm = document.getElementById('wallpaperSearch').value;
+            loadWallpapers();
+        }
 
-window.WALLPAPER_DATA = WALLPAPER_DATA;
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            var buttons = document.querySelectorAll('.category-filters button');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+            event.target.classList.add('active');
+            
+            loadWallpapers();
+        }
 
-console.log("✅ Wallpaper Loader ready with " + Object.keys(WALLPAPER_DATA).length + " wallpapers");
+        document.addEventListener('DOMContentLoaded', loadWallpapers);
+        
+        window.loadWallpapers = loadWallpapers;
+        window.selectWallpaper = selectWallpaper;
+        window.searchWallpapers = searchWallpapers;
+        window.filterCategory = filterCategory;
+    </script>
+</body>
+</html>
