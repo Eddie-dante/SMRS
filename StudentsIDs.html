@@ -27,7 +27,6 @@
             --gold-dark: #aa7c11;
             --bg-dark: #080a0f;
             --card-width: 450px;
-            --card-height: 270px;
             --primary: #e94560;
             --accent: #d4af37;
             --glass-bg: rgba(255, 255, 255, 0.03);
@@ -64,91 +63,92 @@
         
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
-            height: 65px;
-            background: rgba(10, 14, 39, 0.9);
+            height: 60px;
+            background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold-primary); font-weight: 900; font-size: 22px; text-decoration: none; }
-        .taskbar-logo i { font-size: 26px; }
-        .taskbar-right { display: flex; gap: 8px; }
+        .taskbar-logo { display: flex; align-items: center; gap: 8px; color: var(--gold-primary); font-weight: 900; font-size: 20px; text-decoration: none; }
+        .taskbar-logo i { font-size: 22px; }
+        .taskbar-right { display: flex; gap: 6px; }
         .taskbar-icon-btn {
-            width: 40px; height: 40px; border-radius: 10px;
+            width: 35px; height: 35px; border-radius: 8px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: var(--accent); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: var(--transition);
+            font-size: 14px; transition: var(--transition);
         }
         .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
         .floating-navbar-container {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; width: auto; max-width: 95vw;
         }
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
-            gap: 10px; padding: 12px 20px;
-            background: rgba(15, 18, 30, 0.85);
+            gap: 8px; padding: 10px 15px;
+            background: rgba(15, 18, 30, 0.9);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50px;
+            border-radius: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             flex-wrap: wrap;
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 13px; font-weight: 600;
+            font-size: 11px; font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
-            border: 1px solid rgba(212, 175, 55, 0.5);
-            border-radius: 30px;
-            padding: 10px 18px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 25px;
+            padding: 8px 14px;
             cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; gap: 6px;
             transition: var(--transition);
         }
-        .classy-btn i { color: var(--accent); }
+        .classy-btn i { color: var(--accent); font-size: 12px; }
         .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold-primary); }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
             border-color: var(--gold-primary);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }
         .btn-badge {
-            width: 28px; height: 28px; border-radius: 50%;
+            width: 22px; height: 22px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
             display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
         }
         .dropdown-menu {
             display: none;
-            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px; padding: 10px; min-width: 200px;
+            border-radius: 12px; padding: 8px; min-width: 180px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 6px;
+            font-size: 11px; cursor: pointer; white-space: nowrap;
             transition: var(--transition);
         }
-        .dropdown-item i { color: var(--accent); width: 20px; }
+        .dropdown-item i { color: var(--accent); width: 16px; font-size: 11px; }
         .dropdown-item:hover { background: rgba(212, 175, 55, 0.15); color: #fff; }
-        .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
+        .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
         
         .main-content {
-            padding: 85px 25px 25px;
-            max-width: 1100px;
+            padding: 75px 20px 20px;
+            max-width: 1050px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
@@ -158,42 +158,38 @@
         
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
-            font-size: 1.8em; font-weight: 900;
+            font-size: 1.5em; font-weight: 900;
             font-family: 'Cinzel', serif;
             background: linear-gradient(180deg, #f3e5ab, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: 1px;
         }
-        .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 12px; }
         
         .btn {
-            padding: 12px 20px; border: none; border-radius: 10px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
+            padding: 10px 18px; border: none; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
             font-family: 'Inter', sans-serif; transition: var(--transition);
-            display: inline-flex; align-items: center; gap: 8px;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .btn-primary {
             background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
             color: #05070a;
             font-family: 'Cinzel', serif;
             font-weight: 800;
-            letter-spacing: 1px;
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.25);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(212, 175, 55, 0.4); }
-        .btn-secondary {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4); }
         
         .app-grid {
             display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 30px;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
             align-items: start;
         }
         @media (max-width: 968px) { .app-grid { grid-template-columns: 1fr; } }
@@ -202,114 +198,112 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(212, 175, 55, 0.25);
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 16px;
+            padding: 20px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
         .panel h3 {
             font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--gold-primary);
             letter-spacing: 1px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-transform: uppercase;
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         
-        .form-group { margin-bottom: 14px; }
+        .form-group { margin-bottom: 12px; }
         .form-group label {
-            display: block; font-size: 0.75rem; font-weight: 600;
-            color: rgba(243, 229, 171, 0.8); margin-bottom: 5px;
+            display: block; font-size: 0.7rem; font-weight: 600;
+            color: rgba(243, 229, 171, 0.8); margin-bottom: 4px;
             letter-spacing: 0.5px; text-transform: uppercase;
         }
         .form-group select, .form-group input {
-            width: 100%; padding: 10px 12px;
+            width: 100%; padding: 9px 11px;
             background: rgba(8, 11, 18, 0.8);
             border: 1px solid rgba(212, 175, 55, 0.25);
-            border-radius: 10px; color: #fff;
-            font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            border-radius: 8px; color: #fff;
+            font-size: 0.8rem; font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
         }
         .form-group select:focus, .form-group input:focus {
             outline: none; border-color: var(--gold-primary);
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
         .form-group select option { background: #1a1f4e; }
         
+        /* ID CARD - Fixed proportions */
         .id-card {
-            width: var(--card-width);
-            height: var(--card-height);
+            width: 100%;
+            max-width: 440px;
             background: linear-gradient(135deg, #ffffff 0%, #f4f5f8 100%);
             color: #1e293b;
-            border-radius: 14px;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 25px rgba(212, 175, 55, 0.15);
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 20px rgba(212, 175, 55, 0.15);
             border: 1px solid rgba(212, 175, 55, 0.4);
         }
         
         .card-header {
             background: linear-gradient(135deg, #4a0014 0%, #200008 100%);
             color: #ffffff;
-            padding: 10px 16px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 3px solid var(--gold-primary);
+            border-bottom: 2px solid var(--gold-primary);
         }
-        .header-title h3 { font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gold-light); }
-        .header-title p { font-size: 0.6rem; color: rgba(255, 255, 255, 0.8); }
-        .card-badge { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-size: 0.55rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .header-title h3 { font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold-light); }
+        .header-title p { font-size: 0.55rem; color: rgba(255, 255, 255, 0.7); }
+        .card-badge { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-size: 0.5rem; font-weight: 800; padding: 3px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .card-body { padding: 12px 16px; display: grid; grid-template-columns: 90px 1fr auto; gap: 12px; height: 100%; align-items: start; }
-        .photo-box { width: 90px; height: 110px; border-radius: 6px; border: 2px solid var(--gold-primary); overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .photo-box .initials { font-size: 28px; font-weight: 900; color: #334155; font-family: 'Cinzel', serif; }
+        .card-body { padding: 10px 12px; display: grid; grid-template-columns: 80px 1fr auto; gap: 10px; align-items: start; }
+        .photo-box { width: 80px; height: 100px; border-radius: 5px; border: 2px solid var(--gold-primary); overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+        .photo-box .initials { font-size: 24px; font-weight: 900; color: #334155; font-family: 'Cinzel', serif; }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .details-box { display: flex; flex-direction: column; gap: 3px; }
-        .detail-item { font-size: 0.65rem; line-height: 1.2; }
-        .detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.55rem; display: block; }
-        .detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.7rem; }
+        .details-box { display: flex; flex-direction: column; gap: 4px; }
+        .detail-item { font-size: 0.6rem; line-height: 1.15; }
+        .detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.5rem; display: block; letter-spacing: 0.3px; }
+        .detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.65rem; }
         
-        .side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; padding-bottom: 5px; }
-        .qr-code-box { background: #fff; padding: 4px; border-radius: 6px; border: 1px solid var(--gold-primary); }
-        .signature-box { text-align: center; margin-top: 5px; }
-        .signature-line { font-family: 'Great Vibes', cursive; font-size: 1rem; color: #0f172a; line-height: 1; }
-        .signature-title { font-size: 0.45rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+        .side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; gap: 8px; }
+        .qr-code-box { background: #fff; padding: 3px; border-radius: 5px; border: 1px solid var(--gold-primary); }
+        .signature-box { text-align: center; }
+        .signature-line { font-family: 'Great Vibes', cursive; font-size: 0.85rem; color: #0f172a; line-height: 1; }
+        .signature-title { font-size: 0.4rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 1px; }
         
         .card-footer {
             background: #f1f5f9;
             border-top: 1px solid #cbd5e1;
-            padding: 6px 16px;
+            padding: 5px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             font-weight: 700;
             color: #334155;
-            margin-top: auto;
         }
         
         .card-preview-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
         
         @media (max-width: 768px) {
-            .floating-navbar { padding: 8px 10px; gap: 4px; }
-            .classy-btn { padding: 8px 10px; font-size: 10px; }
-            .main-content { padding: 75px 15px 15px; }
+            .floating-navbar { padding: 6px 8px; gap: 4px; }
+            .classy-btn { padding: 6px 8px; font-size: 9px; }
+            .main-content { padding: 65px 10px 10px; }
             .app-grid { grid-template-columns: 1fr; }
-            .id-card { width: 100%; max-width: 450px; height: auto; min-height: 250px; }
-            .card-body { grid-template-columns: 70px 1fr auto; gap: 8px; padding: 8px; }
-            .photo-box { width: 70px; height: 90px; }
+            .id-card { max-width: 100%; }
+            .card-body { grid-template-columns: 60px 1fr auto; gap: 6px; padding: 8px; }
+            .photo-box { width: 60px; height: 80px; }
             .page-header { flex-direction: column; align-items: stretch; }
         }
         
@@ -317,7 +311,7 @@
             body { background: #fff; padding: 0; }
             body::before { display: none; }
             .taskbar, .floating-navbar-container, .panel:first-child, .btn-primary { display: none !important; }
-            .main-content { padding: 20px; margin: 0; }
+            .main-content { padding: 15px; margin: 0; }
             .app-grid { display: block; }
             .panel { border: none; box-shadow: none; padding: 0; background: transparent; backdrop-filter: none; }
             .id-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
@@ -339,7 +333,7 @@
         <div class="page-header">
             <div>
                 <h1><i class="fas fa-id-card"></i> Student ID Cards</h1>
-                <p>Generate beautiful ID cards with QR codes</p>
+                <p>Generate beautiful ID cards with rich QR codes</p>
             </div>
             <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Card</button>
         </div>
@@ -360,6 +354,9 @@
                 <button class="btn btn-primary" style="width:100%;" onclick="window.print()">
                     <i class="fas fa-print"></i> Print Student ID Card
                 </button>
+                <p style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:10px;text-align:center;">
+                    QR code contains: ADM, Name, School, App URL<br>Scan to view complete student profile
+                </p>
             </div>
             
             <div class="panel card-preview-wrapper">
@@ -385,7 +382,7 @@
                                 <span class="value" id="cardName">Student Name</span>
                             </div>
                             <div class="detail-item">
-                                <span class="label">Student ID</span>
+                                <span class="label">ADM No</span>
                                 <span class="value" id="cardId">ADM Number</span>
                             </div>
                             <div class="detail-item">
@@ -395,6 +392,14 @@
                             <div class="detail-item">
                                 <span class="label">Gender</span>
                                 <span class="value" id="cardGender">Gender</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Parent</span>
+                                <span class="value" id="cardParent">Parent Name</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Parent Phone</span>
+                                <span class="value" id="cardParentPhone">Phone</span>
                             </div>
                         </div>
                         
@@ -409,7 +414,7 @@
                     
                     <div class="card-footer">
                         <span>VALID UNTIL: <span id="cardExpiry">31 DEC 2026</span></span>
-                        <span>SRMS ID</span>
+                        <span>Scan for Details</span>
                     </div>
                 </div>
             </div>
@@ -485,6 +490,8 @@
     <script>
         var qrcodeInstance = null;
         var allStudentsData = [];
+        var currentStudentData = null;
+        var APP_URL = 'https://smrs-eight.vercel.app/students.html';
         
         document.addEventListener('DOMContentLoaded', function() {
             loadStudentsForSelect();
@@ -515,11 +522,10 @@
                         if (adm && !seenAdms[adm]) {
                             seenAdms[adm] = true;
                             allStudents.push({
-                                name: name,
-                                adm: adm,
-                                form: c.name,
-                                stream: c.stream || "",
-                                gender: st.Gender || st.gender || ""
+                                name: name, adm: adm, form: c.name,
+                                stream: c.stream || "", gender: st.Gender || st.gender || "",
+                                parentName: st["Parent Name"] || st.parentName || "",
+                                parentPhone: st["Parent Phone"] || st.parentPhone || ""
                             });
                         }
                     });
@@ -541,20 +547,16 @@
         
         function loadStudentForCard() {
             var adm = document.getElementById('studentSelect').value;
-            if (!adm) {
-                resetCard();
-                return;
-            }
+            if (!adm) { resetCard(); return; }
             
             var student = null;
-            allStudentsData.forEach(function(s) {
-                if (s.adm === adm) student = s;
-            });
-            
+            allStudentsData.forEach(function(s) { if (s.adm === adm) student = s; });
             if (!student) return;
             
+            currentStudentData = student;
+            
             var schoolName = getCurrentSchool() || 'SCHOOL NAME';
-            var initials = getInitials(student.name);
+            var schoolInfo = null;
             
             document.getElementById('cardSchool').textContent = schoolName.toUpperCase();
             document.getElementById('cardLocation').textContent = 'School Location';
@@ -563,7 +565,9 @@
             document.getElementById('cardGrade').textContent = (student.form || 'Form').toUpperCase();
             document.getElementById('cardStream').textContent = (student.stream || 'Stream').toUpperCase();
             document.getElementById('cardGender').textContent = (student.gender || 'N/A').toUpperCase();
-            document.getElementById('cardPhotoInitials').textContent = initials;
+            document.getElementById('cardParent').textContent = (student.parentName || 'N/A').toUpperCase();
+            document.getElementById('cardParentPhone').textContent = student.parentPhone || 'N/A';
+            document.getElementById('cardPhotoInitials').textContent = getInitials(student.name);
             document.getElementById('cardSignature').textContent = student.name;
             
             var expiryDate = new Date();
@@ -572,32 +576,56 @@
             var expiryStr = expiryDate.getDate() + ' ' + months[expiryDate.getMonth()] + ' ' + expiryDate.getFullYear();
             document.getElementById('cardExpiry').textContent = expiryStr;
             
-            generateQRCode(student.adm);
+            generateRichQRCode(student, schoolName);
+            
+            // Also fetch school info and fees/borrowed for the student
+            var school = getCurrentSchool();
+            if (school && student.adm) {
+                Promise.all([
+                    API.getBorrowed(school),
+                    API.getFees(school)
+                ]).then(function(results) {
+                    var borrowed = results[0] || [];
+                    var fees = results[1] || [];
+                    
+                    var studentBorrowed = borrowed.filter(function(b) { return b.adm === student.adm; });
+                    var studentFees = fees.filter(function(f) { return f.studentAdm === student.adm; });
+                    
+                    currentStudentData.borrowedBooks = studentBorrowed;
+                    currentStudentData.fees = studentFees;
+                    
+                    // Regenerate QR with all data
+                    generateRichQRCode(student, schoolName);
+                }).catch(function() {});
+            }
         }
         
-        function resetCard() {
-            document.getElementById('cardSchool').textContent = 'SCHOOL NAME';
-            document.getElementById('cardLocation').textContent = 'Location';
-            document.getElementById('cardName').textContent = 'Student Name';
-            document.getElementById('cardId').textContent = 'ADM Number';
-            document.getElementById('cardGrade').textContent = 'Form';
-            document.getElementById('cardStream').textContent = 'Stream';
-            document.getElementById('cardGender').textContent = 'Gender';
-            document.getElementById('cardPhotoInitials').textContent = 'ST';
-            document.getElementById('cardSignature').textContent = 'Signature';
-            document.getElementById('cardExpiry').textContent = '31 DEC 2026';
-            generateQRCode('STUDENT000000');
-        }
-        
-        function generateQRCode(text) {
+        function generateRichQRCode(student, schoolName) {
             var container = document.getElementById('qrcode');
             container.innerHTML = '';
             
+            var qrData = {
+                type: 'STUDENT_ID',
+                adm: student.adm,
+                name: student.name,
+                school: schoolName,
+                form: student.form || '',
+                stream: student.stream || '',
+                gender: student.gender || '',
+                parentName: student.parentName || '',
+                parentPhone: student.parentPhone || '',
+                parentEmail: student.parentEmail || '',
+                appUrl: APP_URL,
+                query: '?adm=' + encodeURIComponent(student.adm)
+            };
+            
+            var qrString = JSON.stringify(qrData);
+            
             try {
                 qrcodeInstance = new QRCode(container, {
-                    text: text || 'STUDENT000000',
-                    width: 58,
-                    height: 58,
+                    text: qrString,
+                    width: 55,
+                    height: 55,
                     colorDark: '#05070a',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H
@@ -607,10 +635,36 @@
             }
         }
         
+        function resetCard() {
+            currentStudentData = null;
+            document.getElementById('cardSchool').textContent = 'SCHOOL NAME';
+            document.getElementById('cardLocation').textContent = 'Location';
+            document.getElementById('cardName').textContent = 'Student Name';
+            document.getElementById('cardId').textContent = 'ADM Number';
+            document.getElementById('cardGrade').textContent = 'Form';
+            document.getElementById('cardStream').textContent = 'Stream';
+            document.getElementById('cardGender').textContent = 'Gender';
+            document.getElementById('cardParent').textContent = 'Parent Name';
+            document.getElementById('cardParentPhone').textContent = 'Phone';
+            document.getElementById('cardPhotoInitials').textContent = 'ST';
+            document.getElementById('cardSignature').textContent = 'Signature';
+            document.getElementById('cardExpiry').textContent = '31 DEC 2026';
+            
+            var container = document.getElementById('qrcode');
+            container.innerHTML = '';
+            try {
+                new QRCode(container, {
+                    text: JSON.stringify({ type: 'STUDENT_ID', adm: 'NONE', appUrl: APP_URL }),
+                    width: 55, height: 55,
+                    colorDark: '#05070a', colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch(e) {}
+        }
+        
         function loadPhoto(event) {
             var file = event.target.files[0];
             if (!file) return;
-            
             var reader = new FileReader();
             reader.onload = function(e) {
                 var photoBox = document.querySelector('.photo-box');
@@ -647,7 +701,7 @@
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
         
-        generateQRCode('STUDENT000000');
+        resetCard();
     </script>
 </body>
 </html>
