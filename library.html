@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SRMS - Library Management | School Resource Management System</title>
+    <title>SRMS - Library | School Resource Management System</title>
+    <meta name="description" content="SRMS Library Management">
+    <meta name="theme-color" content="#0a0e27">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
@@ -22,7 +26,7 @@
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.2s ease;
+            --transition: all 0.3s ease;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -41,9 +45,7 @@
             backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
         }
         .taskbar-logo { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 900; font-size: 22px; text-decoration: none; }
@@ -53,13 +55,9 @@
             width: 40px; height: 40px; border-radius: 10px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            color: var(--accent);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: var(--transition);
+            color: var(--accent); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: var(--transition);
         }
         .taskbar-icon-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; }
         
@@ -69,27 +67,25 @@
         }
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
-            gap: 12px; padding: 12px 24px;
+            gap: 10px; padding: 12px 20px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px; font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
             border-radius: 30px;
-            padding: 10px 22px;
+            padding: 10px 18px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 8px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
@@ -103,37 +99,23 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .dropdown-menu {
             display: none;
-            position: absolute;
-            bottom: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px;
-            padding: 10px;
-            min-width: 200px;
-            z-index: 1200;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-radius: 14px; padding: 10px; min-width: 200px;
+            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
             transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
@@ -149,51 +131,29 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
-            font-size: 1.8em;
-            font-weight: 900;
+            font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
         .btn-primary {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
+            background: linear-gradient(135deg, #e94560, #c62a47); color: #fff;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
         .btn-secondary {
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
@@ -211,8 +171,7 @@
             color: rgba(255,255,255,0.7);
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            transition: var(--transition);
+            font-size: 13px; transition: var(--transition);
         }
         .tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
@@ -220,23 +179,16 @@
         .tab-content.active { display: block; }
         
         .search-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            margin-bottom: 15px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; margin-bottom: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
         }
         .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
+            flex: 1; background: none; border: none;
+            color: #fff; font-size: 14px; outline: none;
             font-family: 'Inter', sans-serif;
         }
         
@@ -244,31 +196,23 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 20px;
-            overflow-x: auto;
+            padding: 20px; overflow-x: auto;
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
             background: rgba(233, 69, 96, 0.8);
-            padding: 15px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            white-space: nowrap;
+            padding: 15px; text-align: left;
+            font-weight: 700; font-size: 12px; text-transform: uppercase; white-space: nowrap;
         }
         .data-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 13px;
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
+        
         .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
         }
         .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
         .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
@@ -283,55 +227,43 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 15px;
+            width: 100%; padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: #fff;
+            border-radius: 10px; color: #fff;
             font-family: 'Inter', sans-serif;
         }
+        .form-group select option { background: #1a1f4e; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1300;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1300;
+            justify-content: center; align-items: center;
         }
         .modal.active { display: flex; }
         .modal-content {
             background: rgba(26, 31, 78, 0.95);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
-            overflow-y: auto;
+            border-radius: 20px; padding: 30px;
+            width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: var(--accent); }
         .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
         
         .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: rgba(255,255,255,0.4);
+            text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);
         }
         .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 768px) {
-            .floating-navbar { padding: 8px 12px; gap: 6px; }
-            .classy-btn { padding: 8px 12px; font-size: 11px; }
+            .floating-navbar { padding: 8px 10px; gap: 4px; }
+            .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -341,7 +273,7 @@
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
         </div>
         <div class="taskbar-right">
-            <button class="taskbar-icon-btn" title="Wallpaper Settings" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
+            <button class="taskbar-icon-btn" title="Wallpaper" onclick="location.href='wallpaper.html'"><i class="fas fa-image"></i></button>
             <button class="taskbar-icon-btn" title="Logout" onclick="logoutWithConfirm()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </div>
@@ -352,7 +284,7 @@
                 <h1><i class="fas fa-book" style="color:var(--accent);"></i> Library Management</h1>
                 <p>Manage books, issue, and returns</p>
             </div>
-            <button class="btn-primary" onclick="openModal('addBookModal')">
+            <button class="btn btn-primary" onclick="openModal('addBookModal')">
                 <i class="fas fa-plus"></i> Add Book
             </button>
         </div>
@@ -364,11 +296,10 @@
             <button class="tab" onclick="switchLibraryTab('borrowed')"><i class="fas fa-clock"></i> Borrowed</button>
         </div>
         
-        <!-- CATALOG TAB -->
         <div id="catalogTab" class="tab-content active">
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchBooks" placeholder="Search books by title, author, or subject..." onkeyup="filterBooks()">
+                <input type="text" id="searchBooks" placeholder="Search books..." onkeyup="filterBooks()">
             </div>
             <div class="table-container">
                 <table class="data-table">
@@ -382,17 +313,14 @@
             </div>
         </div>
         
-        <!-- ISSUE TAB -->
         <div id="issueTab" class="tab-content">
             <div class="form-container">
                 <h3 style="color:var(--accent);margin-bottom:20px;"><i class="fas fa-book"></i> Issue Book</h3>
-                
                 <div style="display:flex;gap:10px;margin-bottom:20px;">
-                    <button class="btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
-                    <button class="btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
+                    <button class="btn btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
+                    <button class="btn btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
                 </div>
                 
-                <!-- Individual Issue Form -->
                 <div id="individualIssueForm">
                     <form onsubmit="return issueBook(event)">
                         <div class="form-row">
@@ -407,22 +335,13 @@
                             <div class="form-group"><label>Borrow Date</label><input type="date" id="issueBorrowDate" required></div>
                             <div class="form-group"><label>Return Date</label><input type="date" id="issueReturnDate" required></div>
                         </div>
-                        <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-book"></i> Issue Book</button>
+                        <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-book"></i> Issue Book</button>
                     </form>
                 </div>
                 
-                <!-- Bulk Issue Form -->
                 <div id="bulkIssueForm" style="display:none;">
-                    <div class="form-group">
-                        <label>Book Title *</label>
-                        <select id="bulkBookTitle"><option value="">Select Book</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Select Class *</label>
-                        <select id="bulkBookClass" onchange="loadClassStudentsForBooks()">
-                            <option value="">Select Class</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label>Book Title *</label><select id="bulkBookTitle"><option value="">Select Book</option></select></div>
+                    <div class="form-group"><label>Select Class *</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">Select Class</option></select></div>
                     <div class="form-row">
                         <div class="form-group"><label>Borrow Date</label><input type="date" id="bulkBookBorrowDate"></div>
                         <div class="form-group"><label>Return Date</label><input type="date" id="bulkBookReturnDate"></div>
@@ -432,7 +351,6 @@
             </div>
         </div>
         
-        <!-- RETURNS TAB -->
         <div id="returnsTab" class="tab-content">
             <div class="table-container">
                 <table class="data-table">
@@ -440,13 +358,12 @@
                         <tr><th>Student</th><th>ADM</th><th>Book</th><th>Book No</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
                     </thead>
                     <tbody id="returnsTableBody">
-                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading active loans...</p></div></td></tr>
+                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
         
-        <!-- BORROWED TAB -->
         <div id="borrowedTab" class="tab-content">
             <div class="table-container">
                 <table class="data-table">
@@ -454,21 +371,20 @@
                         <tr><th>Student</th><th>Book</th><th>Borrow Date</th><th>Return Date</th><th>Status</th></tr>
                     </thead>
                     <tbody id="borrowedTableBody">
-                        <tr><td colspan="5" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading records...</p></div></td></tr>
+                        <tr><td colspan="5" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     
-    <!-- ADD BOOK MODAL -->
     <div class="modal" id="addBookModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-plus"></i> Add New Book</h3>
                 <button class="modal-close" onclick="closeModal('addBookModal')"><i class="fas fa-times"></i></button>
             </div>
-            <form id="addBookForm" onsubmit="return addBook(event)">
+            <form onsubmit="return addBook(event)">
                 <div class="form-group"><label>Book Title *</label><input type="text" id="bookTitle" required></div>
                 <div class="form-row">
                     <div class="form-group"><label>Author</label><input type="text" id="bookAuthor"></div>
@@ -478,12 +394,11 @@
                     <div class="form-group"><label>Subject</label><input type="text" id="bookSubject"></div>
                     <div class="form-group"><label>Quantity</label><input type="number" id="bookQuantity" min="1" value="1" required></div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Book</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Book</button>
             </form>
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -516,7 +431,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Comms <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -544,31 +459,26 @@
         </div>
     </div>
     
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/wallpaper-loader.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('issueBorrowDate').value = getCurrentDate();
             document.getElementById('issueReturnDate').value = addDays(getCurrentDate(), 14);
-            
             var bulkBorrowDate = document.getElementById('bulkBookBorrowDate');
             var bulkReturnDate = document.getElementById('bulkBookReturnDate');
             if (bulkBorrowDate) bulkBorrowDate.value = getCurrentDate();
             if (bulkReturnDate) bulkReturnDate.value = addDays(getCurrentDate(), 14);
-            
-            if (typeof loadLibraryData === 'function') {
-                loadLibraryData();
-            }
+            if (typeof loadLibraryData === 'function') loadLibraryData();
         });
         
         function switchLibraryTab(tabName) {
             document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-            
             var tabs = ['catalog', 'issue', 'returns', 'borrowed'];
             var index = tabs.indexOf(tabName);
             if (index !== -1) {
@@ -590,19 +500,31 @@
         function filterBooks() {
             var searchInput = document.getElementById('searchBooks');
             var tbody = document.getElementById('booksTableBody');
-            if (typeof filterTable === 'function') {
-                filterTable(searchInput, tbody);
+            if (typeof filterTable === 'function') filterTable(searchInput, tbody);
+            else {
+                var filter = searchInput.value.toLowerCase();
+                var rows = tbody.getElementsByTagName('tr');
+                for (var i = 0; i < rows.length; i++) {
+                    var text = rows[i].textContent.toLowerCase();
+                    rows[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
+                }
             }
         }
         
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) logout();
+                if (confirm('Logout?')) logout();
             }
+        }
+        
+        function logout() {
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
         }
         
         window.switchLibraryTab = switchLibraryTab;
@@ -610,6 +532,7 @@
         window.showBulkIssue = showBulkIssue;
         window.filterBooks = filterBooks;
         window.logoutWithConfirm = logoutWithConfirm;
+        window.logout = logout;
     </script>
 </body>
 </html>
