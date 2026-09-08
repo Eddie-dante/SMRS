@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Students | School Resource Management System</title>
-    <meta name="description" content="SRMS Student Management - Search and manage all students">
+    <meta name="description" content="Manage all students from database and classes">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,14 +104,15 @@
         }
         .dropdown-menu {
             display: none;
-            position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 12px; padding: 8px; min-width: 180px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
+        .dropdown-menu::before { content: ""; position: absolute; top: -15px; left: 0; right: 0; height: 15px; background: transparent; }
         .dropdown-menu.open { display: block !important; }
-        .nav-group:hover .dropdown-menu { display: block; }
+        .nav-group:hover .dropdown-menu, .dropdown-menu:hover { display: block !important; }
         .dropdown-item {
             display: flex; align-items: center; gap: 8px;
             padding: 8px 12px; color: rgba(255,255,255,0.8);
@@ -150,14 +151,10 @@
             display: inline-flex; align-items: center; gap: 6px;
         }
         .btn-primary { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
-        .btn-primary:hover { transform: translateY(-2px); }
         .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
-        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         .btn-sm { padding: 6px 10px; font-size: 10px; border-radius: 6px; }
         .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
-        .btn-danger:hover { background: rgba(220,53,69,0.4); }
         .btn-view { background: rgba(23,162,184,0.2); color: #17a2b8; border: 1px solid rgba(23,162,184,0.4); }
-        .btn-view:hover { background: rgba(23,162,184,0.4); }
         
         .stats-row {
             display: grid;
@@ -182,18 +179,18 @@
             border: 1px solid var(--glass-border);
             border-radius: 12px;
         }
-        .search-bar i { color: rgba(255,255,255,0.5); font-size: 16px; }
+        .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
             flex: 1; background: none; border: none;
             color: #fff; font-size: 14px; outline: none;
             font-family: 'Inter', sans-serif;
         }
         .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
-        .search-bar .clear-btn {
+        .clear-btn {
             background: none; border: none; color: rgba(255,255,255,0.4);
             cursor: pointer; font-size: 14px; display: none;
         }
-        .search-bar .clear-btn:hover { color: #fff; }
+        .clear-btn:hover { color: #fff; }
         
         .filters { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .filters select {
@@ -270,6 +267,7 @@
             .main-content { padding: 65px 10px 10px; }
             .form-row { grid-template-columns: 1fr; }
             .page-header { flex-direction: column; align-items: stretch; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -288,7 +286,7 @@
         <div class="page-header">
             <div>
                 <h1><i class="fas fa-user-graduate" style="color:var(--accent);"></i> Student Management</h1>
-                <p>Search, view, and manage all students</p>
+                <p>Students from database AND class rosters</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button class="btn btn-secondary" onclick="refreshStudents()"><i class="fas fa-sync-alt"></i> Refresh</button>
@@ -302,22 +300,21 @@
             <div class="stat-mini"><div class="value" id="statFromDB">0</div><div class="label">From Database</div></div>
             <div class="stat-mini"><div class="value" id="statFromClasses">0</div><div class="label">From Classes</div></div>
             <div class="stat-mini"><div class="value" id="statForms">0</div><div class="label">Forms</div></div>
+            <div class="stat-mini"><div class="value" id="statStreams">0</div><div class="label">Streams</div></div>
         </div>
         
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchStudents" placeholder="Search by name, ADM number, form, or stream..." onkeyup="filterStudents()">
+            <input type="text" id="searchStudents" placeholder="Search by name, ADM, form, or stream..." onkeyup="filterStudents()">
             <button class="clear-btn" id="clearSearchBtn" onclick="clearSearch()"><i class="fas fa-times"></i></button>
         </div>
         
         <div class="filters">
             <select id="filterForm" onchange="filterStudents()">
                 <option value="">All Forms</option>
-                <option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option>
             </select>
             <select id="filterStream" onchange="filterStudents()">
                 <option value="">All Streams</option>
-                <option>East</option><option>West</option><option>North</option><option>South</option>
             </select>
             <select id="filterSource" onchange="filterStudents()">
                 <option value="">All Sources</option>
@@ -345,14 +342,19 @@
                 <button class="modal-close" onclick="closeModal('addStudentModal')"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="return addStudent(event)">
-                <h4 style="color:var(--accent);margin-bottom:10px;font-size:0.85em;">Basic Information</h4>
                 <div class="form-row">
                     <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" required></div>
                     <div class="form-group"><label>ADM Number *</label><input type="text" id="studentADM" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Form</label><select id="studentForm"><option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option></select></div>
-                    <div class="form-group"><label>Stream</label><select id="studentStream"><option>East</option><option>West</option><option>North</option><option>South</option></select></div>
+                    <div class="form-group">
+                        <label>Form</label>
+                        <select id="studentForm"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stream</label>
+                        <select id="studentStream"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label>Gender</label><select id="studentGender"><option>Male</option><option>Female</option><option>Other</option></select></div>
@@ -435,6 +437,8 @@
         var allStudentsMerged = [];
         var studentsFromDB = [];
         var studentsFromClasses = [];
+        var allForms = [];
+        var allStreams = [];
         
         document.addEventListener('DOMContentLoaded', function() {
             loadAllStudents();
@@ -449,22 +453,39 @@
                 var classes = results[1] || [];
                 
                 studentsFromClasses = [];
+                allForms = [];
+                allStreams = [];
                 var seenAdms = {};
                 
+                // Collect forms and streams from DB students
                 studentsFromDB.forEach(function(s) {
                     if (s.adm) seenAdms[s.adm] = true;
+                    if (s.form && allForms.indexOf(s.form) === -1) allForms.push(s.form);
+                    if (s.stream && allStreams.indexOf(s.stream) === -1) allStreams.push(s.stream);
                 });
                 
+                // Extract students from classes + collect forms/streams
                 classes.forEach(function(cls) {
+                    // Register class name as a form
+                    if (cls.name && allForms.indexOf(cls.name) === -1) allForms.push(cls.name);
+                    // Register class stream
+                    if (cls.stream && allStreams.indexOf(cls.stream) === -1) allStreams.push(cls.stream);
+                    
                     (cls.students || []).forEach(function(st) {
                         var adm = st.ADM || st.adm || st["ADM No"] || "";
                         var name = st.Name || st.name || st["Full Name"] || "Unknown";
+                        var stream = st.Stream || st.stream || cls.stream || "";
+                        
+                        // Register individual student stream
+                        if (stream && allStreams.indexOf(stream) === -1) allStreams.push(stream);
                         
                         if (adm && !seenAdms[adm]) {
                             seenAdms[adm] = true;
                             studentsFromClasses.push({
-                                name: name, adm: adm, form: cls.name || '',
-                                stream: cls.stream || '', gender: st.Gender || st.gender || '',
+                                name: name, adm: adm,
+                                form: cls.name || st.Form || st.form || '',
+                                stream: stream,
+                                gender: st.Gender || st.gender || '',
                                 dob: st.DOB || st.dob || '',
                                 parentName: st["Parent Name"] || st.parentName || '',
                                 parentPhone: st["Parent Phone"] || st.parentPhone || '',
@@ -475,11 +496,25 @@
                     });
                 });
                 
+                // Also extract individual student forms/streams
+                studentsFromClasses.forEach(function(s) {
+                    if (s.form && allForms.indexOf(s.form) === -1) allForms.push(s.form);
+                    if (s.stream && allStreams.indexOf(s.stream) === -1) allStreams.push(s.stream);
+                });
+                
+                // Merge all students
                 allStudentsMerged = studentsFromDB.map(function(s) {
                     s.source = 'db';
                     return s;
                 }).concat(studentsFromClasses);
                 
+                // Populate filter dropdowns
+                populateFilterDropdowns();
+                
+                // Populate add student form dropdowns
+                populateAddStudentDropdowns();
+                
+                // Render
                 renderStudents(allStudentsMerged);
                 updateStats();
             }).catch(function(err) {
@@ -489,12 +524,54 @@
             });
         }
         
+        function populateFilterDropdowns() {
+            var formFilter = document.getElementById('filterForm');
+            if (formFilter) {
+                var html = '<option value="">All Forms</option>';
+                allForms.sort().forEach(function(f) {
+                    html += '<option value="' + f + '">' + f + '</option>';
+                });
+                formFilter.innerHTML = html;
+            }
+            
+            var streamFilter = document.getElementById('filterStream');
+            if (streamFilter) {
+                var html = '<option value="">All Streams</option>';
+                allStreams.sort().forEach(function(s) {
+                    html += '<option value="' + s + '">' + s + '</option>';
+                });
+                streamFilter.innerHTML = html;
+            }
+        }
+        
+        function populateAddStudentDropdowns() {
+            var formSelect = document.getElementById('studentForm');
+            if (formSelect) {
+                var html = '';
+                allForms.sort().forEach(function(f) {
+                    html += '<option value="' + f + '">' + f + '</option>';
+                });
+                if (!html) html = '<option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option>';
+                formSelect.innerHTML = html;
+            }
+            
+            var streamSelect = document.getElementById('studentStream');
+            if (streamSelect) {
+                var html = '';
+                allStreams.sort().forEach(function(s) {
+                    html += '<option value="' + s + '">' + s + '</option>';
+                });
+                if (!html) html = '<option>East</option><option>West</option><option>North</option><option>South</option>';
+                streamSelect.innerHTML = html;
+            }
+        }
+        
         function renderStudents(students) {
             var tbody = document.getElementById('studentsTableBody');
             if (!tbody) return;
             
             if (!students || students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-search"></i><p>No students found</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-user-graduate"></i><p>No students found</p></div></td></tr>';
                 return;
             }
             
@@ -519,13 +596,17 @@
         }
         
         function updateStats() {
-            document.getElementById('statTotal').textContent = allStudentsMerged.length;
-            document.getElementById('statFromDB').textContent = studentsFromDB.length;
-            document.getElementById('statFromClasses').textContent = studentsFromClasses.length;
+            var totalEl = document.getElementById('statTotal');
+            var dbEl = document.getElementById('statFromDB');
+            var classEl = document.getElementById('statFromClasses');
+            var formsEl = document.getElementById('statForms');
+            var streamsEl = document.getElementById('statStreams');
             
-            var forms = {};
-            allStudentsMerged.forEach(function(s) { if (s.form) forms[s.form] = true; });
-            document.getElementById('statForms').textContent = Object.keys(forms).length;
+            if (totalEl) totalEl.textContent = allStudentsMerged.length;
+            if (dbEl) dbEl.textContent = studentsFromDB.length;
+            if (classEl) classEl.textContent = studentsFromClasses.length;
+            if (formsEl) formsEl.textContent = allForms.length;
+            if (streamsEl) streamsEl.textContent = allStreams.length;
         }
         
         function filterStudents() {
@@ -534,7 +615,6 @@
             var streamFilter = document.getElementById('filterStream').value;
             var sourceFilter = document.getElementById('filterSource').value;
             
-            // Show/hide clear button
             var clearBtn = document.getElementById('clearSearchBtn');
             if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
             
@@ -631,16 +711,24 @@
         
         function deleteStudent(adm) {
             if (!adm) return;
-            DialogSystem.confirm('Delete this student?', { title: 'Delete', type: 'danger', confirmText: 'Delete', cancelText: 'Cancel' }).then(function(confirmed) {
-                if (confirmed !== 'confirm') return;
-                var school = getCurrentSchool();
-                API.deleteStudent(school, adm).then(function() {
-                    showNotification('Student deleted!', 'success');
-                    loadAllStudents();
-                }).catch(function() {
-                    showNotification('Failed to delete', 'error');
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Delete this student?', { title: 'Delete', type: 'danger', confirmText: 'Delete', cancelText: 'Cancel' }).then(function(confirmed) {
+                    if (confirmed !== 'confirm') return;
+                    var school = getCurrentSchool();
+                    API.deleteStudent(school, adm).then(function() {
+                        showNotification('Student deleted!', 'success');
+                        loadAllStudents();
+                    }).catch(function() {});
                 });
-            });
+            } else {
+                if (confirm('Delete this student?')) {
+                    var school = getCurrentSchool();
+                    API.deleteStudent(school, adm).then(function() {
+                        showNotification('Student deleted!', 'success');
+                        loadAllStudents();
+                    }).catch(function() {});
+                }
+            }
         }
         
         function logoutWithConfirm() {
