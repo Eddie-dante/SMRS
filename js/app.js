@@ -682,48 +682,66 @@ function issueBook(event) {
 
 function returnBook(borrowId) {
   if (!borrowId) return;
-  DialogSystem.confirm("Return this book?", {
-    title: "Return Book",
-    type: "info",
-    confirmText: "Return",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.returnBook(school, borrowId)
-      .then(function (result) {
-        if (result.success) {
-          showNotification("Book returned!", "success");
-          logAction("Book Returned", borrowId);
-          loadLibraryData();
-        }
-      })
-      .catch(function () {
-        showNotification("Failed to return", "error");
-      });
-  });
+
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Return this book?", {
+      title: "Return Book",
+      type: "info",
+      confirmText: "Return",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      executeReturnBook(borrowId);
+    });
+  } else {
+    if (confirm("Return this book?")) executeReturnBook(borrowId);
+  }
+}
+
+function executeReturnBook(borrowId) {
+  var school = getCurrentSchool();
+  API.returnBook(school, borrowId)
+    .then(function (result) {
+      if (result.success) {
+        showNotification("Book returned!", "success");
+        logAction("Book Returned", borrowId);
+        loadLibraryData();
+      }
+    })
+    .catch(function () {
+      showNotification("Failed to return", "error");
+    });
 }
 
 function deleteBook(bookId) {
   if (!bookId) return;
-  DialogSystem.confirm("Delete this book?", {
-    title: "Delete Book",
-    type: "danger",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.deleteBook(school, bookId)
-      .then(function () {
-        showNotification("Book deleted!", "success");
-        logAction("Book Deleted", bookId);
-        loadLibraryData();
-      })
-      .catch(function () {
-        showNotification("Failed to delete", "error");
-      });
-  });
+
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Delete this book?", {
+      title: "Delete Book",
+      type: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      executeDeleteBook(bookId);
+    });
+  } else {
+    if (confirm("Delete this book?")) executeDeleteBook(bookId);
+  }
+}
+
+function executeDeleteBook(bookId) {
+  var school = getCurrentSchool();
+  API.deleteBook(school, bookId)
+    .then(function () {
+      showNotification("Book deleted!", "success");
+      logAction("Book Deleted", bookId);
+      loadLibraryData();
+    })
+    .catch(function () {
+      showNotification("Failed to delete", "error");
+    });
 }
 
 function loadClassStudentsForBooks() {
@@ -942,23 +960,32 @@ function addStudent(event) {
 
 function deleteStudent(adm) {
   if (!adm) return;
-  DialogSystem.confirm("Delete this student?", {
-    title: "Delete",
-    type: "danger",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.deleteStudent(school, adm)
-      .then(function () {
-        showNotification("Student deleted!", "success");
-        loadStudentsData();
-      })
-      .catch(function () {
-        showNotification("Failed to delete", "error");
-      });
-  });
+
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Delete this student?", {
+      title: "Delete",
+      type: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      executeDeleteStudent(adm);
+    });
+  } else {
+    if (confirm("Delete this student?")) executeDeleteStudent(adm);
+  }
+}
+
+function executeDeleteStudent(adm) {
+  var school = getCurrentSchool();
+  API.deleteStudent(school, adm)
+    .then(function () {
+      showNotification("Student deleted!", "success");
+      loadStudentsData();
+    })
+    .catch(function () {
+      showNotification("Failed to delete", "error");
+    });
 }
 
 // ============ FURNITURE ============
@@ -1088,23 +1115,32 @@ function allocateFurniture(event) {
 
 function returnFurnitureItem(furnitureId) {
   if (!furnitureId) return;
-  DialogSystem.confirm("Return this furniture?", {
-    title: "Return",
-    type: "info",
-    confirmText: "Return",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.returnFurniture(school, furnitureId)
-      .then(function () {
-        showNotification("Furniture returned!", "success");
-        loadFurnitureData();
-      })
-      .catch(function () {
-        showNotification("Failed", "error");
-      });
-  });
+
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Return this furniture?", {
+      title: "Return",
+      type: "info",
+      confirmText: "Return",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      executeReturnFurniture(furnitureId);
+    });
+  } else {
+    if (confirm("Return this furniture?")) executeReturnFurniture(furnitureId);
+  }
+}
+
+function executeReturnFurniture(furnitureId) {
+  var school = getCurrentSchool();
+  API.returnFurniture(school, furnitureId)
+    .then(function () {
+      showNotification("Furniture returned!", "success");
+      loadFurnitureData();
+    })
+    .catch(function () {
+      showNotification("Failed", "error");
+    });
 }
 
 function loadClassStudentsForFurniture() {
@@ -1488,21 +1524,33 @@ function loadNoteForEdit(noteId) {
 
 function deleteNote(noteId) {
   if (!noteId) return;
-  DialogSystem.confirm("Delete this note?", {
-    title: "Delete",
-    type: "danger",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.deleteNote(school, noteId)
-      .then(function () {
-        showNotification("Note deleted!", "success");
-        loadNotes();
-      })
-      .catch(function () {});
-  });
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Delete this note?", {
+      title: "Delete",
+      type: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteNote(school, noteId)
+        .then(function () {
+          showNotification("Note deleted!", "success");
+          loadNotes();
+        })
+        .catch(function () {});
+    });
+  } else {
+    if (confirm("Delete this note?")) {
+      var school = getCurrentSchool();
+      API.deleteNote(school, noteId)
+        .then(function () {
+          showNotification("Note deleted!", "success");
+          loadNotes();
+        })
+        .catch(function () {});
+    }
+  }
 }
 
 // ============ EVENTS ============
@@ -1724,21 +1772,33 @@ function editFee(feeId) {
 
 function deleteFee(feeId) {
   if (!feeId) return;
-  DialogSystem.confirm("Delete this fee?", {
-    title: "Delete",
-    type: "danger",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.deleteFee(school, feeId)
-      .then(function () {
-        showNotification("Fee deleted!", "success");
-        loadFeesData();
-      })
-      .catch(function () {});
-  });
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Delete this fee?", {
+      title: "Delete",
+      type: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteFee(school, feeId)
+        .then(function () {
+          showNotification("Fee deleted!", "success");
+          loadFeesData();
+        })
+        .catch(function () {});
+    });
+  } else {
+    if (confirm("Delete this fee?")) {
+      var school = getCurrentSchool();
+      API.deleteFee(school, feeId)
+        .then(function () {
+          showNotification("Fee deleted!", "success");
+          loadFeesData();
+        })
+        .catch(function () {});
+    }
+  }
 }
 
 // ============ TIMETABLE ============
@@ -1933,21 +1993,33 @@ function addTeacher(event) {
 
 function deleteTeacher(teacherId) {
   if (!teacherId) return;
-  DialogSystem.confirm("Delete this teacher?", {
-    title: "Delete",
-    type: "danger",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.deleteTeacher(school, teacherId)
-      .then(function () {
-        showNotification("Teacher deleted!", "success");
-        loadTeachersData();
-      })
-      .catch(function () {});
-  });
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Delete this teacher?", {
+      title: "Delete",
+      type: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteTeacher(school, teacherId)
+        .then(function () {
+          showNotification("Teacher deleted!", "success");
+          loadTeachersData();
+        })
+        .catch(function () {});
+    });
+  } else {
+    if (confirm("Delete this teacher?")) {
+      var school = getCurrentSchool();
+      API.deleteTeacher(school, teacherId)
+        .then(function () {
+          showNotification("Teacher deleted!", "success");
+          loadTeachersData();
+        })
+        .catch(function () {});
+    }
+  }
 }
 
 // ============ CLASSES ============
@@ -2139,21 +2211,59 @@ function viewClassStudents(classId) {
 
 function deleteClass(classId) {
   if (!classId) return;
-  DialogSystem.confirm("Delete this class?", {
-    title: "Delete",
-    type: "danger",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
+
+  var confirmMessage =
+    "Delete this class? ALL students in this class will be permanently removed from the database.";
+
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm(confirmMessage, {
+      title: "Delete Class & Students",
+      type: "danger",
+      confirmText: "Delete Everything",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      executeDeleteClass(classId);
+    });
+  } else {
+    if (confirm(confirmMessage)) executeDeleteClass(classId);
+  }
+}
+
+function executeDeleteClass(classId) {
+  var school = getCurrentSchool();
+
+  if (typeof API.deleteClassWithStudents === "function") {
+    API.deleteClassWithStudents(school, classId)
+      .then(function (result) {
+        if (result.success) {
+          showNotification(
+            "Class deleted with " + result.studentsDeleted + " students!",
+            "success",
+          );
+          logAction(
+            "Class Deleted",
+            "Class with " + result.studentsDeleted + " students",
+          );
+          loadClassesData();
+        } else {
+          showNotification(result.error || "Failed to delete", "error");
+        }
+      })
+      .catch(function () {
+        showNotification("Failed to delete class", "error");
+      });
+  } else {
+    // Fallback: just delete the class
     API.deleteClass(school, classId)
       .then(function () {
         showNotification("Class deleted!", "success");
         loadClassesData();
       })
-      .catch(function () {});
-  });
+      .catch(function () {
+        showNotification("Failed to delete class", "error");
+      });
+  }
 }
 
 // ============ TERMS ============
@@ -2559,40 +2669,64 @@ function addUser(event) {
 
 function promoteToAdmin(email) {
   if (!email) return;
-  DialogSystem.confirm("Promote to admin?", {
-    title: "Promote",
-    type: "success",
-    confirmText: "Promote",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.updateUser(school, email, { role: "admin" })
-      .then(function () {
-        showNotification("User promoted!", "success");
-        loadSettingsData();
-      })
-      .catch(function () {});
-  });
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Promote to admin?", {
+      title: "Promote",
+      type: "success",
+      confirmText: "Promote",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.updateUser(school, email, { role: "admin" })
+        .then(function () {
+          showNotification("User promoted!", "success");
+          loadSettingsData();
+        })
+        .catch(function () {});
+    });
+  } else {
+    if (confirm("Promote to admin?")) {
+      var school = getCurrentSchool();
+      API.updateUser(school, email, { role: "admin" })
+        .then(function () {
+          showNotification("User promoted!", "success");
+          loadSettingsData();
+        })
+        .catch(function () {});
+    }
+  }
 }
 
 function deleteUser(email) {
   if (!email) return;
-  DialogSystem.confirm("Deactivate this user?", {
-    title: "Delete",
-    type: "danger",
-    confirmText: "Deactivate",
-    cancelText: "Cancel",
-  }).then(function (confirmed) {
-    if (confirmed !== "confirm") return;
-    var school = getCurrentSchool();
-    API.deleteUser(school, email)
-      .then(function () {
-        showNotification("User deactivated!", "success");
-        loadSettingsData();
-      })
-      .catch(function () {});
-  });
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Deactivate this user?", {
+      title: "Delete",
+      type: "danger",
+      confirmText: "Deactivate",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteUser(school, email)
+        .then(function () {
+          showNotification("User deactivated!", "success");
+          loadSettingsData();
+        })
+        .catch(function () {});
+    });
+  } else {
+    if (confirm("Deactivate this user?")) {
+      var school = getCurrentSchool();
+      API.deleteUser(school, email)
+        .then(function () {
+          showNotification("User deactivated!", "success");
+          loadSettingsData();
+        })
+        .catch(function () {});
+    }
+  }
 }
 
 // ============ DATABASE MANAGER ============
@@ -2608,16 +2742,16 @@ function loadDatabaseTables() {
     "events",
     "fees",
     "qrcodes",
+    "assignments",
     "auditLog",
     "users",
     "chat",
     "forum",
     "notes",
-    "assignments",
   ];
   var select = document.getElementById("databaseTableSelect");
   if (!select) return;
-  var html = "";
+  var html = '<option value="">-- Select a table --</option>';
   tables.forEach(function (t) {
     html +=
       '<option value="' +
@@ -2628,7 +2762,6 @@ function loadDatabaseTables() {
       "</option>";
   });
   select.innerHTML = html;
-  setTimeout(loadDatabaseTable, 300);
 }
 
 function loadDatabaseTable() {
@@ -2654,10 +2787,11 @@ function loadDatabaseTable() {
         return c !== "password";
       });
 
-      var headHtml = "";
+      var headHtml = "<tr>";
       filteredColumns.forEach(function (col) {
         headHtml += "<th>" + col + "</th>";
       });
+      headHtml += "</tr>";
       thead.innerHTML = headHtml;
 
       var bodyHtml = "";
