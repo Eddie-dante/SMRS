@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - QR Codes | School Resource Management System</title>
-    <meta name="description" content="Generate, scan, and manage QR codes">
+    <meta name="description" content="Generate, scan, assign items, and manage QR codes">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -306,6 +306,16 @@
         .fee-completed { background: rgba(40,167,69,0.2); color: #34ce57; }
         .fee-partial { background: rgba(255,193,7,0.2); color: #ffc107; }
         
+        .assign-form {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            text-align: left;
+        }
+        .assign-form h4 { color: var(--accent); margin-bottom: 10px; font-size: 0.85em; }
+        
         .qr-list-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
@@ -351,7 +361,7 @@
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-qrcode" style="color:var(--accent);"></i> QR Codes</h1>
-            <p>Generate, scan, and retrieve student data with fee status</p>
+            <p>Generate, scan, assign items, and retrieve student data</p>
         </div>
         
         <div class="tabs">
@@ -406,7 +416,7 @@
             <div class="panel scanner-container">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-camera"></i> Scan QR Code</h3>
                 <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">
-                    Upload an image - it will be scanned with animation for 2 seconds
+                    Upload an image or use camera - then assign items or view details
                 </p>
                 <input type="file" id="scanImageInput" accept="image/*" style="display:none;" onchange="scanImageFromFile(event)">
                 <button class="btn btn-secondary" onclick="document.getElementById('scanImageInput').click()"><i class="fas fa-image"></i> Upload Image</button>
@@ -506,6 +516,7 @@
         var scannerStream = null;
         var scannerActive = false;
         var generatedQRCodes = [];
+        var currentScannedStudent = null; // Store scanned student info for assignment
         
         function switchQRTab(tabName) {
             document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
@@ -579,13 +590,13 @@
             }
             
             if (adm) {
-                fetchStudentData(school, adm, resultDiv);
+                fetchStudentDataWithAssign(school, adm, resultDiv);
             } else {
                 resultDiv.innerHTML = '<div class="panel"><p style="color:#ff4757;">Invalid QR data.</p></div>';
             }
         }
         
-        function fetchStudentData(school, adm, targetDiv) {
+        function fetchStudentDataWithAssign(school, adm, targetDiv) {
             Promise.all([
                 API.getStudents(school),
                 API.getClasses(school),
@@ -619,6 +630,9 @@
                         });
                     });
                 }
+                
+                // Store for assignment
+                currentScannedStudent = student;
                 
                 var allAssignedItems = [];
                 
@@ -664,11 +678,8 @@
                         var badgeClass = balance <= 0 ? 'fee-completed' : 'fee-partial';
                         var badgeText = balance <= 0 ? '✅ COMPLETED' : '⚠️ PARTIAL';
                         html += '<div class="info-row"><span class="info-label">' + (f.term || 'Term') + '</span>' +
-                            '<span class="info-value">KES ' + formatNumber(f.amount || 0) + ' | Paid: KES ' + formatNumber(f.paid || 0) + ' | Balance: KES ' + formatNumber(balance) + ' <span class="fee-status-badge ' + badgeClass + '">' + badgeText + '</span></span></div>';
+                            '<span class="info-value">KES ' + formatNumber(f.amount || 0) + ' | Balance: KES ' + formatNumber(balance) + ' <span class="fee-status-badge ' + badgeClass + '">' + badgeText + '</span></span></div>';
                     });
-                } else {
-                    html += '<h4>💰 Fee Status</h4>';
-                    html += '<p style="font-size:11px;color:rgba(255,255,255,0.4);">No fee records found.</p>';
                 }
                 
                 // ASSIGNED ITEMS
@@ -683,11 +694,73 @@
                 }
                 
                 html += '</div>';
+                
+                // ASSIGNMENT FORM
+                if (student && student.adm) {
+                    html += '<div class="assign-form">' +
+                        '<h4><i class="fas fa-box"></i> Assign Item to ' + student.name + '</h4>' +
+                        '<div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">' +
+                        '<div class="form-group"><label>Item Type</label><select id="assignItemType">' +
+                        '<option value="book">📚 Book</option>' +
+                        '<option value="chair">🪑 Chair</option>' +
+                        '<option value="locker">🔒 Locker</option>' +
+                        '<option value="labcoat">🥼 Lab Coat</option>' +
+                        '<option value="calculator">🧮 Calculator</option>' +
+                        '<option value="laptop">💻 Laptop</option>' +
+                        '<option value="sports">⚽ Sports</option>' +
+                        '<option value="uniform">👔 Uniform</option>' +
+                        '<option value="other">📦 Other</option>' +
+                        '</select></div>' +
+                        '<div class="form-group"><label>Item Number</label><input type="text" id="assignItemNo" placeholder="e.g., CH-001"></div>' +
+                        '<div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="assignItemToScannedStudent()"><i class="fas fa-check"></i> Assign</button></div>' +
+                        '</div></div>';
+                }
+                
                 targetDiv.innerHTML = html;
                 showNotification('Student data retrieved!', 'success');
                 
             }).catch(function(error) {
                 targetDiv.innerHTML = '<div class="panel"><p style="color:#ff4757;">Failed to retrieve data.</p></div>';
+            });
+        }
+        
+        function assignItemToScannedStudent() {
+            if (!currentScannedStudent || !currentScannedStudent.adm) {
+                showNotification('No student scanned', 'warning');
+                return;
+            }
+            
+            var itemType = document.getElementById('assignItemType').value;
+            var itemNo = document.getElementById('assignItemNo').value.trim();
+            
+            if (!itemType) { showNotification('Select item type', 'warning'); return; }
+            if (!itemNo) { showNotification('Enter item number', 'warning'); return; }
+            
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            
+            API.assignItem(school, {
+                studentName: currentScannedStudent.name,
+                adm: currentScannedStudent.adm,
+                itemType: itemType,
+                itemNo: itemNo,
+                assignedBy: user ? user.name : ''
+            }).then(function(result) {
+                if (result.success) {
+                    showNotification('Item assigned to ' + currentScannedStudent.name + '!', 'success');
+                    logAction('Item Assigned', itemType + ' ' + itemNo + ' to ' + currentScannedStudent.name);
+                    document.getElementById('assignItemNo').value = '';
+                    
+                    // Refresh the display
+                    var detailsDiv = document.getElementById('scanDetails');
+                    if (detailsDiv) {
+                        fetchStudentDataWithAssign(school, currentScannedStudent.adm, detailsDiv);
+                    }
+                } else {
+                    showNotification(result.error || 'Failed to assign', 'error');
+                }
+            }).catch(function() {
+                showNotification('Failed to assign item', 'error');
             });
         }
         
@@ -770,12 +843,9 @@
             reader.onload = function(e) {
                 var img = new Image();
                 img.onload = function() {
-                    // Display image in scanner frame
                     var previewImg = document.getElementById('uploadedImagePreview');
                     previewImg.src = e.target.result;
                     previewImg.style.display = 'block';
-                    
-                    // Hide video
                     document.getElementById('scannerVideo').style.display = 'none';
                     
                     var found = false;
@@ -799,14 +869,11 @@
                             var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
                             if (code && code.data) {
                                 found = true;
-                                
-                                // Keep image displayed for 2 seconds with scanning effect
                                 setTimeout(function() {
                                     previewImg.style.display = 'none';
                                     displayScanResult(code.data);
                                     showNotification('QR detected!', 'success');
                                 }, 2000);
-                                
                                 break;
                             }
                         }
@@ -850,7 +917,7 @@
             
             if (adm) {
                 var detailsDiv = document.getElementById('scanDetails');
-                fetchStudentData(school, adm, detailsDiv);
+                fetchStudentDataWithAssign(school, adm, detailsDiv);
             } else {
                 document.getElementById('scanDetails').textContent = '✅ QR detected!';
             }
@@ -920,6 +987,7 @@
         window.startScanner = startScanner;
         window.stopScanner = stopScanner;
         window.scanImageFromFile = scanImageFromFile;
+        window.assignItemToScannedStudent = assignItemToScannedStudent;
         window.downloadQR = downloadQR;
         window.copyQRCode = copyQRCode;
         window.logoutWithConfirm = logoutWithConfirm;
