@@ -1,6 +1,6 @@
 /* ============================================
-   SRMS - Complete Component Styles
-   Full Version
+   SRMS - Component Styles
+   Complete Version
    ============================================ */
 
 /* ============ HEADER BAR (TASKBAR) ============ */
@@ -288,17 +288,6 @@
   max-height: 85vh;
   overflow-y: auto;
   animation: slideUp 0.2s ease;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .modal-header {
@@ -891,133 +880,6 @@
   background: linear-gradient(90deg, #e94560, #d4af37, #28a745);
 }
 
-.student-id-card .id-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.student-id-card .id-header .school-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: #d4af37;
-  letter-spacing: 1px;
-}
-
-.student-id-card .id-header .id-type {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  background: rgba(212, 175, 55, 0.15);
-  padding: 3px 10px;
-  border-radius: 20px;
-}
-
-.student-id-card .id-body {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.student-id-card .id-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #d4af37, #f0d060);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  font-weight: 900;
-  color: #0a0e27;
-  flex-shrink: 0;
-  border: 3px solid #d4af37;
-}
-
-.student-id-card .id-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.student-id-card .id-details .name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 2px;
-}
-
-.student-id-card .id-details .adm {
-  font-size: 11px;
-  color: #d4af37;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-.student-id-card .id-details .info-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 4px;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.5);
-  flex-wrap: wrap;
-}
-
-.student-id-card .id-footer {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.student-id-card .id-footer .qr-code {
-  width: 55px;
-  height: 55px;
-  background: white;
-  border-radius: 8px;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.student-id-card .id-footer .qr-code img {
-  width: 100%;
-  height: 100%;
-}
-
-.student-id-card .id-footer .qr-code .no-qr {
-  font-size: 8px;
-  color: #999;
-  text-align: center;
-}
-
-.student-id-card .id-footer .valid-date {
-  font-size: 8px;
-  color: rgba(255, 255, 255, 0.3);
-  text-align: right;
-}
-
-.student-id-card .id-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.student-id-card .id-actions .btn {
-  flex: 1;
-  justify-content: center;
-  font-size: 11px;
-  padding: 8px 12px;
-}
-
 /* ============ EXCEL PREVIEW ============ */
 .excel-preview-container {
   margin-top: 15px;
@@ -1047,10 +909,6 @@
   padding: 6px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
-}
-
-.excel-preview-container table tr:hover {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 /* ============ UPLOAD AREA ============ */
@@ -1256,9 +1114,5 @@
   .notification {
     max-width: 90%;
     right: 5%;
-  }
-
-  .students-grid {
-    grid-template-columns: 1fr;
   }
 }

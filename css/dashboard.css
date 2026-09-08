@@ -1,6 +1,6 @@
 /* ============================================
-   SRMS - Complete Dashboard Styles
-   Full Version
+   SRMS - Dashboard Styles
+   Complete Version
    ============================================ */
 
 /* ============ LAYOUT ============ */
@@ -466,5 +466,12 @@
 
   .stats-grid {
     grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ULTRA WIDE */
+@media (min-width: 2000px) {
+  .main-content {
+    max-width: 2200px;
   }
 }
