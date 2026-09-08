@@ -22,12 +22,12 @@
     
     <style>
         :root {
-            --gold-primary: #d4af37;
-            --gold-light: #f3e5ab;
-            --gold-dark: #aa7c11;
-            --bg-dark: #080a0f;
+            --primary-color: #800020;
+            --secondary-color: #d4af37;
+            --dark-blue: #0b1d3a;
             --card-width: 450px;
-            --primary: #e94560;
+            --card-height: 270px;
+            --gold-primary: #d4af37;
             --accent: #d4af37;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
@@ -172,14 +172,13 @@
         
         .btn {
             padding: 10px 18px; border: none; border-radius: 8px;
-            font-size: 13px; font-weight: 600; cursor: pointer;
+            font-size: 13px; font-weight: 700; cursor: pointer;
             font-family: 'Inter', sans-serif; transition: var(--transition);
             display: inline-flex; align-items: center; gap: 6px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
-            color: #05070a;
-            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, var(--secondary-color), #b89228);
+            color: #0f172a;
             font-weight: 800;
             letter-spacing: 0.5px;
             box-shadow: 0 6px 15px rgba(212, 175, 55, 0.25);
@@ -195,98 +194,96 @@
         @media (max-width: 968px) { .app-grid { grid-template-columns: 1fr; } }
         
         .panel {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
         .panel h3 {
-            font-family: 'Cinzel', serif;
             font-size: 1rem;
             font-weight: 700;
-            color: var(--gold-primary);
-            letter-spacing: 1px;
+            color: #f8fafc;
             margin-bottom: 15px;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding-bottom: 8px;
+            display: flex; align-items: center; gap: 8px;
         }
         
         .form-group { margin-bottom: 12px; }
         .form-group label {
             display: block; font-size: 0.7rem; font-weight: 600;
-            color: rgba(243, 229, 171, 0.8); margin-bottom: 4px;
+            color: #94a3b8; margin-bottom: 4px;
             letter-spacing: 0.5px; text-transform: uppercase;
         }
         .form-group select, .form-group input {
             width: 100%; padding: 9px 11px;
-            background: rgba(8, 11, 18, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: #0f172a;
+            border: 1px solid #334155;
             border-radius: 8px; color: #fff;
             font-size: 0.8rem; font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
+            transition: border 0.3s ease;
         }
         .form-group select:focus, .form-group input:focus {
-            outline: none; border-color: var(--gold-primary);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            outline: none; border-color: var(--secondary-color);
         }
         .form-group select option { background: #1a1f4e; }
         
-        /* ID CARD - Fixed proportions */
+        /* ID CARD - Your Exact Design */
         .id-card {
-            width: 100%;
-            max-width: 440px;
-            background: linear-gradient(135deg, #ffffff 0%, #f4f5f8 100%);
+            width: var(--card-width);
+            max-width: 100%;
+            height: var(--card-height);
+            background: #ffffff;
             color: #1e293b;
             border-radius: 12px;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 20px rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
         }
         
         .card-header {
-            background: linear-gradient(135deg, #4a0014 0%, #200008 100%);
+            background: var(--primary-color);
             color: #ffffff;
-            padding: 8px 12px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 2px solid var(--gold-primary);
+            border-bottom: 3px solid var(--secondary-color);
         }
-        .header-title h3 { font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold-light); }
-        .header-title p { font-size: 0.55rem; color: rgba(255, 255, 255, 0.7); }
-        .card-badge { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-size: 0.5rem; font-weight: 800; padding: 3px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-title h3 { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+        .header-title p { font-size: 0.65rem; color: #f1f5f9; opacity: 0.9; }
+        .card-badge { background: var(--dark-blue); color: var(--secondary-color); font-size: 0.6rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
         
-        .card-body { padding: 10px 12px; display: grid; grid-template-columns: 80px 1fr auto; gap: 10px; align-items: start; }
-        .photo-box { width: 80px; height: 100px; border-radius: 5px; border: 2px solid var(--gold-primary); overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
-        .photo-box .initials { font-size: 24px; font-weight: 900; color: #334155; font-family: 'Cinzel', serif; }
+        .card-body { padding: 12px 16px; display: grid; grid-template-columns: 100px 1fr auto; gap: 12px; height: 100%; align-items: start; }
+        .photo-box { width: 100px; height: 120px; border-radius: 6px; border: 2px solid var(--secondary-color); overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; }
+        .photo-box .initials { font-size: 28px; font-weight: 800; color: #334155; }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .details-box { display: flex; flex-direction: column; gap: 4px; }
-        .detail-item { font-size: 0.6rem; line-height: 1.15; }
-        .detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.5rem; display: block; letter-spacing: 0.3px; }
-        .detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.65rem; }
+        .details-box { display: flex; flex-direction: column; gap: 3px; }
+        .detail-item { font-size: 0.68rem; line-height: 1.2; }
+        .detail-item .label { font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.58rem; display: block; }
+        .detail-item .value { font-weight: 700; color: #0f172a; font-size: 0.72rem; }
         
-        .side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; gap: 8px; }
-        .qr-code-box { background: #fff; padding: 3px; border-radius: 5px; border: 1px solid var(--gold-primary); }
-        .signature-box { text-align: center; }
-        .signature-line { font-family: 'Great Vibes', cursive; font-size: 0.85rem; color: #0f172a; line-height: 1; }
-        .signature-title { font-size: 0.4rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 1px; }
+        .side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; padding-bottom: 5px; }
+        .qr-code-box { background: #fff; padding: 4px; border-radius: 6px; border: 1px solid #cbd5e1; }
+        .signature-box { text-align: center; margin-top: 5px; }
+        .signature-line { font-family: 'Great Vibes', cursive; font-size: 1.1rem; color: #0f172a; line-height: 1; }
+        .signature-title { font-size: 0.5rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
         
         .card-footer {
-            background: #f1f5f9;
-            border-top: 1px solid #cbd5e1;
-            padding: 5px 12px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.5rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            color: #334155;
+            color: #475569;
+            margin-top: auto;
         }
         
         .card-preview-wrapper {
@@ -301,16 +298,16 @@
             .classy-btn { padding: 6px 8px; font-size: 9px; }
             .main-content { padding: 65px 10px 10px; }
             .app-grid { grid-template-columns: 1fr; }
-            .id-card { max-width: 100%; }
-            .card-body { grid-template-columns: 60px 1fr auto; gap: 6px; padding: 8px; }
-            .photo-box { width: 60px; height: 80px; }
+            .id-card { width: 100%; max-width: 450px; height: auto; min-height: 250px; }
+            .card-body { grid-template-columns: 70px 1fr auto; gap: 8px; padding: 8px; }
+            .photo-box { width: 70px; height: 90px; }
             .page-header { flex-direction: column; align-items: stretch; }
         }
         
         @media print {
             body { background: #fff; padding: 0; }
             body::before { display: none; }
-            .taskbar, .floating-navbar-container, .panel:first-child, .btn-primary { display: none !important; }
+            .taskbar, .floating-navbar-container, .panel:first-child, .btn-primary, .page-header { display: none !important; }
             .main-content { padding: 15px; margin: 0; }
             .app-grid { display: block; }
             .panel { border: none; box-shadow: none; padding: 0; background: transparent; backdrop-filter: none; }
@@ -340,9 +337,9 @@
         
         <div class="app-grid">
             <div class="panel">
-                <h3><i class="fas fa-user-edit"></i> Select Student</h3>
+                <h3><i class="fas fa-user-edit"></i> Card Editor</h3>
                 <div class="form-group">
-                    <label>Choose Student</label>
+                    <label>Select Student</label>
                     <select id="studentSelect" onchange="loadStudentForCard()">
                         <option value="">-- Select a student --</option>
                     </select>
@@ -355,12 +352,12 @@
                     <i class="fas fa-print"></i> Print Student ID Card
                 </button>
                 <p style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:10px;text-align:center;">
-                    QR code contains: ADM, Name, School, App URL<br>Scan to view complete student profile
+                    QR encodes: ADM, Name, School, Form, Stream,<br>Parent details, and App URL for scanning
                 </p>
             </div>
             
             <div class="panel card-preview-wrapper">
-                <h3>Live Preview</h3>
+                <h3>Live Card Preview</h3>
                 
                 <div class="id-card" id="card">
                     <div class="card-header">
@@ -414,7 +411,7 @@
                     
                     <div class="card-footer">
                         <span>VALID UNTIL: <span id="cardExpiry">31 DEC 2026</span></span>
-                        <span>Scan for Details</span>
+                        <span>SCAN FOR DETAILS</span>
                     </div>
                 </div>
             </div>
@@ -525,7 +522,8 @@
                                 name: name, adm: adm, form: c.name,
                                 stream: c.stream || "", gender: st.Gender || st.gender || "",
                                 parentName: st["Parent Name"] || st.parentName || "",
-                                parentPhone: st["Parent Phone"] || st.parentPhone || ""
+                                parentPhone: st["Parent Phone"] || st.parentPhone || "",
+                                parentEmail: st["Parent Email"] || st.parentEmail || ""
                             });
                         }
                     });
@@ -556,7 +554,6 @@
             currentStudentData = student;
             
             var schoolName = getCurrentSchool() || 'SCHOOL NAME';
-            var schoolInfo = null;
             
             document.getElementById('cardSchool').textContent = schoolName.toUpperCase();
             document.getElementById('cardLocation').textContent = 'School Location';
@@ -576,25 +573,19 @@
             var expiryStr = expiryDate.getDate() + ' ' + months[expiryDate.getMonth()] + ' ' + expiryDate.getFullYear();
             document.getElementById('cardExpiry').textContent = expiryStr;
             
+            // Generate rich QR code after ALL details are set
             generateRichQRCode(student, schoolName);
             
-            // Also fetch school info and fees/borrowed for the student
+            // Fetch additional data (borrowed books, fees) and update QR
             var school = getCurrentSchool();
             if (school && student.adm) {
-                Promise.all([
-                    API.getBorrowed(school),
-                    API.getFees(school)
-                ]).then(function(results) {
+                Promise.all([API.getBorrowed(school), API.getFees(school)]).then(function(results) {
                     var borrowed = results[0] || [];
                     var fees = results[1] || [];
                     
-                    var studentBorrowed = borrowed.filter(function(b) { return b.adm === student.adm; });
-                    var studentFees = fees.filter(function(f) { return f.studentAdm === student.adm; });
+                    currentStudentData.borrowedBooks = borrowed.filter(function(b) { return b.adm === student.adm; });
+                    currentStudentData.fees = fees.filter(function(f) { return f.studentAdm === student.adm; });
                     
-                    currentStudentData.borrowedBooks = studentBorrowed;
-                    currentStudentData.fees = studentFees;
-                    
-                    // Regenerate QR with all data
                     generateRichQRCode(student, schoolName);
                 }).catch(function() {});
             }
@@ -606,6 +597,7 @@
             
             var qrData = {
                 type: 'STUDENT_ID',
+                version: '1.0',
                 adm: student.adm,
                 name: student.name,
                 school: schoolName,
@@ -624,9 +616,9 @@
             try {
                 qrcodeInstance = new QRCode(container, {
                     text: qrString,
-                    width: 55,
-                    height: 55,
-                    colorDark: '#05070a',
+                    width: 58,
+                    height: 58,
+                    colorDark: '#0f172a',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H
                 });
@@ -655,8 +647,8 @@
             try {
                 new QRCode(container, {
                     text: JSON.stringify({ type: 'STUDENT_ID', adm: 'NONE', appUrl: APP_URL }),
-                    width: 55, height: 55,
-                    colorDark: '#05070a', colorLight: '#ffffff',
+                    width: 58, height: 58,
+                    colorDark: '#0f172a', colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H
                 });
             } catch(e) {}
