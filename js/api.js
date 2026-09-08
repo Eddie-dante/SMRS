@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Full Version - With Unified Assignments
+// Full Version - With Unique Student IDs
 // ============================================
 
 var firebaseConfig = {
@@ -106,6 +106,33 @@ function generateUniqueQRCode(type, usedCodes) {
     attempts++;
   }
   return code;
+}
+
+// Generate unique Student ID with school initials
+function generateUniqueStudentId(schoolName, adm) {
+  // Get school initials (first letter of each word, up to 3 letters)
+  var schoolInitials = "";
+  var words = schoolName.split(/\s+/);
+  for (var i = 0; i < words.length && i < 3; i++) {
+    if (words[i] && words[i].length > 0) {
+      schoolInitials += words[i].charAt(0).toUpperCase();
+    }
+  }
+  // If no initials (empty school name), use "SCH"
+  if (!schoolInitials) schoolInitials = "SCH";
+
+  var year = new Date().getFullYear().toString().slice(-2);
+
+  // Generate random unique component
+  var randomPart = "";
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  for (var j = 0; j < 4; j++) {
+    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  // Format: NHS-24-AB12
+  var studentId = schoolInitials + "-" + year + "-" + randomPart;
+  return studentId;
 }
 
 // ============ API OBJECT ============
@@ -563,11 +590,16 @@ var API = {
         error: "Admission number is required",
       });
     }
+
+    // Generate unique Student ID with school initials
+    var studentId = generateUniqueStudentId(schoolName, studentData.adm);
+
     return database
       .ref("schools/" + schoolName + "/students/" + studentData.adm)
       .set({
         name: studentData.name.trim(),
         adm: studentData.adm.trim(),
+        studentId: studentId,
         form: studentData.form || "",
         stream: studentData.stream || "",
         gender: studentData.gender || "",
@@ -577,10 +609,11 @@ var API = {
         parentEmail: studentData.parentEmail || "",
         addedBy: studentData.addedBy || "",
         addedAt: new Date().toISOString(),
+        idGeneratedAt: new Date().toISOString(),
       })
       .then(function () {
         clearCache("students_" + schoolName);
-        return { success: true };
+        return { success: true, studentId: studentId };
       })
       .catch(function (error) {
         return { success: false, error: error.message };
@@ -614,6 +647,7 @@ var API = {
     var classRef = database.ref("schools/" + schoolName + "/classes").push();
     var classId = classRef.key;
     var updates = {};
+
     updates["schools/" + schoolName + "/classes/" + classId] = {
       name: classData.name,
       stream: classData.stream || "",
@@ -623,35 +657,58 @@ var API = {
       createdAt: new Date().toISOString(),
       isActive: true,
     };
+
     var students = classData.students || [];
+    var studentIdsGenerated = 0;
+
     for (var i = 0; i < students.length; i++) {
       var student = students[i];
       var adm = student.ADM || student.adm || student["ADM No"] || "";
       var name =
         student.Name || student.name || student["Full Name"] || "Unknown";
+
       if (adm) {
+        // Generate unique Student ID with school initials
+        var studentId = generateUniqueStudentId(schoolName, adm);
+
         updates["schools/" + schoolName + "/students/" + adm] = {
           name: name,
           adm: adm,
+          studentId: studentId,
           form: classData.name,
           stream: classData.stream || "",
           gender: student.Gender || student.gender || "",
           dob: student.DOB || student.dob || "",
-          parentName: student["Parent Name"] || "",
-          parentPhone: student["Parent Phone"] || "",
-          parentEmail: student["Parent Email"] || "",
+          parentName: student["Parent Name"] || student.parentName || "",
+          parentPhone: student["Parent Phone"] || student.parentPhone || "",
+          parentEmail: student["Parent Email"] || student.parentEmail || "",
           addedBy: classData.createdBy || "",
           addedAt: new Date().toISOString(),
+          idGeneratedAt: new Date().toISOString(),
         };
+
+        // Update student in class array with their ID
+        students[i].studentId = studentId;
+        students[i].StudentID = studentId;
+        studentIdsGenerated++;
       }
     }
+
+    // Update class with students that now have IDs
+    updates["schools/" + schoolName + "/classes/" + classId + "/students"] =
+      students;
+
     return database
       .ref()
       .update(updates)
       .then(function () {
         clearCache("classes_" + schoolName);
         clearCache("students_" + schoolName);
-        return { success: true, classId: classId };
+        return {
+          success: true,
+          classId: classId,
+          studentIdsGenerated: studentIdsGenerated,
+        };
       })
       .catch(function (error) {
         return { success: false, error: error.message };
@@ -674,6 +731,167 @@ var API = {
       .then(function () {
         clearCache("classes_" + schoolName);
         return { success: true };
+      })
+      .catch(function (error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  deleteClassWithStudents: function (schoolName, classId) {
+    return database
+      .ref("schools/" + schoolName + "/classes/" + classId)
+      .once("value")
+      .then(function (snapshot) {
+        var classData = snapshot.val();
+        if (!classData) return { success: false, error: "Class not found" };
+
+        var students = classData.students || [];
+        var studentAdms = [];
+
+        students.forEach(function (st) {
+          var adm = st.ADM || st.adm || st["ADM No"] || "";
+          if (adm) studentAdms.push(adm);
+        });
+
+        return database
+          .ref("schools/" + schoolName + "/classes/" + classId)
+          .remove()
+          .then(function () {
+            var promises = [];
+
+            studentAdms.forEach(function (adm) {
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/students/" + adm)
+                  .remove(),
+              );
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/borrowed")
+                  .orderByChild("adm")
+                  .equalTo(adm)
+                  .once("value")
+                  .then(function (snap) {
+                    var data = snap.val();
+                    if (data) {
+                      var removes = [];
+                      Object.keys(data).forEach(function (key) {
+                        removes.push(
+                          database
+                            .ref("schools/" + schoolName + "/borrowed/" + key)
+                            .remove(),
+                        );
+                      });
+                      return Promise.all(removes);
+                    }
+                    return Promise.resolve();
+                  }),
+              );
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/furniture")
+                  .orderByChild("adm")
+                  .equalTo(adm)
+                  .once("value")
+                  .then(function (snap) {
+                    var data = snap.val();
+                    if (data) {
+                      var removes = [];
+                      Object.keys(data).forEach(function (key) {
+                        removes.push(
+                          database
+                            .ref("schools/" + schoolName + "/furniture/" + key)
+                            .remove(),
+                        );
+                      });
+                      return Promise.all(removes);
+                    }
+                    return Promise.resolve();
+                  }),
+              );
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/fees")
+                  .orderByChild("studentAdm")
+                  .equalTo(adm)
+                  .once("value")
+                  .then(function (snap) {
+                    var data = snap.val();
+                    if (data) {
+                      var removes = [];
+                      Object.keys(data).forEach(function (key) {
+                        removes.push(
+                          database
+                            .ref("schools/" + schoolName + "/fees/" + key)
+                            .remove(),
+                        );
+                      });
+                      return Promise.all(removes);
+                    }
+                    return Promise.resolve();
+                  }),
+              );
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/assignments")
+                  .orderByChild("adm")
+                  .equalTo(adm)
+                  .once("value")
+                  .then(function (snap) {
+                    var data = snap.val();
+                    if (data) {
+                      var removes = [];
+                      Object.keys(data).forEach(function (key) {
+                        removes.push(
+                          database
+                            .ref(
+                              "schools/" + schoolName + "/assignments/" + key,
+                            )
+                            .remove(),
+                        );
+                      });
+                      return Promise.all(removes);
+                    }
+                    return Promise.resolve();
+                  }),
+              );
+              promises.push(
+                database
+                  .ref("schools/" + schoolName + "/qrcodes")
+                  .orderByChild("adm")
+                  .equalTo(adm)
+                  .once("value")
+                  .then(function (snap) {
+                    var data = snap.val();
+                    if (data) {
+                      var removes = [];
+                      Object.keys(data).forEach(function (key) {
+                        removes.push(
+                          database
+                            .ref("schools/" + schoolName + "/qrcodes/" + key)
+                            .remove(),
+                        );
+                      });
+                      return Promise.all(removes);
+                    }
+                    return Promise.resolve();
+                  }),
+              );
+            });
+
+            return Promise.all(promises);
+          })
+          .then(function () {
+            clearCache("classes_" + schoolName);
+            clearCache("students_" + schoolName);
+            clearCache("borrowed_" + schoolName);
+            clearCache("furniture_" + schoolName);
+            clearCache("fees_" + schoolName);
+            clearCache("assignments_" + schoolName);
+            clearCache("qrcodes_" + schoolName);
+
+            return { success: true, studentsDeleted: studentAdms.length };
+          });
       })
       .catch(function (error) {
         return { success: false, error: error.message };
@@ -1358,3 +1576,6 @@ var API = {
 window.API = API;
 window.dataCache = dataCache;
 window.clearCache = clearCache;
+window.generateUniqueStudentId = generateUniqueStudentId;
+
+console.log("✅ API loaded with Unique Student ID generation");
