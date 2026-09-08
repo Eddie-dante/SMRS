@@ -216,9 +216,7 @@
             display: flex; gap: 4px; justify-content: center; margin-top: 6px; flex-wrap: wrap;
         }
         
-        .scanner-container {
-            text-align: center;
-        }
+        .scanner-container { text-align: center; }
         #scannerVideo {
             width: 100%; max-width: 320px;
             border-radius: 8px; border: 2px solid var(--accent);
@@ -235,6 +233,7 @@
             font-size: 0.9em; font-weight: 800; color: #34ce57;
             letter-spacing: 1px; word-break: break-all;
         }
+        
         .student-info-display {
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid var(--accent);
@@ -243,20 +242,24 @@
             margin-top: 10px;
             text-align: left;
         }
+        .student-info-display h4 {
+            color: var(--accent);
+            margin: 8px 0 5px;
+            font-size: 0.8em;
+        }
         .student-info-display .info-row {
             display: flex;
             justify-content: space-between;
             padding: 4px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 12px;
+            gap: 10px;
         }
         .student-info-display .info-row:last-child { border-bottom: none; }
-        .student-info-display .info-label { color: rgba(255,255,255,0.5); font-weight: 600; }
-        .student-info-display .info-value { color: #fff; font-weight: 700; }
+        .student-info-display .info-label { color: rgba(255,255,255,0.5); font-weight: 600; flex-shrink: 0; }
+        .student-info-display .info-value { color: #fff; font-weight: 700; text-align: right; word-break: break-word; }
         
-        .qr-list-container {
-            overflow-x: auto;
-        }
+        .qr-list-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
             background: rgba(233, 69, 96, 0.8);
@@ -300,7 +303,7 @@
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-qrcode" style="color:var(--accent);"></i> QR Codes</h1>
-            <p>Generate, scan, and paste QR data</p>
+            <p>Generate, scan, paste, and retrieve student data</p>
         </div>
         
         <div class="tabs">
@@ -310,7 +313,6 @@
             <button class="tab" onclick="switchQRTab('list')"><i class="fas fa-list"></i> All Codes</button>
         </div>
         
-        <!-- GENERATE TAB -->
         <div id="generateTab" class="tab-content active">
             <div class="panel">
                 <div class="form-row">
@@ -333,35 +335,33 @@
                         <input type="number" id="qrEnd" min="1" value="5">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="generateQRCodes()"><i class="fas fa-qrcode"></i> Generate QR Codes</button>
+                <button class="btn btn-primary" onclick="generateQRCodes()"><i class="fas fa-qrcode"></i> Generate</button>
             </div>
             <div class="qr-grid" id="qrContainer">
                 <div class="empty-state"><i class="fas fa-qrcode"></i><p>No QR codes generated yet</p></div>
             </div>
         </div>
         
-        <!-- PASTE DATA TAB -->
         <div id="pasteTab" class="tab-content">
             <div class="panel">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-paste"></i> Paste QR Data</h3>
                 <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">
-                    Paste the JSON data copied from Student ID card QR code
+                    Paste JSON data copied from a Student ID card QR code
                 </p>
                 <div class="form-group">
-                    <label>Paste QR Data Here</label>
-                    <textarea id="pasteQRData" placeholder='Paste JSON data like: {"type":"STUDENT_ID","fullName":"...","admissionNo":"..."}'></textarea>
+                    <label>Paste QR Data</label>
+                    <textarea id="pasteQRData" placeholder='{"type":"STUDENT_ID","adm":"ADM123","school":"School Name"}'></textarea>
                 </div>
-                <button class="btn btn-primary" onclick="processPastedData()"><i class="fas fa-check"></i> Process Data</button>
+                <button class="btn btn-primary" onclick="processPastedData()"><i class="fas fa-check"></i> Retrieve Student Info</button>
             </div>
             <div id="pastedResult" style="display:none;"></div>
         </div>
         
-        <!-- SCAN TAB -->
         <div id="scanTab" class="tab-content">
             <div class="panel scanner-container">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-camera"></i> Scan QR Code</h3>
                 <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">
-                    Upload an image OR use camera
+                    Upload an image OR use camera to scan
                 </p>
                 <input type="file" id="scanImageInput" accept="image/*" style="display:none;" onchange="scanImageFromFile(event)">
                 <button class="btn btn-secondary" onclick="document.getElementById('scanImageInput').click()"><i class="fas fa-image"></i> Upload Image</button>
@@ -374,12 +374,11 @@
                 <div class="scan-result" id="scanResult">
                     <p style="font-size:11px;">SCANNED CODE:</p>
                     <div class="scanned-code" id="scannedCode"></div>
-                    <div id="scanDetails" style="margin-top:8px;font-size:11px;"></div>
+                    <div id="scanDetails" style="margin-top:8px;"></div>
                 </div>
             </div>
         </div>
         
-        <!-- LIST TAB -->
         <div id="listTab" class="tab-content">
             <div class="panel qr-list-container" id="qrCodeList">
                 <div class="empty-state"><i class="fas fa-list"></i><p>No QR codes yet</p></div>
@@ -500,52 +499,29 @@
         
         function processPastedData() {
             var rawData = document.getElementById('pasteQRData').value.trim();
-            if (!rawData) {
-                showNotification('Paste QR data first', 'warning');
-                return;
-            }
+            if (!rawData) { showNotification('Paste QR data first', 'warning'); return; }
             
             var resultDiv = document.getElementById('pastedResult');
+            resultDiv.innerHTML = '<div class="panel"><i class="fas fa-spinner fa-spin"></i> Retrieving data...</div>';
+            resultDiv.style.display = 'block';
             
             try {
                 var data = JSON.parse(rawData);
                 
-                if (data.type === 'STUDENT_ID' || data.admissionNo || data.adm) {
-                    var html = '<div class="student-info-display">' +
-                        '<h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-user-graduate"></i> Student Details</h3>' +
-                        '<div class="info-row"><span class="info-label">👤 Full Name</span><span class="info-value">' + (data.fullName || data.name || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🔢 Admission No.</span><span class="info-value">' + (data.admissionNo || data.adm || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🪪 Student ID No.</span><span class="info-value">' + (data.studentIdNo || data.adm || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🎂 Date of Birth</span><span class="info-value">' + (data.dateOfBirth || data.dob || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🎓 Class/Form</span><span class="info-value">' + (data.classForm || data.form || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🏠 House/Stream</span><span class="info-value">' + (data.houseStream || data.stream || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">📅 Academic Year</span><span class="info-value">' + (data.academicYear || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🏫 School</span><span class="info-value">' + (data.school || 'N/A') + '</span></div>' +
-                        '</div>';
-                    resultDiv.innerHTML = html;
-                    resultDiv.style.display = 'block';
-                    showNotification('Student data processed!', 'success');
+                if (data.type === 'STUDENT_ID' && (data.adm || data.admissionNo)) {
+                    var school = data.school || getCurrentSchool();
+                    var adm = data.adm || data.admissionNo;
+                    fetchStudentData(school, adm, resultDiv);
                 } else {
-                    resultDiv.innerHTML = '<div class="panel"><p style="font-size:12px;">Data received:<br><code style="word-break:break-all;">' + rawData + '</code></p></div>';
-                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = '<div class="panel"><p style="font-size:12px;">Data received but not a student ID.</p></div>';
                 }
             } catch(err) {
-                // Try URL with query params
                 if (rawData.includes('adm=')) {
                     try {
                         var url = new URL(rawData);
                         var adm = url.searchParams.get('adm');
-                        var name = url.searchParams.get('name') || '';
-                        var school = url.searchParams.get('school') || '';
-                        
-                        resultDiv.innerHTML = '<div class="student-info-display">' +
-                            '<h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;">Student Details</h3>' +
-                            '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + name + '</span></div>' +
-                            '<div class="info-row"><span class="info-label">ADM</span><span class="info-value">' + adm + '</span></div>' +
-                            '<div class="info-row"><span class="info-label">School</span><span class="info-value">' + school + '</span></div>' +
-                            '</div>';
-                        resultDiv.style.display = 'block';
-                        showNotification('Data processed from URL!', 'success');
+                        var school = url.searchParams.get('school') || getCurrentSchool();
+                        fetchStudentData(school, adm, resultDiv);
                     } catch(e2) {
                         showNotification('Invalid data format', 'error');
                     }
@@ -553,6 +529,106 @@
                     showNotification('Invalid QR data. Paste the exact JSON.', 'error');
                 }
             }
+        }
+        
+        function fetchStudentData(school, adm, resultDiv) {
+            Promise.all([
+                API.getStudents(school),
+                API.getClasses(school),
+                API.getBorrowed(school),
+                API.getFees(school),
+                API.getFurniture(school)
+            ]).then(function(results) {
+                var students = results[0] || [];
+                var classes = results[1] || [];
+                var borrowed = results[2] || [];
+                var fees = results[3] || [];
+                var furniture = results[4] || [];
+                
+                var student = null;
+                students.forEach(function(s) {
+                    if (s.adm === adm) student = s;
+                });
+                
+                if (!student) {
+                    classes.forEach(function(c) {
+                        (c.students || []).forEach(function(st) {
+                            var stAdm = st.ADM || st.adm || st["ADM No"] || "";
+                            if (stAdm === adm) {
+                                student = {
+                                    name: st.Name || st.name || st["Full Name"] || "Unknown",
+                                    adm: adm,
+                                    form: c.name,
+                                    stream: c.stream || "",
+                                    gender: st.Gender || st.gender || "",
+                                    dob: st.DOB || st.dob || "",
+                                    parentName: st["Parent Name"] || st.parentName || "",
+                                    parentPhone: st["Parent Phone"] || st.parentPhone || "",
+                                    parentEmail: st["Parent Email"] || st.parentEmail || ""
+                                };
+                            }
+                        });
+                    });
+                }
+                
+                var studentBorrowed = borrowed.filter(function(b) { return b.adm === adm; });
+                var studentFees = fees.filter(function(f) { return f.studentAdm === adm; });
+                var studentFurniture = furniture.filter(function(f) { return f.adm === adm; });
+                
+                var html = '<div class="student-info-display">';
+                
+                if (student) {
+                    html += '<h4>📋 Student Details</h4>';
+                    html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + student.name + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🔢 ADM No</span><span class="info-value">' + student.adm + '</span></div>';
+                    if (student.dob) html += '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + student.dob + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">⚧ Gender</span><span class="info-value">' + (student.gender || 'N/A') + '</span></div>';
+                    
+                    if (student.parentName) {
+                        html += '<h4>👨‍👩‍👧 Parent Details</h4>';
+                        html += '<div class="info-row"><span class="info-label">Parent</span><span class="info-value">' + student.parentName + '</span></div>';
+                        if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
+                        if (student.parentEmail) html += '<div class="info-row"><span class="info-label">✉️ Email</span><span class="info-value">' + student.parentEmail + '</span></div>';
+                    }
+                } else {
+                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found in database.</p>';
+                }
+                
+                if (studentBorrowed.length > 0) {
+                    html += '<h4>📚 Borrowed Books (' + studentBorrowed.length + ')</h4>';
+                    studentBorrowed.forEach(function(b) {
+                        html += '<div class="info-row"><span class="info-label">' + (b.bookTitle || 'Unknown') + '</span>' +
+                            '<span class="info-value">' + (b.returned ? '✅ Returned' : '❌ Active') + '</span></div>';
+                    });
+                }
+                
+                if (studentFees.length > 0) {
+                    html += '<h4>💰 Fees</h4>';
+                    studentFees.forEach(function(f) {
+                        html += '<div class="info-row"><span class="info-label">' + (f.term || 'Term') + '</span>' +
+                            '<span class="info-value">KES ' + (f.balance || 0) + ' balance</span></div>';
+                    });
+                }
+                
+                if (studentFurniture.length > 0) {
+                    html += '<h4>🪑 Furniture</h4>';
+                    studentFurniture.forEach(function(f) {
+                        html += '<div class="info-row"><span class="info-label">Chair: ' + (f.chairNo || 'N/A') + '</span>' +
+                            '<span class="info-value">Locker: ' + (f.lockerNo || 'N/A') + '</span></div>';
+                    });
+                }
+                
+                html += '</div>';
+                resultDiv.innerHTML = html;
+                showNotification('Student data retrieved!', 'success');
+                
+            }).catch(function(error) {
+                console.error('Fetch student data error:', error);
+                resultDiv.innerHTML = '<div class="panel"><p style="color:#ff4757;">Failed to retrieve data.</p></div>';
+                showNotification('Failed to retrieve student data', 'error');
+            });
         }
         
         async function startScanner() {
@@ -663,33 +739,122 @@
         function displayScanResult(data) {
             document.getElementById('scannedCode').textContent = data;
             document.getElementById('scanResult').style.display = 'block';
+            document.getElementById('scanDetails').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrieving student data...';
             
             try {
                 var parsed = JSON.parse(data);
-                if (parsed.type === 'STUDENT_ID' || parsed.admissionNo) {
-                    var html = '<div class="student-info-display" style="margin-top:10px;">' +
-                        '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + (parsed.fullName || parsed.name || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + (parsed.admissionNo || parsed.adm || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🪪 Student ID</span><span class="info-value">' + (parsed.studentIdNo || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + (parsed.dateOfBirth || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (parsed.classForm || parsed.form || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">🏠 House</span><span class="info-value">' + (parsed.houseStream || parsed.stream || 'N/A') + '</span></div>' +
-                        '<div class="info-row"><span class="info-label">📅 Year</span><span class="info-value">' + (parsed.academicYear || 'N/A') + '</span></div>' +
-                        '</div>';
-                    document.getElementById('scanDetails').innerHTML = '✅ Student ID detected!' + html;
+                
+                if (parsed.type === 'STUDENT_ID' && (parsed.adm || parsed.admissionNo)) {
+                    var school = parsed.school || getCurrentSchool();
+                    var adm = parsed.adm || parsed.admissionNo;
+                    
+                    var detailsDiv = document.getElementById('scanDetails');
+                    fetchStudentDataToElement(school, adm, detailsDiv);
                 } else {
                     document.getElementById('scanDetails').textContent = '✅ QR code detected!';
                 }
             } catch(err) {
-                document.getElementById('scanDetails').textContent = '✅ QR code detected!';
                 if (data.includes('adm=')) {
                     try {
                         var url = new URL(data);
                         var adm = url.searchParams.get('adm');
-                        document.getElementById('scanDetails').innerHTML = '✅ QR detected!<br>ADM: <strong>' + adm + '</strong>';
-                    } catch(e2) {}
+                        var school = url.searchParams.get('school') || getCurrentSchool();
+                        var detailsDiv = document.getElementById('scanDetails');
+                        fetchStudentDataToElement(school, adm, detailsDiv);
+                    } catch(e2) {
+                        document.getElementById('scanDetails').textContent = '✅ QR code detected!';
+                    }
+                } else {
+                    document.getElementById('scanDetails').textContent = '✅ QR code detected!';
                 }
             }
+        }
+        
+        function fetchStudentDataToElement(school, adm, targetElement) {
+            Promise.all([
+                API.getStudents(school),
+                API.getClasses(school),
+                API.getBorrowed(school),
+                API.getFees(school),
+                API.getFurniture(school)
+            ]).then(function(results) {
+                var students = results[0] || [];
+                var classes = results[1] || [];
+                var borrowed = results[2] || [];
+                var fees = results[3] || [];
+                var furniture = results[4] || [];
+                
+                var student = null;
+                students.forEach(function(s) { if (s.adm === adm) student = s; });
+                
+                if (!student) {
+                    classes.forEach(function(c) {
+                        (c.students || []).forEach(function(st) {
+                            var stAdm = st.ADM || st.adm || st["ADM No"] || "";
+                            if (stAdm === adm) {
+                                student = {
+                                    name: st.Name || st.name || st["Full Name"] || "Unknown",
+                                    adm: adm, form: c.name, stream: c.stream || "",
+                                    gender: st.Gender || st.gender || "", dob: st.DOB || st.dob || "",
+                                    parentName: st["Parent Name"] || "", parentPhone: st["Parent Phone"] || ""
+                                };
+                            }
+                        });
+                    });
+                }
+                
+                var studentBorrowed = borrowed.filter(function(b) { return b.adm === adm; });
+                var studentFees = fees.filter(function(f) { return f.studentAdm === adm; });
+                var studentFurniture = furniture.filter(function(f) { return f.adm === adm; });
+                
+                var html = '<div class="student-info-display">';
+                if (student) {
+                    html += '<h4>📋 Student Details</h4>';
+                    html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + student.name + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + student.adm + '</span></div>';
+                    if (student.dob) html += '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + student.dob + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
+                    if (student.parentName) {
+                        html += '<h4>👨‍👩‍👧 Parent</h4>';
+                        html += '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + student.parentName + '</span></div>';
+                        if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
+                    }
+                } else {
+                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
+                }
+                
+                if (studentBorrowed.length > 0) {
+                    html += '<h4>📚 Books (' + studentBorrowed.length + ')</h4>';
+                    studentBorrowed.forEach(function(b) {
+                        html += '<div class="info-row"><span class="info-label">' + b.bookTitle + '</span>' +
+                            '<span class="info-value">' + (b.returned ? 'Returned' : 'Active') + '</span></div>';
+                    });
+                }
+                
+                if (studentFees.length > 0) {
+                    html += '<h4>💰 Fees</h4>';
+                    studentFees.forEach(function(f) {
+                        html += '<div class="info-row"><span class="info-label">' + (f.term || 'Term') + '</span>' +
+                            '<span class="info-value">KES ' + (f.balance || 0) + '</span></div>';
+                    });
+                }
+                
+                if (studentFurniture.length > 0) {
+                    html += '<h4>🪑 Furniture</h4>';
+                    studentFurniture.forEach(function(f) {
+                        html += '<div class="info-row"><span class="info-label">Chair: ' + (f.chairNo || 'N/A') + '</span>' +
+                            '<span class="info-value">Locker: ' + (f.lockerNo || 'N/A') + '</span></div>';
+                    });
+                }
+                
+                html += '</div>';
+                targetElement.innerHTML = '✅ Student found!' + html;
+                
+            }).catch(function(error) {
+                console.error('Error:', error);
+                targetElement.textContent = 'Failed to retrieve data.';
+            });
         }
         
         function loadQRCodeList() {
@@ -702,13 +867,13 @@
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-list"></i><p>No QR codes yet</p></div>';
                     return;
                 }
-                var html = '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Class</th><th>ADM</th></tr></thead><tbody>';
+                var html = '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th></tr></thead><tbody>';
                 codes.forEach(function(qr) {
                     var status = qr.returned ? 'Returned' : (qr.assigned ? 'Assigned' : 'Available');
                     var badgeClass = qr.returned ? 'badge-success' : (qr.assigned ? 'badge-warning' : 'badge-info');
                     html += '<tr><td><strong>' + (qr.code || '') + '</strong></td><td>' + (qr.type || '') + '</td>' +
                         '<td><span class="badge ' + badgeClass + '">' + status + '</span></td>' +
-                        '<td>' + (qr.assignedTo || '-') + '</td><td>' + (qr.className || '-') + '</td><td>' + (qr.adm || '-') + '</td></tr>';
+                        '<td>' + (qr.assignedTo || '-') + '</td></tr>';
                 });
                 html += '</tbody></table>';
                 container.innerHTML = html;
