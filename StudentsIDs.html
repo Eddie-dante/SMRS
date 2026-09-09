@@ -229,7 +229,7 @@
         }
         
         /* =========================================================
-           LUXURY STUDENT ID CARD
+           LUXURY STUDENT ID CARD - CLEANER BACKGROUND
            ========================================================= */
         
         .id-card-wrapper {
@@ -247,8 +247,8 @@
             overflow: hidden;
             border-radius: 15px;
             color: white;
-            background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.025) 25%, transparent 45%), linear-gradient(135deg, #050b16 0%, #091528 28%, #0d203a 53%, #071221 72%, #160913 100%);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 6px 15px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.45);
+            background: linear-gradient(135deg, #0a1628 0%, #0d1f3a 30%, #111827 60%, #1a0f1e 100%);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 6px 15px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.3);
             flex-shrink: 0;
             margin: 0 auto;
         }
@@ -274,50 +274,52 @@
             z-index: 50;
         }
         
+        /* Subtle pattern - much clearer now */
         .background-pattern {
             position: absolute;
             inset: 0;
-            opacity: 0.06;
-            background-image: linear-gradient(30deg, rgba(255,255,255,0.10) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.10) 87.5%), linear-gradient(150deg, rgba(255,255,255,0.06) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.06) 87.5%);
+            opacity: 0.03;
+            background-image: linear-gradient(30deg, rgba(255,255,255,0.05) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.05) 87.5%), linear-gradient(150deg, rgba(255,255,255,0.03) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.03) 87.5%);
             background-size: 40px 70px;
             transform: rotate(8deg);
             pointer-events: none;
             z-index: 1;
         }
         
+        /* Decorative circles - subtle */
         .security-lines {
             position: absolute;
-            width: 300px;
-            height: 300px;
-            right: -140px;
-            top: -120px;
+            width: 250px;
+            height: 250px;
+            right: -120px;
+            top: -100px;
             border-radius: 50%;
-            border: 1px solid rgba(229,190,91,0.16);
-            box-shadow: 0 0 0 13px rgba(229,190,91,0.025), 0 0 0 25px rgba(229,190,91,0.02);
+            border: 1px solid rgba(229,190,91,0.08);
+            box-shadow: 0 0 0 13px rgba(229,190,91,0.015), 0 0 0 25px rgba(229,190,91,0.01);
             pointer-events: none;
             z-index: 1;
         }
         
         .blue-light {
             position: absolute;
-            width: 200px;
-            height: 200px;
-            left: -100px;
-            top: 50px;
+            width: 180px;
+            height: 180px;
+            left: -80px;
+            top: 40px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(43,96,169,0.20), transparent 68%);
+            background: radial-gradient(circle, rgba(43,96,169,0.10), transparent 70%);
             pointer-events: none;
             z-index: 1;
         }
         
         .red-light {
             position: absolute;
-            width: 200px;
-            height: 200px;
-            right: -100px;
-            bottom: -100px;
+            width: 180px;
+            height: 180px;
+            right: -80px;
+            bottom: -80px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(135,22,53,0.28), transparent 68%);
+            background: radial-gradient(circle, rgba(135,22,53,0.15), transparent 70%);
             pointer-events: none;
             z-index: 1;
         }
@@ -349,34 +351,6 @@
         .corner-br::before { right: 0; bottom: 0; }
         .corner-br::after { right: 0; bottom: 0; }
         
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 45%;
-            transform: translate(-50%, -50%) rotate(-17deg);
-            font-size: 25px;
-            font-weight: 900;
-            letter-spacing: 5px;
-            color: rgba(255,255,255,0.025);
-            z-index: 3;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        
-        .sample-watermark {
-            position: absolute;
-            top: 55%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-18deg);
-            font-size: 20px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            color: rgba(255,255,255,0.018);
-            z-index: 4;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        
         .card-header-lux {
             height: 65px;
             position: relative;
@@ -393,7 +367,7 @@
             right: 20px;
             top: 8px;
             bottom: 0;
-            background: linear-gradient(90deg, rgba(127,20,46,0.18), rgba(18,38,67,0.20), rgba(127,20,46,0.12));
+            background: linear-gradient(90deg, rgba(127,20,46,0.10), rgba(18,38,67,0.15), rgba(127,20,46,0.08));
             border-radius: 9px 9px 0 0;
             pointer-events: none;
         }
@@ -407,9 +381,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle, #233c5c 0%, #091322 68%, #030811 100%);
+            background: radial-gradient(circle, #1a2f45 0%, #0a1420 68%, #050a12 100%);
             border: 2px solid #d4ad51;
-            box-shadow: 0 0 0 2px rgba(220,178,73,0.08), 0 0 10px rgba(221,177,68,0.12);
+            box-shadow: 0 0 0 2px rgba(220,178,73,0.06), 0 0 10px rgba(221,177,68,0.08);
             z-index: 2;
         }
         
@@ -442,7 +416,7 @@
             font-weight: 700;
             letter-spacing: 1px;
             color: #f1d27a;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
@@ -472,7 +446,7 @@
             font-weight: 800;
             letter-spacing: 1.5px;
             border: 1px solid #d3a747;
-            background: linear-gradient(135deg, rgba(215,170,65,0.13), rgba(255,255,255,0.025));
+            background: linear-gradient(135deg, rgba(215,170,65,0.10), rgba(255,255,255,0.02));
             flex-shrink: 0;
         }
         
@@ -483,7 +457,7 @@
             bottom: 0;
             height: 2px;
             background: linear-gradient(90deg, transparent, #73501c 8%, #d5ad51 24%, #f4db86 50%, #c49535 76%, #73501c 92%, transparent);
-            box-shadow: 0 0 4px rgba(224,181,77,0.3);
+            box-shadow: 0 0 3px rgba(224,181,77,0.2);
         }
         
         .card-content {
@@ -501,7 +475,7 @@
             padding: 3px;
             border-radius: 8px;
             background: linear-gradient(135deg, #76501a, #f5df91, #bb862a, #fff0a9, #704718);
-            box-shadow: 0 7px 18px rgba(0,0,0,0.55);
+            box-shadow: 0 7px 18px rgba(0,0,0,0.45);
         }
         
         .photo {
@@ -509,7 +483,7 @@
             height: 100%;
             overflow: hidden;
             border-radius: 6px;
-            background: linear-gradient(145deg, #1c3049, #07101c);
+            background: linear-gradient(145deg, #152538, #0a1520);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -517,14 +491,14 @@
         
         .photo img { width: 100%; height: 100%; object-fit: cover; }
         
-        .photo-placeholder { text-align: center; opacity: 0.8; }
+        .photo-placeholder { text-align: center; opacity: 0.7; }
         
         .photo-head {
             width: 32px;
             height: 32px;
             margin: auto;
             border-radius: 50%;
-            background: linear-gradient(145deg, #d2b17b, #806139);
+            background: linear-gradient(145deg, #c9a86e, #705536);
         }
         
         .photo-body {
@@ -532,7 +506,7 @@
             height: 44px;
             margin-top: 6px;
             border-radius: 31px 31px 6px 6px;
-            background: linear-gradient(180deg, #b18b55, #604722);
+            background: linear-gradient(180deg, #a8824c, #54401e);
         }
         
         .id-number-below-photo {
@@ -557,7 +531,7 @@
             font-size: 15px;
             font-weight: 700;
             letter-spacing: 0.4px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
             margin-bottom: 3px;
             line-height: 1.2;
             word-wrap: break-word;
@@ -619,7 +593,7 @@
             width: 20px;
             height: 1px;
             margin-top: 1px;
-            background: rgba(211,166,68,0.40);
+            background: rgba(211,166,68,0.30);
         }
         
         .right-panel { text-align: center; position: relative; }
@@ -632,7 +606,7 @@
             background: #ffffff;
             border-radius: 5px;
             border: 2px solid #d2a541;
-            box-shadow: 0 0 0 1px rgba(90,60,17,0.9), 0 4px 10px rgba(0,0,0,0.45);
+            box-shadow: 0 0 0 1px rgba(90,60,17,0.7), 0 4px 10px rgba(0,0,0,0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -688,8 +662,8 @@
             height: 18px;
             border-radius: 50%;
             background: conic-gradient(#54d8ff, #d36cff, #ffe86c, #58edc2, #54d8ff);
-            opacity: 0.22;
-            box-shadow: 0 0 10px rgba(104,206,255,0.15);
+            opacity: 0.15;
+            box-shadow: 0 0 10px rgba(104,206,255,0.10);
             z-index: 8;
         }
         
@@ -699,13 +673,13 @@
             bottom: 32px;
             width: 40px;
             height: 40px;
-            border: 1px solid rgba(188,45,67,0.62);
+            border: 1px solid rgba(188,45,67,0.50);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
-            color: rgba(200,57,77,0.62);
+            color: rgba(200,57,77,0.50);
             font-size: 3.5px;
             font-weight: 800;
             line-height: 1.4;
@@ -718,7 +692,7 @@
             content: "";
             position: absolute;
             inset: 3px;
-            border: 1px dashed rgba(200,57,77,0.65);
+            border: 1px dashed rgba(200,57,77,0.50);
             border-radius: 50%;
         }
         
@@ -731,7 +705,7 @@
             white-space: nowrap;
             font-size: 2.5px;
             letter-spacing: 1px;
-            color: rgba(231,202,132,0.22);
+            color: rgba(231,202,132,0.15);
             z-index: 8;
         }
         
@@ -746,8 +720,8 @@
             align-items: center;
             justify-content: space-between;
             padding: 4px 27px 7px;
-            border-top: 1px solid rgba(213,170,74,0.38);
-            background: linear-gradient(90deg, rgba(3,9,17,0.94), rgba(9,25,44,0.92), rgba(30,8,17,0.92));
+            border-top: 1px solid rgba(213,170,74,0.30);
+            background: linear-gradient(90deg, rgba(5,10,20,0.90), rgba(10,20,35,0.90), rgba(25,10,18,0.90));
         }
         
         .footer-left {
@@ -899,6 +873,9 @@
                         <select id="editDobMonth" onchange="updateDobFromDropdowns()"></select>
                         <select id="editDobYear" onchange="updateDobFromDropdowns()"></select>
                     </div>
+                    <button class="btn btn-blue" onclick="saveDOB()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;">
+                        <i class="fas fa-save"></i> Save Date of Birth
+                    </button>
                 </div>
                 
                 <div class="form-group"><label>🎓 Class/Form</label><input type="text" id="editForm" oninput="updateCardFromEditor()"></div>
@@ -916,7 +893,7 @@
                             <input type="date" id="editExpiryDate" onchange="updateCardDates()">
                         </div>
                     </div>
-                    <button class="btn btn-blue" onclick="saveCardDates()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;">
+                    <button class="btn btn-green" onclick="saveCardDates()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;">
                         <i class="fas fa-save"></i> Save Card Dates
                     </button>
                 </div>
@@ -948,8 +925,6 @@
                         <div class="corner corner-tr"></div>
                         <div class="corner corner-bl"></div>
                         <div class="corner corner-br"></div>
-                        <div class="watermark" id="cardWatermark">SCHOOL</div>
-                        <div class="sample-watermark">SAMPLE</div>
                         
                         <header class="card-header-lux">
                             <div class="logo">
@@ -1216,9 +1191,54 @@
             
             database.ref().update(updates).then(function() {
                 showNotification('Card dates saved successfully!', 'success');
+                // Update local data
+                allStudentsData.forEach(function(s) {
+                    if (s.adm === adm) {
+                        s.cardIssueDate = issueDate;
+                        s.cardExpiryDate = expiryDate;
+                    }
+                });
             }).catch(function(err) {
                 console.error('❌ Save dates error:', err);
                 showNotification('Failed to save card dates', 'error');
+            });
+        }
+        
+        function saveDOB() {
+            var adm = document.getElementById('editAdm')?.value;
+            if (!adm) { showNotification('Select a student first', 'warning'); return; }
+            
+            var day = document.getElementById('editDobDay')?.value || '';
+            var month = document.getElementById('editDobMonth')?.value || '';
+            var year = document.getElementById('editDobYear')?.value || '';
+            
+            if (!day || !month || !year) {
+                showNotification('Please select complete date of birth', 'warning');
+                return;
+            }
+            
+            // Format as DD/MM/YYYY
+            var dobFormatted = day + '/' + month + '/' + year;
+            
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            var updates = {};
+            updates['schools/' + school + '/students/' + adm + '/dob'] = dobFormatted;
+            
+            database.ref().update(updates).then(function() {
+                showNotification('Date of birth saved successfully!', 'success');
+                // Update local data
+                allStudentsData.forEach(function(s) {
+                    if (s.adm === adm) {
+                        s.dob = dobFormatted;
+                    }
+                });
+                // Update card display
+                updateDobFromDropdowns();
+            }).catch(function(err) {
+                console.error('❌ Save DOB error:', err);
+                showNotification('Failed to save date of birth', 'error');
             });
         }
         
@@ -1404,18 +1424,32 @@
                 document.getElementById('editExpiryDate').value = currentYear + '-12-31';
             }
             
+            // Load DOB
             if (student.dob) {
                 var dobParts = student.dob.split(/[/-]/);
                 if (dobParts.length === 3) {
-                    document.getElementById('editDobDay').value = parseInt(dobParts[0]);
-                    document.getElementById('editDobMonth').value = parseInt(dobParts[1]);
-                    var yr = parseInt(dobParts[2]);
-                    if (yr < 100) yr = 2000 + yr;
-                    document.getElementById('editDobYear').value = yr;
+                    var day = parseInt(dobParts[0]);
+                    var month = parseInt(dobParts[1]);
+                    var year = parseInt(dobParts[2]);
+                    
+                    // Handle 2-digit years
+                    if (year < 100) {
+                        year = year < 50 ? 2000 + year : 1900 + year;
+                    }
+                    
+                    document.getElementById('editDobDay').value = day;
+                    document.getElementById('editDobMonth').value = month;
+                    document.getElementById('editDobYear').value = year;
                     updateDobFromDropdowns();
                 } else {
                     setText('cardDob', student.dob);
                 }
+            } else {
+                // Clear DOB fields
+                document.getElementById('editDobDay').value = '';
+                document.getElementById('editDobMonth').value = '';
+                document.getElementById('editDobYear').value = '';
+                setText('cardDob', '-');
             }
             
             updateCardFromEditor();
@@ -1440,7 +1474,6 @@
             setText('cardStream', stream.toUpperCase());
             setText('cardParentName', parentName);
             setText('cardSignature', name);
-            setText('cardWatermark', schoolName.substring(0, 6).toUpperCase());
             setText('cardLogoLetter', schoolName.charAt(0).toUpperCase());
             setText('cardStampSchool', schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear());
             setText('cardMicrotext', schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION •');
@@ -1463,6 +1496,14 @@
             
             database.ref().update(updates).then(function() {
                 showNotification('Parent info saved!', 'success');
+                // Update local data
+                allStudentsData.forEach(function(s) {
+                    if (s.adm === adm) {
+                        s.parentName = document.getElementById('editParentName')?.value || '';
+                        s.parentPhone = document.getElementById('editParentPhone')?.value || '';
+                        s.parentEmail = document.getElementById('editParentEmail')?.value || '';
+                    }
+                });
             }).catch(function(err) {
                 console.error('❌ Save parent error:', err);
                 showNotification('Failed to save parent info', 'error');
@@ -1532,15 +1573,24 @@
                 return;
             }
             
-            // Auto-save dates before saving card
+            // Auto-save all data before saving card
             var adm = document.getElementById('editAdm')?.value;
             var school = getCurrentSchool();
             if (adm && school) {
-                var dateUpdates = {};
-                dateUpdates['schools/' + school + '/students/' + adm + '/cardIssueDate'] = issueDate;
-                dateUpdates['schools/' + school + '/students/' + adm + '/cardExpiryDate'] = expiryDate;
-                database.ref().update(dateUpdates).catch(function(err) {
-                    console.error('❌ Error saving dates:', err);
+                var updates = {};
+                updates['schools/' + school + '/students/' + adm + '/cardIssueDate'] = issueDate;
+                updates['schools/' + school + '/students/' + adm + '/cardExpiryDate'] = expiryDate;
+                
+                // Save DOB if set
+                var dobDay = document.getElementById('editDobDay')?.value || '';
+                var dobMonth = document.getElementById('editDobMonth')?.value || '';
+                var dobYear = document.getElementById('editDobYear')?.value || '';
+                if (dobDay && dobMonth && dobYear) {
+                    updates['schools/' + school + '/students/' + adm + '/dob'] = dobDay + '/' + dobMonth + '/' + dobYear;
+                }
+                
+                database.ref().update(updates).catch(function(err) {
+                    console.error('❌ Error saving data:', err);
                 });
             }
             
@@ -1788,6 +1838,7 @@
         window.updateDobFromDropdowns = updateDobFromDropdowns;
         window.updateCardDates = updateCardDates;
         window.saveCardDates = saveCardDates;
+        window.saveDOB = saveDOB;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
         
