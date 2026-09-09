@@ -791,6 +791,10 @@
             background: linear-gradient(135deg, #d4af37, #f0d060);
             display: flex; align-items: center; justify-content: center;
             font-size: 12px; font-weight: 800; color: #0a0e27; flex-shrink: 0;
+            overflow: hidden;
+        }
+        .student-list-item .avatar-small img {
+            width: 100%; height: 100%; object-fit: cover;
         }
         .student-list-item .info { flex: 1; min-width: 0; }
         .student-list-item .info .name { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -909,6 +913,9 @@
                 <div class="form-group">
                     <label>📷 Photo (Optional)</label>
                     <input type="file" id="photoUpload" accept="image/*" onchange="loadPhoto(event)">
+                    <button class="btn btn-gold" onclick="savePhoto()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;">
+                        <i class="fas fa-camera"></i> Save Photo
+                    </button>
                 </div>
             </div>
             
@@ -1095,6 +1102,7 @@
         var allStudentsData = [];
         var currentQRData = '';
         var cardQueue = [];
+        var currentPhotoData = ''; // Store current photo as base64
         var APP_URL = 'https://smrs-eight.vercel.app';
         var schoolMotto = 'Knowledge • Discipline • Success';
         
@@ -1242,6 +1250,36 @@
             });
         }
         
+        function savePhoto() {
+            var adm = document.getElementById('editAdm')?.value;
+            if (!adm) { showNotification('Select a student first', 'warning'); return; }
+            
+            if (!currentPhotoData) {
+                showNotification('Please upload a photo first', 'warning');
+                return;
+            }
+            
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            var updates = {};
+            updates['schools/' + school + '/students/' + adm + '/photo'] = currentPhotoData;
+            
+            database.ref().update(updates).then(function() {
+                showNotification('Photo saved successfully!', 'success');
+                // Update local data
+                allStudentsData.forEach(function(s) {
+                    if (s.adm === adm) {
+                        s.photo = currentPhotoData;
+                    }
+                });
+                renderStudentsList(allStudentsData);
+            }).catch(function(err) {
+                console.error('❌ Save photo error:', err);
+                showNotification('Failed to save photo', 'error');
+            });
+        }
+        
         function populateDOBDropdowns() {
             var daySelect = document.getElementById('editDobDay');
             var monthSelect = document.getElementById('editDobMonth');
@@ -1322,7 +1360,8 @@
                             cardIssueDate: s.cardIssueDate || '',
                             cardExpiryDate: s.cardExpiryDate || '',
                             idCardSaved: s.idCardSaved || false,
-                            idCardImage: s.idCardImage || ''
+                            idCardImage: s.idCardImage || '',
+                            photo: s.photo || ''
                         });
                     }
                 });
@@ -1345,7 +1384,8 @@
                                 cardIssueDate: st.cardIssueDate || '',
                                 cardExpiryDate: st.cardExpiryDate || '',
                                 idCardSaved: st.idCardSaved || false,
-                                idCardImage: st.idCardImage || ''
+                                idCardImage: st.idCardImage || '',
+                                photo: st.photo || ''
                             });
                         }
                     });
@@ -1378,8 +1418,14 @@
             students.forEach(function(s) {
                 var hasCard = s.idCardSaved || s.idCardImage ? true : false;
                 var badge = hasCard ? '<span class="id-badge generated">✅ Saved</span>' : '<span class="id-badge pending">⏳ Pending</span>';
+                
+                // Show photo if available, otherwise show initials
+                var avatarContent = s.photo ? 
+                    '<img src="' + s.photo + '" alt="' + s.name + '">' : 
+                    getInitials(s.name);
+                
                 html += '<div class="student-list-item" onclick="selectStudent(\'' + s.adm + '\')">' +
-                    '<div class="avatar-small">' + getInitials(s.name) + '</div>' +
+                    '<div class="avatar-small">' + avatarContent + '</div>' +
                     '<div class="info"><div class="name">' + s.name + '</div>' +
                     '<div class="adm">ADM: ' + s.adm + ' | ' + (s.form || 'N/A') + '</div></div>' + badge + '</div>';
             });
@@ -1408,6 +1454,24 @@
             document.getElementById('editParentName').value = student.parentName || '';
             document.getElementById('editParentPhone').value = student.parentPhone || '';
             document.getElementById('editParentEmail').value = student.parentEmail || '';
+            
+            // Load saved photo
+            if (student.photo) {
+                currentPhotoData = student.photo;
+                var photoContainer = document.getElementById('photoContainer');
+                if (photoContainer) {
+                    photoContainer.innerHTML = '<img src="' + student.photo + '" alt="Student Photo">';
+                }
+            } else {
+                currentPhotoData = '';
+                var photoContainer = document.getElementById('photoContainer');
+                if (photoContainer) {
+                    photoContainer.innerHTML = '<div class="photo-placeholder">' +
+                        '<div class="photo-head"></div>' +
+                        '<div class="photo-body"></div>' +
+                        '</div>';
+                }
+            }
             
             // Load saved card dates
             if (student.cardIssueDate) {
@@ -1589,6 +1653,11 @@
                     updates['schools/' + school + '/students/' + adm + '/dob'] = dobDay + '/' + dobMonth + '/' + dobYear;
                 }
                 
+                // Save photo if available
+                if (currentPhotoData) {
+                    updates['schools/' + school + '/students/' + adm + '/photo'] = currentPhotoData;
+                }
+                
                 database.ref().update(updates).catch(function(err) {
                     console.error('❌ Error saving data:', err);
                 });
@@ -1616,8 +1685,25 @@
                         var updates = {};
                         updates['schools/' + school + '/students/' + adm + '/idCardImage'] = imageData;
                         updates['schools/' + school + '/students/' + adm + '/idCardSaved'] = true;
+                        
+                        // Save photo if available
+                        if (currentPhotoData) {
+                            updates['schools/' + school + '/students/' + adm + '/photo'] = currentPhotoData;
+                        }
+                        
                         database.ref().update(updates).then(function() {
-                            showNotification('Card saved!', 'success');
+                            showNotification('Card and photo saved!', 'success');
+                            // Update local data
+                            allStudentsData.forEach(function(s) {
+                                if (s.adm === adm) {
+                                    s.idCardSaved = true;
+                                    s.idCardImage = imageData;
+                                    if (currentPhotoData) {
+                                        s.photo = currentPhotoData;
+                                    }
+                                }
+                            });
+                            renderStudentsList(allStudentsData);
                         }).catch(function() {
                             showNotification('Card downloaded!', 'success');
                         });
@@ -1790,6 +1876,8 @@
                         return;
                     }
                     
+                    currentPhotoData = e.target.result;
+                    
                     var photoContainer = document.getElementById('photoContainer');
                     if (photoContainer) {
                         photoContainer.innerHTML = '<img src="' + e.target.result + '" alt="Student Photo">';
@@ -1839,6 +1927,7 @@
         window.updateCardDates = updateCardDates;
         window.saveCardDates = saveCardDates;
         window.saveDOB = saveDOB;
+        window.savePhoto = savePhoto;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
         
