@@ -546,18 +546,24 @@
         
         .student-details { padding-top: 0; min-width: 0; }
         
+        /* NAME WITH WRAP - Allows name to flow to second line */
         .student-name {
             font-family: Georgia, "Times New Roman", serif;
             color: #f4d57a;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 700;
             letter-spacing: 0.4px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
             margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.2;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
             max-width: 100%;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
         .name-line {
@@ -635,6 +641,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #ffffff;
         }
         #qrcode img, #qrcode canvas {
             width: 76px !important;
@@ -905,7 +912,7 @@
                     <div class="form-group"><label>👤 Parent Name</label><input type="text" id="editParentName" placeholder="Parent/Guardian name" oninput="updateCardFromEditor()"></div>
                     <div class="form-group"><label>📞 Parent Phone</label><input type="tel" id="editParentPhone" placeholder="Parent phone number" oninput="updateCardFromEditor()"></div>
                     <div class="form-group"><label>✉️ Parent Email</label><input type="email" id="editParentEmail" placeholder="Parent email address" oninput="updateCardFromEditor()"></div>
-                    <button class="btn btn-primary" onclick="saveParentInfo()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;"><i class="fas fa-save"></i> Save Parent Info</button>
+                    <button class="btn btn-primary" onclick="saveParentInfo()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;background:linear-gradient(135deg,#e94560,#c62a47);"><i class="fas fa-save"></i> Save Parent Info</button>
                 </div>
                 
                 <div class="form-group">
@@ -1138,19 +1145,16 @@
             var yearSelect = document.getElementById('editDobYear');
             
             if (daySelect) {
-                var days = '';
-                days += '<option value="">Day</option>';
+                var days = '<option value="">Day</option>';
                 for (var d = 1; d <= 31; d++) { days += '<option value="' + d + '">' + d + '</option>'; }
                 daySelect.innerHTML = days;
             }
-            
             if (monthSelect) {
                 var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
                 var mHtml = '<option value="">Month</option>';
                 for (var m = 0; m < 12; m++) { mHtml += '<option value="' + (m+1) + '">' + months[m] + '</option>'; }
                 monthSelect.innerHTML = mHtml;
             }
-            
             if (yearSelect) {
                 var yHtml = '<option value="">Year</option>';
                 var currentYear = new Date().getFullYear();
@@ -1163,7 +1167,6 @@
             var day = document.getElementById('editDobDay')?.value || '';
             var month = document.getElementById('editDobMonth')?.value || '';
             var year = document.getElementById('editDobYear')?.value || '';
-            
             if (day && month && year) {
                 var formattedDob = day + '/' + month + '/' + year;
                 setText('cardDob', formattedDob);
@@ -1180,7 +1183,7 @@
                     if (schoolInfo.motto) {
                         schoolMotto = schoolInfo.motto;
                         setText('cardMotto', schoolMotto);
-                        console.log('✅ Motto loaded from settings:', schoolMotto);
+                        console.log('✅ Motto loaded:', schoolMotto);
                     }
                     if (schoolInfo.address) {
                         var footerItems = document.querySelectorAll('.footer-item');
@@ -1202,7 +1205,7 @@
             setText('editIssuedDate', issuedStr);
             setText('cardIssuedDate', issuedStr);
             setText('cardValidDate', validStr);
-            console.log('✅ Date issued set:', issuedStr);
+            console.log('✅ Date issued:', issuedStr);
         }
         
         function loadAllStudents() {
@@ -1301,13 +1304,10 @@
             document.getElementById('editStudentId').value = student.studentId || student.adm || '';
             document.getElementById('editForm').value = student.form || '';
             document.getElementById('editStream').value = student.stream || '';
-            
-            // PARENT INFO AUTO-FILL from student data
             document.getElementById('editParentName').value = student.parentName || '';
             document.getElementById('editParentPhone').value = student.parentPhone || '';
             document.getElementById('editParentEmail').value = student.parentEmail || '';
             
-            // DOB dropdown auto-fill
             if (student.dob) {
                 var dobParts = student.dob.split(/[/-]/);
                 if (dobParts.length === 3) {
@@ -1327,7 +1327,6 @@
             setIssuedDate();
             updateCardFromEditor();
             console.log('✅ Student loaded:', student.name);
-            if (student.parentName) console.log('✅ Parent auto-filled:', student.parentName);
         }
         
         function updateCardFromEditor() {
@@ -1391,7 +1390,7 @@
         }
         
         function generateQRCode() {
-            console.log('📱 Generating QR...');
+            console.log('📱 Generating readable QR...');
             var adm = document.getElementById('editAdm')?.value || '';
             var school = getCurrentSchool() || '';
             if (!adm) { showNotification('Select a student first', 'warning'); return; }
@@ -1401,26 +1400,27 @@
             var form = document.getElementById('editForm')?.value || '';
             var house = document.getElementById('editStream')?.value || '';
             var dob = document.getElementById('cardDob')?.textContent || '';
-            var year = new Date().getFullYear();
             
-            var verificationText = school.toUpperCase() + '\nSTUDENT ID VERIFICATION\n\nName: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nDOB: ' + dob + '\nClass: ' + form + '\nHouse: ' + house + '\nAcademic Year: ' + year;
-            
-            currentQRData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school);
+            // Simple, clean verification URL for maximum QR scannability
+            var verificationUrl = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school) + '&name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(studentId);
+            currentQRData = verificationUrl;
             
             var container = document.getElementById('qrcode');
             if (!container) return;
             container.innerHTML = '';
             
             try {
+                // Use QRCode.js with simple URL - most reliable for scanning
                 new QRCode(container, {
-                    text: verificationText,
+                    text: verificationUrl,
                     width: 76,
                     height: 76,
-                    colorDark: "#07111e",
+                    colorDark: "#000000",
                     colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
+                    correctLevel: QRCode.CorrectLevel.M  // M = medium error correction (better balance)
                 });
                 showNotification('QR generated!', 'success');
+                console.log('✅ Readable QR generated');
             } catch(err) {
                 console.error('❌ QR error:', err);
                 showNotification('QR generation failed', 'error');
@@ -1429,7 +1429,7 @@
         
         function downloadQRCode() {
             if (!currentQRData) { showNotification('Generate QR first!', 'warning'); return; }
-            var qrServerUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(currentQRData);
+            var qrServerUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(currentQRData) + '&bgcolor=ffffff&color=000000&qzone=2&ecc=M';
             var link = document.createElement('a');
             link.download = 'qr_code.png';
             link.href = qrServerUrl;
