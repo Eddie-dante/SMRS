@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Student ID Cards | School Resource Management System</title>
-    <meta name="description" content="Generate, edit, save, and print student ID cards">
+    <meta name="description" content="Generate, edit, save, and print luxury student ID cards">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Great+Vibes&family=Georgia&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -24,18 +24,12 @@
     
     <style>
         :root {
-            --primary-color: #800020;
-            --secondary-color: #d4af37;
-            --dark-blue: #0b1d3a;
-            --gold-primary: #d4af37;
             --gold-grad: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             --navy-dark: #071120;
             --navy-header: #0b1d3a;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
             --transition: all 0.3s ease;
-            --card-width: 3.37in;
-            --card-height: 2.125in;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -60,7 +54,7 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px;
         }
-        .taskbar-logo { display: flex; align-items: center; gap: 8px; color: var(--gold-primary); font-weight: 900; font-size: 20px; text-decoration: none; }
+        .taskbar-logo { display: flex; align-items: center; gap: 8px; color: #f0d060; font-weight: 900; font-size: 20px; text-decoration: none; }
         .taskbar-logo i { font-size: 22px; }
         .taskbar-right { display: flex; gap: 6px; }
         .taskbar-icon-btn {
@@ -102,10 +96,10 @@
             transition: var(--transition);
         }
         .classy-btn i { color: #d4af37; font-size: 12px; }
-        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: var(--gold-primary); }
+        .classy-btn:hover { color: #fff; transform: translateY(-2px); border-color: #f0d060; }
         .classy-btn.active {
             background: linear-gradient(135deg, rgba(80, 60, 25, 0.9), rgba(30, 20, 5, 0.95));
-            border-color: var(--gold-primary);
+            border-color: #f0d060;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }
         .btn-badge {
@@ -205,185 +199,415 @@
             border-radius: 6px; color: #fff;
             font-size: 0.75rem; font-family: 'Inter', sans-serif;
         }
-        .form-group select:focus, .form-group input:focus {
-            outline: none; border-color: var(--secondary-color);
-        }
+        .form-group select:focus, .form-group input:focus { outline: none; border-color: #d4af37; }
         .form-group select option { background: #1a1f4e; }
         .form-group input:disabled { opacity: 0.6; background: rgba(15, 23, 42, 0.5); cursor: not-allowed; }
         
-        /* ==================== LUXURY ID CARD ==================== */
+        /* =====================================================
+           LUXURY STUDENT ID CARD - NGATHO DESIGN
+           ===================================================== */
+        
         .id-card-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 10px;
+            overflow-x: auto;
         }
         
-        .id-card {
-            width: 3.37in;
-            height: 2.125in;
-            background: var(--navy-dark);
-            color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
+        .student-id {
+            width: 508px;
+            height: 319px;
             position: relative;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            display: flex;
-            flex-direction: column;
-            border: 2px solid #d4af37;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #07101c 0%, #0b1930 43%, #07111e 72%, #160d17 100%);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.65), inset 0 0 0 2px rgba(255,215,120,0.3);
+            color: white;
+            flex-shrink: 0;
+            margin: 0 auto;
         }
         
-        .id-card::before {
-            content: '';
+        .student-id::before {
+            content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 10px;
+            inset: 8px;
+            border-radius: 14px;
+            border: 2px solid #c99b3b;
             pointer-events: none;
-            z-index: 10;
+            z-index: 20;
+            box-shadow: inset 0 0 6px rgba(255,213,94,0.20), 0 0 5px rgba(255,193,48,0.12);
         }
-
-        .card-header {
-            background: linear-gradient(180deg, #0b1d3a 0%, #071120 100%);
-            color: #fff;
-            padding: 5px 8px;
+        
+        .student-id::after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 11px;
+            border: 1px solid rgba(232,191,102,0.40);
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .security-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.05;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 7px, #fff 8px, transparent 9px);
+            pointer-events: none;
+        }
+        
+        .red-glow {
+            position: absolute;
+            width: 215px;
+            height: 215px;
+            right: -90px;
+            bottom: -100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(127,21,45,0.45), transparent 68%);
+        }
+        
+        .gold-circle {
+            position: absolute;
+            width: 195px;
+            height: 195px;
+            right: -90px;
+            top: -80px;
+            border-radius: 50%;
+            border: 1px solid rgba(207,166,70,0.18);
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 152px;
+            left: 180px;
+            transform: rotate(-18deg);
+            font-size: 25px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: rgba(255,255,255,0.025);
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .card-header-lux {
+            height: 68px;
+            padding: 17px 26px 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            border-bottom: 2px solid #d4af37;
             position: relative;
+            z-index: 5;
         }
-
-        .header-logo {
-            width: 24px;
-            height: 24px;
-            background: var(--gold-grad);
+        
+        .logo {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #0b1d3a;
-            font-size: 11px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background: radial-gradient(circle, #23364d 0%, #0a1423 68%);
+            border: 2px solid #d1a84b;
+            box-shadow: 0 0 0 3px rgba(207,163,67,0.10), inset 0 0 8px rgba(255,211,102,0.15);
         }
-
-        .header-title { flex: 1; text-align: center; }
-        .header-title h3 {
-            font-size: 0.58rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            font-family: 'Cinzel', serif;
-            background: var(--gold-grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 0;
-            line-height: 1.1;
+        
+        .logo-inner {
+            width: 25px;
+            height: 28px;
+            position: relative;
+            background: linear-gradient(145deg, #d6ac4c, #f4d980, #b98126);
+            clip-path: polygon(50% 0%, 94% 16%, 88% 70%, 50% 100%, 12% 70%, 6% 16%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #08121e;
+            font-size: 12px;
+            font-weight: 900;
+        }
+        
+        .school-info {
+            margin-left: 12px;
+            flex: 1;
+        }
+        
+        .school-name {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #f4d680;
+            line-height: 1;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+        }
+        
+        .motto {
+            color: rgba(255,255,255,0.76);
+            margin-top: 5px;
+            font-size: 7px;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
-        .header-title p {
-            font-size: 0.35rem;
-            color: #d4af37;
-            margin: 1px 0 0;
-            font-style: italic;
-            letter-spacing: 0.3px;
+        
+        .student-badge {
+            border: 1px solid #d1a647;
+            color: #e7c46f;
+            border-radius: 15px;
+            padding: 5px 12px;
+            font-size: 6px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            background: rgba(170,120,29,0.08);
+            box-shadow: inset 0 0 5px rgba(255,203,91,0.07);
         }
-
-        .card-body {
-            padding: 5px 8px;
-            display: grid;
-            grid-template-columns: 65px 1fr 58px;
-            gap: 6px;
-            flex: 1;
-            background: #ffffff;
-            color: #1e293b;
+        
+        .header-line {
+            position: absolute;
+            bottom: 0;
+            left: 26px;
+            right: 26px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #b9882b, #efd383, #a2711e, transparent);
+        }
+        
+        .card-content {
             position: relative;
-            z-index: 1;
+            z-index: 5;
+            display: grid;
+            grid-template-columns: 105px 1fr 86px;
+            gap: 16px;
+            padding: 14px 26px 10px;
         }
-
-        .photo-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
+        
+        .photo-border {
+            width: 95px;
+            height: 119px;
+            padding: 3px;
+            border-radius: 9px;
+            background: linear-gradient(145deg, #9b6c20, #f5dd8e, #d09c39, #704718);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.45);
         }
-
-        .photo-box {
-            width: 62px;
-            height: 72px;
-            border-radius: 6px;
-            border: 2px solid #d4af37;
-            overflow: hidden;
-            background: #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        .photo-box .initials { font-size: 16px; font-weight: 800; color: #0b1d3a; }
-        .photo-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .id-tag-pill {
-            background: var(--navy-header);
-            color: #d4af37;
-            font-size: 0.34rem;
-            font-weight: 800;
-            padding: 2px;
-            border-radius: 4px;
+        
+        .photo {
             width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            overflow: hidden;
+            background: linear-gradient(145deg, #213042, #0c1624);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .photo img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .photo-placeholder { text-align: center; color: #d9c28b; }
+        
+        .photo-head {
+            width: 34px;
+            height: 34px;
+            margin: auto;
+            border-radius: 50%;
+            background: #b99459;
+        }
+        
+        .photo-body {
+            width: 65px;
+            height: 46px;
+            margin-top: 7px;
+            border-radius: 30px 30px 7px 7px;
+            background: linear-gradient(180deg, #b99459, #74582f);
+        }
+        
+        .photo-label {
+            margin-top: 6px;
+            width: 95px;
             text-align: center;
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            line-height: 1.1;
+            font-size: 5px;
+            letter-spacing: 1.5px;
+            color: rgba(230,201,131,0.6);
         }
-
-        .details-box { display: flex; flex-direction: column; gap: 1.5px; justify-content: center; }
-        .detail-row { display: flex; align-items: center; gap: 4px; font-size: 0.43rem; }
-        .detail-row i { color: #800020; width: 10px; text-align: center; font-size: 0.4rem; }
-        .detail-row .label { color: #64748b; font-weight: 600; min-width: 52px; }
-        .detail-row .value { color: #0b1d3a; font-weight: 800; }
-
-        .side-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
+        
+        .student-details { padding-top: 1px; }
+        
+        .student-name {
+            font-family: Georgia, "Times New Roman", serif;
+            color: #f4d77e;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 4px;
         }
-
-        .qr-code-box {
-            background: #fff;
-            padding: 2px;
-            border-radius: 4px;
-            border: 1.5px solid #0b1d3a;
-            cursor: pointer;
+        
+        .name-line {
+            width: 42px;
+            height: 2px;
+            margin-bottom: 11px;
+            background: linear-gradient(90deg, #d29d37, transparent);
         }
-        .qr-code-box img, .qr-code-box canvas { width: 46px !important; height: 46px !important; display: block; }
-        .qr-label { font-size: 0.3rem; font-weight: 800; color: #0b1d3a; margin-top: 1px; letter-spacing: 0.2px; text-align: center; }
-
-        .signature-box { text-align: center; width: 100%; }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 14px;
+            row-gap: 8px;
+        }
+        
+        .detail { min-width: 0; }
+        
+        .detail-label {
+            color: rgba(226,196,127,0.58);
+            font-size: 4.5px;
+            letter-spacing: 0.9px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        
+        .detail-value {
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            color: #f4f5f7;
+            white-space: nowrap;
+        }
+        
+        .right-panel { text-align: center; }
+        
+        .qr-shell {
+            width: 72px;
+            height: 72px;
+            margin: auto;
+            padding: 4px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 0 0 2px #c89b3a, 0 4px 12px rgba(0,0,0,0.38);
+        }
+        
+        #qrcode { width: 64px; height: 64px; overflow: hidden; }
+        #qrcode img, #qrcode canvas { width: 64px !important; height: 64px !important; }
+        
+        .scan-label {
+            margin-top: 6px;
+            color: #dfbf68;
+            font-size: 4.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .signature-area { margin-top: 14px; }
+        
+        .signature {
+            font-family: "Brush Script MT", cursive, 'Great Vibes';
+            font-size: 13px;
+            transform: rotate(-6deg);
+            color: white;
+            line-height: 0.8;
+        }
+        
         .signature-line {
-            font-family: 'Great Vibes', cursive;
-            font-size: 0.65rem;
-            color: #0b1d3a;
-            line-height: 0.9;
-            border-bottom: 1px solid #cbd5e1;
+            width: 65px;
+            margin: 2px auto 3px;
+            border-bottom: 1px solid rgba(217,185,106,0.65);
         }
-        .signature-title { font-size: 0.3rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 1px; }
-
-        .card-footer {
-            background: var(--navy-dark);
-            border-top: 1px solid #d4af37;
-            padding: 2px 8px;
+        
+        .signature-title {
+            font-size: 4px;
+            letter-spacing: 0.8px;
+            color: rgba(226,205,153,0.65);
+            text-transform: uppercase;
+        }
+        
+        .stamp {
+            position: absolute;
+            right: 26px;
+            bottom: 35px;
+            width: 43px;
+            height: 43px;
+            border-radius: 50%;
+            border: 1px solid rgba(159,42,58,0.55);
+            color: rgba(194,53,73,0.62);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            font-size: 0.36rem;
-            color: #e2e8f0;
+            text-align: center;
+            font-size: 4px;
+            font-weight: 700;
+            line-height: 1.35;
+            letter-spacing: 0.5px;
+            transform: rotate(-13deg);
+            z-index: 4;
+            opacity: 0.72;
         }
-        .card-footer span { display: flex; align-items: center; gap: 3px; }
-        .card-footer i { color: #d4af37; font-size: 0.35rem; }
+        
+        .stamp::before {
+            content: "";
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            border: 1px dashed rgba(188,51,68,0.6);
+        }
+        
+        .hologram {
+            position: absolute;
+            left: 123px;
+            bottom: 27px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: conic-gradient(#77d2ff, #d389ff, #ffe569, #70efc4, #77d2ff);
+            opacity: 0.24;
+            filter: blur(0.15px);
+            box-shadow: 0 0 8px rgba(141,201,255,0.16);
+            z-index: 2;
+        }
+        
+        .microtext {
+            position: absolute;
+            left: 28px;
+            bottom: 41px;
+            right: 115px;
+            font-size: 2.5px;
+            letter-spacing: 1.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            color: rgba(221,194,129,0.20);
+            z-index: 3;
+        }
+        
+        .footer-lux {
+            height: 41px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 26px 9px;
+            border-top: 1px solid rgba(209,167,71,0.28);
+            background: linear-gradient(90deg, rgba(4,10,19,0.78), rgba(12,24,42,0.84), rgba(25,9,16,0.75));
+            z-index: 5;
+        }
+        
+        .footer-left {
+            display: flex;
+            gap: 13px;
+            font-size: 5px;
+            letter-spacing: 0.2px;
+            color: rgba(255,255,255,0.64);
+        }
+        
+        .footer-item { display: flex; align-items: center; gap: 3px; }
+        .footer-icon { color: #d3aa4d; font-size: 6px; }
+        
+        .footer-right {
+            font-size: 4.5px;
+            letter-spacing: 1px;
+            color: rgba(213,179,99,0.55);
+            text-transform: uppercase;
+        }
         
         .action-buttons {
             display: flex;
@@ -402,7 +626,7 @@
         }
         .queue-card-item {
             background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--gold-primary);
+            border: 1px solid #d4af37;
             border-radius: 8px;
             padding: 8px;
             position: relative;
@@ -466,7 +690,11 @@
             .classy-btn { padding: 6px 8px; font-size: 9px; }
             .main-content { padding: 65px 10px 10px; }
             .app-grid { grid-template-columns: 1fr; }
-            .id-card { width: 100%; max-width: 3.37in; }
+            .student-id { transform: scale(0.65); transform-origin: center center; margin: -55px auto; }
+        }
+        
+        @media (max-width: 480px) {
+            .student-id { transform: scale(0.5); transform-origin: center center; margin: -80px auto; }
         }
     </style>
 </head>
@@ -485,7 +713,7 @@
         <div class="page-header">
             <div>
                 <h1><i class="fas fa-id-card"></i> Student ID Cards</h1>
-                <p>Generate, save, queue, and print luxurious student ID cards</p>
+                <p>Generate, save, queue, and print luxury student ID cards</p>
             </div>
         </div>
         
@@ -518,53 +746,79 @@
                 <h3>Live Preview</h3>
                 
                 <div class="id-card-wrapper">
-                    <div class="id-card" id="card">
-                        <div class="card-header">
-                            <div class="header-logo"><i class="fas fa-graduation-cap"></i></div>
-                            <div class="header-title">
-                                <h3 id="cardSchool">SCHOOL NAME</h3>
-                                <p>Knowledge • Discipline • Success</p>
-                            </div>
-                        </div>
+                    <div class="student-id" id="card">
+                        <div class="security-pattern"></div>
+                        <div class="red-glow"></div>
+                        <div class="gold-circle"></div>
+                        <div class="watermark" id="cardWatermark">SCH</div>
                         
-                        <div class="card-body">
-                            <div class="photo-column">
-                                <div class="photo-box">
-                                    <span class="initials" id="cardPhotoInitials">ST</span>
-                                </div>
-                                <div class="id-tag-pill">
-                                    <div>STUDENT ID</div>
-                                    <div id="cardStudentIdTag" style="font-size:0.38rem; color:#fff;">-</div>
-                                </div>
+                        <header class="card-header-lux">
+                            <div class="logo">
+                                <div class="logo-inner" id="cardLogoLetter">N</div>
                             </div>
-                            
-                            <div class="details-box">
-                                <div style="font-size: 0.55rem; font-weight: 900; color: #0b1d3a; margin-bottom: 2px; font-family:'Cinzel', serif;" id="cardName">STUDENT NAME</div>
-                                <div class="detail-row"><i class="fas fa-user-tag"></i><span class="label">Adm No:</span><span class="value" id="cardAdm">-</span></div>
-                                <div class="detail-row"><i class="fas fa-id-card"></i><span class="label">Student ID:</span><span class="value" id="cardStudentId">-</span></div>
-                                <div class="detail-row"><i class="fas fa-birthday-cake"></i><span class="label">DOB:</span><span class="value" id="cardDob">-</span></div>
-                                <div class="detail-row"><i class="fas fa-user-graduate"></i><span class="label">Class:</span><span class="value" id="cardForm">-</span></div>
-                                <div class="detail-row"><i class="fas fa-home"></i><span class="label">House:</span><span class="value" id="cardStream">-</span></div>
-                                <div class="detail-row"><i class="fas fa-calendar-alt"></i><span class="label">Issued:</span><span class="value" id="cardIssuedDate">-</span></div>
+                            <div class="school-info">
+                                <div class="school-name" id="cardSchool">SCHOOL NAME</div>
+                                <div class="motto">Knowledge • Discipline • Success</div>
                             </div>
-                            
-                            <div class="side-box">
-                                <div>
-                                    <div class="qr-code-box" id="qrcode" title="Click to download QR" onclick="downloadQRCode()"></div>
-                                    <div class="qr-label">SCAN TO VERIFY</div>
-                                </div>
-                                <div class="signature-box">
-                                    <div class="signature-line" id="cardSignature">Principal</div>
-                                    <div class="signature-title">Principal</div>
-                                </div>
-                            </div>
-                        </div>
+                            <div class="student-badge">STUDENT</div>
+                            <div class="header-line"></div>
+                        </header>
                         
-                        <div class="card-footer">
-                            <span><i class="fas fa-phone"></i> +254 712 345 678</span>
-                            <span><i class="fas fa-map-marker-alt"></i> Ngatho, Kenya</span>
-                            <span><i class="fas fa-globe"></i> srms.ac.ke</span>
-                        </div>
+                        <main class="card-content">
+                            <section class="photo-wrapper">
+                                <div class="photo-border">
+                                    <div class="photo">
+                                        <div class="photo-placeholder">
+                                            <div class="photo-head"></div>
+                                            <div class="photo-body"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="photo-label">OFFICIAL STUDENT PHOTO</div>
+                            </section>
+                            
+                            <section class="student-details">
+                                <div class="student-name" id="cardName">STUDENT NAME</div>
+                                <div class="name-line"></div>
+                                <div class="details-grid">
+                                    <div class="detail"><div class="detail-label">Admission Number</div><div class="detail-value" id="cardAdm">-</div></div>
+                                    <div class="detail"><div class="detail-label">Student ID Number</div><div class="detail-value" id="cardStudentId">-</div></div>
+                                    <div class="detail"><div class="detail-label">Date of Birth</div><div class="detail-value" id="cardDob">-</div></div>
+                                    <div class="detail"><div class="detail-label">Class / Form</div><div class="detail-value" id="cardForm">-</div></div>
+                                    <div class="detail"><div class="detail-label">House / Stream</div><div class="detail-value" id="cardStream">-</div></div>
+                                    <div class="detail"><div class="detail-label">Academic Year</div><div class="detail-value" id="cardAcademicYear">2026</div></div>
+                                    <div class="detail"><div class="detail-label">Date Issued</div><div class="detail-value" id="cardIssuedDate">-</div></div>
+                                    <div class="detail"><div class="detail-label">Valid Until</div><div class="detail-value" id="cardValidDate">-</div></div>
+                                </div>
+                            </section>
+                            
+                            <aside class="right-panel">
+                                <div class="qr-shell">
+                                    <div id="qrcode" onclick="downloadQRCode()" title="Click to download QR"></div>
+                                </div>
+                                <div class="scan-label">Scan to Verify</div>
+                                <div class="signature-area">
+                                    <div class="signature" id="cardSignature">Principal</div>
+                                    <div class="signature-line"></div>
+                                    <div class="signature-title">Principal Signature</div>
+                                </div>
+                            </aside>
+                        </main>
+                        
+                        <div class="hologram"></div>
+                        
+                        <div class="stamp" id="cardStampSchool">SCHOOL<br>OFFICIAL<br>2026</div>
+                        
+                        <div class="microtext">SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION • SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION •</div>
+                        
+                        <footer class="footer-lux">
+                            <div class="footer-left">
+                                <div class="footer-item"><span class="footer-icon">☎</span> +254 712 345 678</div>
+                                <div class="footer-item"><span class="footer-icon">⌖</span> P.O. Box 123, Kenya</div>
+                                <div class="footer-item"><span class="footer-icon">◆</span> www.school.ac.ke</div>
+                            </div>
+                            <div class="footer-right">Property of School</div>
+                        </footer>
                     </div>
                 </div>
                 
@@ -577,7 +831,6 @@
             </div>
         </div>
         
-        <!-- Print Queue Panel -->
         <div class="panel queue-panel">
             <h3>
                 <span><i class="fas fa-layer-group"></i> Print Queue (<span id="queueCount">0</span>/6 Cards)</span>
@@ -601,7 +854,6 @@
         </div>
     </div>
     
-    <!-- Hidden container for 6-card sheet export -->
     <div id="printSheetContainer"></div>
 
     <div class="floating-navbar-container">
@@ -696,8 +948,11 @@
             var now = new Date();
             var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
             var issuedStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+            var validStr = '31 December ' + now.getFullYear();
             document.getElementById('editIssuedDate').value = issuedStr;
             document.getElementById('cardIssuedDate').textContent = issuedStr;
+            document.getElementById('cardValidDate').textContent = validStr;
+            document.getElementById('cardAcademicYear').textContent = now.getFullYear();
         }
         
         function loadAllStudents() {
@@ -780,18 +1035,12 @@
             document.getElementById('editStream').value = student.stream || '';
             
             setIssuedDate();
-            
-            var photoBox = document.querySelector('.photo-box');
-            if (photoBox) {
-                photoBox.innerHTML = '<span class="initials" id="cardPhotoInitials">' + getInitials(student.name) + '</span>';
-            }
-            
             updateCardFromEditor();
         }
         
         function updateCardFromEditor() {
             var schoolName = getCurrentSchool() || 'SCHOOL NAME';
-            var name = document.getElementById('editName') ? document.getElementById('editName').value || '-' : '-';
+            var name = document.getElementById('editName') ? document.getElementById('editName').value || 'STUDENT NAME' : 'STUDENT NAME';
             var adm = document.getElementById('editAdm') ? document.getElementById('editAdm').value || '-' : '-';
             var studentId = document.getElementById('editStudentId') ? document.getElementById('editStudentId').value || '-' : '-';
             var dob = document.getElementById('editDob') ? document.getElementById('editDob').value || '-' : '-';
@@ -803,13 +1052,14 @@
             document.getElementById('cardName').textContent = name.toUpperCase();
             document.getElementById('cardAdm').textContent = adm;
             document.getElementById('cardStudentId').textContent = studentId;
-            document.getElementById('cardStudentIdTag').textContent = studentId;
             document.getElementById('cardDob').textContent = dob;
             document.getElementById('cardForm').textContent = form.toUpperCase();
             document.getElementById('cardStream').textContent = stream.toUpperCase();
             document.getElementById('cardIssuedDate').textContent = issuedDate;
-            document.getElementById('cardPhotoInitials').textContent = getInitials(name);
             document.getElementById('cardSignature').textContent = name;
+            document.getElementById('cardWatermark').textContent = schoolName.substring(0, 6).toUpperCase();
+            document.getElementById('cardLogoLetter').textContent = schoolName.charAt(0).toUpperCase();
+            document.getElementById('cardStampSchool').innerHTML = schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear();
         }
         
         function generateQRCode() {
@@ -817,22 +1067,29 @@
             var school = getCurrentSchool() || '';
             if (!adm) { showNotification('Select a student first', 'warning'); return; }
             
-            var qrData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school);
+            var name = document.getElementById('editName')?.value || '';
+            var studentId = document.getElementById('editStudentId')?.value || '';
+            var form = document.getElementById('editForm')?.value || '';
+            
+            var qrData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school) + '&name=' + encodeURIComponent(name);
             currentQRData = qrData;
             
             var container = document.getElementById('qrcode');
             if (!container) return;
             container.innerHTML = '';
             
-            var qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrData) + '&bgcolor=ffffff&color=000000&qzone=2&ecc=L';
-            var img = document.createElement('img');
-            img.crossOrigin = 'anonymous';
-            img.src = qrImageUrl;
-            img.style.width = '46px';
-            img.style.height = '46px';
-            img.style.display = 'block';
-            img.onload = function() { showNotification('QR generated!', 'success'); };
-            container.appendChild(img);
+            var verificationText = schoolName.toUpperCase() + '\nStudent: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nClass: ' + form + '\nAcademic Year: ' + new Date().getFullYear();
+            
+            new QRCode(container, {
+                text: verificationText,
+                width: 64,
+                height: 64,
+                colorDark: "#07101c",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            showNotification('QR generated!', 'success');
         }
         
         function downloadQRCode() {
@@ -962,16 +1219,25 @@
                 return;
             }
 
-            showNotification('Generating 6-card A4 sheet...', 'info');
+            showNotification('Generating A4 sheet...', 'info');
 
             var container = document.getElementById('printSheetContainer');
             container.innerHTML = '';
 
             cardQueue.forEach(function(item) {
                 var wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display:flex;justify-content:center;align-items:center;';
                 wrapper.appendChild(item.clone);
                 container.appendChild(wrapper);
             });
+
+            // Fill empty slots
+            for (var i = cardQueue.length; i < 6; i++) {
+                var emptyDiv = document.createElement('div');
+                emptyDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;border:2px dashed #ccc;border-radius:8px;';
+                emptyDiv.innerHTML = '<span style="font-size:0.5rem;color:#999;">EMPTY</span>';
+                container.appendChild(emptyDiv);
+            }
 
             setTimeout(function() {
                 html2canvas(container, {
@@ -1016,26 +1282,14 @@
                 var cardClone = cardElement.cloneNode(true);
                 var cardHTML = cardClone.outerHTML;
                 
-                var printWindow = window.open('', '_blank', 'width=600,height=400');
+                var printWindow = window.open('', '_blank', 'width=1100,height=700');
                 if (!printWindow) { showNotification('Popup blocked!', 'error'); return; }
                 
                 printWindow.document.write('<html><head><title>Print ID Card</title>' +
-                    '<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Great+Vibes&display=swap" rel="stylesheet">' +
                     '<style>' +
-                    '@page { size: 3.37in 2.125in; margin: 0; }' +
-                    'body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Inter, Arial, sans-serif; background:#fff; }' +
-                    '.id-card { width: 3.37in; height: 2.125in; background: #071120; color:#fff; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; border: 2px solid #d4af37; box-sizing: border-box; }' +
-                    '.card-header { background: #0b1d3a; color: #fff; padding: 5px 8px; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid #d4af37; }' +
-                    '.header-title h3 { font-size: 0.58rem; font-weight: 800; text-transform: uppercase; margin: 0; color:#d4af37; }' +
-                    '.card-body { padding: 5px 8px; display: grid; grid-template-columns: 65px 1fr 58px; gap: 6px; flex: 1; background:#fff; color:#1e293b; }' +
-                    '.photo-box { width: 62px; height: 72px; border-radius: 4px; border: 1.5px solid #d4af37; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; }' +
-                    '.details-box { display: flex; flex-direction: column; gap: 1.5px; justify-content: center; }' +
-                    '.detail-row { font-size: 0.43rem; display:flex; gap:3px; }' +
-                    '.side-box { display: flex; flex-direction: column; align-items: center; justify-content: space-between; }' +
-                    '.qr-code-box img, .qr-code-box canvas { width: 46px !important; height: 46px !important; display: block !important; }' +
-                    '.signature-line { font-family: "Great Vibes", cursive; font-size: 0.65rem; color: #0b1d3a; }' +
-                    '.card-footer { background: #071120; border-top: 1px solid #d4af37; padding: 2px 8px; display: flex; justify-content: space-between; font-size: 0.36rem; color: #e2e8f0; }' +
-                    '@media print { body { padding: 0; margin: 0; } .id-card { border: none; box-shadow: none; } }' +
+                    '@page { size: 85.6mm 54mm; margin: 0; }' +
+                    'body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fff; }' +
+                    '.student-id { width: 85.6mm; height: 54mm; border-radius: 3mm; }' +
                     '</style></head><body>' + cardHTML + '</body></html>');
                 printWindow.document.close();
                 
@@ -1051,7 +1305,7 @@
             if (!file) return;
             var reader = new FileReader();
             reader.onload = function(e) {
-                var photoBox = document.querySelector('.photo-box');
+                var photoBox = document.querySelector('.photo');
                 if (photoBox) photoBox.innerHTML = '<img src="' + e.target.result + '" alt="Photo">';
             };
             reader.readAsDataURL(file);
