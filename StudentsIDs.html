@@ -203,9 +203,9 @@
         .form-group select option { background: #1a1f4e; }
         .form-group input:disabled { opacity: 0.6; background: rgba(15, 23, 42, 0.5); cursor: not-allowed; }
         
-        /* =====================================================
-           LUXURY STUDENT ID CARD - NGATHO DESIGN
-           ===================================================== */
+        /* =========================================================
+           LUXURY STUDENT ID CARD - NGATHO ENHANCED DESIGN
+           ========================================================= */
         
         .id-card-wrapper {
             display: flex;
@@ -216,14 +216,14 @@
         }
         
         .student-id {
-            width: 508px;
+            width: 506px;
             height: 319px;
             position: relative;
             overflow: hidden;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #07101c 0%, #0b1930 43%, #07111e 72%, #160d17 100%);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.65), inset 0 0 0 2px rgba(255,215,120,0.3);
+            border-radius: 15px;
             color: white;
+            background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.025) 25%, transparent 45%), linear-gradient(135deg, #050b16 0%, #091528 28%, #0d203a 53%, #071221 72%, #160913 100%);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 6px 15px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.45);
             flex-shrink: 0;
             margin: 0 auto;
         }
@@ -231,153 +231,222 @@
         .student-id::before {
             content: "";
             position: absolute;
-            inset: 8px;
-            border-radius: 14px;
-            border: 2px solid #c99b3b;
+            inset: 5px;
+            border-radius: 13px;
+            border: 2px solid #b98527;
             pointer-events: none;
-            z-index: 20;
-            box-shadow: inset 0 0 6px rgba(255,213,94,0.20), 0 0 5px rgba(255,193,48,0.12);
+            z-index: 50;
+            box-shadow: inset 0 0 0 1px #f3d77c, inset 0 0 0 3px #765018, 0 0 0 1px rgba(255,225,132,0.7), 0 0 9px rgba(220,171,60,0.22);
         }
         
         .student-id::after {
             content: "";
             position: absolute;
-            inset: 12px;
-            border-radius: 11px;
-            border: 1px solid rgba(232,191,102,0.40);
+            inset: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(236,201,111,0.72);
             pointer-events: none;
-            z-index: 20;
+            z-index: 50;
+            box-shadow: inset 0 0 0 1px rgba(111,73,22,0.8), 0 0 3px rgba(255,210,102,0.12);
         }
         
-        .security-pattern {
+        .background-pattern {
             position: absolute;
-            inset: 0;
-            opacity: 0.05;
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 7px, #fff 8px, transparent 9px);
+            inset: -50px;
+            opacity: 0.11;
+            background-image: linear-gradient(30deg, rgba(255,255,255,0.14) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.14) 87.5%, rgba(255,255,255,0.14)), linear-gradient(150deg, rgba(255,255,255,0.08) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.08) 87.5%, rgba(255,255,255,0.08));
+            background-size: 40px 70px;
+            transform: rotate(8deg);
             pointer-events: none;
         }
         
-        .red-glow {
+        .security-lines {
             position: absolute;
-            width: 215px;
-            height: 215px;
-            right: -90px;
-            bottom: -100px;
+            width: 350px;
+            height: 350px;
+            right: -165px;
+            top: -140px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(127,21,45,0.45), transparent 68%);
+            border: 1px solid rgba(229,190,91,0.16);
+            box-shadow: 0 0 0 13px rgba(229,190,91,0.025), 0 0 0 25px rgba(229,190,91,0.02), 0 0 0 38px rgba(229,190,91,0.018);
+            pointer-events: none;
         }
         
-        .gold-circle {
+        .blue-light {
             position: absolute;
-            width: 195px;
-            height: 195px;
-            right: -90px;
-            top: -80px;
+            width: 250px;
+            height: 250px;
+            left: -135px;
+            top: 60px;
             border-radius: 50%;
-            border: 1px solid rgba(207,166,70,0.18);
+            background: radial-gradient(circle, rgba(43,96,169,0.28), transparent 68%);
+            pointer-events: none;
         }
+        
+        .red-light {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            right: -120px;
+            bottom: -125px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(135,22,53,0.36), transparent 68%);
+            pointer-events: none;
+        }
+        
+        .corner {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            z-index: 55;
+            pointer-events: none;
+        }
+        .corner::before, .corner::after {
+            content: "";
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #d9b75f, transparent);
+        }
+        .corner::before { width: 38px; height: 1px; }
+        .corner::after { width: 1px; height: 38px; }
+        .corner-tl { left: 14px; top: 14px; }
+        .corner-tr { right: 14px; top: 14px; transform: rotate(90deg); }
+        .corner-bl { left: 14px; bottom: 14px; transform: rotate(-90deg); }
+        .corner-br { right: 14px; bottom: 14px; transform: rotate(180deg); }
         
         .watermark {
             position: absolute;
             top: 152px;
             left: 180px;
-            transform: rotate(-18deg);
+            transform: rotate(-17deg);
             font-size: 25px;
             font-weight: 900;
             letter-spacing: 5px;
             color: rgba(255,255,255,0.025);
-            z-index: 2;
+            z-index: 3;
             pointer-events: none;
         }
         
+        .sample-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-18deg);
+            font-size: 23px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.018);
+            z-index: 4;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
         .card-header-lux {
-            height: 68px;
-            padding: 17px 26px 8px;
+            height: 69px;
+            position: relative;
+            z-index: 10;
             display: flex;
             align-items: center;
-            position: relative;
-            z-index: 5;
+            padding: 16px 27px 9px;
+        }
+        
+        .card-header-lux::before {
+            content: "";
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            top: 10px;
+            bottom: 0;
+            background: linear-gradient(90deg, rgba(127,20,46,0.18), rgba(18,38,67,0.20), rgba(127,20,46,0.12));
+            border-radius: 9px 9px 0 0;
+            pointer-events: none;
         }
         
         .logo {
-            width: 38px;
-            height: 38px;
-            min-width: 38px;
+            width: 39px;
+            height: 39px;
+            min-width: 39px;
             border-radius: 50%;
+            position: relative;
             display: flex;
-            align-items: center;
             justify-content: center;
-            background: radial-gradient(circle, #23364d 0%, #0a1423 68%);
-            border: 2px solid #d1a84b;
-            box-shadow: 0 0 0 3px rgba(207,163,67,0.10), inset 0 0 8px rgba(255,211,102,0.15);
+            align-items: center;
+            background: radial-gradient(circle, #233c5c 0%, #091322 68%, #030811 100%);
+            border: 2px solid #d4ad51;
+            box-shadow: 0 0 0 2px rgba(220,178,73,0.08), 0 0 10px rgba(221,177,68,0.12), inset 0 0 10px rgba(255,220,130,0.10);
+            z-index: 2;
         }
         
         .logo-inner {
             width: 25px;
-            height: 28px;
-            position: relative;
-            background: linear-gradient(145deg, #d6ac4c, #f4d980, #b98126);
-            clip-path: polygon(50% 0%, 94% 16%, 88% 70%, 50% 100%, 12% 70%, 6% 16%);
+            height: 29px;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #08121e;
-            font-size: 12px;
+            clip-path: polygon(50% 0, 93% 17%, 88% 71%, 50% 100%, 12% 71%, 7% 17%);
+            background: linear-gradient(145deg, #9b6b1d, #f4dc8c 42%, #b77d22);
+            color: #07101d;
+            font-family: Georgia, serif;
+            font-size: 13px;
             font-weight: 900;
         }
         
         .school-info {
             margin-left: 12px;
+            position: relative;
+            z-index: 2;
             flex: 1;
         }
         
         .school-name {
             font-family: Georgia, "Times New Roman", serif;
-            font-size: 17px;
+            font-size: 18px;
+            line-height: 1;
             font-weight: 700;
             letter-spacing: 1px;
-            color: #f4d680;
-            line-height: 1;
+            color: #f1d27a;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
             text-transform: uppercase;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.7);
         }
         
         .motto {
-            color: rgba(255,255,255,0.76);
             margin-top: 5px;
             font-size: 7px;
             letter-spacing: 2px;
+            color: rgba(255,255,255,0.70);
             text-transform: uppercase;
         }
         
         .student-badge {
-            border: 1px solid #d1a647;
-            color: #e7c46f;
-            border-radius: 15px;
-            padding: 5px 12px;
+            position: relative;
+            z-index: 2;
+            padding: 6px 11px;
+            border-radius: 13px;
+            color: #f2d27a;
             font-size: 6px;
+            font-weight: 800;
             letter-spacing: 1.5px;
-            font-weight: 700;
-            background: rgba(170,120,29,0.08);
-            box-shadow: inset 0 0 5px rgba(255,203,91,0.07);
+            border: 1px solid #d3a747;
+            background: linear-gradient(135deg, rgba(215,170,65,0.13), rgba(255,255,255,0.025));
+            box-shadow: inset 0 0 6px rgba(255,213,112,0.05);
         }
         
         .header-line {
             position: absolute;
-            bottom: 0;
             left: 26px;
             right: 26px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #b9882b, #efd383, #a2711e, transparent);
+            bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #73501c 8%, #d5ad51 24%, #f4db86 50%, #c49535 76%, #73501c 92%, transparent);
+            box-shadow: 0 0 4px rgba(224,181,77,0.3);
         }
         
         .card-content {
             position: relative;
-            z-index: 5;
+            z-index: 10;
             display: grid;
             grid-template-columns: 105px 1fr 86px;
             gap: 16px;
-            padding: 14px 26px 10px;
+            padding: 14px 27px 10px;
         }
         
         .photo-border {
@@ -385,66 +454,69 @@
             height: 119px;
             padding: 3px;
             border-radius: 9px;
-            background: linear-gradient(145deg, #9b6c20, #f5dd8e, #d09c39, #704718);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.45);
+            background: linear-gradient(135deg, #76501a, #f5df91, #bb862a, #fff0a9, #704718);
+            box-shadow: 0 7px 18px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,218,112,0.4);
         }
         
         .photo {
             width: 100%;
             height: 100%;
-            border-radius: 6px;
             overflow: hidden;
-            background: linear-gradient(145deg, #213042, #0c1624);
+            border-radius: 6px;
+            background: linear-gradient(145deg, #1c3049, #07101c);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
         }
         
         .photo img { width: 100%; height: 100%; object-fit: cover; }
         
-        .photo-placeholder { text-align: center; color: #d9c28b; }
+        .photo-placeholder { text-align: center; opacity: 0.8; }
         
         .photo-head {
             width: 34px;
             height: 34px;
             margin: auto;
             border-radius: 50%;
-            background: #b99459;
+            background: linear-gradient(145deg, #d2b17b, #806139);
         }
         
         .photo-body {
             width: 65px;
             height: 46px;
             margin-top: 7px;
-            border-radius: 30px 30px 7px 7px;
-            background: linear-gradient(180deg, #b99459, #74582f);
+            border-radius: 33px 33px 6px 6px;
+            background: linear-gradient(180deg, #b18b55, #604722);
         }
         
         .photo-label {
-            margin-top: 6px;
             width: 95px;
+            margin-top: 5px;
             text-align: center;
-            font-size: 5px;
-            letter-spacing: 1.5px;
-            color: rgba(230,201,131,0.6);
+            font-size: 4px;
+            letter-spacing: 1.3px;
+            color: rgba(231,201,132,0.55);
+            text-transform: uppercase;
         }
         
         .student-details { padding-top: 1px; }
         
         .student-name {
             font-family: Georgia, "Times New Roman", serif;
-            color: #f4d77e;
+            color: #f4d57a;
             font-size: 15px;
             font-weight: 700;
             letter-spacing: 0.4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
             margin-bottom: 4px;
         }
         
         .name-line {
-            width: 42px;
+            width: 50px;
             height: 2px;
+            margin-top: 5px;
             margin-bottom: 11px;
-            background: linear-gradient(90deg, #d29d37, transparent);
+            background: linear-gradient(90deg, #f0cf70, #a87923, transparent);
         }
         
         .details-grid {
@@ -454,34 +526,42 @@
             row-gap: 8px;
         }
         
-        .detail { min-width: 0; }
-        
         .detail-label {
-            color: rgba(226,196,127,0.58);
-            font-size: 4.5px;
-            letter-spacing: 0.9px;
-            text-transform: uppercase;
             margin-bottom: 2px;
+            font-size: 4px;
+            letter-spacing: 0.9px;
+            color: rgba(227,198,128,0.60);
+            text-transform: uppercase;
         }
         
         .detail-value {
             font-size: 7px;
             font-weight: 600;
             letter-spacing: 0.2px;
-            color: #f4f5f7;
+            color: #f7f7f7;
             white-space: nowrap;
         }
         
-        .right-panel { text-align: center; }
+        .detail-value::after {
+            content: "";
+            display: block;
+            width: 17px;
+            height: 1px;
+            margin-top: 2px;
+            background: rgba(211,166,68,0.35);
+        }
+        
+        .right-panel { text-align: center; position: relative; }
         
         .qr-shell {
-            width: 72px;
-            height: 72px;
-            margin: auto;
+            width: 73px;
+            height: 73px;
             padding: 4px;
-            background: white;
+            margin: auto;
+            background: #fff;
             border-radius: 6px;
-            box-shadow: 0 0 0 2px #c89b3a, 0 4px 12px rgba(0,0,0,0.38);
+            border: 2px solid #d2a541;
+            box-shadow: 0 0 0 1px rgba(90,60,17,0.9), 0 5px 13px rgba(0,0,0,0.5);
         }
         
         #qrcode { width: 64px; height: 64px; overflow: hidden; }
@@ -489,123 +569,121 @@
         
         .scan-label {
             margin-top: 6px;
-            color: #dfbf68;
-            font-size: 4.5px;
-            font-weight: 700;
+            font-size: 4px;
+            font-weight: 800;
             letter-spacing: 1px;
+            color: #e1bf69;
             text-transform: uppercase;
         }
         
-        .signature-area { margin-top: 14px; }
+        .signature-area { margin-top: 12px; }
         
         .signature {
             font-family: "Brush Script MT", cursive, 'Great Vibes';
             font-size: 13px;
-            transform: rotate(-6deg);
             color: white;
-            line-height: 0.8;
+            transform: rotate(-6deg);
+            text-shadow: 0 1px 2px black;
         }
         
         .signature-line {
             width: 65px;
-            margin: 2px auto 3px;
-            border-bottom: 1px solid rgba(217,185,106,0.65);
+            margin: 3px auto;
+            border-bottom: 1px solid rgba(224,190,104,0.7);
         }
         
         .signature-title {
             font-size: 4px;
             letter-spacing: 0.8px;
-            color: rgba(226,205,153,0.65);
+            color: rgba(224,197,135,0.58);
             text-transform: uppercase;
+        }
+        
+        .hologram {
+            position: absolute;
+            left: 127px;
+            bottom: 31px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: conic-gradient(#54d8ff, #d36cff, #ffe86c, #58edc2, #54d8ff);
+            opacity: 0.22;
+            box-shadow: 0 0 10px rgba(104,206,255,0.15);
+            z-index: 8;
         }
         
         .stamp {
             position: absolute;
-            right: 26px;
+            right: 27px;
             bottom: 35px;
-            width: 43px;
-            height: 43px;
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(188,45,67,0.62);
             border-radius: 50%;
-            border: 1px solid rgba(159,42,58,0.55);
-            color: rgba(194,53,73,0.62);
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
+            color: rgba(200,57,77,0.62);
             font-size: 4px;
-            font-weight: 700;
-            line-height: 1.35;
+            font-weight: 800;
+            line-height: 1.4;
             letter-spacing: 0.5px;
-            transform: rotate(-13deg);
-            z-index: 4;
-            opacity: 0.72;
+            transform: rotate(-12deg);
+            z-index: 7;
         }
         
         .stamp::before {
             content: "";
             position: absolute;
             inset: 3px;
+            border: 1px dashed rgba(200,57,77,0.65);
             border-radius: 50%;
-            border: 1px dashed rgba(188,51,68,0.6);
-        }
-        
-        .hologram {
-            position: absolute;
-            left: 123px;
-            bottom: 27px;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: conic-gradient(#77d2ff, #d389ff, #ffe569, #70efc4, #77d2ff);
-            opacity: 0.24;
-            filter: blur(0.15px);
-            box-shadow: 0 0 8px rgba(141,201,255,0.16);
-            z-index: 2;
         }
         
         .microtext {
             position: absolute;
-            left: 28px;
-            bottom: 41px;
-            right: 115px;
-            font-size: 2.5px;
-            letter-spacing: 1.2px;
-            white-space: nowrap;
+            left: 27px;
+            right: 120px;
+            bottom: 40px;
             overflow: hidden;
-            color: rgba(221,194,129,0.20);
-            z-index: 3;
+            white-space: nowrap;
+            font-size: 2.5px;
+            letter-spacing: 1px;
+            color: rgba(231,202,132,0.22);
+            z-index: 8;
         }
         
         .footer-lux {
-            height: 41px;
             position: absolute;
-            bottom: 0;
             left: 0;
             right: 0;
+            bottom: 0;
+            height: 41px;
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 5px 26px 9px;
-            border-top: 1px solid rgba(209,167,71,0.28);
-            background: linear-gradient(90deg, rgba(4,10,19,0.78), rgba(12,24,42,0.84), rgba(25,9,16,0.75));
-            z-index: 5;
+            padding: 5px 27px 8px;
+            border-top: 1px solid rgba(213,170,74,0.38);
+            background: linear-gradient(90deg, rgba(3,9,17,0.94), rgba(9,25,44,0.92), rgba(30,8,17,0.92));
         }
         
         .footer-left {
             display: flex;
-            gap: 13px;
+            align-items: center;
+            gap: 10px;
             font-size: 5px;
-            letter-spacing: 0.2px;
-            color: rgba(255,255,255,0.64);
+            color: rgba(255,255,255,0.62);
         }
         
         .footer-item { display: flex; align-items: center; gap: 3px; }
-        .footer-icon { color: #d3aa4d; font-size: 6px; }
+        .footer-icon { color: #d7b45d; font-size: 6px; }
         
         .footer-right {
-            font-size: 4.5px;
-            letter-spacing: 1px;
-            color: rgba(213,179,99,0.55);
+            font-size: 4px;
+            letter-spacing: 0.9px;
+            color: rgba(222,193,125,0.48);
             text-transform: uppercase;
         }
         
@@ -747,10 +825,16 @@
                 
                 <div class="id-card-wrapper">
                     <div class="student-id" id="card">
-                        <div class="security-pattern"></div>
-                        <div class="red-glow"></div>
-                        <div class="gold-circle"></div>
-                        <div class="watermark" id="cardWatermark">SCH</div>
+                        <div class="background-pattern"></div>
+                        <div class="security-lines"></div>
+                        <div class="blue-light"></div>
+                        <div class="red-light"></div>
+                        <div class="corner corner-tl"></div>
+                        <div class="corner corner-tr"></div>
+                        <div class="corner corner-bl"></div>
+                        <div class="corner corner-br"></div>
+                        <div class="watermark" id="cardWatermark">SCHOOL</div>
+                        <div class="sample-watermark">SAMPLE</div>
                         
                         <header class="card-header-lux">
                             <div class="logo">
@@ -765,16 +849,16 @@
                         </header>
                         
                         <main class="card-content">
-                            <section class="photo-wrapper">
+                            <section>
                                 <div class="photo-border">
-                                    <div class="photo">
+                                    <div class="photo" id="photoContainer">
                                         <div class="photo-placeholder">
                                             <div class="photo-head"></div>
                                             <div class="photo-body"></div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="photo-label">OFFICIAL STUDENT PHOTO</div>
+                                <div class="photo-label">Official Student Photo</div>
                             </section>
                             
                             <section class="student-details">
@@ -806,16 +890,14 @@
                         </main>
                         
                         <div class="hologram"></div>
-                        
                         <div class="stamp" id="cardStampSchool">SCHOOL<br>OFFICIAL<br>2026</div>
-                        
-                        <div class="microtext">SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION • SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION •</div>
+                        <div class="microtext" id="cardMicrotext">SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION • SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION •</div>
                         
                         <footer class="footer-lux">
                             <div class="footer-left">
                                 <div class="footer-item"><span class="footer-icon">☎</span> +254 712 345 678</div>
-                                <div class="footer-item"><span class="footer-icon">⌖</span> P.O. Box 123, Kenya</div>
-                                <div class="footer-item"><span class="footer-icon">◆</span> www.school.ac.ke</div>
+                                <div class="footer-item"><span class="footer-icon">◆</span> P.O. Box 123</div>
+                                <div class="footer-item"><span class="footer-icon">◈</span> Kenya</div>
                             </div>
                             <div class="footer-right">Property of School</div>
                         </footer>
@@ -1060,6 +1142,7 @@
             document.getElementById('cardWatermark').textContent = schoolName.substring(0, 6).toUpperCase();
             document.getElementById('cardLogoLetter').textContent = schoolName.charAt(0).toUpperCase();
             document.getElementById('cardStampSchool').innerHTML = schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear();
+            document.getElementById('cardMicrotext').textContent = schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION • ' + schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION •';
         }
         
         function generateQRCode() {
@@ -1070,21 +1153,23 @@
             var name = document.getElementById('editName')?.value || '';
             var studentId = document.getElementById('editStudentId')?.value || '';
             var form = document.getElementById('editForm')?.value || '';
+            var house = document.getElementById('editStream')?.value || '';
+            var dob = document.getElementById('editDob')?.value || '';
+            var year = new Date().getFullYear();
             
-            var qrData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school) + '&name=' + encodeURIComponent(name);
-            currentQRData = qrData;
+            var verificationText = schoolName.toUpperCase() + '\nSTUDENT ID VERIFICATION\n\nName: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nDOB: ' + dob + '\nClass: ' + form + '\nHouse: ' + house + '\nAcademic Year: ' + year;
+            
+            currentQRData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school);
             
             var container = document.getElementById('qrcode');
             if (!container) return;
             container.innerHTML = '';
             
-            var verificationText = schoolName.toUpperCase() + '\nStudent: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nClass: ' + form + '\nAcademic Year: ' + new Date().getFullYear();
-            
             new QRCode(container, {
                 text: verificationText,
                 width: 64,
                 height: 64,
-                colorDark: "#07101c",
+                colorDark: "#07111e",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
@@ -1231,7 +1316,6 @@
                 container.appendChild(wrapper);
             });
 
-            // Fill empty slots
             for (var i = cardQueue.length; i < 6; i++) {
                 var emptyDiv = document.createElement('div');
                 emptyDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;border:2px dashed #ccc;border-radius:8px;';
@@ -1305,8 +1389,8 @@
             if (!file) return;
             var reader = new FileReader();
             reader.onload = function(e) {
-                var photoBox = document.querySelector('.photo');
-                if (photoBox) photoBox.innerHTML = '<img src="' + e.target.result + '" alt="Photo">';
+                var photoContainer = document.getElementById('photoContainer');
+                if (photoContainer) photoContainer.innerHTML = '<img src="' + e.target.result + '" alt="Student Photo">';
             };
             reader.readAsDataURL(file);
         }
