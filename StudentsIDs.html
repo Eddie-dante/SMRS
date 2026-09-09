@@ -618,7 +618,6 @@
         
         .right-panel { text-align: center; position: relative; }
         
-        /* QR CODE HOLDER - Simple and clean */
         .qr-shell {
             width: 80px;
             height: 80px;
@@ -897,7 +896,28 @@
                 
                 <div class="form-group"><label>🎓 Class/Form</label><input type="text" id="editForm" oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>🏠 House/Stream</label><input type="text" id="editStream" oninput="updateCardFromEditor()"></div>
-                <div class="form-group"><label>📅 Issued Date</label><input type="text" id="editIssuedDate" readonly style="background:rgba(255,255,255,0.02);"></div>
+                
+                <div class="form-group">
+                    <label>📅 Issue Date</label>
+                    <div class="dob-row">
+                        <select id="editIssueDay" onchange="updateCardDates()"></select>
+                        <select id="editIssueMonth" onchange="updateCardDates()"></select>
+                        <select id="editIssueYear" onchange="updateCardDates()"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>⏳ Valid Until / Expiry Date</label>
+                    <div class="dob-row">
+                        <select id="editValidDay" onchange="updateCardDates()"></select>
+                        <select id="editValidMonth" onchange="updateCardDates()"></select>
+                        <select id="editValidYear" onchange="updateCardDates()"></select>
+                    </div>
+                </div>
+
+                <button class="btn btn-gold" onclick="saveCardDates()" style="width:100%; justify-content:center; margin-bottom:10px; padding:6px 10px; font-size:10px;">
+                    <i class="fas fa-calendar-check"></i> Save Card Dates
+                </button>
                 
                 <div class="parent-section">
                     <h4><i class="fas fa-users"></i> Parent/Guardian Information</h4>
@@ -1107,9 +1127,9 @@
             if (!user) return;
             console.log('✅ User authenticated:', user.name);
             populateDOBDropdowns();
+            populateDateDropdowns();
             loadSchoolSettings();
             loadAllStudents();
-            setIssuedDate();
         });
         
         function showNotification(message, type) {
@@ -1155,6 +1175,33 @@
                 yearSelect.innerHTML = yHtml;
             }
         }
+
+        function populateDateDropdowns() {
+            var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            var currentYear = new Date().getFullYear();
+            
+            ['editIssue', 'editValid'].forEach(function(prefix) {
+                var daySelect = document.getElementById(prefix + 'Day');
+                var monthSelect = document.getElementById(prefix + 'Month');
+                var yearSelect = document.getElementById(prefix + 'Year');
+                
+                if (daySelect) {
+                    var days = '<option value="">Day</option>';
+                    for (var d = 1; d <= 31; d++) days += '<option value="' + d + '">' + d + '</option>';
+                    daySelect.innerHTML = days;
+                }
+                if (monthSelect) {
+                    var mHtml = '<option value="">Month</option>';
+                    for (var m = 0; m < 12; m++) mHtml += '<option value="' + (m+1) + '">' + months[m] + '</option>';
+                    monthSelect.innerHTML = mHtml;
+                }
+                if (yearSelect) {
+                    var yHtml = '<option value="">Year</option>';
+                    for (var y = currentYear - 5; y <= currentYear + 10; y++) yHtml += '<option value="' + y + '">' + y + '</option>';
+                    yearSelect.innerHTML = yHtml;
+                }
+            });
+        }
         
         function updateDobFromDropdowns() {
             var day = document.getElementById('editDobDay')?.value || '';
@@ -1165,6 +1212,56 @@
             } else {
                 setText('cardDob', '-');
             }
+        }
+
+        function updateCardDates() {
+            var issueD = document.getElementById('editIssueDay')?.value;
+            var issueM = document.getElementById('editIssueMonth')?.value;
+            var issueY = document.getElementById('editIssueYear')?.value;
+            
+            var validD = document.getElementById('editValidDay')?.value;
+            var validM = document.getElementById('editValidMonth')?.value;
+            var validY = document.getElementById('editValidYear')?.value;
+            
+            var monthsShort = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+            
+            if (issueD && issueM && issueY) {
+                setText('cardIssuedDate', issueD + ' ' + monthsShort[parseInt(issueM) - 1] + ' ' + issueY);
+            } else {
+                setText('cardIssuedDate', '-');
+            }
+            
+            if (validD && validM && validY) {
+                setText('cardValidDate', validD + ' ' + monthsShort[parseInt(validM) - 1] + ' ' + validY);
+            } else {
+                setText('cardValidDate', '-');
+            }
+        }
+
+        function saveCardDates() {
+            var adm = document.getElementById('editAdm')?.value;
+            if (!adm) { showNotification('Select a student first', 'warning'); return; }
+            var school = getCurrentSchool();
+            if (!school) return;
+
+            var issueDateStr = (document.getElementById('editIssueDay')?.value || '') + '/' + 
+                               (document.getElementById('editIssueMonth')?.value || '') + '/' + 
+                               (document.getElementById('editIssueYear')?.value || '');
+                               
+            var validDateStr = (document.getElementById('editValidDay')?.value || '') + '/' + 
+                               (document.getElementById('editValidMonth')?.value || '') + '/' + 
+                               (document.getElementById('editValidYear')?.value || '');
+
+            var updates = {};
+            updates['schools/' + school + '/students/' + adm + '/issuedDate'] = issueDateStr;
+            updates['schools/' + school + '/students/' + adm + '/validDate'] = validDateStr;
+
+            database.ref().update(updates).then(function() {
+                showNotification('Card dates saved successfully!', 'success');
+            }).catch(function(err) {
+                console.error('❌ Save dates error:', err);
+                showNotification('Failed to save dates', 'error');
+            });
         }
         
         function loadSchoolSettings() {
@@ -1188,16 +1285,6 @@
             });
         }
         
-        function setIssuedDate() {
-            var now = new Date();
-            var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-            var issuedStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
-            var validStr = '31 December ' + now.getFullYear();
-            setText('editIssuedDate', issuedStr);
-            setText('cardIssuedDate', issuedStr);
-            setText('cardValidDate', validStr);
-        }
-        
         function loadAllStudents() {
             console.log('📊 Loading students...');
             var school = getCurrentSchool();
@@ -1215,6 +1302,8 @@
                             studentId: s.studentId || '',
                             form: s.form || '', stream: s.stream || '',
                             dob: s.dob || '',
+                            issuedDate: s.issuedDate || '',
+                            validDate: s.validDate || '',
                             parentName: s.parentName || '',
                             parentPhone: s.parentPhone || '',
                             parentEmail: s.parentEmail || ''
@@ -1233,6 +1322,8 @@
                                 form: c.name || st.Form || '',
                                 stream: c.stream || st.stream || '',
                                 dob: st.DOB || st.dob || '',
+                                issuedDate: st.issuedDate || '',
+                                validDate: st.validDate || '',
                                 parentName: st['Parent Name'] || st.parentName || '',
                                 parentPhone: st['Parent Phone'] || st.parentPhone || st['Parent Contact'] || '',
                                 parentEmail: st['Parent Email'] || st.parentEmail || ''
@@ -1310,8 +1401,36 @@
                     setText('cardDob', student.dob);
                 }
             }
-            
-            setIssuedDate();
+
+            if (student.issuedDate) {
+                var iParts = student.issuedDate.split('/');
+                if (iParts.length === 3) {
+                    document.getElementById('editIssueDay').value = parseInt(iParts[0]);
+                    document.getElementById('editIssueMonth').value = parseInt(iParts[1]);
+                    document.getElementById('editIssueYear').value = parseInt(iParts[2]);
+                }
+            } else {
+                var now = new Date();
+                document.getElementById('editIssueDay').value = now.getDate();
+                document.getElementById('editIssueMonth').value = now.getMonth() + 1;
+                document.getElementById('editIssueYear').value = now.getFullYear();
+            }
+
+            if (student.validDate) {
+                var vParts = student.validDate.split('/');
+                if (vParts.length === 3) {
+                    document.getElementById('editValidDay').value = parseInt(vParts[0]);
+                    document.getElementById('editValidMonth').value = parseInt(vParts[1]);
+                    document.getElementById('editValidYear').value = parseInt(vParts[2]);
+                }
+            } else {
+                var now = new Date();
+                document.getElementById('editValidDay').value = 31;
+                document.getElementById('editValidMonth').value = 12;
+                document.getElementById('editValidYear').value = now.getFullYear();
+            }
+
+            updateCardDates();
             updateCardFromEditor();
         }
         
@@ -1322,7 +1441,6 @@
             var studentId = document.getElementById('editStudentId')?.value || '-';
             var form = document.getElementById('editForm')?.value || '-';
             var stream = document.getElementById('editStream')?.value || '-';
-            var issuedDate = document.getElementById('editIssuedDate')?.value || '-';
             var parentName = document.getElementById('editParentName')?.value || '-';
             
             setText('cardSchool', schoolName.toUpperCase());
@@ -1332,7 +1450,6 @@
             setText('cardIdBelowPhoto', studentId);
             setText('cardForm', form.toUpperCase());
             setText('cardStream', stream.toUpperCase());
-            setText('cardIssuedDate', issuedDate);
             setText('cardParentName', parentName);
             setText('cardSignature', name);
             setText('cardWatermark', schoolName.substring(0, 6).toUpperCase());
@@ -1342,6 +1459,7 @@
             setText('cardMotto', schoolMotto);
             
             updateDobFromDropdowns();
+            updateCardDates();
         }
         
         function saveParentInfo() {
@@ -1363,9 +1481,6 @@
             });
         }
         
-        /**
-         * GENERATE QR CODE - Uses image API for perfect placement and readability
-         */
         function generateQRCode() {
             console.log('📱 Generating QR code via API...');
             var adm = document.getElementById('editAdm')?.value || '';
@@ -1375,11 +1490,9 @@
             var name = document.getElementById('editName')?.value || '';
             var studentId = document.getElementById('editStudentId')?.value || '';
             
-            // Build clean verification URL
             var verificationUrl = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school) + '&name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(studentId);
             currentQRData = verificationUrl;
             
-            // Use reliable QR code image API (goqr.me - free, no CORS issues)
             var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(verificationUrl) + '&bgcolor=ffffff&color=000000&qzone=0&ecc=M&format=png';
             
             var qrImage = document.getElementById('qrImage');
@@ -1533,13 +1646,25 @@
             setTimeout(function() {
                 var cardElement = document.getElementById('card');
                 if (!cardElement) { showNotification('Card not found', 'error'); return; }
-                var cardClone = cardElement.cloneNode(true);
-                var printWindow = window.open('', '_blank', 'width=1100,height=700');
-                if (!printWindow) { showNotification('Popup blocked!', 'error'); return; }
-                printWindow.document.write('<html><head><title>Print</title><style>@page{size:85.6mm 54mm;margin:0;}body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;}.student-id{width:85.6mm;height:54mm;border-radius:3mm;}</style></head><body>' + cardClone.outerHTML + '</body></html>');
-                printWindow.document.close();
-                setTimeout(function() { printWindow.focus(); printWindow.print(); }, 800);
-            }, 800);
+                
+                html2canvas(cardElement, {
+                    scale: 3,
+                    backgroundColor: null,
+                    useCORS: true,
+                    logging: false
+                }).then(function(canvas) {
+                    var imgData = canvas.toDataURL('image/png');
+                    var printWindow = window.open('', '_blank', 'width=1100,height=700');
+                    if (!printWindow) { showNotification('Popup blocked!', 'error'); return; }
+                    
+                    printWindow.document.write('<html><head><title>Print Student ID</title><style>@page{size:85.6mm 54mm;margin:0;}body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;}img{width:85.6mm;height:54mm;object-fit:contain;}</style></head><body><img src="' + imgData + '" /></body></html>');
+                    printWindow.document.close();
+                    setTimeout(function() { printWindow.focus(); printWindow.print(); }, 500);
+                }).catch(function(err) {
+                    console.error('❌ Print error:', err);
+                    showNotification('Failed to prepare print view', 'error');
+                });
+            }, 500);
         }
         
         function loadPhoto(event) {
@@ -1588,6 +1713,9 @@
         window.exportQueueSheet = exportQueueSheet;
         window.saveParentInfo = saveParentInfo;
         window.updateDobFromDropdowns = updateDobFromDropdowns;
+        window.updateCardDates = updateCardDates;
+        window.saveCardDates = saveCardDates;
+        window.populateDateDropdowns = populateDateDropdowns;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
         
