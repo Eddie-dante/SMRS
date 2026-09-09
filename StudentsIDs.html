@@ -204,7 +204,7 @@
         .form-group input:disabled { opacity: 0.6; background: rgba(15, 23, 42, 0.5); cursor: not-allowed; }
         
         /* =========================================================
-           LUXURY STUDENT ID CARD - NGATHO ENHANCED DESIGN
+           LUXURY STUDENT ID CARD - FIXED CORNERS
            ========================================================= */
         
         .id-card-wrapper {
@@ -236,7 +236,7 @@
             border: 2px solid #b98527;
             pointer-events: none;
             z-index: 50;
-            box-shadow: inset 0 0 0 1px #f3d77c, inset 0 0 0 3px #765018, 0 0 0 1px rgba(255,225,132,0.7), 0 0 9px rgba(220,171,60,0.22);
+            box-shadow: inset 0 0 0 1px #f3d77c, inset 0 0 0 3px #765018;
         }
         
         .student-id::after {
@@ -247,91 +247,104 @@
             border: 1px solid rgba(236,201,111,0.72);
             pointer-events: none;
             z-index: 50;
-            box-shadow: inset 0 0 0 1px rgba(111,73,22,0.8), 0 0 3px rgba(255,210,102,0.12);
         }
         
         .background-pattern {
             position: absolute;
-            inset: -50px;
-            opacity: 0.11;
-            background-image: linear-gradient(30deg, rgba(255,255,255,0.14) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.14) 87.5%, rgba(255,255,255,0.14)), linear-gradient(150deg, rgba(255,255,255,0.08) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.08) 87.5%, rgba(255,255,255,0.08));
+            inset: 0;
+            opacity: 0.06;
+            background-image: linear-gradient(30deg, rgba(255,255,255,0.10) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.10) 87.5%), linear-gradient(150deg, rgba(255,255,255,0.06) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.06) 87.5%);
             background-size: 40px 70px;
             transform: rotate(8deg);
             pointer-events: none;
+            z-index: 1;
         }
         
         .security-lines {
             position: absolute;
-            width: 350px;
-            height: 350px;
-            right: -165px;
-            top: -140px;
+            width: 300px;
+            height: 300px;
+            right: -140px;
+            top: -120px;
             border-radius: 50%;
             border: 1px solid rgba(229,190,91,0.16);
-            box-shadow: 0 0 0 13px rgba(229,190,91,0.025), 0 0 0 25px rgba(229,190,91,0.02), 0 0 0 38px rgba(229,190,91,0.018);
+            box-shadow: 0 0 0 13px rgba(229,190,91,0.025), 0 0 0 25px rgba(229,190,91,0.02);
             pointer-events: none;
+            z-index: 1;
         }
         
         .blue-light {
             position: absolute;
-            width: 250px;
-            height: 250px;
-            left: -135px;
-            top: 60px;
+            width: 200px;
+            height: 200px;
+            left: -100px;
+            top: 50px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(43,96,169,0.28), transparent 68%);
+            background: radial-gradient(circle, rgba(43,96,169,0.20), transparent 68%);
             pointer-events: none;
+            z-index: 1;
         }
         
         .red-light {
             position: absolute;
-            width: 250px;
-            height: 250px;
-            right: -120px;
-            bottom: -125px;
+            width: 200px;
+            height: 200px;
+            right: -100px;
+            bottom: -100px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(135,22,53,0.36), transparent 68%);
+            background: radial-gradient(circle, rgba(135,22,53,0.28), transparent 68%);
             pointer-events: none;
+            z-index: 1;
         }
         
+        /* FIXED CORNERS - Small decorative L-shaped borders inside the card */
         .corner {
             position: absolute;
-            width: 48px;
-            height: 48px;
+            width: 20px;
+            height: 20px;
             z-index: 55;
             pointer-events: none;
         }
         .corner::before, .corner::after {
             content: "";
             position: absolute;
-            background: linear-gradient(90deg, transparent, #d9b75f, transparent);
+            background: #d9b75f;
         }
-        .corner::before { width: 38px; height: 1px; }
-        .corner::after { width: 1px; height: 38px; }
-        .corner-tl { left: 14px; top: 14px; }
-        .corner-tr { right: 14px; top: 14px; transform: rotate(90deg); }
-        .corner-bl { left: 14px; bottom: 14px; transform: rotate(-90deg); }
-        .corner-br { right: 14px; bottom: 14px; transform: rotate(180deg); }
+        .corner::before { width: 20px; height: 1px; }
+        .corner::after { width: 1px; height: 20px; }
+        .corner-tl { left: 16px; top: 16px; }
+        .corner-tl::before { left: 0; top: 0; }
+        .corner-tl::after { left: 0; top: 0; }
+        .corner-tr { right: 16px; top: 16px; }
+        .corner-tr::before { right: 0; top: 0; }
+        .corner-tr::after { right: 0; top: 0; }
+        .corner-bl { left: 16px; bottom: 16px; }
+        .corner-bl::before { left: 0; bottom: 0; }
+        .corner-bl::after { left: 0; bottom: 0; }
+        .corner-br { right: 16px; bottom: 16px; }
+        .corner-br::before { right: 0; bottom: 0; }
+        .corner-br::after { right: 0; bottom: 0; }
         
         .watermark {
             position: absolute;
-            top: 152px;
-            left: 180px;
-            transform: rotate(-17deg);
+            top: 50%;
+            left: 45%;
+            transform: translate(-50%, -50%) rotate(-17deg);
             font-size: 25px;
             font-weight: 900;
             letter-spacing: 5px;
             color: rgba(255,255,255,0.025);
             z-index: 3;
             pointer-events: none;
+            white-space: nowrap;
         }
         
         .sample-watermark {
             position: absolute;
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-18deg);
-            font-size: 23px;
+            font-size: 20px;
             font-weight: 900;
             letter-spacing: 4px;
             color: rgba(255,255,255,0.018);
@@ -372,7 +385,7 @@
             align-items: center;
             background: radial-gradient(circle, #233c5c 0%, #091322 68%, #030811 100%);
             border: 2px solid #d4ad51;
-            box-shadow: 0 0 0 2px rgba(220,178,73,0.08), 0 0 10px rgba(221,177,68,0.12), inset 0 0 10px rgba(255,220,130,0.10);
+            box-shadow: 0 0 0 2px rgba(220,178,73,0.08), 0 0 10px rgba(221,177,68,0.12);
             z-index: 2;
         }
         
@@ -427,7 +440,6 @@
             letter-spacing: 1.5px;
             border: 1px solid #d3a747;
             background: linear-gradient(135deg, rgba(215,170,65,0.13), rgba(255,255,255,0.025));
-            box-shadow: inset 0 0 6px rgba(255,213,112,0.05);
         }
         
         .header-line {
@@ -455,7 +467,7 @@
             padding: 3px;
             border-radius: 9px;
             background: linear-gradient(135deg, #76501a, #f5df91, #bb862a, #fff0a9, #704718);
-            box-shadow: 0 7px 18px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,218,112,0.4);
+            box-shadow: 0 7px 18px rgba(0,0,0,0.55);
         }
         
         .photo {
@@ -891,7 +903,7 @@
                         
                         <div class="hologram"></div>
                         <div class="stamp" id="cardStampSchool">SCHOOL<br>OFFICIAL<br>2026</div>
-                        <div class="microtext" id="cardMicrotext">SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION • SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION •</div>
+                        <div class="microtext" id="cardMicrotext">SCHOOL NAME • AUTHORIZED STUDENT IDENTIFICATION •</div>
                         
                         <footer class="footer-lux">
                             <div class="footer-left">
@@ -1007,13 +1019,16 @@
         var APP_URL = 'https://smrs-eight.vercel.app';
         
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 StudentsIDs page loaded');
             var user = checkAuth();
             if (!user) return;
+            console.log('✅ User authenticated:', user.name);
             loadAllStudents();
             setIssuedDate();
         });
         
         function showNotification(message, type) {
+            console.log('📢 Notification:', message, type);
             var existingToast = document.querySelector('.toast-notification');
             if (existingToast) existingToast.remove();
             var toast = document.createElement('div');
@@ -1031,13 +1046,18 @@
             var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
             var issuedStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
             var validStr = '31 December ' + now.getFullYear();
-            document.getElementById('editIssuedDate').value = issuedStr;
-            document.getElementById('cardIssuedDate').textContent = issuedStr;
-            document.getElementById('cardValidDate').textContent = validStr;
-            document.getElementById('cardAcademicYear').textContent = now.getFullYear();
+            var issuedEl = document.getElementById('editIssuedDate');
+            var cardIssuedEl = document.getElementById('cardIssuedDate');
+            var cardValidEl = document.getElementById('cardValidDate');
+            var cardYearEl = document.getElementById('cardAcademicYear');
+            if (issuedEl) issuedEl.value = issuedStr;
+            if (cardIssuedEl) cardIssuedEl.textContent = issuedStr;
+            if (cardValidEl) cardValidEl.textContent = validStr;
+            if (cardYearEl) cardYearEl.textContent = now.getFullYear();
         }
         
         function loadAllStudents() {
+            console.log('📊 Loading students...');
             var school = getCurrentSchool();
             if (!school) return;
             Promise.all([API.getStudents(school), API.getClasses(school)]).then(function(results) {
@@ -1073,6 +1093,9 @@
                     select.innerHTML = html;
                 }
                 renderStudentsList(allStudents);
+                console.log('✅ Students loaded:', allStudents.length);
+            }).catch(function(err) {
+                console.error('❌ Error loading students:', err);
             });
         }
         
@@ -1096,6 +1119,7 @@
         }
         
         function selectStudent(adm) {
+            console.log('👤 Selecting student:', adm);
             var select = document.getElementById('studentSelect');
             if (select) select.value = adm;
             loadStudentForCard();
@@ -1118,35 +1142,48 @@
             
             setIssuedDate();
             updateCardFromEditor();
+            console.log('✅ Student loaded:', student.name);
         }
         
         function updateCardFromEditor() {
             var schoolName = getCurrentSchool() || 'SCHOOL NAME';
-            var name = document.getElementById('editName') ? document.getElementById('editName').value || 'STUDENT NAME' : 'STUDENT NAME';
-            var adm = document.getElementById('editAdm') ? document.getElementById('editAdm').value || '-' : '-';
-            var studentId = document.getElementById('editStudentId') ? document.getElementById('editStudentId').value || '-' : '-';
-            var dob = document.getElementById('editDob') ? document.getElementById('editDob').value || '-' : '-';
-            var form = document.getElementById('editForm') ? document.getElementById('editForm').value || '-' : '-';
-            var stream = document.getElementById('editStream') ? document.getElementById('editStream').value || '-' : '-';
-            var issuedDate = document.getElementById('editIssuedDate') ? document.getElementById('editIssuedDate').value || '-' : '-';
+            var name = document.getElementById('editName')?.value || 'STUDENT NAME';
+            var adm = document.getElementById('editAdm')?.value || '-';
+            var studentId = document.getElementById('editStudentId')?.value || '-';
+            var dob = document.getElementById('editDob')?.value || '-';
+            var form = document.getElementById('editForm')?.value || '-';
+            var stream = document.getElementById('editStream')?.value || '-';
+            var issuedDate = document.getElementById('editIssuedDate')?.value || '-';
             
-            document.getElementById('cardSchool').textContent = schoolName.toUpperCase();
-            document.getElementById('cardName').textContent = name.toUpperCase();
-            document.getElementById('cardAdm').textContent = adm;
-            document.getElementById('cardStudentId').textContent = studentId;
-            document.getElementById('cardDob').textContent = dob;
-            document.getElementById('cardForm').textContent = form.toUpperCase();
-            document.getElementById('cardStream').textContent = stream.toUpperCase();
-            document.getElementById('cardIssuedDate').textContent = issuedDate;
-            document.getElementById('cardSignature').textContent = name;
-            document.getElementById('cardWatermark').textContent = schoolName.substring(0, 6).toUpperCase();
-            document.getElementById('cardLogoLetter').textContent = schoolName.charAt(0).toUpperCase();
-            document.getElementById('cardStampSchool').innerHTML = schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear();
-            document.getElementById('cardMicrotext').textContent = schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION • ' + schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION •';
+            setText('cardSchool', schoolName.toUpperCase());
+            setText('cardName', name.toUpperCase());
+            setText('cardAdm', adm);
+            setText('cardStudentId', studentId);
+            setText('cardDob', dob);
+            setText('cardForm', form.toUpperCase());
+            setText('cardStream', stream.toUpperCase());
+            setText('cardIssuedDate', issuedDate);
+            setText('cardSignature', name);
+            setText('cardWatermark', schoolName.substring(0, 6).toUpperCase());
+            setText('cardLogoLetter', schoolName.charAt(0).toUpperCase());
+            setText('cardStampSchool', schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear());
+            setText('cardMicrotext', schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION •');
+        }
+        
+        function setText(id, value) {
+            var el = document.getElementById(id);
+            if (el) {
+                if (value.includes('<br>')) {
+                    el.innerHTML = value;
+                } else {
+                    el.textContent = value;
+                }
+            }
         }
         
         function generateQRCode() {
-            var adm = document.getElementById('editAdm') ? document.getElementById('editAdm').value : '';
+            console.log('📱 Generating QR code...');
+            var adm = document.getElementById('editAdm')?.value || '';
             var school = getCurrentSchool() || '';
             if (!adm) { showNotification('Select a student first', 'warning'); return; }
             
@@ -1157,7 +1194,7 @@
             var dob = document.getElementById('editDob')?.value || '';
             var year = new Date().getFullYear();
             
-            var verificationText = schoolName.toUpperCase() + '\nSTUDENT ID VERIFICATION\n\nName: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nDOB: ' + dob + '\nClass: ' + form + '\nHouse: ' + house + '\nAcademic Year: ' + year;
+            var verificationText = school.toUpperCase() + '\nSTUDENT ID VERIFICATION\n\nName: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nDOB: ' + dob + '\nClass: ' + form + '\nHouse: ' + house + '\nAcademic Year: ' + year;
             
             currentQRData = APP_URL + '/qrcodes.html?adm=' + encodeURIComponent(adm) + '&school=' + encodeURIComponent(school);
             
@@ -1165,16 +1202,21 @@
             if (!container) return;
             container.innerHTML = '';
             
-            new QRCode(container, {
-                text: verificationText,
-                width: 64,
-                height: 64,
-                colorDark: "#07111e",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            showNotification('QR generated!', 'success');
+            try {
+                new QRCode(container, {
+                    text: verificationText,
+                    width: 64,
+                    height: 64,
+                    colorDark: "#07111e",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                showNotification('QR generated!', 'success');
+                console.log('✅ QR generated');
+            } catch(err) {
+                console.error('❌ QR error:', err);
+                showNotification('QR generation failed', 'error');
+            }
         }
         
         function downloadQRCode() {
@@ -1190,6 +1232,7 @@
         }
         
         function saveCardAsImage() {
+            console.log('💾 Saving card as image...');
             updateCardFromEditor();
             if (!currentQRData) generateQRCode();
             
@@ -1205,7 +1248,7 @@
                     logging: false
                 }).then(function(canvas) {
                     var imageData = canvas.toDataURL('image/png');
-                    var adm = document.getElementById('editAdm') ? document.getElementById('editAdm').value : '';
+                    var adm = document.getElementById('editAdm')?.value || '';
                     if (!adm) { showNotification('Select a student first', 'warning'); return; }
                     
                     var link = document.createElement('a');
@@ -1234,13 +1277,14 @@
                         });
                     }
                 }).catch(function(error) {
-                    console.error('Save error:', error);
+                    console.error('❌ Save error:', error);
                     showNotification('Failed to save card', 'error');
                 });
             }, 800);
         }
         
         function addToQueue() {
+            console.log('📦 Adding to queue...');
             if (cardQueue.length >= 6) {
                 showNotification('Queue limit reached (Max 6 cards per sheet)', 'warning');
                 return;
@@ -1250,8 +1294,8 @@
 
             setTimeout(function() {
                 var cardElement = document.getElementById('card');
-                var name = document.getElementById('editName').value || 'Student';
-                var adm = document.getElementById('editAdm').value || 'N/A';
+                var name = document.getElementById('editName')?.value || 'Student';
+                var adm = document.getElementById('editAdm')?.value || 'N/A';
 
                 cardQueue.push({
                     name: name,
@@ -1261,6 +1305,7 @@
 
                 renderQueue();
                 showNotification(name + ' added to queue!', 'success');
+                console.log('✅ Added to queue:', name);
             }, 300);
         }
 
@@ -1299,6 +1344,7 @@
         }
 
         function exportQueueSheet(type) {
+            console.log('📤 Exporting queue as:', type);
             if (cardQueue.length === 0) {
                 showNotification('Add at least 1 card to queue first', 'warning');
                 return;
@@ -1350,13 +1396,14 @@
                         showNotification('PDF Sheet Downloaded!', 'success');
                     }
                 }).catch(function(err) {
-                    console.error(err);
+                    console.error('❌ Export error:', err);
                     showNotification('Error generating sheet', 'error');
                 });
             }, 800);
         }
         
         function printCard() {
+            console.log('🖨️ Printing single card...');
             updateCardFromEditor();
             if (!currentQRData) generateQRCode();
             
@@ -1385,6 +1432,7 @@
         }
         
         function loadPhoto(event) {
+            console.log('📷 Loading photo...');
             var file = event.target.files[0];
             if (!file) return;
             var reader = new FileReader();
@@ -1418,6 +1466,7 @@
             window.location.href = 'index.html';
         }
         
+        // Expose all functions to global scope
         window.loadStudentForCard = loadStudentForCard;
         window.updateCardFromEditor = updateCardFromEditor;
         window.generateQRCode = generateQRCode;
@@ -1432,6 +1481,8 @@
         window.exportQueueSheet = exportQueueSheet;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
+        
+        console.log('✅ StudentsIDs page scripts loaded successfully');
     </script>
 </body>
 </html>
