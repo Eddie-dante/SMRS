@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version - Fixed Dropdown Hover
+// Full Version - Fixed Student Extraction
 // ============================================
 
 var currentChatUserEmail = null;
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }, 3000);
 });
 
-// ============ DROPDOWN CONTROLLER - FIXED ============
+// ============ DROPDOWN CONTROLLER ============
 function initDropdownController() {
   var navGroups = document.querySelectorAll(".nav-group");
 
@@ -54,9 +54,6 @@ function initDropdownController() {
 
     if (!dropdown || !button) return;
 
-    // Remove any existing event listeners by using simple approach
-    // Do NOT clone the node - this was causing the issue
-
     var closeTimeout = null;
 
     function openDropdown() {
@@ -64,7 +61,6 @@ function initDropdownController() {
         clearTimeout(closeTimeout);
         closeTimeout = null;
       }
-      // Close all other dropdowns
       document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
         if (d !== dropdown) d.classList.remove("open");
       });
@@ -84,22 +80,17 @@ function initDropdownController() {
       }
     }
 
-    // Hover on the ENTIRE nav-group (button + dropdown)
     group.addEventListener("mouseenter", function () {
       cancelClose();
       openDropdown();
     });
 
     group.addEventListener("mouseleave", function (e) {
-      // Check if related target is inside the group
       var related = e.relatedTarget;
-      if (related && group.contains(related)) {
-        return; // Still inside group - don't close
-      }
+      if (related && group.contains(related)) return;
       closeDropdown();
     });
 
-    // Click on button toggles (for mobile/touch)
     button.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -110,7 +101,6 @@ function initDropdownController() {
       }
     });
 
-    // Click on dropdown item closes dropdown
     dropdown
       .querySelectorAll(".dropdown-item, a.dropdown-item")
       .forEach(function (item) {
@@ -120,7 +110,6 @@ function initDropdownController() {
       });
   });
 
-  // Close all dropdowns when clicking outside
   document.addEventListener("click", function (event) {
     if (!event.target.closest(".nav-group")) {
       document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
@@ -129,7 +118,6 @@ function initDropdownController() {
     }
   });
 
-  // Close on Escape key
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
@@ -862,76 +850,156 @@ function issueBulkBooks() {
     });
 }
 
-// ============ STUDENTS ============
+// ============ STUDENTS (FIXED - Extracts from Classes) ============
 function loadStudentsData() {
   var school = getCurrentSchool();
   if (!school) return;
 
+  console.log("📊 Loading students from database AND classes...");
+
   Promise.all([API.getStudents(school), API.getClasses(school)])
     .then(function (results) {
-      var students = results[0] || [];
+      var dbStudents = results[0] || [];
       var classes = results[1] || [];
+
+      console.log("📊 DB Students:", dbStudents.length);
+      console.log("📊 Classes:", classes.length);
+
       var allStudents = [];
       var seenAdms = {};
 
-      students.forEach(function (s) {
+      // Add students from the students table
+      dbStudents.forEach(function (s) {
         if (s.adm && !seenAdms[s.adm]) {
           seenAdms[s.adm] = true;
+          s.source = "db";
           allStudents.push(s);
         }
       });
 
-      classes.forEach(function (c) {
-        (c.students || []).forEach(function (st) {
+      // Extract students from classes
+      classes.forEach(function (cls) {
+        console.log(
+          "📊 Class:",
+          cls.name,
+          "- Students:",
+          (cls.students || []).length,
+        );
+
+        (cls.students || []).forEach(function (st) {
           var adm = st.ADM || st.adm || st["ADM No"] || "";
           var name = st.Name || st.name || st["Full Name"] || "Unknown";
+
           if (adm && !seenAdms[adm]) {
             seenAdms[adm] = true;
             allStudents.push({
               name: name,
               adm: adm,
-              form: c.name,
-              stream: c.stream || "",
+              studentId: st.studentId || st.StudentID || "",
+              form: cls.name || st.Form || st.form || "",
+              stream: cls.stream || st.Stream || st.stream || "",
               gender: st.Gender || st.gender || "",
-              parentPhone: st["Parent Phone"] || "",
+              dob: st.DOB || st.dob || "",
+              parentName: st["Parent Name"] || st.parentName || "",
+              parentPhone: st["Parent Phone"] || st.parentPhone || "",
+              parentEmail: st["Parent Email"] || st.parentEmail || "",
+              source: "class",
             });
           }
         });
       });
 
+      console.log("📊 Total students:", allStudents.length);
+
       allStudentsCache = allStudents;
+
       var tbody = document.getElementById("studentsTableBody");
       if (tbody) {
         if (allStudents.length === 0) {
           tbody.innerHTML =
-            '<tr><td colspan="7" style="text-align:center;">No students found</td></tr>';
+            '<tr><td colspan="8" style="text-align:center;">No students found. Add a class or student first.</td></tr>';
         } else {
           var html = "";
-          allStudents.slice(0, 100).forEach(function (s) {
+          allStudents.slice(0, 200).forEach(function (s) {
+            var sourceBadge =
+              s.source === "db"
+                ? '<span class="source-badge source-db">DB</span>'
+                : '<span class="source-badge source-class">Class</span>';
+
             html +=
-              "<tr><td>" +
+              "<tr>" +
+              "<td>" +
               (s.name || "-") +
-              "</td><td>" +
+              "</td>" +
+              "<td>" +
               (s.adm || "-") +
-              "</td><td>" +
+              "</td>" +
+              "<td>" +
+              (s.studentId || "-") +
+              "</td>" +
+              "<td>" +
               (s.form || "-") +
-              "</td><td>" +
+              "</td>" +
+              "<td>" +
               (s.stream || "-") +
-              "</td><td>" +
+              "</td>" +
+              "<td>" +
               (s.gender || "-") +
-              "</td><td>" +
-              (s.parentPhone || "-") +
-              '</td><td><button class="btn btn-sm btn-danger" onclick="deleteStudent(\'' +
+              "</td>" +
+              "<td>" +
+              sourceBadge +
+              "</td>" +
+              '<td><button class="btn btn-sm btn-danger" onclick="deleteStudent(\'' +
               s.adm +
-              '\')"><i class="fas fa-trash"></i></button></td></tr>';
+              '\')"><i class="fas fa-trash"></i></button></td>' +
+              "</tr>";
           });
           tbody.innerHTML = html;
         }
       }
+
+      // Update stats
+      updateStudentStats(allStudents, dbStudents, classes);
     })
     .catch(function (err) {
-      console.error("Students error:", err);
+      console.error("❌ Students error:", err);
+      var tbody = document.getElementById("studentsTableBody");
+      if (tbody) {
+        tbody.innerHTML =
+          '<tr><td colspan="8" style="text-align:center;">Error: ' +
+          err.message +
+          "</td></tr>";
+      }
     });
+}
+
+function updateStudentStats(allStudents, dbStudents, classes) {
+  var totalEl = document.getElementById("statTotal");
+  var dbEl = document.getElementById("statFromDB");
+  var classEl = document.getElementById("statFromClasses");
+  var formsEl = document.getElementById("statForms");
+  var streamsEl = document.getElementById("statStreams");
+
+  var classStudentsCount = 0;
+  var forms = {};
+  var streams = {};
+
+  classes.forEach(function (c) {
+    if (c.name) forms[c.name] = true;
+    if (c.stream) streams[c.stream] = true;
+    classStudentsCount += (c.students || []).length;
+  });
+
+  allStudents.forEach(function (s) {
+    if (s.form) forms[s.form] = true;
+    if (s.stream) streams[s.stream] = true;
+  });
+
+  if (totalEl) totalEl.textContent = allStudents.length;
+  if (dbEl) dbEl.textContent = dbStudents.length;
+  if (classEl) classEl.textContent = classStudentsCount;
+  if (formsEl) formsEl.textContent = Object.keys(forms).length;
+  if (streamsEl) streamsEl.textContent = Object.keys(streams).length;
 }
 
 function addStudent(event) {
@@ -974,7 +1042,10 @@ function addStudent(event) {
   })
     .then(function (result) {
       if (result.success) {
-        showNotification("Student added!", "success");
+        showNotification(
+          "Student added! Student ID: " + result.studentId,
+          "success",
+        );
         closeModal("addStudentModal");
         loadStudentsData();
       } else {
@@ -2184,14 +2255,21 @@ function addClassWithExcel(event) {
     .then(function (result) {
       if (result.success) {
         showNotification(
-          "Class added with " + students.length + " students!",
+          "Class added with " + result.studentIdsGenerated + " students!",
           "success",
         );
         closeModal("addClassModal");
         loadClassesData();
+        // Also reload students
+        if (typeof loadStudentsData === "function") loadStudentsData();
+      } else {
+        showNotification(result.error || "Failed", "error");
       }
     })
-    .catch(function () {});
+    .catch(function (error) {
+      console.error("Add class error:", error);
+      showNotification("Failed to add class", "error");
+    });
   return false;
 }
 
@@ -2214,10 +2292,11 @@ function viewClassStudents(classId) {
           html += '<p style="text-align:center;">No students</p>';
         } else {
           html +=
-            '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Gender</th></tr></thead><tbody>';
+            '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Student ID</th><th>Gender</th></tr></thead><tbody>';
           students.forEach(function (s, i) {
             var name = s.Name || s.name || s["Full Name"] || "Unknown";
             var adm = s.ADM || s.adm || s["ADM No"] || "-";
+            var studentId = s.studentId || s.StudentID || "-";
             var gender = s.Gender || s.gender || "-";
             html +=
               "<tr><td>" +
@@ -2226,6 +2305,8 @@ function viewClassStudents(classId) {
               name +
               "</td><td>" +
               adm +
+              "</td><td>" +
+              studentId +
               "</td><td>" +
               gender +
               "</td></tr>";
@@ -2949,5 +3030,6 @@ window.loadClassStudentsForBooks = loadClassStudentsForBooks;
 window.issueBulkBooks = issueBulkBooks;
 window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
 window.allocateBulkFurniture = allocateBulkFurniture;
+window.updateStudentStats = updateStudentStats;
 
 console.log("✅ SRMS App loaded successfully - All functions ready!");

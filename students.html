@@ -305,7 +305,7 @@
         
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchStudents" placeholder="Search by name, ADM, form, or stream..." onkeyup="filterStudents()">
+            <input type="text" id="searchStudents" placeholder="Search by name, ADM, Student ID, form, or stream..." onkeyup="filterStudents()">
             <button class="clear-btn" id="clearSearchBtn" onclick="clearSearch()"><i class="fas fa-times"></i></button>
         </div>
         
@@ -326,10 +326,10 @@
         <div class="table-container">
             <table class="data-table">
                 <thead>
-                    <tr><th>Name</th><th>ADM</th><th>Form</th><th>Stream</th><th>Gender</th><th>Source</th><th>Actions</th></tr>
+                    <tr><th>Name</th><th>ADM</th><th>Student ID</th><th>Form</th><th>Stream</th><th>Gender</th><th>Source</th><th>Actions</th></tr>
                 </thead>
                 <tbody id="studentsTableBody">
-                    <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading students...</p></div></td></tr>
+                    <tr><td colspan="8" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading students...</p></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -457,18 +457,14 @@
                 allStreams = [];
                 var seenAdms = {};
                 
-                // Collect forms and streams from DB students
                 studentsFromDB.forEach(function(s) {
                     if (s.adm) seenAdms[s.adm] = true;
                     if (s.form && allForms.indexOf(s.form) === -1) allForms.push(s.form);
                     if (s.stream && allStreams.indexOf(s.stream) === -1) allStreams.push(s.stream);
                 });
                 
-                // Extract students from classes + collect forms/streams
                 classes.forEach(function(cls) {
-                    // Register class name as a form
                     if (cls.name && allForms.indexOf(cls.name) === -1) allForms.push(cls.name);
-                    // Register class stream
                     if (cls.stream && allStreams.indexOf(cls.stream) === -1) allStreams.push(cls.stream);
                     
                     (cls.students || []).forEach(function(st) {
@@ -476,13 +472,14 @@
                         var name = st.Name || st.name || st["Full Name"] || "Unknown";
                         var stream = st.Stream || st.stream || cls.stream || "";
                         
-                        // Register individual student stream
                         if (stream && allStreams.indexOf(stream) === -1) allStreams.push(stream);
                         
                         if (adm && !seenAdms[adm]) {
                             seenAdms[adm] = true;
                             studentsFromClasses.push({
-                                name: name, adm: adm,
+                                name: name,
+                                adm: adm,
+                                studentId: st.studentId || st.StudentID || '',
                                 form: cls.name || st.Form || st.form || '',
                                 stream: stream,
                                 gender: st.Gender || st.gender || '',
@@ -496,31 +493,24 @@
                     });
                 });
                 
-                // Also extract individual student forms/streams
                 studentsFromClasses.forEach(function(s) {
                     if (s.form && allForms.indexOf(s.form) === -1) allForms.push(s.form);
                     if (s.stream && allStreams.indexOf(s.stream) === -1) allStreams.push(s.stream);
                 });
                 
-                // Merge all students
                 allStudentsMerged = studentsFromDB.map(function(s) {
                     s.source = 'db';
                     return s;
                 }).concat(studentsFromClasses);
                 
-                // Populate filter dropdowns
                 populateFilterDropdowns();
-                
-                // Populate add student form dropdowns
                 populateAddStudentDropdowns();
-                
-                // Render
                 renderStudents(allStudentsMerged);
                 updateStats();
             }).catch(function(err) {
-                console.error('Error loading students:', err);
+                console.error('Error:', err);
                 document.getElementById('studentsTableBody').innerHTML = 
-                    '<tr><td colspan="7" style="text-align:center;">Error loading students</td></tr>';
+                    '<tr><td colspan="8" style="text-align:center;">Error loading students</td></tr>';
             });
         }
         
@@ -571,7 +561,7 @@
             if (!tbody) return;
             
             if (!students || students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-user-graduate"></i><p>No students found</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;"><div class="empty-state"><i class="fas fa-user-graduate"></i><p>No students found</p></div></td></tr>';
                 return;
             }
             
@@ -584,6 +574,7 @@
                 html += '<tr>' +
                     '<td>' + (s.name || '-') + '</td>' +
                     '<td>' + (s.adm || '-') + '</td>' +
+                    '<td>' + (s.studentId || '-') + '</td>' +
                     '<td>' + (s.form || '-') + '</td>' +
                     '<td>' + (s.stream || '-') + '</td>' +
                     '<td>' + (s.gender || '-') + '</td>' +
@@ -621,6 +612,7 @@
             var filtered = allStudentsMerged.filter(function(s) {
                 var matchesSearch = (s.name || '').toLowerCase().includes(searchTerm) || 
                                    (s.adm || '').toLowerCase().includes(searchTerm) ||
+                                   (s.studentId || '').toLowerCase().includes(searchTerm) ||
                                    (s.form || '').toLowerCase().includes(searchTerm) ||
                                    (s.stream || '').toLowerCase().includes(searchTerm);
                 var matchesForm = !formFilter || s.form === formFilter;
@@ -645,42 +637,6 @@
             showNotification('Students refreshed!', 'success');
         }
         
-        function addStudent(event) {
-            event.preventDefault();
-            var school = getCurrentSchool();
-            var user = getCurrentUser();
-            var name = document.getElementById('studentName').value.trim();
-            var adm = document.getElementById('studentADM').value.trim();
-            
-            if (!name || !adm) {
-                showNotification('Name and ADM required', 'warning');
-                return false;
-            }
-            
-            API.addStudent(school, {
-                name: name, adm: adm,
-                form: document.getElementById('studentForm').value,
-                stream: document.getElementById('studentStream').value,
-                gender: document.getElementById('studentGender').value,
-                dob: document.getElementById('studentDOB').value,
-                parentName: document.getElementById('studentParentName').value,
-                parentPhone: document.getElementById('studentParentPhone').value,
-                parentEmail: document.getElementById('studentParentEmail').value,
-                addedBy: user ? user.name : ''
-            }).then(function(result) {
-                if (result.success) {
-                    showNotification('Student added!', 'success');
-                    closeModal('addStudentModal');
-                    loadAllStudents();
-                } else {
-                    showNotification(result.error || 'Failed', 'error');
-                }
-            }).catch(function() {
-                showNotification('Failed to add student', 'error');
-            });
-            return false;
-        }
-        
         function viewStudent(adm) {
             var student = null;
             allStudentsMerged.forEach(function(s) { if (s.adm === adm) student = s; });
@@ -691,6 +647,7 @@
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">' +
                 '<div><strong>Name:</strong></div><div>' + student.name + '</div>' +
                 '<div><strong>ADM:</strong></div><div>' + student.adm + '</div>' +
+                '<div><strong>Student ID:</strong></div><div>' + (student.studentId || '-') + '</div>' +
                 '<div><strong>Form:</strong></div><div>' + (student.form || '-') + '</div>' +
                 '<div><strong>Stream:</strong></div><div>' + (student.stream || '-') + '</div>' +
                 '<div><strong>Gender:</strong></div><div>' + (student.gender || '-') + '</div>' +
