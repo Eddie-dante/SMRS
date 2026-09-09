@@ -7,14 +7,19 @@
     <meta name="description" content="View and manage database tables">
     <meta name="theme-color" content="#0a0e27">
     
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
+    <!-- CSS Files -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -43,6 +48,7 @@
             height: 60px;
             background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
@@ -70,6 +76,7 @@
             gap: 8px; padding: 10px 15px;
             background: rgba(15, 18, 30, 0.9);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -140,17 +147,6 @@
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 12px; }
         
-        .btn {
-            padding: 10px 16px; border: none; border-radius: 8px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            font-family: 'Inter', sans-serif; transition: var(--transition);
-            display: inline-flex; align-items: center; gap: 6px;
-        }
-        .btn-primary { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
-        .btn-primary:hover { transform: translateY(-2px); }
-        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
-        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
-        
         .selector-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -205,6 +201,7 @@
     </style>
 </head>
 <body>
+    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -215,6 +212,7 @@
         </div>
     </div>
     
+    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-database" style="color:var(--accent);"></i> Database Manager</h1>
@@ -256,6 +254,7 @@
         </div>
     </div>
     
+    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -312,6 +311,7 @@
         </div>
     </div>
     
+    <!-- JavaScript Files -->
     <script src="js/api.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
@@ -319,27 +319,41 @@
     <script src="js/app.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-load first table
-            setTimeout(function() {
-                document.getElementById('databaseTableSelect').value = 'students';
-                loadDatabaseTable();
-            }, 500);
-        });
+        /**
+         * ============================================
+         * SRMS - Database Manager Page Logic
+         * ============================================
+         */
         
+        /**
+         * Load database table data
+         */
         function loadDatabaseTable() {
+            console.log('📊 Loading database table...');
+            
             var school = getCurrentSchool();
             var select = document.getElementById('databaseTableSelect');
-            if (!select || !select.value) return;
-            
-            var tableName = select.value;
             var tbody = document.getElementById('databaseTableBody');
             var thead = document.getElementById('databaseTableHead');
             var countEl = document.getElementById('recordCount');
             
+            if (!select || !select.value) {
+                console.log('⚠️ No table selected');
+                return;
+            }
+            
+            var tableName = select.value;
+            
+            if (!tbody || !thead || !countEl) {
+                console.error('❌ Required elements not found');
+                return;
+            }
+            
             tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading ' + tableName + '...</p></div></td></tr>';
             
             API.getTableData(school, tableName).then(function(data) {
+                console.log('✅ Data loaded for ' + tableName + ':', data ? data.length : 0, 'records');
+                
                 if (!data || data.length === 0) {
                     thead.innerHTML = '';
                     tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-inbox"></i><p>No data in ' + tableName + ' table</p></div></td></tr>';
@@ -374,7 +388,6 @@
                         if (value === null || value === undefined || value === '') {
                             value = '-';
                         }
-                        // Truncate long values
                         if (typeof value === 'string' && value.length > 100) {
                             value = value.substring(0, 100) + '...';
                         }
@@ -384,33 +397,78 @@
                 });
                 tbody.innerHTML = bodyHtml;
                 
+                console.log('✅ Table rendered successfully');
+                
             }).catch(function(error) {
-                console.error('Database table error:', error);
+                console.error('❌ Database table error:', error);
                 thead.innerHTML = '';
                 tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading data</p></div></td></tr>';
                 countEl.textContent = 'Error loading ' + tableName;
             });
         }
         
+        /**
+         * Logout with confirmation dialog
+         */
         function logoutWithConfirm() {
+            console.log('🔄 Logout requested');
+            
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                    if (result === 'confirm') logout();
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
+                    if (result === 'confirm') {
+                        console.log('✅ Logout confirmed');
+                        logout();
+                    }
                 });
             } else {
-                if (confirm('Logout?')) logout();
+                if (confirm('Are you sure you want to logout?')) {
+                    logout();
+                }
             }
         }
         
+        /**
+         * Logout function
+         */
         function logout() {
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
         
+        /**
+         * Initialize page on DOM ready
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Database Manager page loaded');
+            
+            // VERIFY AUTHENTICATION - ADDED
+            var user = checkAuth();
+            if (!user) {
+                console.log('❌ No authenticated user, redirecting...');
+                return;
+            }
+            
+            console.log('✅ User authenticated:', user.name);
+            
+            // Auto-load students table
+            var select = document.getElementById('databaseTableSelect');
+            if (select) {
+                select.value = 'students';
+                console.log('📊 Auto-loading students table...');
+                loadDatabaseTable();
+            }
+        });
+        
         window.loadDatabaseTable = loadDatabaseTable;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
+        console.log('✅ Database Manager page scripts loaded successfully');
     </script>
 </body>
 </html>

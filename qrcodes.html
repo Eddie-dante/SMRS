@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - QR Codes | School Resource Management System</title>
-    <meta name="description" content="Generate, scan, assign items, and manage QR codes">
+    <meta name="description" content="Generate, scan, assign items, and manage QR codes with parent information">
     <meta name="theme-color" content="#0a0e27">
     
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- jsQR Library -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
+    <!-- CSS Files -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -44,6 +51,7 @@
             height: 60px;
             background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
@@ -71,6 +79,7 @@
             gap: 8px; padding: 10px 15px;
             background: rgba(15, 18, 30, 0.9);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -301,6 +310,20 @@
         .student-info-display .info-label { color: rgba(255,255,255,0.5); font-weight: 600; flex-shrink: 0; }
         .student-info-display .info-value { color: #fff; font-weight: 700; text-align: right; word-break: break-word; }
         
+        .parent-info-section {
+            background: rgba(23, 162, 184, 0.1);
+            border: 1px solid rgba(23, 162, 184, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+        }
+        .parent-info-section h5 {
+            color: #17a2b8;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
         .fee-status-badge {
             display: inline-block; padding: 3px 8px; border-radius: 12px;
             font-size: 9px; font-weight: 700;
@@ -349,6 +372,7 @@
     </style>
 </head>
 <body>
+    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -359,10 +383,11 @@
         </div>
     </div>
     
+    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-qrcode" style="color:var(--accent);"></i> QR Codes</h1>
-            <p>Generate, scan, assign items, and retrieve student data</p>
+            <p>Generate, scan, assign items, and retrieve student data with parent info</p>
         </div>
         
         <div class="tabs">
@@ -372,6 +397,7 @@
             <button class="tab" onclick="switchQRTab('list')"><i class="fas fa-list"></i> All Codes</button>
         </div>
         
+        <!-- Generate Tab -->
         <div id="generateTab" class="tab-content active">
             <div class="panel">
                 <div class="form-row">
@@ -395,6 +421,7 @@
             </div>
         </div>
         
+        <!-- Paste Tab -->
         <div id="pasteTab" class="tab-content">
             <div class="panel">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-paste"></i> Paste QR Data</h3>
@@ -407,6 +434,7 @@
             <div id="pastedResult" style="display:none;"></div>
         </div>
         
+        <!-- Scan Tab -->
         <div id="scanTab" class="tab-content">
             <div class="panel scanner-container">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-camera"></i> Scan QR Code</h3>
@@ -438,6 +466,7 @@
             </div>
         </div>
         
+        <!-- List Tab -->
         <div id="listTab" class="tab-content">
             <div class="panel qr-list-container" id="qrCodeList">
                 <div class="empty-state"><i class="fas fa-list"></i><p>No QR codes yet</p></div>
@@ -445,6 +474,7 @@
         </div>
     </div>
     
+    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -501,6 +531,7 @@
         </div>
     </div>
     
+    <!-- JavaScript Files -->
     <script src="js/api.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
@@ -508,24 +539,44 @@
     <script src="js/app.js"></script>
     
     <script>
+        /**
+         * ============================================
+         * SRMS - QR Codes Page Logic (ENHANCED)
+         * Now includes Parent Information on scan
+         * ============================================
+         */
+        
         var scannerStream = null;
         var scannerActive = false;
         var generatedQRCodes = [];
         var currentScannedStudent = null;
         
+        /**
+         * Switch between QR tabs
+         */
         function switchQRTab(tabName) {
+            console.log('🔄 Switching QR tab:', tabName);
+            
             document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            
             var tabs = ['generate', 'paste', 'scan', 'list'];
             var index = tabs.indexOf(tabName);
+            
             if (index !== -1) {
                 document.querySelectorAll('.tab')[index].classList.add('active');
                 document.getElementById(tabName + 'Tab').classList.add('active');
             }
+            
             if (tabName === 'list') loadQRCodeList();
         }
         
+        /**
+         * Generate QR codes
+         */
         function generateQRCodes() {
+            console.log('📊 Generating QR codes...');
+            
             var school = getCurrentSchool();
             var type = document.getElementById('qrType').value;
             var start = parseInt(document.getElementById('qrStart').value);
@@ -557,7 +608,12 @@
             });
         }
         
+        /**
+         * Process pasted QR data
+         */
         function processPastedData() {
+            console.log('📋 Processing pasted data...');
+            
             var rawData = document.getElementById('pasteQRData').value.trim();
             if (!rawData) { showNotification('Paste QR data first', 'warning'); return; }
             
@@ -591,8 +647,13 @@
             }
         }
         
-        // SCHOOL MEMBERSHIP CHECK + SENSITIVE DATA HIDING
+        /**
+         * ENHANCED: Fetch student data with parent info
+         * SCHOOL MEMBERSHIP CHECK + SENSITIVE DATA HIDING + PARENT INFO
+         */
         function fetchStudentDataWithAssign(school, adm, targetDiv) {
+            console.log('📊 Fetching student data for ADM:', adm);
+            
             Promise.all([
                 API.getStudents(school),
                 API.getClasses(school),
@@ -613,8 +674,13 @@
                 var isSameSchool = (currentUserSchool === school);
                 
                 var student = null;
-                students.forEach(function(s) { if (s.adm === adm) student = s; });
                 
+                // Search in database students
+                students.forEach(function(s) { 
+                    if (s.adm === adm) student = s; 
+                });
+                
+                // Search in class rosters if not found
                 if (!student) {
                     classes.forEach(function(c) {
                         (c.students || []).forEach(function(st) {
@@ -622,12 +688,15 @@
                             if (stAdm === adm) {
                                 student = {
                                     name: extractName(st),
-                                    adm: adm, form: c.name, stream: c.stream || "",
+                                    adm: adm, 
+                                    form: c.name, 
+                                    stream: c.stream || "",
                                     gender: st.Gender || st.gender || "",
                                     dob: st.DOB || st.dob || "",
-                                    parentName: st["Parent Name"] || "",
-                                    parentPhone: st["Parent Phone"] || "",
-                                    parentEmail: st["Parent Email"] || ""
+                                    parentName: st["Parent Name"] || st.parentName || st["ParentName"] || st["Parent/Guardian"] || "",
+                                    parentPhone: st["Parent Phone"] || st.parentPhone || st["ParentPhone"] || st["Parent Contact"] || "",
+                                    parentEmail: st["Parent Email"] || st.parentEmail || st["ParentEmail"] || "",
+                                    studentId: st.studentId || st.StudentID || st["Student ID"] || ""
                                 };
                             }
                         });
@@ -660,9 +729,14 @@
                 var html = '<div class="student-info-display">';
                 
                 if (student) {
+                    // ========== STUDENT DETAILS ==========
                     html += '<h4>📋 Student Details</h4>';
-                    html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + student.name + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + student.adm + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + (student.name || 'N/A') + '</span></div>';
+                    html += '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + (student.adm || 'N/A') + '</span></div>';
+                    
+                    if (student.studentId) {
+                        html += '<div class="info-row"><span class="info-label">🪪 Student ID</span><span class="info-value">' + student.studentId + '</span></div>';
+                    }
                     
                     if (isSameSchool) {
                         // FULL DETAILS for same school
@@ -671,11 +745,31 @@
                         html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
                         if (student.gender) html += '<div class="info-row"><span class="info-label">⚧ Gender</span><span class="info-value">' + student.gender + '</span></div>';
                         
-                        if (student.parentName) {
-                            html += '<h4>👨‍👩‍👧 Parent Details</h4>';
-                            html += '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + student.parentName + '</span></div>';
-                            if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
-                            if (student.parentEmail) html += '<div class="info-row"><span class="info-label">✉️ Email</span><span class="info-value">' + student.parentEmail + '</span></div>';
+                        // ========== PARENT INFORMATION (ENHANCED) ==========
+                        var hasParentInfo = student.parentName || student.parentPhone || student.parentEmail;
+                        
+                        if (hasParentInfo) {
+                            html += '<div class="parent-info-section">';
+                            html += '<h5><i class="fas fa-users"></i> 👨‍👩‍👧 Parent/Guardian Information</h5>';
+                            
+                            if (student.parentName) {
+                                html += '<div class="info-row"><span class="info-label">👤 Parent Name</span><span class="info-value">' + student.parentName + '</span></div>';
+                            }
+                            
+                            if (student.parentPhone) {
+                                html += '<div class="info-row"><span class="info-label">📞 Parent Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
+                            }
+                            
+                            if (student.parentEmail) {
+                                html += '<div class="info-row"><span class="info-label">✉️ Parent Email</span><span class="info-value">' + student.parentEmail + '</span></div>';
+                            }
+                            
+                            html += '</div>';
+                        } else {
+                            html += '<div class="parent-info-section">';
+                            html += '<h5><i class="fas fa-users"></i> 👨‍👩‍👧 Parent/Guardian Information</h5>';
+                            html += '<div class="info-row"><span class="info-label" style="color:rgba(255,255,255,0.4);">No parent information on file</span></div>';
+                            html += '</div>';
                         }
                     } else {
                         // LIMITED DETAILS for outsiders
@@ -684,10 +778,10 @@
                         
                         html += '<div class="restricted-notice">' +
                             '<i class="fas fa-lock" style="color:#ffc107;margin-right:5px;"></i>' +
-                            '<span style="font-size:11px;color:#ffc107;">Sensitive details are hidden. You must be a member of ' + school + ' to view full information.</span></div>';
+                            '<span style="font-size:11px;color:#ffc107;">Sensitive details (including parent info) are hidden. You must be a member of ' + school + ' to view full information.</span></div>';
                     }
                 } else {
-                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
+                    html += '<p style="color:rgba(255,255,255,0.5);">Student not found for ADM: ' + adm + '</p>';
                 }
                 
                 // ONLY show fee status for same school
@@ -717,26 +811,37 @@
                 
                 // ONLY show Assign button for same school
                 if (isSameSchool && student && student.adm) {
+                    var studentNameEncoded = encodeURIComponent(student.name || '');
+                    var admEncoded = encodeURIComponent(student.adm);
                     html += '<div style="margin-top:10px;text-align:center;">' +
-                        '<button class="btn btn-assign" onclick="goToAssignPage(\'' + student.adm + '\', \'' + student.name.replace(/'/g, "\\'") + '\')" style="width:100%;justify-content:center;">' +
-                        '<i class="fas fa-box"></i> Assign Item to ' + student.name + '</button>' +
+                        '<button class="btn btn-assign" onclick="goToAssignPage(\'' + admEncoded + '\', \'' + studentNameEncoded + '\')" style="width:100%;justify-content:center;">' +
+                        '<i class="fas fa-box"></i> Assign Item to ' + (student.name || 'Student') + '</button>' +
                         '</div>';
                 }
                 
                 targetDiv.innerHTML = html;
                 showNotification('Student data retrieved!', 'success');
+                console.log('✅ Student data displayed with parent info');
                 
             }).catch(function(error) {
+                console.error('❌ Error fetching student:', error);
                 targetDiv.innerHTML = '<div class="panel"><p style="color:#ff4757;">Failed to retrieve data.</p></div>';
             });
         }
         
+        /**
+         * Navigate to assign page
+         */
         function goToAssignPage(adm, name) {
+            console.log('📦 Navigating to assign page for:', name, adm);
             var school = getCurrentSchool();
             var url = 'assign.html?adm=' + encodeURIComponent(adm) + '&name=' + encodeURIComponent(name) + '&school=' + encodeURIComponent(school);
             window.location.href = url;
         }
         
+        /**
+         * Get item icon
+         */
         function getItemIcon(itemType) {
             var icons = {
                 'book': '📚', 'chair': '🪑', 'locker': '🔒',
@@ -746,7 +851,12 @@
             return icons[itemType] || '📦';
         }
         
+        /**
+         * Start camera scanner
+         */
         async function startScanner() {
+            console.log('📷 Starting camera...');
+            
             var video = document.getElementById('scannerVideo');
             var startBtn = document.getElementById('startScanBtn');
             var stopBtn = document.getElementById('stopScanBtn');
@@ -766,11 +876,17 @@
                 scanLoop();
                 showNotification('Camera started!', 'success');
             } catch (error) {
+                console.error('❌ Camera error:', error);
                 showNotification('Cannot access camera', 'error');
             }
         }
         
+        /**
+         * Stop camera scanner
+         */
         function stopScanner() {
+            console.log('📷 Stopping camera...');
+            
             if (scannerStream) {
                 scannerStream.getTracks().forEach(function(track) { track.stop(); });
             }
@@ -780,6 +896,9 @@
             document.getElementById('stopScanBtn').style.display = 'none';
         }
         
+        /**
+         * Scan loop for camera
+         */
         function scanLoop() {
             if (!scannerActive) return;
             var video = document.getElementById('scannerVideo');
@@ -807,7 +926,12 @@
             if (scannerActive) requestAnimationFrame(scanLoop);
         }
         
+        /**
+         * Scan image from file
+         */
         function scanImageFromFile(event) {
+            console.log('📷 Scanning image file...');
+            
             var file = event.target.files[0];
             if (!file) return;
             showNotification('Scanning image...', 'info');
@@ -864,7 +988,12 @@
             reader.readAsDataURL(file);
         }
         
+        /**
+         * Display scan result and fetch student data
+         */
         function displayScanResult(data) {
+            console.log('✅ QR detected:', data);
+            
             document.getElementById('scannedCode').textContent = data;
             document.getElementById('scanResult').style.display = 'block';
             document.getElementById('scanDetails').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrieving data...';
@@ -896,9 +1025,15 @@
             }
         }
         
+        /**
+         * Load QR code list
+         */
         function loadQRCodeList() {
+            console.log('📊 Loading QR code list...');
+            
             var school = getCurrentSchool();
             if (!school) return;
+            
             API.getQRCodes(school).then(function(codes) {
                 var container = document.getElementById('qrCodeList');
                 if (!container) return;
@@ -919,6 +1054,9 @@
             });
         }
         
+        /**
+         * Download QR code
+         */
         function downloadQR(code) {
             var url = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(code);
             var link = document.createElement('a');
@@ -930,6 +1068,9 @@
             document.body.removeChild(link);
         }
         
+        /**
+         * Copy QR code to clipboard
+         */
         function copyQRCode(code) {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(code).then(function() {
@@ -938,7 +1079,12 @@
             }
         }
         
+        /**
+         * Logout with confirmation
+         */
         function logoutWithConfirm() {
+            console.log('🔄 Logout requested');
+            
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
@@ -948,11 +1094,26 @@
             }
         }
         
+        /**
+         * Logout function
+         */
         function logout() {
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
+        
+        /**
+         * Initialize page
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 QR Codes page loaded');
+            
+            var user = checkAuth();
+            if (!user) return;
+            
+            console.log('✅ User authenticated:', user.name);
+        });
         
         window.switchQRTab = switchQRTab;
         window.generateQRCodes = generateQRCodes;
@@ -965,6 +1126,7 @@
         window.copyQRCode = copyQRCode;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
+        console.log('✅ QR Codes page scripts loaded with parent info enhancement');
     </script>
 </body>
 </html>

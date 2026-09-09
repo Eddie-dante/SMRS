@@ -4,16 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Timetable | School Resource Management System</title>
+    <meta name="description" content="Class and teacher timetables with period management">
+    <meta name="theme-color" content="#0a0e27">
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/components.css">
+    <!-- CSS Files - FIXED PATHS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
@@ -39,6 +48,7 @@
             height: 65px;
             background: rgba(10, 14, 39, 0.9);
             backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex;
@@ -72,6 +82,7 @@
             gap: 12px; padding: 12px 24px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -86,9 +97,7 @@
             border-radius: 30px;
             padding: 10px 22px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
@@ -102,9 +111,7 @@
             width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, rgba(212,175,55,0.25), rgba(0,0,0,0.4));
             border: 1px solid rgba(212,175,55,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .dropdown-menu {
             display: none;
@@ -114,23 +121,16 @@
             transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.98);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px;
-            padding: 10px;
-            min-width: 200px;
-            z-index: 1200;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-radius: 14px; padding: 10px; min-width: 200px;
+            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
             transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
@@ -149,42 +149,21 @@
         .page-header h1 {
             font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         
         .btn-primary {
             padding: 12px 20px;
             background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            border: none; border-radius: 10px; color: #fff;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
             transition: var(--transition);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
-        .btn-secondary {
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
         
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab {
@@ -195,12 +174,9 @@
             color: rgba(255,255,255,0.7);
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; gap: 8px;
         }
         .tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
@@ -226,6 +202,7 @@
             color: #fff;
             font-family: 'Inter', sans-serif;
         }
+        .form-group select option { background: #1a1f4e; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
@@ -318,6 +295,7 @@
     </style>
 </head>
 <body>
+    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -328,6 +306,7 @@
         </div>
     </div>
     
+    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-clock" style="color:var(--accent);"></i> Timetable</h1>
@@ -433,7 +412,7 @@
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
+                    <a class="dropdown-item" href="StudentsIDs.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
             
@@ -467,24 +446,31 @@
         </div>
     </div>
     
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/wallpaper-loader.js"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- JavaScript Files - FIXED PATHS -->
+    <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
+        /**
+         * ============================================
+         * SRMS - Timetable Page Logic
+         * ============================================
+         */
+        
         var allTimetableEntries = [];
         var allClasses = [];
         var allTeachers = [];
         var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         var periods = ['8:00-8:40', '8:40-9:20', '9:20-10:00', '10:20-11:00', '11:00-11:40', '11:40-12:20', '14:00-14:40', '14:40-15:20'];
         
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTimetableData();
-        });
-        
+        /**
+         * Load timetable data from Firebase
+         */
         function loadTimetableData() {
+            console.log('📊 Loading timetable data...');
             var school = getCurrentSchool();
             if (!school) return;
             
@@ -497,12 +483,16 @@
                 allClasses = results[1] || [];
                 allTeachers = results[2] || [];
                 
+                console.log('✅ Timetable entries:', allTimetableEntries.length);
+                console.log('✅ Classes:', allClasses.length);
+                console.log('✅ Teachers:', allTeachers.length);
+                
                 // Populate class select
                 var classSelect = document.getElementById('ttClass');
                 if (classSelect) {
                     var classHtml = '';
                     allClasses.forEach(function(c) {
-                        classHtml += '<option value="' + c.name + '">' + c.name + ' ' + (c.stream || '') + '</option>';
+                        classHtml += '<option value="' + (c.name || '') + '">' + (c.name || '') + ' ' + (c.stream || '') + '</option>';
                     });
                     classSelect.innerHTML = classHtml;
                 }
@@ -512,7 +502,7 @@
                 if (teacherSelect) {
                     var teacherHtml = '';
                     allTeachers.forEach(function(t) {
-                        teacherHtml += '<option value="' + t.name + '">' + t.name + '</option>';
+                        teacherHtml += '<option value="' + (t.name || '') + '">' + (t.name || '') + '</option>';
                     });
                     teacherSelect.innerHTML = teacherHtml;
                 }
@@ -522,7 +512,7 @@
                 if (classViewSelect) {
                     var viewHtml = '<option value="">Select Class</option>';
                     allClasses.forEach(function(c) {
-                        viewHtml += '<option value="' + c.name + '">' + c.name + ' ' + (c.stream || '') + '</option>';
+                        viewHtml += '<option value="' + (c.name || '') + '">' + (c.name || '') + ' ' + (c.stream || '') + '</option>';
                     });
                     classViewSelect.innerHTML = viewHtml;
                 }
@@ -532,32 +522,50 @@
                 if (teacherViewSelect) {
                     var teacherViewHtml = '<option value="">Select Teacher</option>';
                     allTeachers.forEach(function(t) {
-                        teacherViewHtml += '<option value="' + t.name + '">' + t.name + '</option>';
+                        teacherViewHtml += '<option value="' + (t.name || '') + '">' + (t.name || '') + '</option>';
                     });
                     teacherViewSelect.innerHTML = teacherViewHtml;
                 }
+                
+                console.log('✅ Timetable data loaded successfully');
+            }).catch(function(error) {
+                console.error('❌ Error loading timetable:', error);
             });
         }
         
+        /**
+         * Switch between timetable tabs
+         */
         function switchTTTab(tabName) {
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            console.log('🔄 Switching timetable tab:', tabName);
+            
+            var tabs = document.querySelectorAll('.tab');
+            var contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            contents.forEach(function(c) { c.classList.remove('active'); });
             
             if (tabName === 'entry') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
+                tabs[0].classList.add('active');
                 document.getElementById('entryTab').classList.add('active');
             } else if (tabName === 'classView') {
-                document.querySelectorAll('.tab')[1].classList.add('active');
+                tabs[1].classList.add('active');
                 document.getElementById('classViewTab').classList.add('active');
             } else {
-                document.querySelectorAll('.tab')[2].classList.add('active');
+                tabs[2].classList.add('active');
                 document.getElementById('teacherViewTab').classList.add('active');
             }
         }
         
+        /**
+         * Render class timetable grid
+         */
         function renderClassTimetable() {
+            console.log('📊 Rendering class timetable...');
+            
             var className = document.getElementById('classTimetableSelect').value;
             var container = document.getElementById('classTimetableContainer');
+            
             if (!container || !className) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><p>Select a class to view timetable</p></div>';
                 return;
@@ -593,9 +601,15 @@
             container.innerHTML = html;
         }
         
+        /**
+         * Render teacher timetable grid
+         */
         function renderTeacherTimetable() {
+            console.log('📊 Rendering teacher timetable...');
+            
             var teacherName = document.getElementById('teacherTimetableSelect').value;
             var container = document.getElementById('teacherTimetableContainer');
+            
             if (!container || !teacherName) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><p>Select a teacher to view timetable</p></div>';
                 return;
@@ -631,8 +645,13 @@
             container.innerHTML = html;
         }
         
+        /**
+         * Add timetable entry
+         */
         function addTimetableEntry(event) {
             event.preventDefault();
+            console.log('➕ Adding timetable entry...');
+            
             var school = getCurrentSchool();
             var user = getCurrentUser();
             
@@ -644,7 +663,9 @@
             var room = document.getElementById('ttRoom');
             
             if (!className || !className.value || !day || !day.value || !period || !period.value || !subject || !subject.value) {
-                showNotification('Please fill in all required fields', 'warning');
+                if (typeof showNotification === 'function') {
+                    showNotification('Please fill in all required fields', 'warning');
+                }
                 return false;
             }
             
@@ -656,31 +677,74 @@
                 teacher: teacher ? teacher.value : '',
                 room: room ? room.value : '',
                 createdBy: user ? user.name : ''
-            }).then(function() {
-                showNotification('Entry added!', 'success');
-                logAction('Timetable Added', subject.value);
-                if (subject) subject.value = '';
-                if (room) room.value = '';
-                loadTimetableData();
+            }).then(function(result) {
+                if (result.success) {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Entry added!', 'success');
+                    }
+                    if (typeof logAction === 'function') {
+                        logAction('Timetable Added', subject.value);
+                    }
+                    if (subject) subject.value = '';
+                    if (room) room.value = '';
+                    loadTimetableData();
+                }
+            }).catch(function(error) {
+                console.error('❌ Error adding entry:', error);
             });
             return false;
         }
         
+        /**
+         * Logout with confirmation dialog
+         */
         function logoutWithConfirm() {
+            console.log('🔄 Logout requested');
+            
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                    if (result === 'confirm') logout();
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
+                    if (result === 'confirm') {
+                        console.log('✅ Logout confirmed');
+                        logout();
+                    }
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) logout();
+                if (confirm('Are you sure you want to logout?')) {
+                    logout();
+                }
             }
         }
+        
+        /**
+         * Initialize page on DOM ready
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Timetable page loaded');
+            
+            // Verify authentication
+            var user = checkAuth();
+            if (!user) {
+                console.log('❌ No authenticated user, redirecting...');
+                return;
+            }
+            
+            console.log('✅ User authenticated:', user.name);
+            
+            // Load timetable data
+            loadTimetableData();
+        });
         
         window.switchTTTab = switchTTTab;
         window.renderClassTimetable = renderClassTimetable;
         window.renderTeacherTimetable = renderTeacherTimetable;
         window.addTimetableEntry = addTimetableEntry;
         window.logoutWithConfirm = logoutWithConfirm;
+        console.log('✅ Timetable page scripts loaded successfully');
     </script>
 </body>
 </html>

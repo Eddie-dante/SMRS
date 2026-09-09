@@ -4,16 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SRMS - Furniture Allocation | School Resource Management System</title>
+    <meta name="description" content="Allocate furniture to individual students or entire classes">
+    <meta name="theme-color" content="#0a0e27">
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/components.css">
+    <!-- CSS Files - FIXED PATHS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
     
     <style>
         :root {
@@ -40,6 +49,7 @@
             height: 65px;
             background: rgba(10, 14, 39, 0.9);
             backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex;
@@ -76,6 +86,7 @@
             padding: 12px 24px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -164,9 +175,9 @@
             font-size: 2em;
             font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .page-header p { color: rgba(255,255,255,0.6); }
         
@@ -296,6 +307,7 @@
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             font-weight: 600;
+            transition: var(--transition);
         }
         .btn-return:hover { background: rgba(40,167,69,0.4); }
         
@@ -310,6 +322,7 @@
             color: #fff;
             font-family: 'Inter', sans-serif;
         }
+        .form-group select option { background: #1a1f4e; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         .modal {
@@ -356,6 +369,7 @@
     </style>
 </head>
 <body>
+    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -366,6 +380,7 @@
         </div>
     </div>
     
+    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <div>
@@ -472,7 +487,7 @@
                     <a class="dropdown-item" href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
                     <a class="dropdown-item" href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="studentsids.html"><i class="fas fa-id-card"></i> Student IDs</a>
+                    <a class="dropdown-item" href="StudentsIDs.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
             
@@ -506,50 +521,116 @@
         </div>
     </div>
     
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/dialog.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/wallpaper-loader.js"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- JavaScript Files - FIXED PATHS -->
+    <script src="js/api.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('furnitureAllocationDate').value = getCurrentDate();
-            document.getElementById('bulkFurnitureDate').value = getCurrentDate();
+        /**
+         * ============================================
+         * SRMS - Furniture Page Logic
+         * ============================================
+         */
+        
+        /**
+         * Switch between active and all furniture tabs
+         */
+        function switchFurnitureTab(tab) {
+            console.log('🔄 Switching furniture tab:', tab);
             
+            var tabs = document.querySelectorAll('.tab');
+            var contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            contents.forEach(function(c) { c.classList.remove('active'); });
+            
+            if (tab === 'active') {
+                tabs[0].classList.add('active');
+                document.getElementById('activeFurnitureTab').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('allFurnitureTab').classList.add('active');
+                
+                // Copy content from active tab
+                var activeContent = document.getElementById('activeFurnitureList');
+                var allContent = document.getElementById('allFurnitureList');
+                if (activeContent && allContent) {
+                    allContent.innerHTML = activeContent.innerHTML;
+                }
+            }
+            
+            console.log('✅ Tab switched successfully');
+        }
+        
+        /**
+         * Logout with confirmation dialog
+         */
+        function logoutWithConfirm() {
+            console.log('🔄 Logout requested');
+            
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Are you sure you want to logout?', { 
+                    title: 'Logout', 
+                    type: 'info', 
+                    confirmText: 'Logout', 
+                    cancelText: 'Cancel' 
+                }).then(function(result) {
+                    if (result === 'confirm') {
+                        console.log('✅ Logout confirmed');
+                        logout();
+                    }
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) {
+                    logout();
+                }
+            }
+        }
+        
+        /**
+         * Initialize page on DOM ready
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Furniture page loaded');
+            
+            // Verify authentication
+            var user = checkAuth();
+            if (!user) {
+                console.log('❌ No authenticated user, redirecting...');
+                return;
+            }
+            
+            console.log('✅ User authenticated:', user.name);
+            
+            // Set default dates
+            var allocDate = document.getElementById('furnitureAllocationDate');
+            var bulkDate = document.getElementById('bulkFurnitureDate');
+            
+            if (allocDate && typeof getCurrentDate === 'function') {
+                allocDate.value = getCurrentDate();
+                console.log('📅 Allocation date set:', allocDate.value);
+            }
+            
+            if (bulkDate && typeof getCurrentDate === 'function') {
+                bulkDate.value = getCurrentDate();
+                console.log('📅 Bulk date set:', bulkDate.value);
+            }
+            
+            // Load furniture data
             if (typeof loadFurnitureData === 'function') {
+                console.log('📊 Loading furniture data...');
                 loadFurnitureData();
+            } else {
+                console.error('❌ loadFurnitureData function not found');
             }
         });
         
-        function switchFurnitureTab(tab) {
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-            
-            if (tab === 'active') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
-                document.getElementById('activeFurnitureTab').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab')[1].classList.add('active');
-                document.getElementById('allFurnitureTab').classList.add('active');
-                // Copy content from active tab
-                var activeContent = document.getElementById('activeFurnitureList').innerHTML;
-                document.getElementById('allFurnitureList').innerHTML = activeContent;
-            }
-        }
-        
-        function logoutWithConfirm() {
-            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                    if (result === 'confirm') logout();
-                });
-            } else {
-                if (confirm('Are you sure you want to logout?')) logout();
-            }
-        }
-        
         window.switchFurnitureTab = switchFurnitureTab;
         window.logoutWithConfirm = logoutWithConfirm;
+        console.log('✅ Furniture page scripts loaded successfully');
     </script>
 </body>
 </html>
