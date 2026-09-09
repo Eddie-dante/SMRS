@@ -204,7 +204,7 @@
         .form-group input:disabled { opacity: 0.6; background: rgba(15, 23, 42, 0.5); cursor: not-allowed; }
         
         /* =========================================================
-           LUXURY STUDENT ID CARD - FIXED CORNERS
+           LUXURY STUDENT ID CARD - FINAL FIXED
            ========================================================= */
         
         .id-card-wrapper {
@@ -297,7 +297,6 @@
             z-index: 1;
         }
         
-        /* FIXED CORNERS - Small decorative L-shaped borders inside the card */
         .corner {
             position: absolute;
             width: 20px;
@@ -354,12 +353,12 @@
         }
         
         .card-header-lux {
-            height: 69px;
+            height: 65px;
             position: relative;
             z-index: 10;
             display: flex;
             align-items: center;
-            padding: 16px 27px 9px;
+            padding: 14px 27px 7px;
         }
         
         .card-header-lux::before {
@@ -367,7 +366,7 @@
             position: absolute;
             left: 20px;
             right: 20px;
-            top: 10px;
+            top: 8px;
             bottom: 0;
             background: linear-gradient(90deg, rgba(127,20,46,0.18), rgba(18,38,67,0.20), rgba(127,20,46,0.12));
             border-radius: 9px 9px 0 0;
@@ -375,9 +374,9 @@
         }
         
         .logo {
-            width: 39px;
-            height: 39px;
-            min-width: 39px;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
             border-radius: 50%;
             position: relative;
             display: flex;
@@ -390,8 +389,8 @@
         }
         
         .logo-inner {
-            width: 25px;
-            height: 29px;
+            width: 23px;
+            height: 27px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -399,12 +398,12 @@
             background: linear-gradient(145deg, #9b6b1d, #f4dc8c 42%, #b77d22);
             color: #07101d;
             font-family: Georgia, serif;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 900;
         }
         
         .school-info {
-            margin-left: 12px;
+            margin-left: 10px;
             position: relative;
             z-index: 2;
             flex: 1;
@@ -412,18 +411,21 @@
         
         .school-name {
             font-family: Georgia, "Times New Roman", serif;
-            font-size: 18px;
+            font-size: 16px;
             line-height: 1;
             font-weight: 700;
             letter-spacing: 1px;
             color: #f1d27a;
             text-shadow: 0 1px 4px rgba(0,0,0,0.8);
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .motto {
-            margin-top: 5px;
-            font-size: 7px;
+            margin-top: 4px;
+            font-size: 6px;
             letter-spacing: 2px;
             color: rgba(255,255,255,0.70);
             text-transform: uppercase;
@@ -432,10 +434,10 @@
         .student-badge {
             position: relative;
             z-index: 2;
-            padding: 6px 11px;
-            border-radius: 13px;
+            padding: 5px 10px;
+            border-radius: 12px;
             color: #f2d27a;
-            font-size: 6px;
+            font-size: 7px;
             font-weight: 800;
             letter-spacing: 1.5px;
             border: 1px solid #d3a747;
@@ -456,16 +458,16 @@
             position: relative;
             z-index: 10;
             display: grid;
-            grid-template-columns: 105px 1fr 86px;
-            gap: 16px;
-            padding: 14px 27px 10px;
+            grid-template-columns: 100px 1fr 90px;
+            gap: 14px;
+            padding: 12px 27px 8px;
         }
         
         .photo-border {
-            width: 95px;
-            height: 119px;
+            width: 90px;
+            height: 112px;
             padding: 3px;
-            border-radius: 9px;
+            border-radius: 8px;
             background: linear-gradient(135deg, #76501a, #f5df91, #bb862a, #fff0a9, #704718);
             box-shadow: 0 7px 18px rgba(0,0,0,0.55);
         }
@@ -486,113 +488,141 @@
         .photo-placeholder { text-align: center; opacity: 0.8; }
         
         .photo-head {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             margin: auto;
             border-radius: 50%;
             background: linear-gradient(145deg, #d2b17b, #806139);
         }
         
         .photo-body {
-            width: 65px;
-            height: 46px;
-            margin-top: 7px;
-            border-radius: 33px 33px 6px 6px;
+            width: 62px;
+            height: 44px;
+            margin-top: 6px;
+            border-radius: 31px 31px 6px 6px;
             background: linear-gradient(180deg, #b18b55, #604722);
         }
         
-        .photo-label {
-            width: 95px;
+        /* ID number below photo instead of "Official Student Photo" */
+        .id-number-below-photo {
+            width: 90px;
             margin-top: 5px;
             text-align: center;
-            font-size: 4px;
-            letter-spacing: 1.3px;
-            color: rgba(231,201,132,0.55);
+            font-size: 7px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #f4d57a;
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        .student-details { padding-top: 1px; }
+        .student-details { padding-top: 0; }
         
         .student-name {
             font-family: Georgia, "Times New Roman", serif;
             color: #f4d57a;
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             letter-spacing: 0.4px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .name-line {
             width: 50px;
             height: 2px;
-            margin-top: 5px;
-            margin-bottom: 11px;
+            margin-top: 4px;
+            margin-bottom: 8px;
             background: linear-gradient(90deg, #f0cf70, #a87923, transparent);
         }
         
         .details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            column-gap: 14px;
-            row-gap: 8px;
+            column-gap: 12px;
+            row-gap: 5px;
         }
         
         .detail-label {
-            margin-bottom: 2px;
-            font-size: 4px;
-            letter-spacing: 0.9px;
-            color: rgba(227,198,128,0.60);
+            margin-bottom: 1px;
+            font-size: 5.5px;
+            letter-spacing: 0.8px;
+            color: rgba(227,198,128,0.65);
             text-transform: uppercase;
+            font-weight: 700;
         }
         
         .detail-value {
-            font-size: 7px;
-            font-weight: 600;
+            font-size: 9px;
+            font-weight: 700;
             letter-spacing: 0.2px;
-            color: #f7f7f7;
+            color: #ffffff;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .detail-value::after {
             content: "";
             display: block;
-            width: 17px;
+            width: 20px;
             height: 1px;
-            margin-top: 2px;
-            background: rgba(211,166,68,0.35);
+            margin-top: 1px;
+            background: rgba(211,166,68,0.40);
         }
         
         .right-panel { text-align: center; position: relative; }
         
+        /* LARGER QR CODE HOLDER - Exact frame fit */
         .qr-shell {
-            width: 73px;
-            height: 73px;
-            padding: 4px;
+            width: 80px;
+            height: 80px;
+            padding: 0;
             margin: auto;
-            background: #fff;
-            border-radius: 6px;
+            background: #ffffff;
+            border-radius: 5px;
             border: 2px solid #d2a541;
-            box-shadow: 0 0 0 1px rgba(90,60,17,0.9), 0 5px 13px rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 1px rgba(90,60,17,0.9), 0 4px 10px rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
         
-        #qrcode { width: 64px; height: 64px; overflow: hidden; }
-        #qrcode img, #qrcode canvas { width: 64px !important; height: 64px !important; }
+        #qrcode {
+            width: 76px;
+            height: 76px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #qrcode img, #qrcode canvas {
+            width: 76px !important;
+            height: 76px !important;
+            display: block !important;
+            image-rendering: pixelated;
+        }
         
         .scan-label {
-            margin-top: 6px;
-            font-size: 4px;
+            margin-top: 4px;
+            font-size: 5px;
             font-weight: 800;
             letter-spacing: 1px;
             color: #e1bf69;
             text-transform: uppercase;
         }
         
-        .signature-area { margin-top: 12px; }
+        .signature-area { margin-top: 8px; }
         
         .signature {
             font-family: "Brush Script MT", cursive, 'Great Vibes';
-            font-size: 13px;
+            font-size: 14px;
             color: white;
             transform: rotate(-6deg);
             text-shadow: 0 1px 2px black;
@@ -600,12 +630,12 @@
         
         .signature-line {
             width: 65px;
-            margin: 3px auto;
+            margin: 2px auto;
             border-bottom: 1px solid rgba(224,190,104,0.7);
         }
         
         .signature-title {
-            font-size: 4px;
+            font-size: 4.5px;
             letter-spacing: 0.8px;
             color: rgba(224,197,135,0.58);
             text-transform: uppercase;
@@ -613,10 +643,10 @@
         
         .hologram {
             position: absolute;
-            left: 127px;
-            bottom: 31px;
-            width: 20px;
-            height: 20px;
+            left: 120px;
+            bottom: 28px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: conic-gradient(#54d8ff, #d36cff, #ffe86c, #58edc2, #54d8ff);
             opacity: 0.22;
@@ -626,10 +656,10 @@
         
         .stamp {
             position: absolute;
-            right: 27px;
-            bottom: 35px;
-            width: 42px;
-            height: 42px;
+            right: 25px;
+            bottom: 32px;
+            width: 40px;
+            height: 40px;
             border: 1px solid rgba(188,45,67,0.62);
             border-radius: 50%;
             display: flex;
@@ -637,7 +667,7 @@
             align-items: center;
             text-align: center;
             color: rgba(200,57,77,0.62);
-            font-size: 4px;
+            font-size: 3.5px;
             font-weight: 800;
             line-height: 1.4;
             letter-spacing: 0.5px;
@@ -656,8 +686,8 @@
         .microtext {
             position: absolute;
             left: 27px;
-            right: 120px;
-            bottom: 40px;
+            right: 115px;
+            bottom: 37px;
             overflow: hidden;
             white-space: nowrap;
             font-size: 2.5px;
@@ -671,12 +701,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: 41px;
+            height: 38px;
             z-index: 10;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 5px 27px 8px;
+            padding: 4px 27px 7px;
             border-top: 1px solid rgba(213,170,74,0.38);
             background: linear-gradient(90deg, rgba(3,9,17,0.94), rgba(9,25,44,0.92), rgba(30,8,17,0.92));
         }
@@ -685,18 +715,19 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 5px;
-            color: rgba(255,255,255,0.62);
+            font-size: 5.5px;
+            color: rgba(255,255,255,0.65);
         }
         
         .footer-item { display: flex; align-items: center; gap: 3px; }
         .footer-icon { color: #d7b45d; font-size: 6px; }
         
         .footer-right {
-            font-size: 4px;
+            font-size: 5px;
             letter-spacing: 0.9px;
-            color: rgba(222,193,125,0.48);
+            color: rgba(222,193,125,0.55);
             text-transform: uppercase;
+            font-weight: 700;
         }
         
         .action-buttons {
@@ -758,19 +789,20 @@
         .id-badge.generated { background: rgba(40,167,69,0.2); color: #34ce57; }
         .id-badge.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
         
+        /* LANDSCAPE Print Sheet Container */
         #printSheetContainer {
             position: absolute;
             left: -9999px;
             top: -9999px;
-            width: 8.27in;
-            height: 11.69in;
+            width: 11.69in;
+            height: 8.27in;
             background: #ffffff;
-            padding: 0.4in;
+            padding: 0.3in;
             box-sizing: border-box;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(3, 1fr);
-            gap: 0.3in 0.2in;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 0.25in 0.15in;
             justify-items: center;
             align-items: center;
         }
@@ -856,7 +888,7 @@
                                 <div class="school-name" id="cardSchool">SCHOOL NAME</div>
                                 <div class="motto">Knowledge • Discipline • Success</div>
                             </div>
-                            <div class="student-badge">STUDENT</div>
+                            <div class="student-badge">STUDENT ID</div>
                             <div class="header-line"></div>
                         </header>
                         
@@ -870,7 +902,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="photo-label">Official Student Photo</div>
+                                <div class="id-number-below-photo" id="cardIdBelowPhoto">-</div>
                             </section>
                             
                             <section class="student-details">
@@ -894,9 +926,9 @@
                                 </div>
                                 <div class="scan-label">Scan to Verify</div>
                                 <div class="signature-area">
-                                    <div class="signature" id="cardSignature">Principal</div>
+                                    <div class="signature" id="cardSignature">Signature</div>
                                     <div class="signature-line"></div>
-                                    <div class="signature-title">Principal Signature</div>
+                                    <div class="signature-title">Signature</div>
                                 </div>
                             </aside>
                         </main>
@@ -911,7 +943,7 @@
                                 <div class="footer-item"><span class="footer-icon">◆</span> P.O. Box 123</div>
                                 <div class="footer-item"><span class="footer-icon">◈</span> Kenya</div>
                             </div>
-                            <div class="footer-right">Property of School</div>
+                            <div class="footer-right">Private Property</div>
                         </footer>
                     </div>
                 </div>
@@ -934,7 +966,7 @@
                     <button class="btn btn-danger" onclick="clearQueue()" style="padding:4px 10px; font-size:10px;"><i class="fas fa-trash"></i> Clear</button>
                 </div>
             </h3>
-            <p style="font-size:0.65rem; color:rgba(255,255,255,0.5);">Add up to 6 cards to print or export them altogether on one single A4 sheet.</p>
+            <p style="font-size:0.65rem; color:rgba(255,255,255,0.5);">Add up to 6 cards to print or export on one landscape A4 sheet (3×2 grid).</p>
             <div class="queue-grid" id="queueGrid">
                 <p style="font-size:0.65rem; color:rgba(255,255,255,0.3); grid-column:1/-1;">No cards in queue. Click "Add to Queue" above.</p>
             </div>
@@ -1028,7 +1060,6 @@
         });
         
         function showNotification(message, type) {
-            console.log('📢 Notification:', message, type);
             var existingToast = document.querySelector('.toast-notification');
             if (existingToast) existingToast.remove();
             var toast = document.createElement('div');
@@ -1046,14 +1077,21 @@
             var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
             var issuedStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
             var validStr = '31 December ' + now.getFullYear();
-            var issuedEl = document.getElementById('editIssuedDate');
-            var cardIssuedEl = document.getElementById('cardIssuedDate');
-            var cardValidEl = document.getElementById('cardValidDate');
-            var cardYearEl = document.getElementById('cardAcademicYear');
-            if (issuedEl) issuedEl.value = issuedStr;
-            if (cardIssuedEl) cardIssuedEl.textContent = issuedStr;
-            if (cardValidEl) cardValidEl.textContent = validStr;
-            if (cardYearEl) cardYearEl.textContent = now.getFullYear();
+            setText('editIssuedDate', issuedStr);
+            setText('cardIssuedDate', issuedStr);
+            setText('cardValidDate', validStr);
+            setText('cardAcademicYear', String(now.getFullYear()));
+        }
+        
+        function setText(id, value) {
+            var el = document.getElementById(id);
+            if (el) {
+                if (value.includes('<br>')) {
+                    el.innerHTML = value;
+                } else {
+                    el.textContent = value;
+                }
+            }
         }
         
         function loadAllStudents() {
@@ -1159,6 +1197,7 @@
             setText('cardName', name.toUpperCase());
             setText('cardAdm', adm);
             setText('cardStudentId', studentId);
+            setText('cardIdBelowPhoto', studentId);
             setText('cardDob', dob);
             setText('cardForm', form.toUpperCase());
             setText('cardStream', stream.toUpperCase());
@@ -1168,17 +1207,6 @@
             setText('cardLogoLetter', schoolName.charAt(0).toUpperCase());
             setText('cardStampSchool', schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear());
             setText('cardMicrotext', schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION •');
-        }
-        
-        function setText(id, value) {
-            var el = document.getElementById(id);
-            if (el) {
-                if (value.includes('<br>')) {
-                    el.innerHTML = value;
-                } else {
-                    el.textContent = value;
-                }
-            }
         }
         
         function generateQRCode() {
@@ -1205,8 +1233,8 @@
             try {
                 new QRCode(container, {
                     text: verificationText,
-                    width: 64,
-                    height: 64,
+                    width: 76,
+                    height: 76,
                     colorDark: "#07111e",
                     colorLight: "#ffffff",
                     correctLevel: QRCode.CorrectLevel.H
@@ -1350,21 +1378,24 @@
                 return;
             }
 
-            showNotification('Generating A4 sheet...', 'info');
+            showNotification('Generating landscape A4 sheet...', 'info');
 
             var container = document.getElementById('printSheetContainer');
             container.innerHTML = '';
 
             cardQueue.forEach(function(item) {
                 var wrapper = document.createElement('div');
-                wrapper.style.cssText = 'display:flex;justify-content:center;align-items:center;';
-                wrapper.appendChild(item.clone);
+                wrapper.style.cssText = 'display:flex;justify-content:center;align-items:center;width:100%;height:100%;';
+                var clone = item.clone;
+                clone.style.transform = 'scale(0.55)';
+                clone.style.transformOrigin = 'center center';
+                wrapper.appendChild(clone);
                 container.appendChild(wrapper);
             });
 
             for (var i = cardQueue.length; i < 6; i++) {
                 var emptyDiv = document.createElement('div');
-                emptyDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;border:2px dashed #ccc;border-radius:8px;';
+                emptyDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;border:2px dashed #ccc;border-radius:8px;width:100%;height:100%;';
                 emptyDiv.innerHTML = '<span style="font-size:0.5rem;color:#999;">EMPTY</span>';
                 container.appendChild(emptyDiv);
             }
@@ -1379,7 +1410,7 @@
                     if (type === 'png') {
                         var imageData = canvas.toDataURL('image/png');
                         var link = document.createElement('a');
-                        link.download = 'Student_IDs_Sheet.png';
+                        link.download = 'Student_IDs_Sheet_Landscape.png';
                         link.href = imageData;
                         document.body.appendChild(link);
                         link.click();
@@ -1387,12 +1418,12 @@
                         showNotification('PNG Sheet Downloaded!', 'success');
                     } else if (type === 'pdf') {
                         const { jsPDF } = window.jspdf;
-                        var pdf = new jsPDF('p', 'mm', 'a4');
+                        var pdf = new jsPDF('l', 'mm', 'a4');
                         var imgData = canvas.toDataURL('image/png');
-                        var imgWidth = 210;
+                        var imgWidth = 297;
                         var imgHeight = (canvas.height * imgWidth) / canvas.width;
                         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                        pdf.save('Student_IDs_Sheet.pdf');
+                        pdf.save('Student_IDs_Sheet_Landscape.pdf');
                         showNotification('PDF Sheet Downloaded!', 'success');
                     }
                 }).catch(function(err) {
@@ -1466,7 +1497,6 @@
             window.location.href = 'index.html';
         }
         
-        // Expose all functions to global scope
         window.loadStudentForCard = loadStudentForCard;
         window.updateCardFromEditor = updateCardFromEditor;
         window.generateQRCode = generateQRCode;
