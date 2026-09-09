@@ -235,9 +235,49 @@
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 10px; color: #fff;
             font-family: 'Inter', sans-serif;
+            font-size: 13px;
         }
         .form-group select option { background: #1a1f4e; }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* Student search results dropdown */
+        .student-search-results {
+            position: absolute;
+            z-index: 100;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(26, 31, 78, 0.98);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 0 0 10px 10px;
+            display: none;
+        }
+        .student-search-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .student-search-item:hover { background: rgba(212, 175, 55, 0.15); }
+        .student-search-item .student-avatar {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #f0d060);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: #0a0e27;
+            flex-shrink: 0;
+        }
+        .student-search-item .student-info { flex: 1; min-width: 0; }
+        .student-search-item .student-name { font-size: 13px; font-weight: 700; color: #fff; }
+        .student-search-item .student-adm { font-size: 11px; color: rgba(255,255,255,0.5); }
+        
+        .student-select-wrapper { position: relative; }
         
         .modal {
             display: none; position: fixed; top: 0; left: 0;
@@ -328,30 +368,73 @@
                 
                 <div id="individualIssueForm">
                     <form onsubmit="return issueBook(event)">
-                        <div class="form-row">
-                            <div class="form-group"><label>Student Name *</label><input type="text" id="issueStudentName" required></div>
-                            <div class="form-group"><label>ADM Number *</label><input type="text" id="issueADM" required></div>
+                        <div class="form-group">
+                            <label>🎓 Class/Form *</label>
+                            <select id="issueClass" required onchange="loadStreamsForIssue()">
+                                <option value="">Select Class</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Book Title *</label><select id="issueBookTitle" required><option value="">Select Book</option></select></div>
-                            <div class="form-group"><label>Book Number *</label><input type="text" id="issueBookNumber" required></div>
+                        
+                        <div class="form-group">
+                            <label>🏠 Stream *</label>
+                            <select id="issueStream" required onchange="loadStudentsForIssue()">
+                                <option value="">Select Stream</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Borrow Date</label><input type="date" id="issueBorrowDate" required></div>
-                            <div class="form-group"><label>Return Date</label><input type="date" id="issueReturnDate" required></div>
+                        
+                        <div class="form-group">
+                            <label>👨‍🎓 Student *</label>
+                            <select id="issueStudent" required onchange="updateStudentDetails()">
+                                <option value="">Select Student</option>
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-book"></i> Issue Book</button>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>👤 Student Name (Auto-filled)</label>
+                                <input type="text" id="issueStudentName" readonly style="background:rgba(255,255,255,0.02);">
+                            </div>
+                            <div class="form-group">
+                                <label>🔢 ADM Number (Auto-filled)</label>
+                                <input type="text" id="issueADM" readonly style="background:rgba(255,255,255,0.02);">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>📚 Book Title *</label>
+                                <select id="issueBookTitle" required>
+                                    <option value="">Select Book</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>🔢 Book Number *</label>
+                                <input type="text" id="issueBookNumber" required placeholder="e.g., BK001">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group"><label>📅 Borrow Date</label><input type="date" id="issueBorrowDate" required></div>
+                            <div class="form-group"><label>📅 Return Date</label><input type="date" id="issueReturnDate" required></div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                            <i class="fas fa-book"></i> Issue Book
+                        </button>
                     </form>
                 </div>
                 
                 <div id="bulkIssueForm" style="display:none;">
-                    <div class="form-group"><label>Book Title *</label><select id="bulkBookTitle"><option value="">Select Book</option></select></div>
-                    <div class="form-group"><label>Select Class *</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">Select Class</option></select></div>
+                    <div class="form-group"><label>📚 Book Title *</label><select id="bulkBookTitle"><option value="">Select Book</option></select></div>
+                    <div class="form-group"><label>🏫 Select Class *</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">Select Class</option></select></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Borrow Date</label><input type="date" id="bulkBookBorrowDate"></div>
-                        <div class="form-group"><label>Return Date</label><input type="date" id="bulkBookReturnDate"></div>
+                        <div class="form-group"><label>📅 Borrow Date</label><input type="date" id="bulkBookBorrowDate"></div>
+                        <div class="form-group"><label>📅 Return Date</label><input type="date" id="bulkBookReturnDate"></div>
                     </div>
                     <div id="bulkBookStudents"></div>
+                    <button class="btn btn-primary" onclick="issueBulkBooks()" style="width:100%;justify-content:center;margin-top:10px;">
+                        <i class="fas fa-users"></i> Issue to Class
+                    </button>
                 </div>
             </div>
         </div>
@@ -476,9 +559,14 @@
     <script>
         /**
          * ============================================
-         * SRMS - Library Page Logic
+         * SRMS - Library Page Logic (ENHANCED)
+         * Now with dropdown selection for students
          * ============================================
          */
+        
+        var allClassesData = [];
+        var allStudentsData = [];
+        var allBooksData = [];
         
         /**
          * Switch between library tabs
@@ -500,6 +588,11 @@
                 document.getElementById(tabName + 'Tab').classList.add('active');
             }
             
+            if (tabName === 'issue') {
+                loadClassesForIssue();
+                loadBooksForIssue();
+            }
+            
             console.log('✅ Tab switched successfully');
         }
         
@@ -510,6 +603,8 @@
             console.log('📄 Showing individual issue form');
             document.getElementById('individualIssueForm').style.display = 'block';
             document.getElementById('bulkIssueForm').style.display = 'none';
+            document.getElementById('individualBtn').className = 'btn btn-primary';
+            document.getElementById('bulkBtn').className = 'btn btn-secondary';
         }
         
         /**
@@ -519,6 +614,354 @@
             console.log('📄 Showing bulk issue form');
             document.getElementById('individualIssueForm').style.display = 'none';
             document.getElementById('bulkIssueForm').style.display = 'block';
+            document.getElementById('individualBtn').className = 'btn btn-secondary';
+            document.getElementById('bulkBtn').className = 'btn btn-primary';
+            loadClassesForBulkIssue();
+            loadBooksForBulkIssue();
+        }
+        
+        /**
+         * Load classes for individual issue dropdown
+         */
+        function loadClassesForIssue() {
+            console.log('📊 Loading classes for issue...');
+            
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getClasses(school).then(function(classes) {
+                allClassesData = classes || [];
+                var select = document.getElementById('issueClass');
+                if (select) {
+                    var html = '<option value="">Select Class</option>';
+                    allClassesData.forEach(function(c) {
+                        html += '<option value="' + (c.name || '') + '">' + (c.name || '') + '</option>';
+                    });
+                    select.innerHTML = html;
+                }
+            }).catch(function(err) {
+                console.error('❌ Error loading classes:', err);
+            });
+        }
+        
+        /**
+         * Load streams based on selected class
+         */
+        function loadStreamsForIssue() {
+            console.log('📊 Loading streams...');
+            
+            var selectedClass = document.getElementById('issueClass').value;
+            var streamSelect = document.getElementById('issueStream');
+            var studentSelect = document.getElementById('issueStudent');
+            
+            if (!selectedClass) {
+                streamSelect.innerHTML = '<option value="">Select Stream</option>';
+                studentSelect.innerHTML = '<option value="">Select Student</option>';
+                return;
+            }
+            
+            // Find streams from class data
+            var streams = [];
+            allClassesData.forEach(function(c) {
+                if (c.name === selectedClass && c.stream) {
+                    streams.push(c.stream);
+                }
+            });
+            
+            if (streams.length === 0) {
+                // If no streams found, check students in the class
+                allClassesData.forEach(function(c) {
+                    if (c.name === selectedClass) {
+                        (c.students || []).forEach(function(st) {
+                            var stream = st.stream || st.Stream || '';
+                            if (stream && streams.indexOf(stream) === -1) {
+                                streams.push(stream);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            var html = '<option value="">Select Stream</option>';
+            if (streams.length > 0) {
+                streams.forEach(function(s) {
+                    html += '<option value="' + s + '">' + s + '</option>';
+                });
+            } else {
+                html += '<option value="none">No Stream</option>';
+            }
+            streamSelect.innerHTML = html;
+            studentSelect.innerHTML = '<option value="">Select Student</option>';
+            
+            // Clear auto-filled fields
+            document.getElementById('issueStudentName').value = '';
+            document.getElementById('issueADM').value = '';
+        }
+        
+        /**
+         * Load students for issue based on class and stream
+         */
+        function loadStudentsForIssue() {
+            console.log('📊 Loading students...');
+            
+            var selectedClass = document.getElementById('issueClass').value;
+            var selectedStream = document.getElementById('issueStream').value;
+            var studentSelect = document.getElementById('issueStudent');
+            
+            if (!selectedClass) return;
+            
+            var students = [];
+            
+            allClassesData.forEach(function(c) {
+                if (c.name === selectedClass) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = extractAdm(st);
+                        var name = extractName(st);
+                        var stream = st.stream || st.Stream || 'none';
+                        
+                        if (!selectedStream || selectedStream === 'none' || stream === selectedStream || stream === 'none') {
+                            students.push({
+                                name: name,
+                                adm: adm,
+                                stream: stream,
+                                studentId: st.studentId || st.StudentID || ''
+                            });
+                        }
+                    });
+                }
+            });
+            
+            var html = '<option value="">Select Student</option>';
+            students.forEach(function(s) {
+                html += '<option value="' + s.adm + '" data-name="' + s.name + '" data-studentid="' + s.studentId + '">' + 
+                    s.name + ' (' + s.adm + ')' + '</option>';
+            });
+            studentSelect.innerHTML = html;
+            
+            // Clear auto-filled fields
+            document.getElementById('issueStudentName').value = '';
+            document.getElementById('issueADM').value = '';
+        }
+        
+        /**
+         * Update student details when selected
+         */
+        function updateStudentDetails() {
+            var studentSelect = document.getElementById('issueStudent');
+            var nameInput = document.getElementById('issueStudentName');
+            var admInput = document.getElementById('issueADM');
+            
+            if (!studentSelect.value) {
+                nameInput.value = '';
+                admInput.value = '';
+                return;
+            }
+            
+            var selectedOption = studentSelect.options[studentSelect.selectedIndex];
+            nameInput.value = selectedOption.getAttribute('data-name') || '';
+            admInput.value = studentSelect.value;
+        }
+        
+        /**
+         * Load books for issue dropdown
+         */
+        function loadBooksForIssue() {
+            console.log('📊 Loading books for issue...');
+            
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getBooks(school).then(function(books) {
+                allBooksData = books || [];
+                var select = document.getElementById('issueBookTitle');
+                if (select) {
+                    var html = '<option value="">Select Book</option>';
+                    allBooksData.forEach(function(b) {
+                        if (b.available > 0 || b.quantity > 0) {
+                            html += '<option value="' + (b.title || b.name || '') + '">' + 
+                                (b.title || b.name || '') + ' (Available: ' + (b.available || b.quantity || 0) + ')</option>';
+                        }
+                    });
+                    select.innerHTML = html;
+                }
+            }).catch(function(err) {
+                console.error('❌ Error loading books:', err);
+            });
+        }
+        
+        /**
+         * Load books for bulk issue
+         */
+        function loadBooksForBulkIssue() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getBooks(school).then(function(books) {
+                allBooksData = books || [];
+                var select = document.getElementById('bulkBookTitle');
+                if (select) {
+                    var html = '<option value="">Select Book</option>';
+                    allBooksData.forEach(function(b) {
+                        if (b.available > 0 || b.quantity > 0) {
+                            html += '<option value="' + (b.title || b.name || '') + '">' + 
+                                (b.title || b.name || '') + ' (Available: ' + (b.available || b.quantity || 0) + ')</option>';
+                        }
+                    });
+                    select.innerHTML = html;
+                }
+            });
+        }
+        
+        /**
+         * Load classes for bulk issue
+         */
+        function loadClassesForBulkIssue() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getClasses(school).then(function(classes) {
+                allClassesData = classes || [];
+                var select = document.getElementById('bulkBookClass');
+                if (select) {
+                    var html = '<option value="">Select Class</option>';
+                    allClassesData.forEach(function(c) {
+                        html += '<option value="' + (c.name || '') + '">' + (c.name || '') + '</option>';
+                    });
+                    select.innerHTML = html;
+                }
+            });
+        }
+        
+        /**
+         * Load class students for bulk issue
+         */
+        function loadClassStudentsForBooks() {
+            console.log('📊 Loading class students for bulk issue...');
+            
+            var selectedClass = document.getElementById('bulkBookClass').value;
+            var container = document.getElementById('bulkBookStudents');
+            
+            if (!selectedClass || !container) return;
+            
+            var students = [];
+            allClassesData.forEach(function(c) {
+                if (c.name === selectedClass) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = extractAdm(st);
+                        var name = extractName(st);
+                        students.push({ name: name, adm: adm });
+                    });
+                }
+            });
+            
+            if (students.length === 0) {
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:10px;">No students found in this class.</p>';
+                return;
+            }
+            
+            var html = '<div style="margin-top:15px;">';
+            html += '<h4 style="color:var(--accent);margin-bottom:10px;font-size:14px;">Students in ' + selectedClass + ' (' + students.length + ')</h4>';
+            html += '<div style="max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
+            students.forEach(function(s) {
+                html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;">' +
+                    '<input type="checkbox" class="bulk-student-check" value="' + s.adm + '" data-name="' + s.name + '" checked>' +
+                    '<span style="font-size:12px;">' + s.name + ' (' + s.adm + ')</span>' +
+                    '</div>';
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+        
+        /**
+         * Issue book to individual student
+         */
+        function issueBook(event) {
+            event.preventDefault();
+            console.log('📚 Issuing book...');
+            
+            var school = getCurrentSchool();
+            var studentName = document.getElementById('issueStudentName').value;
+            var adm = document.getElementById('issueADM').value;
+            var bookTitle = document.getElementById('issueBookTitle').value;
+            var bookNumber = document.getElementById('issueBookNumber').value;
+            var borrowDate = document.getElementById('issueBorrowDate').value;
+            var returnDate = document.getElementById('issueReturnDate').value;
+            
+            if (!adm || !studentName || !bookTitle || !bookNumber) {
+                showNotification('Please fill all required fields', 'warning');
+                return;
+            }
+            
+            var borrowedData = {
+                adm: adm,
+                studentName: studentName,
+                bookTitle: bookTitle,
+                bookNo: bookNumber,
+                borrowDate: borrowDate,
+                returnDate: returnDate,
+                returned: false,
+                timestamp: new Date().toISOString()
+            };
+            
+            API.addBorrowed(school, borrowedData).then(function() {
+                showNotification('Book issued successfully!', 'success');
+                // Reset form
+                document.getElementById('issueStudent').value = '';
+                document.getElementById('issueStudentName').value = '';
+                document.getElementById('issueADM').value = '';
+                document.getElementById('issueBookTitle').value = '';
+                document.getElementById('issueBookNumber').value = '';
+                
+                // Reload books
+                loadBooksForIssue();
+            }).catch(function(err) {
+                console.error('❌ Issue error:', err);
+                showNotification('Failed to issue book', 'error');
+            });
+            
+            return false;
+        }
+        
+        /**
+         * Issue books to bulk students
+         */
+        function issueBulkBooks() {
+            console.log('📚 Issuing books to class...');
+            
+            var bookTitle = document.getElementById('bulkBookTitle').value;
+            var borrowDate = document.getElementById('bulkBookBorrowDate').value;
+            var returnDate = document.getElementById('bulkBookReturnDate').value;
+            var checkboxes = document.querySelectorAll('.bulk-student-check:checked');
+            
+            if (!bookTitle) { showNotification('Select a book first', 'warning'); return; }
+            if (checkboxes.length === 0) { showNotification('Select at least one student', 'warning'); return; }
+            
+            var school = getCurrentSchool();
+            var promises = [];
+            
+            checkboxes.forEach(function(cb) {
+                var borrowedData = {
+                    adm: cb.value,
+                    studentName: cb.getAttribute('data-name'),
+                    bookTitle: bookTitle,
+                    bookNo: 'BULK-' + Date.now(),
+                    borrowDate: borrowDate,
+                    returnDate: returnDate,
+                    returned: false,
+                    timestamp: new Date().toISOString()
+                };
+                promises.push(API.addBorrowed(school, borrowedData));
+            });
+            
+            Promise.all(promises).then(function() {
+                showNotification('Books issued to ' + checkboxes.length + ' students!', 'success');
+                document.getElementById('bulkBookTitle').value = '';
+                document.getElementById('bulkBookStudents').innerHTML = '';
+                loadBooksForBulkIssue();
+            }).catch(function(err) {
+                console.error('❌ Bulk issue error:', err);
+                showNotification('Failed to issue books', 'error');
+            });
         }
         
         /**
@@ -582,33 +1025,28 @@
             console.log('✅ User authenticated:', user.name);
             
             // Set default dates
-            var borrowDate = document.getElementById('issueBorrowDate');
-            var returnDate = document.getElementById('issueReturnDate');
-            var bulkBorrowDate = document.getElementById('bulkBookBorrowDate');
-            var bulkReturnDate = document.getElementById('bulkBookReturnDate');
+            var today = new Date().toISOString().split('T')[0];
+            var returnDate = new Date();
+            returnDate.setDate(returnDate.getDate() + 14);
+            var returnDateStr = returnDate.toISOString().split('T')[0];
             
-            if (borrowDate && typeof getCurrentDate === 'function') {
-                borrowDate.value = getCurrentDate();
+            if (document.getElementById('issueBorrowDate')) {
+                document.getElementById('issueBorrowDate').value = today;
+            }
+            if (document.getElementById('issueReturnDate')) {
+                document.getElementById('issueReturnDate').value = returnDateStr;
+            }
+            if (document.getElementById('bulkBookBorrowDate')) {
+                document.getElementById('bulkBookBorrowDate').value = today;
+            }
+            if (document.getElementById('bulkBookReturnDate')) {
+                document.getElementById('bulkBookReturnDate').value = returnDateStr;
             }
             
-            if (returnDate && typeof addDays === 'function' && typeof getCurrentDate === 'function') {
-                returnDate.value = addDays(getCurrentDate(), 14);
-            }
-            
-            if (bulkBorrowDate && typeof getCurrentDate === 'function') {
-                bulkBorrowDate.value = getCurrentDate();
-            }
-            
-            if (bulkReturnDate && typeof addDays === 'function' && typeof getCurrentDate === 'function') {
-                bulkReturnDate.value = addDays(getCurrentDate(), 14);
-            }
-            
-            // Load library data
+            // Load initial data
             if (typeof loadLibraryData === 'function') {
                 console.log('📊 Loading library data...');
                 loadLibraryData();
-            } else {
-                console.error('❌ loadLibraryData function not found');
             }
         });
         
@@ -616,8 +1054,18 @@
         window.showIndividualIssue = showIndividualIssue;
         window.showBulkIssue = showBulkIssue;
         window.filterBooks = filterBooks;
+        window.loadClassesForIssue = loadClassesForIssue;
+        window.loadStreamsForIssue = loadStreamsForIssue;
+        window.loadStudentsForIssue = loadStudentsForIssue;
+        window.updateStudentDetails = updateStudentDetails;
+        window.loadBooksForIssue = loadBooksForIssue;
+        window.loadBooksForBulkIssue = loadBooksForBulkIssue;
+        window.loadClassesForBulkIssue = loadClassesForBulkIssue;
+        window.loadClassStudentsForBooks = loadClassStudentsForBooks;
+        window.issueBook = issueBook;
+        window.issueBulkBooks = issueBulkBooks;
         window.logoutWithConfirm = logoutWithConfirm;
-        console.log('✅ Library page scripts loaded successfully');
+        console.log('✅ Library page scripts loaded with dropdown selection');
     </script>
 </body>
 </html>
