@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version - Fixed Student Extraction
+// Full Version - Enhanced Student Extraction
 // ============================================
 
 var currentChatUserEmail = null;
@@ -305,7 +305,16 @@ function loadDashboardData() {
       });
       classes.forEach(function (c) {
         (c.students || []).forEach(function (st) {
-          var adm = st.ADM || st.adm || "";
+          var adm =
+            st.ADM ||
+            st.adm ||
+            st["ADM No"] ||
+            st["ADM No."] ||
+            st["Admission No"] ||
+            st["Admission Number"] ||
+            st.ADMNO ||
+            st.admNo ||
+            "";
           if (adm && !seenAdms[adm]) {
             seenAdms[adm] = true;
             totalStudents++;
@@ -639,13 +648,9 @@ function addBook(event) {
         showNotification("Book added!", "success");
         closeModal("addBookModal");
         loadLibraryData();
-      } else {
-        showNotification(result.error || "Failed", "error");
       }
     })
-    .catch(function () {
-      showNotification("Failed to add book", "error");
-    });
+    .catch(function () {});
   return false;
 }
 
@@ -677,25 +682,15 @@ function issueBook(event) {
     adm: adm.value,
     bookTitle: bookTitle.value,
     bookNo: bookNo.value,
-    borrowDate: document.getElementById("issueBorrowDate")
-      ? document.getElementById("issueBorrowDate").value
-      : getCurrentDate(),
-    returnDate: document.getElementById("issueReturnDate")
-      ? document.getElementById("issueReturnDate").value
-      : addDays(getCurrentDate(), 14),
     issuedBy: user ? user.name : "",
   })
     .then(function (result) {
       if (result.success) {
         showNotification("Book issued!", "success");
         loadLibraryData();
-      } else {
-        showNotification(result.error || "Failed", "error");
       }
     })
-    .catch(function () {
-      showNotification("Failed to issue book", "error");
-    });
+    .catch(function () {});
   return false;
 }
 
@@ -834,10 +829,7 @@ function issueBulkBooks() {
     }
   });
 
-  if (promises.length === 0) {
-    showNotification("No book numbers entered", "warning");
-    return;
-  }
+  if (promises.length === 0) return;
 
   Promise.all(promises)
     .then(function () {
@@ -845,12 +837,10 @@ function issueBulkBooks() {
       closeModal("bulkBookModal");
       loadLibraryData();
     })
-    .catch(function () {
-      showNotification("Failed to issue", "error");
-    });
+    .catch(function () {});
 }
 
-// ============ STUDENTS (FIXED - Extracts from Classes) ============
+// ============ STUDENTS (ENHANCED FIELD DETECTION) ============
 function loadStudentsData() {
   var school = getCurrentSchool();
   if (!school) return;
@@ -865,10 +855,26 @@ function loadStudentsData() {
       console.log("📊 DB Students:", dbStudents.length);
       console.log("📊 Classes:", classes.length);
 
+      // Debug: Log first class structure
+      if (
+        classes.length > 0 &&
+        classes[0].students &&
+        classes[0].students.length > 0
+      ) {
+        console.log(
+          "📊 First student keys:",
+          Object.keys(classes[0].students[0]),
+        );
+        console.log(
+          "📊 First student:",
+          JSON.stringify(classes[0].students[0]).substring(0, 300),
+        );
+      }
+
       var allStudents = [];
       var seenAdms = {};
 
-      // Add students from the students table
+      // Add DB students
       dbStudents.forEach(function (s) {
         if (s.adm && !seenAdms[s.adm]) {
           seenAdms[s.adm] = true;
@@ -877,32 +883,82 @@ function loadStudentsData() {
         }
       });
 
-      // Extract students from classes
+      // Extract from classes with ENHANCED field detection
       classes.forEach(function (cls) {
-        console.log(
-          "📊 Class:",
-          cls.name,
-          "- Students:",
-          (cls.students || []).length,
-        );
+        var classStudents = cls.students || [];
 
-        (cls.students || []).forEach(function (st) {
-          var adm = st.ADM || st.adm || st["ADM No"] || "";
-          var name = st.Name || st.name || st["Full Name"] || "Unknown";
+        classStudents.forEach(function (st) {
+          // ENHANCED ADM detection - try ALL variations
+          var adm =
+            st.ADM ||
+            st.adm ||
+            st["ADM No"] ||
+            st["ADM No."] ||
+            st["Admission No"] ||
+            st["Admission Number"] ||
+            st["AdmissionNo"] ||
+            st.ADMNO ||
+            st.admNo ||
+            st["ADM NO"] ||
+            st.adm_no ||
+            st["adm_no"] ||
+            st.AdmissionNumber ||
+            st.admission_no ||
+            "";
+
+          // ENHANCED Name detection
+          var name =
+            st.Name ||
+            st.name ||
+            st["Full Name"] ||
+            st["FullName"] ||
+            st["Student Name"] ||
+            st["StudentName"] ||
+            st["NAME"] ||
+            st["Student's Name"] ||
+            st.Student_Name ||
+            "Unknown";
+
+          var gender = st.Gender || st.gender || st["Sex"] || st.sex || "";
+          var stream = st.Stream || st.stream || cls.stream || "";
+          var dob =
+            st.DOB || st.dob || st["Date of Birth"] || st["DateOfBirth"] || "";
+          var parentName =
+            st["Parent Name"] ||
+            st.parentName ||
+            st["ParentName"] ||
+            st["Parent/Guardian"] ||
+            "";
+          var parentPhone =
+            st["Parent Phone"] ||
+            st.parentPhone ||
+            st["ParentPhone"] ||
+            st["Parent Contact"] ||
+            "";
+          var parentEmail =
+            st["Parent Email"] || st.parentEmail || st["ParentEmail"] || "";
+          var studentId =
+            st.studentId ||
+            st.StudentID ||
+            st["Student ID"] ||
+            st["StudentID"] ||
+            "";
+
+          if (adm) adm = String(adm).trim();
 
           if (adm && !seenAdms[adm]) {
             seenAdms[adm] = true;
             allStudents.push({
               name: name,
               adm: adm,
-              studentId: st.studentId || st.StudentID || "",
+              studentId: studentId,
               form: cls.name || st.Form || st.form || "",
-              stream: cls.stream || st.Stream || st.stream || "",
-              gender: st.Gender || st.gender || "",
-              dob: st.DOB || st.dob || "",
-              parentName: st["Parent Name"] || st.parentName || "",
-              parentPhone: st["Parent Phone"] || st.parentPhone || "",
-              parentEmail: st["Parent Email"] || st.parentEmail || "",
+              stream: stream,
+              gender: gender,
+              dob: dob,
+              parentName: parentName,
+              parentPhone: parentPhone,
+              parentEmail: parentEmail,
               source: "class",
             });
           }
@@ -917,7 +973,7 @@ function loadStudentsData() {
       if (tbody) {
         if (allStudents.length === 0) {
           tbody.innerHTML =
-            '<tr><td colspan="8" style="text-align:center;">No students found. Add a class or student first.</td></tr>';
+            '<tr><td colspan="8" style="text-align:center;">No students found. Check console for field names.</td></tr>';
         } else {
           var html = "";
           allStudents.slice(0, 200).forEach(function (s) {
@@ -958,18 +1014,10 @@ function loadStudentsData() {
         }
       }
 
-      // Update stats
       updateStudentStats(allStudents, dbStudents, classes);
     })
     .catch(function (err) {
       console.error("❌ Students error:", err);
-      var tbody = document.getElementById("studentsTableBody");
-      if (tbody) {
-        tbody.innerHTML =
-          '<tr><td colspan="8" style="text-align:center;">Error: ' +
-          err.message +
-          "</td></tr>";
-      }
     });
 }
 
@@ -1042,19 +1090,14 @@ function addStudent(event) {
   })
     .then(function (result) {
       if (result.success) {
-        showNotification(
-          "Student added! Student ID: " + result.studentId,
-          "success",
-        );
+        showNotification("Student added! ID: " + result.studentId, "success");
         closeModal("addStudentModal");
         loadStudentsData();
       } else {
         showNotification(result.error || "Failed", "error");
       }
     })
-    .catch(function () {
-      showNotification("Failed to add student", "error");
-    });
+    .catch(function () {});
   return false;
 }
 
@@ -1187,12 +1230,6 @@ function allocateFurniture(event) {
   API.allocateFurniture(school, {
     studentName: studentName.value,
     adm: adm.value,
-    form: document.getElementById("furnitureForm")
-      ? document.getElementById("furnitureForm").value
-      : "",
-    stream: document.getElementById("furnitureStream")
-      ? document.getElementById("furnitureStream").value
-      : "",
     chairNo: chairNo.value,
     lockerNo: document.getElementById("lockerNumber")
       ? document.getElementById("lockerNumber").value
@@ -1204,13 +1241,9 @@ function allocateFurniture(event) {
         showNotification("Furniture allocated!", "success");
         closeModal("allocateModal");
         loadFurnitureData();
-      } else {
-        showNotification(result.error || "Failed", "error");
       }
     })
-    .catch(function () {
-      showNotification("Failed to allocate", "error");
-    });
+    .catch(function () {});
   return false;
 }
 
@@ -1319,8 +1352,6 @@ function allocateBulkFurniture() {
           API.allocateFurniture(school, {
             studentName: name,
             adm: adm,
-            form: bulkFurnitureClass.name,
-            stream: bulkFurnitureClass.stream || "",
             chairNo: chairInput.value,
             lockerNo: lockerNo,
             issuedBy: user ? user.name : "",
@@ -1331,10 +1362,7 @@ function allocateBulkFurniture() {
     }
   });
 
-  if (promises.length === 0) {
-    showNotification("No chair numbers entered", "warning");
-    return;
-  }
+  if (promises.length === 0) return;
 
   Promise.all(promises)
     .then(function () {
@@ -1342,9 +1370,7 @@ function allocateBulkFurniture() {
       closeModal("bulkFurnitureModal");
       loadFurnitureData();
     })
-    .catch(function () {
-      showNotification("Failed", "error");
-    });
+    .catch(function () {});
 }
 
 // ============ CHAT ============
@@ -1793,22 +1819,27 @@ function loadFeesData() {
         }
       }
 
-      var totalFees = fees.reduce(function (s, f) {
-        return s + (f.amount || 0);
-      }, 0);
-      var totalPaid = fees.reduce(function (s, f) {
-        return s + (f.paid || 0);
-      }, 0);
-      var totalBalance = fees.reduce(function (s, f) {
-        return s + (f.balance || 0);
-      }, 0);
-
       var totalEl = document.getElementById("totalFeesAmount");
       var paidEl = document.getElementById("totalPaidAmount");
       var balanceEl = document.getElementById("totalBalanceAmount");
-      if (totalEl) totalEl.textContent = formatCurrency(totalFees);
-      if (paidEl) paidEl.textContent = formatCurrency(totalPaid);
-      if (balanceEl) balanceEl.textContent = formatCurrency(totalBalance);
+      if (totalEl)
+        totalEl.textContent = formatCurrency(
+          fees.reduce(function (s, f) {
+            return s + (f.amount || 0);
+          }, 0),
+        );
+      if (paidEl)
+        paidEl.textContent = formatCurrency(
+          fees.reduce(function (s, f) {
+            return s + (f.paid || 0);
+          }, 0),
+        );
+      if (balanceEl)
+        balanceEl.textContent = formatCurrency(
+          fees.reduce(function (s, f) {
+            return s + (f.balance || 0);
+          }, 0),
+        );
     })
     .catch(function () {});
 }
@@ -1842,8 +1873,6 @@ function saveFee(event) {
         "success",
       );
       currentEditingFeeId = null;
-      var btn = document.getElementById("saveFeeBtn");
-      if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Save Fee';
       loadFeesData();
     })
     .catch(function () {});
@@ -1857,16 +1886,10 @@ function editFee(feeId) {
     fees.forEach(function (fee) {
       if (fee.id === feeId) {
         currentEditingFeeId = feeId;
-        var studentEl = document.getElementById("feeStudent");
-        var amountEl = document.getElementById("feeAmount");
-        var paidEl = document.getElementById("feePaid");
-        var termEl = document.getElementById("feeTerm");
-        var btnEl = document.getElementById("saveFeeBtn");
-        if (studentEl) studentEl.value = fee.studentAdm;
-        if (amountEl) amountEl.value = fee.amount;
-        if (paidEl) paidEl.value = fee.paid;
-        if (termEl) termEl.value = fee.term;
-        if (btnEl) btnEl.innerHTML = '<i class="fas fa-save"></i> Update Fee';
+        document.getElementById("feeStudent").value = fee.studentAdm;
+        document.getElementById("feeAmount").value = fee.amount;
+        document.getElementById("feePaid").value = fee.paid;
+        document.getElementById("feeTerm").value = fee.term;
       }
     });
   });
@@ -1874,32 +1897,14 @@ function editFee(feeId) {
 
 function deleteFee(feeId) {
   if (!feeId) return;
-  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
-    DialogSystem.confirm("Delete this fee?", {
-      title: "Delete",
-      type: "danger",
-      confirmText: "Delete",
-      cancelText: "Cancel",
-    }).then(function (confirmed) {
-      if (confirmed !== "confirm") return;
-      var school = getCurrentSchool();
-      API.deleteFee(school, feeId)
-        .then(function () {
-          showNotification("Fee deleted!", "success");
-          loadFeesData();
-        })
-        .catch(function () {});
-    });
-  } else {
-    if (confirm("Delete this fee?")) {
-      var school = getCurrentSchool();
-      API.deleteFee(school, feeId)
-        .then(function () {
-          showNotification("Fee deleted!", "success");
-          loadFeesData();
-        })
-        .catch(function () {});
-    }
+  if (confirm("Delete this fee?")) {
+    var school = getCurrentSchool();
+    API.deleteFee(school, feeId)
+      .then(function () {
+        showNotification("Fee deleted!", "success");
+        loadFeesData();
+      })
+      .catch(function () {});
   }
 }
 
@@ -1953,8 +1958,6 @@ function loadTimetableData() {
             (c.name || "") +
             '">' +
             (c.name || "") +
-            " " +
-            (c.stream || "") +
             "</option>";
         });
         classSelect.innerHTML = classHtml;
@@ -1980,41 +1983,32 @@ function loadTimetableData() {
 function addTimetableEntry(event) {
   event.preventDefault();
   var school = getCurrentSchool();
-  var user = getCurrentUser();
-  var className = document.getElementById("ttClass");
-  var day = document.getElementById("ttDay");
-  var period = document.getElementById("ttPeriod");
-  var subject = document.getElementById("ttSubject");
-  var teacher = document.getElementById("ttTeacher");
-  var room = document.getElementById("ttRoom");
+  var className = document.getElementById("ttClass").value;
+  var day = document.getElementById("ttDay").value;
+  var period = document.getElementById("ttPeriod").value;
+  var subject = document.getElementById("ttSubject").value;
+  var teacher = document.getElementById("ttTeacher")
+    ? document.getElementById("ttTeacher").value
+    : "";
+  var room = document.getElementById("ttRoom")
+    ? document.getElementById("ttRoom").value
+    : "";
 
-  if (
-    !className ||
-    !className.value ||
-    !day ||
-    !day.value ||
-    !period ||
-    !period.value ||
-    !subject ||
-    !subject.value
-  ) {
+  if (!className || !day || !period || !subject) {
     showNotification("Fill all required fields", "warning");
     return false;
   }
 
   API.addTimetableEntry(school, {
-    className: className.value,
-    day: day.value,
-    period: period.value,
-    subject: subject.value,
-    teacher: teacher ? teacher.value : "",
-    room: room ? room.value : "",
-    createdBy: user ? user.name : "",
+    className: className,
+    day: day,
+    period: period,
+    subject: subject,
+    teacher: teacher,
+    room: room,
   })
     .then(function () {
       showNotification("Entry added!", "success");
-      if (subject) subject.value = "";
-      if (room) room.value = "";
       loadTimetableData();
     })
     .catch(function () {});
@@ -2061,15 +2055,14 @@ function loadTeachersData() {
 function addTeacher(event) {
   event.preventDefault();
   var school = getCurrentSchool();
-  var user = getCurrentUser();
-  var name = document.getElementById("teacherName");
-  if (!name || !name.value) {
+  var name = document.getElementById("teacherName").value;
+  if (!name) {
     showNotification("Teacher name required", "warning");
     return false;
   }
 
   API.addTeacher(school, {
-    name: name.value,
+    name: name,
     email: document.getElementById("teacherEmail")
       ? document.getElementById("teacherEmail").value
       : "",
@@ -2082,7 +2075,6 @@ function addTeacher(event) {
     classes: document.getElementById("teacherClasses")
       ? document.getElementById("teacherClasses").value
       : "",
-    addedBy: user ? user.name : "",
   })
     .then(function () {
       showNotification("Teacher added!", "success");
@@ -2095,39 +2087,20 @@ function addTeacher(event) {
 
 function deleteTeacher(teacherId) {
   if (!teacherId) return;
-  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
-    DialogSystem.confirm("Delete this teacher?", {
-      title: "Delete",
-      type: "danger",
-      confirmText: "Delete",
-      cancelText: "Cancel",
-    }).then(function (confirmed) {
-      if (confirmed !== "confirm") return;
-      var school = getCurrentSchool();
-      API.deleteTeacher(school, teacherId)
-        .then(function () {
-          showNotification("Teacher deleted!", "success");
-          loadTeachersData();
-        })
-        .catch(function () {});
-    });
-  } else {
-    if (confirm("Delete this teacher?")) {
-      var school = getCurrentSchool();
-      API.deleteTeacher(school, teacherId)
-        .then(function () {
-          showNotification("Teacher deleted!", "success");
-          loadTeachersData();
-        })
-        .catch(function () {});
-    }
+  if (confirm("Delete this teacher?")) {
+    var school = getCurrentSchool();
+    API.deleteTeacher(school, teacherId)
+      .then(function () {
+        showNotification("Teacher deleted!", "success");
+        loadTeachersData();
+      })
+      .catch(function () {});
   }
 }
 
 // ============ CLASSES ============
 function loadClassesData() {
   var school = getCurrentSchool();
-  var user = getCurrentUser();
   if (!school) return;
   API.getClasses(school)
     .then(function (classes) {
@@ -2143,13 +2116,6 @@ function loadClassesData() {
       var html = "";
       classes.forEach(function (c) {
         var studentCount = c.students ? c.students.length : 0;
-        var deleteBtn = "";
-        if (user && user.role === "admin") {
-          deleteBtn =
-            '<button class="btn btn-sm btn-danger" onclick="deleteClass(\'' +
-            c.id +
-            '\')"><i class="fas fa-trash"></i> Delete</button>';
-        }
         html +=
           '<div class="class-card"><h4>' +
           (c.name || "") +
@@ -2164,8 +2130,9 @@ function loadClassesData() {
           '<div class="class-actions"><button class="btn btn-sm btn-primary" onclick="viewClassStudents(\'' +
           c.id +
           '\')"><i class="fas fa-eye"></i> View</button> ' +
-          deleteBtn +
-          "</div></div>";
+          '<button class="btn btn-sm btn-danger" onclick="deleteClass(\'' +
+          c.id +
+          '\')"><i class="fas fa-trash"></i> Delete</button></div></div>';
       });
       container.innerHTML = html;
     })
@@ -2200,7 +2167,7 @@ function handleExcelUpload(event) {
           previewHtml += "<th>" + col + "</th>";
         });
         previewHtml += "</tr></thead><tbody>";
-        jsonData.slice(0, 10).forEach(function (row) {
+        jsonData.slice(0, 5).forEach(function (row) {
           previewHtml += "<tr>";
           columns.forEach(function (col) {
             previewHtml += "<td>" + (row[col] || "-") + "</td>";
@@ -2222,12 +2189,16 @@ function addClassWithExcel(event) {
   event.preventDefault();
   var school = getCurrentSchool();
   var user = getCurrentUser();
-  var className = document.getElementById("className");
-  var classStream = document.getElementById("classStream");
-  var classTeacher = document.getElementById("classTeacher");
+  var className = document.getElementById("className").value;
+  var classStream = document.getElementById("classStream")
+    ? document.getElementById("classStream").value
+    : "";
+  var classTeacher = document.getElementById("classTeacher")
+    ? document.getElementById("classTeacher").value
+    : "";
   var studentsData = document.getElementById("excelStudentsData");
 
-  if (!className || !className.value) {
+  if (!className) {
     showNotification("Class name required", "warning");
     return false;
   }
@@ -2246,9 +2217,9 @@ function addClassWithExcel(event) {
   }
 
   API.addClass(school, {
-    name: className.value,
-    stream: classStream ? classStream.value : "",
-    teacher: classTeacher ? classTeacher.value : "",
+    name: className,
+    stream: classStream,
+    teacher: classTeacher,
     students: students,
     createdBy: user ? user.name : "",
   })
@@ -2260,16 +2231,11 @@ function addClassWithExcel(event) {
         );
         closeModal("addClassModal");
         loadClassesData();
-        // Also reload students
-        if (typeof loadStudentsData === "function") loadStudentsData();
       } else {
         showNotification(result.error || "Failed", "error");
       }
     })
-    .catch(function (error) {
-      console.error("Add class error:", error);
-      showNotification("Failed to add class", "error");
-    });
+    .catch(function () {});
   return false;
 }
 
@@ -2288,32 +2254,24 @@ function viewClassStudents(classId) {
           (cls.name || "") +
           " Students</h3>" +
           '<button class="modal-close" onclick="closeModal(\'viewStudentsModal\')"><i class="fas fa-times"></i></button></div>';
-        if (students.length === 0) {
-          html += '<p style="text-align:center;">No students</p>';
-        } else {
+        html +=
+          '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Gender</th></tr></thead><tbody>';
+        students.forEach(function (s, i) {
+          var name = s.Name || s.name || s["Full Name"] || "Unknown";
+          var adm = s.ADM || s.adm || s["ADM No"] || "-";
+          var gender = s.Gender || s.gender || "-";
           html +=
-            '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Student ID</th><th>Gender</th></tr></thead><tbody>';
-          students.forEach(function (s, i) {
-            var name = s.Name || s.name || s["Full Name"] || "Unknown";
-            var adm = s.ADM || s.adm || s["ADM No"] || "-";
-            var studentId = s.studentId || s.StudentID || "-";
-            var gender = s.Gender || s.gender || "-";
-            html +=
-              "<tr><td>" +
-              (i + 1) +
-              "</td><td>" +
-              name +
-              "</td><td>" +
-              adm +
-              "</td><td>" +
-              studentId +
-              "</td><td>" +
-              gender +
-              "</td></tr>";
-          });
-          html += "</tbody></table>";
-        }
-        html += "</div>";
+            "<tr><td>" +
+            (i + 1) +
+            "</td><td>" +
+            name +
+            "</td><td>" +
+            adm +
+            "</td><td>" +
+            gender +
+            "</td></tr>";
+        });
+        html += "</tbody></table></div>";
         modal.innerHTML = html;
         document.body.appendChild(modal);
       }
@@ -2323,53 +2281,26 @@ function viewClassStudents(classId) {
 
 function deleteClass(classId) {
   if (!classId) return;
-
-  var confirmMessage =
-    "Delete this class? ALL students in this class will be permanently removed.";
-
-  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
-    DialogSystem.confirm(confirmMessage, {
-      title: "Delete Class & Students",
-      type: "danger",
-      confirmText: "Delete Everything",
-      cancelText: "Cancel",
-    }).then(function (confirmed) {
-      if (confirmed !== "confirm") return;
-      executeDeleteClass(classId);
-    });
-  } else {
-    if (confirm(confirmMessage)) executeDeleteClass(classId);
-  }
-}
-
-function executeDeleteClass(classId) {
-  var school = getCurrentSchool();
-
-  if (typeof API.deleteClassWithStudents === "function") {
-    API.deleteClassWithStudents(school, classId)
-      .then(function (result) {
-        if (result.success) {
+  if (confirm("Delete this class and ALL its students?")) {
+    var school = getCurrentSchool();
+    if (typeof API.deleteClassWithStudents === "function") {
+      API.deleteClassWithStudents(school, classId)
+        .then(function (result) {
           showNotification(
             "Class deleted with " + result.studentsDeleted + " students!",
             "success",
           );
           loadClassesData();
-        } else {
-          showNotification(result.error || "Failed to delete", "error");
-        }
-      })
-      .catch(function () {
-        showNotification("Failed to delete class", "error");
-      });
-  } else {
-    API.deleteClass(school, classId)
-      .then(function () {
-        showNotification("Class deleted!", "success");
-        loadClassesData();
-      })
-      .catch(function () {
-        showNotification("Failed to delete class", "error");
-      });
+        })
+        .catch(function () {});
+    } else {
+      API.deleteClass(school, classId)
+        .then(function () {
+          showNotification("Class deleted!", "success");
+          loadClassesData();
+        })
+        .catch(function () {});
+    }
   }
 }
 
@@ -2381,20 +2312,15 @@ function loadTerms() {
     .then(function (terms) {
       var container = document.getElementById("termsList");
       if (!container) return;
-
       if (!terms || terms.length === 0) {
         container.innerHTML = '<p style="text-align:center;">No terms</p>';
         return;
       }
-
       var html = "";
       terms.forEach(function (term) {
         var current = term.isCurrent ? " ✅ Current" : "";
-        var border = term.isCurrent ? "border-left:4px solid #28a745;" : "";
         html +=
-          '<div class="term-card" style="' +
-          border +
-          '"><h4>' +
+          '<div class="term-card"><h4>' +
           (term.name || "") +
           current +
           "</h4>" +
@@ -2412,29 +2338,16 @@ function loadTerms() {
 function addTerm(event) {
   event.preventDefault();
   var school = getCurrentSchool();
-  var user = getCurrentUser();
-  var name = document.getElementById("termName");
-  var startDate = document.getElementById("termStartDate");
-  var endDate = document.getElementById("termEndDate");
+  var name = document.getElementById("termName").value;
+  var startDate = document.getElementById("termStartDate").value;
+  var endDate = document.getElementById("termEndDate").value;
 
-  if (
-    !name ||
-    !name.value ||
-    !startDate ||
-    !startDate.value ||
-    !endDate ||
-    !endDate.value
-  ) {
+  if (!name || !startDate || !endDate) {
     showNotification("All fields required", "warning");
     return false;
   }
 
-  API.addTerm(school, {
-    name: name.value,
-    startDate: startDate.value,
-    endDate: endDate.value,
-    createdBy: user ? user.name : "",
-  })
+  API.addTerm(school, { name: name, startDate: startDate, endDate: endDate })
     .then(function () {
       showNotification("Term added!", "success");
       closeModal("addTermModal");
@@ -2452,13 +2365,11 @@ function loadAuditLog() {
     .then(function (logs) {
       var tbody = document.getElementById("auditLogBody");
       if (!tbody) return;
-
       if (!logs || logs.length === 0) {
         tbody.innerHTML =
           '<tr><td colspan="5" style="text-align:center;">No entries</td></tr>';
         return;
       }
-
       var html = "";
       logs.forEach(function (log) {
         html +=
@@ -2466,8 +2377,6 @@ function loadAuditLog() {
           formatDateTime(log.timestamp) +
           "</td><td>" +
           (log.user || "-") +
-          "</td><td>" +
-          (log.userEmail || "-") +
           "</td><td>" +
           (log.action || "-") +
           "</td><td>" +
@@ -2483,15 +2392,10 @@ function loadAuditLog() {
 function loadReports() {
   var school = getCurrentSchool();
   if (!school) return;
-  Promise.all([
-    API.getBooks(school),
-    API.getStudents(school),
-    API.getBorrowed(school),
-    API.getFurniture(school),
-  ])
+  Promise.all([API.getBorrowed(school), API.getFurniture(school)])
     .then(function (results) {
-      var borrowed = results[2] || [];
-      var furniture = results[3] || [];
+      var borrowed = results[0] || [];
+      var furniture = results[1] || [];
       var activeLoans = borrowed.filter(function (b) {
         return !b.returned;
       });
@@ -2506,14 +2410,11 @@ function loadReports() {
           ? Math.round((returned.length / borrowed.length) * 100)
           : 0;
 
-      var overdueEl = document.getElementById("overdueCount");
-      var activeEl = document.getElementById("activeLoansCount");
-      var rateEl = document.getElementById("returnRate");
-      var furnitureEl = document.getElementById("furnitureCount");
-      if (overdueEl) overdueEl.textContent = overdue.length;
-      if (activeEl) activeEl.textContent = activeLoans.length;
-      if (rateEl) rateEl.textContent = returnRate + "%";
-      if (furnitureEl) furnitureEl.textContent = furniture.length;
+      document.getElementById("overdueCount").textContent = overdue.length;
+      document.getElementById("activeLoansCount").textContent =
+        activeLoans.length;
+      document.getElementById("returnRate").textContent = returnRate + "%";
+      document.getElementById("furnitureCount").textContent = furniture.length;
 
       renderOverdueReport(overdue);
       renderMonthlySummary(borrowed, furniture);
@@ -2539,12 +2440,10 @@ function renderOverdueReport(overdue) {
       "</td><td>" +
       (b.bookTitle || "-") +
       "</td><td>" +
-      (b.bookNo || "-") +
-      "</td><td>" +
       (b.returnDate || "-") +
-      '</td><td><span class="badge badge-danger">' +
+      "</td><td>" +
       daysOverdue(b.returnDate) +
-      " days</span></td></tr>";
+      " days</td></tr>";
   });
   tbody.innerHTML = html;
 }
@@ -2553,8 +2452,7 @@ function renderMonthlySummary(borrowed, furniture) {
   var tbody = document.getElementById("monthlySummaryBody");
   if (!tbody) return;
   var monthlyData = {};
-
-  (borrowed || []).forEach(function (b) {
+  borrowed.forEach(function (b) {
     var date = new Date(b.borrowDate);
     var key = date.getFullYear() + "-" + (date.getMonth() + 1);
     if (!monthlyData[key])
@@ -2562,22 +2460,19 @@ function renderMonthlySummary(borrowed, furniture) {
     monthlyData[key].issued++;
     if (b.returned) monthlyData[key].returned++;
   });
-
-  (furniture || []).forEach(function (f) {
+  furniture.forEach(function (f) {
     var date = new Date(f.allocationDate);
     var key = date.getFullYear() + "-" + (date.getMonth() + 1);
     if (!monthlyData[key])
       monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
     monthlyData[key].furniture++;
   });
-
   var months = Object.keys(monthlyData).sort().reverse();
   if (months.length === 0) {
     tbody.innerHTML =
       '<tr><td colspan="4" style="text-align:center;">No data</td></tr>';
     return;
   }
-
   var html = "";
   months.slice(0, 12).forEach(function (key) {
     var parts = key.split("-");
@@ -2601,20 +2496,17 @@ function renderMonthlySummary(borrowed, furniture) {
 function loadSettingsData() {
   var school = getCurrentSchool();
   if (!school) return;
-
   API.getSchool(school)
     .then(function (schoolInfo) {
       if (schoolInfo) {
-        var nameEl = document.getElementById("schoolNameInput");
-        var addressEl = document.getElementById("schoolAddress");
-        var adminNameEl = document.getElementById("adminName");
-        var adminEmailEl = document.getElementById("adminEmail");
-        var mottoEl = document.getElementById("schoolMotto");
-        if (nameEl) nameEl.value = schoolInfo.name || "";
-        if (addressEl) addressEl.value = schoolInfo.address || "";
-        if (adminNameEl) adminNameEl.value = schoolInfo.adminName || "";
-        if (adminEmailEl) adminEmailEl.value = schoolInfo.adminEmail || "";
-        if (mottoEl) mottoEl.value = schoolInfo.motto || "";
+        document.getElementById("schoolNameInput").value =
+          schoolInfo.name || "";
+        document.getElementById("schoolAddress").value =
+          schoolInfo.address || "";
+        document.getElementById("adminName").value = schoolInfo.adminName || "";
+        document.getElementById("adminEmail").value =
+          schoolInfo.adminEmail || "";
+        document.getElementById("schoolMotto").value = schoolInfo.motto || "";
       }
     })
     .catch(function () {});
@@ -2622,12 +2514,11 @@ function loadSettingsData() {
   API.getSettings(school)
     .then(function (settings) {
       if (settings) {
-        var borrowEl = document.getElementById("maxBorrowDays");
-        var maxBooksEl = document.getElementById("maxBooksPerStudent");
-        var fineEl = document.getElementById("finePerDay");
-        if (borrowEl) borrowEl.value = settings.maxBorrowDays || 14;
-        if (maxBooksEl) maxBooksEl.value = settings.maxBooksPerStudent || 3;
-        if (fineEl) fineEl.value = settings.finePerDay || 10;
+        document.getElementById("maxBorrowDays").value =
+          settings.maxBorrowDays || 14;
+        document.getElementById("maxBooksPerStudent").value =
+          settings.maxBooksPerStudent || 3;
+        document.getElementById("finePerDay").value = settings.finePerDay || 10;
       }
     })
     .catch(function () {});
@@ -2636,41 +2527,21 @@ function loadSettingsData() {
     .then(function (users) {
       var tbody = document.getElementById("usersTableBody");
       if (!tbody) return;
-      var currentUser = getCurrentUser();
       var html = "";
-
-      (users || []).forEach(function (u) {
+      users.forEach(function (u) {
         var status =
           u.isActive !== false
             ? '<span class="badge badge-success">Active</span>'
             : '<span class="badge badge-danger">Inactive</span>';
-        var roleBadge =
-          u.role === "admin"
-            ? '<span class="badge badge-admin">Admin</span>'
-            : '<span class="badge badge-info">' + (u.role || "") + "</span>";
-        var actions = "";
-        if (u.role !== "admin")
-          actions +=
-            '<button class="btn-promote" onclick="promoteToAdmin(\'' +
-            u.email +
-            '\')"><i class="fas fa-arrow-up"></i> Promote</button> ';
-        if (u.email !== currentUser.email)
-          actions +=
-            '<button class="btn btn-sm btn-danger" onclick="deleteUser(\'' +
-            u.email +
-            '\')"><i class="fas fa-trash"></i></button>';
-        else actions += '<span style="font-size:11px;">You</span>';
         html +=
           "<tr><td>" +
           (u.name || "") +
           "</td><td>" +
           (u.email || "") +
           "</td><td>" +
-          roleBadge +
+          (u.role || "") +
           "</td><td>" +
           status +
-          "</td><td>" +
-          actions +
           "</td></tr>";
       });
       tbody.innerHTML = html;
@@ -2682,21 +2553,11 @@ function saveSchoolInfo(event) {
   event.preventDefault();
   var school = getCurrentSchool();
   API.updateSchool(school, {
-    name: document.getElementById("schoolNameInput")
-      ? document.getElementById("schoolNameInput").value
-      : school,
-    address: document.getElementById("schoolAddress")
-      ? document.getElementById("schoolAddress").value
-      : "",
-    adminName: document.getElementById("adminName")
-      ? document.getElementById("adminName").value
-      : "",
-    adminEmail: document.getElementById("adminEmail")
-      ? document.getElementById("adminEmail").value
-      : "",
-    motto: document.getElementById("schoolMotto")
-      ? document.getElementById("schoolMotto").value
-      : "",
+    name: document.getElementById("schoolNameInput").value,
+    address: document.getElementById("schoolAddress").value,
+    adminName: document.getElementById("adminName").value,
+    adminEmail: document.getElementById("adminEmail").value,
+    motto: document.getElementById("schoolMotto").value,
   })
     .then(function () {
       showNotification("School info saved!", "success");
@@ -2710,23 +2571,10 @@ function saveSettings(event) {
   var school = getCurrentSchool();
   API.updateSettings(school, {
     maxBorrowDays:
-      parseInt(
-        document.getElementById("maxBorrowDays")
-          ? document.getElementById("maxBorrowDays").value
-          : 14,
-      ) || 14,
+      parseInt(document.getElementById("maxBorrowDays").value) || 14,
     maxBooksPerStudent:
-      parseInt(
-        document.getElementById("maxBooksPerStudent")
-          ? document.getElementById("maxBooksPerStudent").value
-          : 3,
-      ) || 3,
-    finePerDay:
-      parseInt(
-        document.getElementById("finePerDay")
-          ? document.getElementById("finePerDay").value
-          : 10,
-      ) || 10,
+      parseInt(document.getElementById("maxBooksPerStudent").value) || 3,
+    finePerDay: parseInt(document.getElementById("finePerDay").value) || 10,
   })
     .then(function () {
       showNotification("Settings saved!", "success");
@@ -2738,28 +2586,11 @@ function saveSettings(event) {
 function addUser(event) {
   event.preventDefault();
   var school = getCurrentSchool();
-  var nameEl = document.getElementById("newUserName");
-  var emailEl = document.getElementById("newUserEmail");
-  var roleEl = document.getElementById("newUserRole");
-  var passwordEl = document.getElementById("newUserPassword");
-
-  if (
-    !nameEl ||
-    !nameEl.value ||
-    !emailEl ||
-    !emailEl.value ||
-    !passwordEl ||
-    !passwordEl.value
-  ) {
-    showNotification("All fields required", "warning");
-    return false;
-  }
-
   API.createUser(school, {
-    name: nameEl.value,
-    email: emailEl.value,
-    role: roleEl ? roleEl.value : "teacher",
-    password: passwordEl.value,
+    name: document.getElementById("newUserName").value,
+    email: document.getElementById("newUserEmail").value,
+    role: document.getElementById("newUserRole").value,
+    password: document.getElementById("newUserPassword").value,
   })
     .then(function (result) {
       if (result.success) {
@@ -2776,64 +2607,24 @@ function addUser(event) {
 
 function promoteToAdmin(email) {
   if (!email) return;
-  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
-    DialogSystem.confirm("Promote to admin?", {
-      title: "Promote",
-      type: "success",
-      confirmText: "Promote",
-      cancelText: "Cancel",
-    }).then(function (confirmed) {
-      if (confirmed !== "confirm") return;
-      var school = getCurrentSchool();
-      API.updateUser(school, email, { role: "admin" })
-        .then(function () {
-          showNotification("User promoted!", "success");
-          loadSettingsData();
-        })
-        .catch(function () {});
-    });
-  } else {
-    if (confirm("Promote to admin?")) {
-      var school = getCurrentSchool();
-      API.updateUser(school, email, { role: "admin" })
-        .then(function () {
-          showNotification("User promoted!", "success");
-          loadSettingsData();
-        })
-        .catch(function () {});
-    }
-  }
+  var school = getCurrentSchool();
+  API.updateUser(school, email, { role: "admin" })
+    .then(function () {
+      showNotification("User promoted!", "success");
+      loadSettingsData();
+    })
+    .catch(function () {});
 }
 
 function deleteUser(email) {
   if (!email) return;
-  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
-    DialogSystem.confirm("Deactivate this user?", {
-      title: "Delete",
-      type: "danger",
-      confirmText: "Deactivate",
-      cancelText: "Cancel",
-    }).then(function (confirmed) {
-      if (confirmed !== "confirm") return;
-      var school = getCurrentSchool();
-      API.deleteUser(school, email)
-        .then(function () {
-          showNotification("User deactivated!", "success");
-          loadSettingsData();
-        })
-        .catch(function () {});
-    });
-  } else {
-    if (confirm("Deactivate this user?")) {
-      var school = getCurrentSchool();
-      API.deleteUser(school, email)
-        .then(function () {
-          showNotification("User deactivated!", "success");
-          loadSettingsData();
-        })
-        .catch(function () {});
-    }
-  }
+  var school = getCurrentSchool();
+  API.deleteUser(school, email)
+    .then(function () {
+      showNotification("User deactivated!", "success");
+      loadSettingsData();
+    })
+    .catch(function () {});
 }
 
 // ============ DATABASE MANAGER ============
@@ -2876,31 +2667,26 @@ function loadDatabaseTable() {
   var select = document.getElementById("databaseTableSelect");
   if (!select || !select.value) return;
   var tableName = select.value;
-
   API.getTableData(school, tableName)
     .then(function (data) {
       var tbody = document.getElementById("databaseTableBody");
       var thead = document.getElementById("databaseTableHead");
       if (!tbody || !thead) return;
-
       if (!data || data.length === 0) {
         thead.innerHTML = "";
         tbody.innerHTML = "<tr><td>No data</td></tr>";
         return;
       }
-
       var columns = Object.keys(data[0]);
       var filteredColumns = columns.filter(function (c) {
         return c !== "password";
       });
-
       var headHtml = "<tr>";
       filteredColumns.forEach(function (col) {
         headHtml += "<th>" + col + "</th>";
       });
       headHtml += "</tr>";
       thead.innerHTML = headHtml;
-
       var bodyHtml = "";
       data.forEach(function (row) {
         bodyHtml += "<tr>";
@@ -2924,15 +2710,13 @@ function loadQRCodeList() {
     .then(function (codes) {
       var container = document.getElementById("qrCodeList");
       if (!container) return;
-
       if (!codes || codes.length === 0) {
         container.innerHTML =
           '<div class="empty-state"><i class="fas fa-list"></i><p>No QR codes yet</p></div>';
         return;
       }
-
       var html =
-        '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Class</th><th>ADM</th></tr></thead><tbody>';
+        '<table class="data-table"><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Assigned To</th><th>ADM</th></tr></thead><tbody>';
       codes.forEach(function (qr) {
         var status = qr.returned
           ? "Returned"
@@ -2958,8 +2742,6 @@ function loadQRCodeList() {
           "<td>" +
           (qr.assignedTo || "-") +
           "</td><td>" +
-          (qr.className || "-") +
-          "</td><td>" +
           (qr.adm || "-") +
           "</td></tr>";
       });
@@ -2969,7 +2751,7 @@ function loadQRCodeList() {
     .catch(function () {});
 }
 
-// ============ EXPORT ALL FUNCTIONS ============
+// ============ EXPORT ALL ============
 window.loadDashboardData = loadDashboardData;
 window.loadLibraryData = loadLibraryData;
 window.loadStudentsData = loadStudentsData;

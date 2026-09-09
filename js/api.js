@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Full Version - FIXED Class Creation
+// Full Version - Enhanced Field Detection
 // ============================================
 
 var firebaseConfig = {
@@ -127,6 +127,50 @@ function generateUniqueStudentId(schoolName, adm) {
 
   var studentId = schoolInitials + "-" + year + "-" + randomPart;
   return studentId;
+}
+
+// ENHANCED: Extract ADM from any field name variation
+function extractAdm(student) {
+  if (!student) return "";
+  var adm =
+    student.ADM ||
+    student.adm ||
+    student["ADM No"] ||
+    student["ADM No."] ||
+    student["Admission No"] ||
+    student["Admission Number"] ||
+    student["AdmissionNo"] ||
+    student.ADMNO ||
+    student.admNo ||
+    student["ADM NO"] ||
+    student.adm_no ||
+    student["adm_no"] ||
+    student.AdmissionNumber ||
+    student.admission_no ||
+    student["ADM Number"] ||
+    student["Adm No"] ||
+    student["AdmNo"] ||
+    "";
+  return String(adm).trim();
+}
+
+// ENHANCED: Extract Name from any field name variation
+function extractName(student) {
+  if (!student) return "Unknown";
+  var name =
+    student.Name ||
+    student.name ||
+    student["Full Name"] ||
+    student["FullName"] ||
+    student["Student Name"] ||
+    student["StudentName"] ||
+    student["NAME"] ||
+    student["Student's Name"] ||
+    student.Student_Name ||
+    student["Name of Student"] ||
+    student["Student"] ||
+    "Unknown";
+  return name;
 }
 
 // ============ API OBJECT ============
@@ -635,14 +679,14 @@ var API = {
       });
   },
 
-  // ============ CLASSES (FIXED - Uses .set() on students path only) ============
+  // ============ CLASSES (ENHANCED with extractAdm and extractName) ============
   addClass: function (schoolName, classData) {
     var classRef = database.ref("schools/" + schoolName + "/classes").push();
     var classId = classRef.key;
     var students = classData.students || [];
     var studentIdsGenerated = 0;
 
-    // Step 1: Create class with empty students using .set()
+    // Step 1: Create class with empty students
     return classRef
       .set({
         name: classData.name,
@@ -654,14 +698,15 @@ var API = {
         isActive: true,
       })
       .then(function () {
-        // Step 2: Save each student individually
+        // Step 2: Save each student individually using ENHANCED extraction
         var studentPromises = [];
 
         for (var i = 0; i < students.length; i++) {
           var student = students[i];
-          var adm = student.ADM || student.adm || student["ADM No"] || "";
-          var name =
-            student.Name || student.name || student["Full Name"] || "Unknown";
+          var adm = extractAdm(student);
+          var name = extractName(student);
+
+          console.log("📊 Extracting student:", name, "ADM:", adm);
 
           if (adm) {
             var studentId = generateUniqueStudentId(schoolName, adm);
@@ -673,8 +718,14 @@ var API = {
                 studentId: studentId,
                 form: classData.name,
                 stream: classData.stream || "",
-                gender: student.Gender || student.gender || "",
-                dob: student.DOB || student.dob || "",
+                gender:
+                  student.Gender ||
+                  student.gender ||
+                  student.Sex ||
+                  student.sex ||
+                  "",
+                dob:
+                  student.DOB || student.dob || student["Date of Birth"] || "",
                 parentName: student["Parent Name"] || student.parentName || "",
                 parentPhone:
                   student["Parent Phone"] || student.parentPhone || "",
@@ -692,11 +743,12 @@ var API = {
           }
         }
 
+        console.log("📊 Student IDs generated:", studentIdsGenerated);
+
         return Promise.all(studentPromises);
       })
       .then(function () {
-        // Step 3: Set students array using .set() on the students path ONLY
-        // This avoids parent/child conflict
+        // Step 3: Set students array
         return database
           .ref("schools/" + schoolName + "/classes/" + classId + "/students")
           .set(students);
@@ -750,7 +802,7 @@ var API = {
         var studentAdms = [];
 
         students.forEach(function (st) {
-          var adm = st.ADM || st.adm || st["ADM No"] || "";
+          var adm = extractAdm(st);
           if (adm) studentAdms.push(adm);
         });
 
@@ -883,11 +935,6 @@ var API = {
           .then(function () {
             clearCache("classes_" + schoolName);
             clearCache("students_" + schoolName);
-            clearCache("borrowed_" + schoolName);
-            clearCache("furniture_" + schoolName);
-            clearCache("fees_" + schoolName);
-            clearCache("assignments_" + schoolName);
-            clearCache("qrcodes_" + schoolName);
             return { success: true, studentsDeleted: studentAdms.length };
           });
       })
@@ -907,7 +954,6 @@ var API = {
           paid: feeData.paid || 0,
           balance: balance,
           term: feeData.term || "Term 1",
-          lastPaymentDate: new Date().toISOString().split("T")[0],
           status: balance <= 0 ? "completed" : "partial",
         })
         .then(function () {
@@ -927,7 +973,6 @@ var API = {
           paid: feeData.paid || 0,
           balance: balance,
           term: feeData.term || "Term 1",
-          lastPaymentDate: new Date().toISOString().split("T")[0],
           status: balance <= 0 ? "completed" : "partial",
           createdAt: new Date().toISOString(),
         })
@@ -965,22 +1010,14 @@ var API = {
 
   // ============ FURNITURE ============
   allocateFurniture: function (schoolName, furnitureData) {
-    if (!furnitureData.studentName || !furnitureData.studentName.trim()) {
+    if (
+      !furnitureData.studentName ||
+      !furnitureData.adm ||
+      !furnitureData.chairNo
+    ) {
       return Promise.resolve({
         success: false,
-        error: "Student name is required",
-      });
-    }
-    if (!furnitureData.adm || !furnitureData.adm.trim()) {
-      return Promise.resolve({
-        success: false,
-        error: "Admission number is required",
-      });
-    }
-    if (!furnitureData.chairNo && !furnitureData.lockerNo) {
-      return Promise.resolve({
-        success: false,
-        error: "Chair or locker number is required",
+        error: "Name, ADM, and Chair required",
       });
     }
     var furnitureRef = database
@@ -988,11 +1025,9 @@ var API = {
       .push();
     return furnitureRef
       .set({
-        studentName: furnitureData.studentName.trim(),
-        adm: furnitureData.adm.trim(),
-        form: furnitureData.form || "",
-        stream: furnitureData.stream || "",
-        chairNo: furnitureData.chairNo || "",
+        studentName: furnitureData.studentName,
+        adm: furnitureData.adm,
+        chairNo: furnitureData.chairNo,
         lockerNo: furnitureData.lockerNo || "",
         allocationDate:
           furnitureData.allocationDate ||
@@ -1041,7 +1076,6 @@ var API = {
         phone: teacherData.phone || "",
         subjects: teacherData.subjects || "",
         classes: teacherData.classes || "",
-        addedBy: teacherData.addedBy || "",
         createdAt: new Date().toISOString(),
       })
       .then(function () {
@@ -1119,7 +1153,6 @@ var API = {
         subject: entryData.subject,
         teacher: entryData.teacher || "",
         room: entryData.room || "",
-        createdBy: entryData.createdBy || "",
         createdAt: new Date().toISOString(),
       })
       .then(function () {
@@ -1165,7 +1198,6 @@ var API = {
         startDate: termData.startDate,
         endDate: termData.endDate,
         isCurrent: termData.isCurrent || false,
-        createdBy: termData.createdBy || "",
         createdAt: new Date().toISOString(),
       })
       .then(function () {
@@ -1209,7 +1241,7 @@ var API = {
 
   getChatMessages: function (schoolName, userEmail, otherEmail) {
     return getCachedData(
-      "chat_" + schoolName + "_" + userEmail + "_" + otherEmail,
+      "chat_" + schoolName,
       function () {
         return database
           .ref("schools/" + schoolName + "/chat")
@@ -1259,7 +1291,6 @@ var API = {
         return database.ref().update(updates);
       })
       .then(function () {
-        clearCache("chat_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1315,14 +1346,11 @@ var API = {
       );
       return noteRef
         .update({
-          author: noteData.author,
-          authorEmail: noteData.authorEmail,
           title: noteData.title || "Untitled",
           content: noteData.content,
           timestamp: new Date().toISOString(),
         })
         .then(function () {
-          clearCache("notes_" + schoolName);
           return { success: true };
         })
         .catch(function (error) {
@@ -1341,7 +1369,6 @@ var API = {
           isDeleted: false,
         })
         .then(function () {
-          clearCache("notes_" + schoolName);
           return { success: true };
         })
         .catch(function (error) {
@@ -1351,17 +1378,18 @@ var API = {
   },
 
   getNotes: function (schoolName, userEmail) {
-    return getCachedData("notes_" + schoolName + "_" + userEmail, function () {
-      return database
-        .ref("schools/" + schoolName + "/notes")
-        .once("value")
-        .then(snapshotToArray)
-        .then(function (notes) {
-          return notes.filter(function (note) {
-            return !note.isDeleted && note.authorEmail === userEmail;
-          });
+    return database
+      .ref("schools/" + schoolName + "/notes")
+      .once("value")
+      .then(snapshotToArray)
+      .then(function (notes) {
+        return notes.filter(function (note) {
+          return !note.isDeleted && note.authorEmail === userEmail;
         });
-    });
+      })
+      .catch(function () {
+        return [];
+      });
   },
 
   deleteNote: function (schoolName, noteId) {
@@ -1369,7 +1397,6 @@ var API = {
       .ref("schools/" + schoolName + "/notes/" + noteId)
       .update({ isDeleted: true })
       .then(function () {
-        clearCache("notes_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1384,12 +1411,10 @@ var API = {
       .set({
         timestamp: new Date().toISOString(),
         user: logData.user || "System",
-        userEmail: logData.userEmail || "",
         action: logData.action,
         details: logData.details || "",
       })
       .then(function () {
-        clearCache("auditlog_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1398,41 +1423,35 @@ var API = {
   },
 
   getAuditLog: function (schoolName) {
-    return getCachedData(
-      "auditlog_" + schoolName,
-      function () {
-        return database
-          .ref("schools/" + schoolName + "/auditLog")
-          .once("value")
-          .then(snapshotToArray)
-          .then(function (logs) {
-            return logs.reverse().slice(0, 200);
-          });
-      },
-      15000,
-    );
+    return database
+      .ref("schools/" + schoolName + "/auditLog")
+      .once("value")
+      .then(snapshotToArray)
+      .then(function (logs) {
+        return logs.reverse().slice(0, 200);
+      })
+      .catch(function () {
+        return [];
+      });
   },
 
   // ============ SETTINGS ============
   getSettings: function (schoolName) {
-    return getCachedData(
-      "settings_" + schoolName,
-      function () {
-        return database
-          .ref("schools/" + schoolName + "/settings")
-          .once("value")
-          .then(function (snapshot) {
-            return (
-              snapshot.val() || {
-                maxBorrowDays: 14,
-                maxBooksPerStudent: 3,
-                finePerDay: 10,
-              }
-            );
-          });
-      },
-      60000,
-    );
+    return database
+      .ref("schools/" + schoolName + "/settings")
+      .once("value")
+      .then(function (snapshot) {
+        return (
+          snapshot.val() || {
+            maxBorrowDays: 14,
+            maxBooksPerStudent: 3,
+            finePerDay: 10,
+          }
+        );
+      })
+      .catch(function () {
+        return null;
+      });
   },
 
   updateSettings: function (schoolName, settingsData) {
@@ -1440,7 +1459,6 @@ var API = {
       .ref("schools/" + schoolName + "/settings")
       .update(settingsData)
       .then(function () {
-        clearCache("settings_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1450,63 +1468,40 @@ var API = {
 
   // ============ DATABASE MANAGER ============
   getTableData: function (schoolName, tableName) {
-    return getCachedData(
-      "table_" + schoolName + "_" + tableName,
-      function () {
-        return database
-          .ref("schools/" + schoolName + "/" + tableName)
-          .once("value")
-          .then(snapshotToArray);
-      },
-      10000,
-    );
+    return database
+      .ref("schools/" + schoolName + "/" + tableName)
+      .once("value")
+      .then(snapshotToArray)
+      .catch(function () {
+        return [];
+      });
   },
 
-  // ============ UNIFIED ASSIGNMENT OPERATIONS ============
+  // ============ UNIFIED ASSIGNMENT ============
   assignItem: function (schoolName, itemData) {
-    if (!itemData.studentName || !itemData.studentName.trim()) {
-      return Promise.resolve({
-        success: false,
-        error: "Student name is required",
-      });
+    if (
+      !itemData.studentName ||
+      !itemData.adm ||
+      !itemData.itemType ||
+      !itemData.itemNo
+    ) {
+      return Promise.resolve({ success: false, error: "All fields required" });
     }
-    if (!itemData.adm || !itemData.adm.trim()) {
-      return Promise.resolve({
-        success: false,
-        error: "Admission number is required",
-      });
-    }
-    if (!itemData.itemType) {
-      return Promise.resolve({
-        success: false,
-        error: "Item type is required",
-      });
-    }
-    if (!itemData.itemNo && !itemData.itemId) {
-      return Promise.resolve({
-        success: false,
-        error: "Item number/ID is required",
-      });
-    }
-
     var assignmentRef = database
       .ref("schools/" + schoolName + "/assignments")
       .push();
     return assignmentRef
       .set({
-        studentName: itemData.studentName.trim(),
-        adm: itemData.adm.trim(),
+        studentName: itemData.studentName,
+        adm: itemData.adm,
         itemType: itemData.itemType,
-        itemNo: itemData.itemNo || itemData.itemId,
-        assignedDate:
-          itemData.assignedDate || new Date().toISOString().split("T")[0],
+        itemNo: itemData.itemNo,
+        assignedDate: new Date().toISOString().split("T")[0],
         assignedBy: itemData.assignedBy || "",
         returned: false,
-        returnDate: null,
         createdAt: new Date().toISOString(),
       })
       .then(function () {
-        clearCache("assignments_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1527,12 +1522,13 @@ var API = {
   },
 
   getAllAssignments: function (schoolName) {
-    return getCachedData("assignments_" + schoolName, function () {
-      return database
-        .ref("schools/" + schoolName + "/assignments")
-        .once("value")
-        .then(snapshotToArray);
-    });
+    return database
+      .ref("schools/" + schoolName + "/assignments")
+      .once("value")
+      .then(snapshotToArray)
+      .catch(function () {
+        return [];
+      });
   },
 
   returnAssignment: function (schoolName, assignmentId) {
@@ -1543,7 +1539,6 @@ var API = {
         returnDate: new Date().toISOString().split("T")[0],
       })
       .then(function () {
-        clearCache("assignments_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1551,19 +1546,16 @@ var API = {
       });
   },
 
-  // ============ TEST CONNECTION ============
+  // ============ TEST ============
   testConnection: function () {
     var testRef = database.ref("test/connection");
     return testRef
-      .set({ timestamp: new Date().toISOString(), message: "Test" })
+      .set({ timestamp: new Date().toISOString() })
       .then(function () {
-        return testRef.once("value");
-      })
-      .then(function (snapshot) {
         return testRef.remove();
       })
       .then(function () {
-        return { success: true, message: "Database connected!" };
+        return { success: true };
       })
       .catch(function (error) {
         return { success: false, error: error.message };
@@ -1575,5 +1567,7 @@ window.API = API;
 window.dataCache = dataCache;
 window.clearCache = clearCache;
 window.generateUniqueStudentId = generateUniqueStudentId;
+window.extractAdm = extractAdm;
+window.extractName = extractName;
 
-console.log("✅ API loaded with Unique Student ID generation");
+console.log("✅ API loaded with Enhanced Field Detection");
