@@ -308,6 +308,15 @@
         .fee-completed { background: rgba(40,167,69,0.2); color: #34ce57; }
         .fee-partial { background: rgba(255,193,7,0.2); color: #ffc107; }
         
+        .restricted-notice {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
         .qr-list-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
@@ -402,7 +411,7 @@
             <div class="panel scanner-container">
                 <h3 style="color:var(--accent);margin-bottom:10px;font-size:0.9em;"><i class="fas fa-camera"></i> Scan QR Code</h3>
                 <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">
-                    Upload an image or use camera - then assign items or view details
+                    Upload an image or use camera - sensitive data hidden for non-school members
                 </p>
                 <input type="file" id="scanImageInput" accept="image/*" style="display:none;" onchange="scanImageFromFile(event)">
                 <button class="btn btn-secondary" onclick="document.getElementById('scanImageInput').click()"><i class="fas fa-image"></i> Upload Image</button>
@@ -582,6 +591,7 @@
             }
         }
         
+        // SCHOOL MEMBERSHIP CHECK + SENSITIVE DATA HIDING
         function fetchStudentDataWithAssign(school, adm, targetDiv) {
             Promise.all([
                 API.getStudents(school),
@@ -598,19 +608,26 @@
                 var furniture = results[4] || [];
                 var assignments = results[5] || [];
                 
+                // CHECK SCHOOL MEMBERSHIP
+                var currentUserSchool = getCurrentSchool();
+                var isSameSchool = (currentUserSchool === school);
+                
                 var student = null;
                 students.forEach(function(s) { if (s.adm === adm) student = s; });
                 
                 if (!student) {
                     classes.forEach(function(c) {
                         (c.students || []).forEach(function(st) {
-                            var stAdm = st.ADM || st.adm || st["ADM No"] || "";
+                            var stAdm = extractAdm(st);
                             if (stAdm === adm) {
                                 student = {
-                                    name: st.Name || st.name || st["Full Name"] || "Unknown",
+                                    name: extractName(st),
                                     adm: adm, form: c.name, stream: c.stream || "",
-                                    gender: st.Gender || st.gender || "", dob: st.DOB || st.dob || "",
-                                    parentName: st["Parent Name"] || "", parentPhone: st["Parent Phone"] || ""
+                                    gender: st.Gender || st.gender || "",
+                                    dob: st.DOB || st.dob || "",
+                                    parentName: st["Parent Name"] || "",
+                                    parentPhone: st["Parent Phone"] || "",
+                                    parentEmail: st["Parent Email"] || ""
                                 };
                             }
                         });
@@ -620,21 +637,25 @@
                 currentScannedStudent = student;
                 
                 var allAssignedItems = [];
+                var studentFees = [];
                 
-                borrowed.filter(function(b) { return b.adm === adm && !b.returned; }).forEach(function(b) {
-                    allAssignedItems.push({ itemType: 'book', itemLabel: 'Book', itemNo: b.bookNo || 'N/A', itemDetail: b.bookTitle || '' });
-                });
-                
-                furniture.filter(function(f) { return f.adm === adm; }).forEach(function(f) {
-                    if (f.chairNo) allAssignedItems.push({ itemType: 'chair', itemLabel: 'Chair', itemNo: f.chairNo, itemDetail: '' });
-                    if (f.lockerNo) allAssignedItems.push({ itemType: 'locker', itemLabel: 'Locker', itemNo: f.lockerNo, itemDetail: '' });
-                });
-                
-                assignments.filter(function(a) { return a.adm === adm && !a.returned; }).forEach(function(a) {
-                    allAssignedItems.push({ itemType: a.itemType || 'other', itemLabel: a.itemType || 'Item', itemNo: a.itemNo || 'N/A', itemDetail: '' });
-                });
-                
-                var studentFees = fees.filter(function(f) { return f.studentAdm === adm; });
+                // ONLY collect sensitive data if same school
+                if (isSameSchool) {
+                    borrowed.filter(function(b) { return b.adm === adm && !b.returned; }).forEach(function(b) {
+                        allAssignedItems.push({ itemType: 'book', itemLabel: 'Book', itemNo: b.bookNo || 'N/A', itemDetail: b.bookTitle || '' });
+                    });
+                    
+                    furniture.filter(function(f) { return f.adm === adm; }).forEach(function(f) {
+                        if (f.chairNo) allAssignedItems.push({ itemType: 'chair', itemLabel: 'Chair', itemNo: f.chairNo, itemDetail: '' });
+                        if (f.lockerNo) allAssignedItems.push({ itemType: 'locker', itemLabel: 'Locker', itemNo: f.lockerNo, itemDetail: '' });
+                    });
+                    
+                    assignments.filter(function(a) { return a.adm === adm && !a.returned; }).forEach(function(a) {
+                        allAssignedItems.push({ itemType: a.itemType || 'other', itemLabel: a.itemType || 'Item', itemNo: a.itemNo || 'N/A', itemDetail: '' });
+                    });
+                    
+                    studentFees = fees.filter(function(f) { return f.studentAdm === adm; });
+                }
                 
                 var html = '<div class="student-info-display">';
                 
@@ -642,20 +663,35 @@
                     html += '<h4>📋 Student Details</h4>';
                     html += '<div class="info-row"><span class="info-label">👤 Name</span><span class="info-value">' + student.name + '</span></div>';
                     html += '<div class="info-row"><span class="info-label">🔢 ADM</span><span class="info-value">' + student.adm + '</span></div>';
-                    if (student.dob) html += '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + student.dob + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
-                    html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
                     
-                    if (student.parentName) {
-                        html += '<h4>👨‍👩‍👧 Parent</h4>';
-                        html += '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + student.parentName + '</span></div>';
-                        if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
+                    if (isSameSchool) {
+                        // FULL DETAILS for same school
+                        if (student.dob) html += '<div class="info-row"><span class="info-label">🎂 DOB</span><span class="info-value">' + student.dob + '</span></div>';
+                        html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
+                        html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
+                        if (student.gender) html += '<div class="info-row"><span class="info-label">⚧ Gender</span><span class="info-value">' + student.gender + '</span></div>';
+                        
+                        if (student.parentName) {
+                            html += '<h4>👨‍👩‍👧 Parent Details</h4>';
+                            html += '<div class="info-row"><span class="info-label">Name</span><span class="info-value">' + student.parentName + '</span></div>';
+                            if (student.parentPhone) html += '<div class="info-row"><span class="info-label">📞 Phone</span><span class="info-value">' + student.parentPhone + '</span></div>';
+                            if (student.parentEmail) html += '<div class="info-row"><span class="info-label">✉️ Email</span><span class="info-value">' + student.parentEmail + '</span></div>';
+                        }
+                    } else {
+                        // LIMITED DETAILS for outsiders
+                        html += '<div class="info-row"><span class="info-label">🎓 Class</span><span class="info-value">' + (student.form || 'N/A') + '</span></div>';
+                        html += '<div class="info-row"><span class="info-label">🏠 Stream</span><span class="info-value">' + (student.stream || 'N/A') + '</span></div>';
+                        
+                        html += '<div class="restricted-notice">' +
+                            '<i class="fas fa-lock" style="color:#ffc107;margin-right:5px;"></i>' +
+                            '<span style="font-size:11px;color:#ffc107;">Sensitive details are hidden. You must be a member of ' + school + ' to view full information.</span></div>';
                     }
                 } else {
                     html += '<p style="color:rgba(255,255,255,0.5);">Student not found.</p>';
                 }
                 
-                if (studentFees.length > 0) {
+                // ONLY show fee status for same school
+                if (isSameSchool && studentFees.length > 0) {
                     html += '<h4>💰 Fee Status</h4>';
                     studentFees.forEach(function(f) {
                         var balance = f.balance || 0;
@@ -666,7 +702,8 @@
                     });
                 }
                 
-                if (allAssignedItems.length > 0) {
+                // ONLY show assigned items for same school
+                if (isSameSchool && allAssignedItems.length > 0) {
                     html += '<h4>📦 Assigned Items (' + allAssignedItems.length + ')</h4>';
                     allAssignedItems.forEach(function(item) {
                         var icon = getItemIcon(item.itemType);
@@ -678,8 +715,8 @@
                 
                 html += '</div>';
                 
-                // ASSIGN BUTTON
-                if (student && student.adm) {
+                // ONLY show Assign button for same school
+                if (isSameSchool && student && student.adm) {
                     html += '<div style="margin-top:10px;text-align:center;">' +
                         '<button class="btn btn-assign" onclick="goToAssignPage(\'' + student.adm + '\', \'' + student.name.replace(/'/g, "\\'") + '\')" style="width:100%;justify-content:center;">' +
                         '<i class="fas fa-box"></i> Assign Item to ' + student.name + '</button>' +
@@ -694,7 +731,6 @@
             });
         }
         
-        // Navigate to assign page with student data
         function goToAssignPage(adm, name) {
             var school = getCurrentSchool();
             var url = 'assign.html?adm=' + encodeURIComponent(adm) + '&name=' + encodeURIComponent(name) + '&school=' + encodeURIComponent(school);
