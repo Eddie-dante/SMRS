@@ -183,6 +183,28 @@
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         
+        /* Student photo thumbnail in table */
+        .student-photo-thumb {
+            width: 40px;
+            height: 50px;
+            border-radius: 5px;
+            border: 2px solid var(--accent);
+            object-fit: cover;
+            vertical-align: middle;
+        }
+        .student-photo-placeholder-thumb {
+            width: 40px;
+            height: 50px;
+            border-radius: 5px;
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 16px;
+            background: rgba(255,255,255,0.02);
+        }
+        
         .record-count {
             font-size: 11px; color: rgba(255,255,255,0.5);
             margin-bottom: 10px;
@@ -193,10 +215,20 @@
         }
         .empty-state i { font-size: 28px; margin-bottom: 8px; opacity: 0.5; color: var(--accent); }
         
+        .btn {
+            padding: 6px 10px; border: none; border-radius: 6px;
+            font-size: 10px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-view { background: rgba(23, 162, 184, 0.2); color: #17a2b8; border: 1px solid rgba(23, 162, 184, 0.3); }
+        .btn-view:hover { background: rgba(23, 162, 184, 0.3); }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 6px 8px; gap: 4px; }
             .classy-btn { padding: 6px 8px; font-size: 9px; }
             .main-content { padding: 65px 10px 10px; }
+            .student-photo-thumb, .student-photo-placeholder-thumb { width: 30px; height: 38px; }
         }
     </style>
 </head>
@@ -322,6 +354,7 @@
         /**
          * ============================================
          * SRMS - Database Manager Page Logic
+         * Enhanced with photo display for students
          * ============================================
          */
         
@@ -368,10 +401,18 @@
                 var columns = Object.keys(data[0]);
                 var filteredColumns = columns.filter(function(c) { return c !== 'password'; });
                 
+                // For students table, add Photo column if not present
+                if (tableName === 'students' && filteredColumns.indexOf('photo') === -1) {
+                    filteredColumns.unshift('photo');
+                }
+                
                 // Build header
                 var headHtml = '<tr>';
                 filteredColumns.forEach(function(col) {
-                    headHtml += '<th>' + col + '</th>';
+                    var displayName = col;
+                    if (col === 'photo') displayName = '📷 Photo';
+                    if (col === 'idCardImage') displayName = '🪪 ID Card';
+                    headHtml += '<th>' + displayName + '</th>';
                 });
                 headHtml += '</tr>';
                 thead.innerHTML = headHtml;
@@ -382,6 +423,33 @@
                     bodyHtml += '<tr>';
                     filteredColumns.forEach(function(col) {
                         var value = row[col];
+                        
+                        // Handle photo column specially
+                        if (col === 'photo' && tableName === 'students') {
+                            if (value && typeof value === 'string' && value.startsWith('data:image')) {
+                                bodyHtml += '<td><img src="' + value + '" class="student-photo-thumb" alt="Student Photo"></td>';
+                            } else {
+                                bodyHtml += '<td><div class="student-photo-placeholder-thumb"><i class="fas fa-user"></i></div></td>';
+                            }
+                            return;
+                        }
+                        
+                        // Handle ID card image (show thumbnail or save icon)
+                        if (col === 'idCardImage' && tableName === 'students') {
+                            if (value && typeof value === 'string' && value.startsWith('data:image')) {
+                                bodyHtml += '<td><button class="btn btn-view" onclick="viewImage(\'' + value.substring(0, 50) + '...\')"><i class="fas fa-id-card"></i> View</button></td>';
+                            } else {
+                                bodyHtml += '<td>-</td>';
+                            }
+                            return;
+                        }
+                        
+                        // Handle long base64 strings
+                        if (typeof value === 'string' && value.startsWith('data:image')) {
+                            bodyHtml += '<td><button class="btn btn-view" onclick="viewImage(this)" data-image="' + value + '"><i class="fas fa-image"></i> View</button></td>';
+                            return;
+                        }
+                        
                         if (typeof value === 'object' && value !== null) {
                             value = JSON.stringify(value);
                         }
@@ -397,7 +465,7 @@
                 });
                 tbody.innerHTML = bodyHtml;
                 
-                console.log('✅ Table rendered successfully');
+                console.log('✅ Table rendered successfully with photos');
                 
             }).catch(function(error) {
                 console.error('❌ Database table error:', error);
@@ -405,6 +473,22 @@
                 tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading data</p></div></td></tr>';
                 countEl.textContent = 'Error loading ' + tableName;
             });
+        }
+        
+        /**
+         * View image in new window
+         */
+        function viewImage(element) {
+            var imageData = element.getAttribute('data-image');
+            if (!imageData) return;
+            
+            var win = window.open('', '_blank');
+            if (win) {
+                win.document.write('<html><head><title>Image Viewer</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;">');
+                win.document.write('<img src="' + imageData + '" style="max-width:100%;max-height:100vh;">');
+                win.document.write('</body></html>');
+                win.document.close();
+            }
         }
         
         /**
@@ -466,6 +550,7 @@
         });
         
         window.loadDatabaseTable = loadDatabaseTable;
+        window.viewImage = viewImage;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
         console.log('✅ Database Manager page scripts loaded successfully');
