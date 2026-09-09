@@ -203,8 +203,28 @@
         .form-group select option { background: #1a1f4e; }
         .form-group input:disabled { opacity: 0.6; background: rgba(15, 23, 42, 0.5); cursor: not-allowed; }
         
+        .dob-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .parent-section {
+            background: rgba(23, 162, 184, 0.08);
+            border: 1px solid rgba(23, 162, 184, 0.25);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+        }
+        .parent-section h4 {
+            color: #17a2b8;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
         /* =========================================================
-           LUXURY STUDENT ID CARD - FINAL FIXED
+           LUXURY STUDENT ID CARD
            ========================================================= */
         
         .id-card-wrapper {
@@ -407,6 +427,7 @@
             position: relative;
             z-index: 2;
             flex: 1;
+            min-width: 0;
         }
         
         .school-name {
@@ -421,6 +442,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 100%;
         }
         
         .motto {
@@ -429,6 +451,10 @@
             letter-spacing: 2px;
             color: rgba(255,255,255,0.70);
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
         
         .student-badge {
@@ -442,6 +468,7 @@
             letter-spacing: 1.5px;
             border: 1px solid #d3a747;
             background: linear-gradient(135deg, rgba(215,170,65,0.13), rgba(255,255,255,0.025));
+            flex-shrink: 0;
         }
         
         .header-line {
@@ -503,7 +530,6 @@
             background: linear-gradient(180deg, #b18b55, #604722);
         }
         
-        /* ID number below photo instead of "Official Student Photo" */
         .id-number-below-photo {
             width: 90px;
             margin-top: 5px;
@@ -518,7 +544,7 @@
             text-overflow: ellipsis;
         }
         
-        .student-details { padding-top: 0; }
+        .student-details { padding-top: 0; min-width: 0; }
         
         .student-name {
             font-family: Georgia, "Times New Roman", serif;
@@ -531,6 +557,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 100%;
         }
         
         .name-line {
@@ -548,6 +575,10 @@
             row-gap: 5px;
         }
         
+        .detail {
+            min-width: 0;
+        }
+        
         .detail-label {
             margin-bottom: 1px;
             font-size: 5.5px;
@@ -555,6 +586,9 @@
             color: rgba(227,198,128,0.65);
             text-transform: uppercase;
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .detail-value {
@@ -565,6 +599,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 100%;
         }
         
         .detail-value::after {
@@ -578,7 +613,6 @@
         
         .right-panel { text-align: center; position: relative; }
         
-        /* LARGER QR CODE HOLDER - Exact frame fit */
         .qr-shell {
             width: 80px;
             height: 80px;
@@ -789,7 +823,6 @@
         .id-badge.generated { background: rgba(40,167,69,0.2); color: #34ce57; }
         .id-badge.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
         
-        /* LANDSCAPE Print Sheet Container */
         #printSheetContainer {
             position: absolute;
             left: -9999px;
@@ -853,10 +886,27 @@
                 <div class="form-group"><label>👤 Full Name</label><input type="text" id="editName" oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>🔢 Admission No.</label><input type="text" id="editAdm" readonly oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>🪪 Student ID No.</label><input type="text" id="editStudentId" oninput="updateCardFromEditor()"></div>
-                <div class="form-group"><label>🎂 Date of Birth (DD/MM/YYYY)</label><input type="text" id="editDob" placeholder="DD/MM/YYYY" oninput="updateCardFromEditor()"></div>
+                
+                <div class="form-group">
+                    <label>🎂 Date of Birth</label>
+                    <div class="dob-row">
+                        <select id="editDobDay" onchange="updateDobFromDropdowns()"></select>
+                        <select id="editDobMonth" onchange="updateDobFromDropdowns()"></select>
+                        <select id="editDobYear" onchange="updateDobFromDropdowns()"></select>
+                    </div>
+                </div>
+                
                 <div class="form-group"><label>🎓 Class/Form</label><input type="text" id="editForm" oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>🏠 House/Stream</label><input type="text" id="editStream" oninput="updateCardFromEditor()"></div>
                 <div class="form-group"><label>📅 Issued Date</label><input type="text" id="editIssuedDate" readonly style="background:rgba(255,255,255,0.02);"></div>
+                
+                <div class="parent-section">
+                    <h4><i class="fas fa-users"></i> Parent/Guardian Information</h4>
+                    <div class="form-group"><label>👤 Parent Name</label><input type="text" id="editParentName" placeholder="Parent/Guardian name" oninput="updateCardFromEditor()"></div>
+                    <div class="form-group"><label>📞 Parent Phone</label><input type="tel" id="editParentPhone" placeholder="Parent phone number" oninput="updateCardFromEditor()"></div>
+                    <div class="form-group"><label>✉️ Parent Email</label><input type="email" id="editParentEmail" placeholder="Parent email address" oninput="updateCardFromEditor()"></div>
+                    <button class="btn btn-primary" onclick="saveParentInfo()" style="width:100%;justify-content:center;margin-top:5px;padding:6px 10px;font-size:10px;"><i class="fas fa-save"></i> Save Parent Info</button>
+                </div>
                 
                 <div class="form-group">
                     <label>📷 Photo (Optional)</label>
@@ -886,7 +936,7 @@
                             </div>
                             <div class="school-info">
                                 <div class="school-name" id="cardSchool">SCHOOL NAME</div>
-                                <div class="motto">Knowledge • Discipline • Success</div>
+                                <div class="motto" id="cardMotto">Knowledge • Discipline • Success</div>
                             </div>
                             <div class="student-badge">STUDENT ID</div>
                             <div class="header-line"></div>
@@ -914,7 +964,7 @@
                                     <div class="detail"><div class="detail-label">Date of Birth</div><div class="detail-value" id="cardDob">-</div></div>
                                     <div class="detail"><div class="detail-label">Class / Form</div><div class="detail-value" id="cardForm">-</div></div>
                                     <div class="detail"><div class="detail-label">House / Stream</div><div class="detail-value" id="cardStream">-</div></div>
-                                    <div class="detail"><div class="detail-label">Academic Year</div><div class="detail-value" id="cardAcademicYear">2026</div></div>
+                                    <div class="detail"><div class="detail-label">Parent</div><div class="detail-value" id="cardParentName">-</div></div>
                                     <div class="detail"><div class="detail-label">Date Issued</div><div class="detail-value" id="cardIssuedDate">-</div></div>
                                     <div class="detail"><div class="detail-label">Valid Until</div><div class="detail-value" id="cardValidDate">-</div></div>
                                 </div>
@@ -926,9 +976,9 @@
                                 </div>
                                 <div class="scan-label">Scan to Verify</div>
                                 <div class="signature-area">
-                                    <div class="signature" id="cardSignature">Signature</div>
+                                    <div class="signature" id="cardSignature">Principal</div>
                                     <div class="signature-line"></div>
-                                    <div class="signature-title">Signature</div>
+                                    <div class="signature-title">Principal Signature</div>
                                 </div>
                             </aside>
                         </main>
@@ -1049,12 +1099,15 @@
         var currentQRData = '';
         var cardQueue = [];
         var APP_URL = 'https://smrs-eight.vercel.app';
+        var schoolMotto = 'Knowledge • Discipline • Success';
         
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 StudentsIDs page loaded');
             var user = checkAuth();
             if (!user) return;
             console.log('✅ User authenticated:', user.name);
+            populateDOBDropdowns();
+            loadSchoolSettings();
             loadAllStudents();
             setIssuedDate();
         });
@@ -1072,6 +1125,75 @@
             setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300); }, 2500);
         }
         
+        function setText(id, value) {
+            var el = document.getElementById(id);
+            if (el) {
+                if (value.includes('<br>')) { el.innerHTML = value; } else { el.textContent = value; }
+            }
+        }
+        
+        function populateDOBDropdowns() {
+            var daySelect = document.getElementById('editDobDay');
+            var monthSelect = document.getElementById('editDobMonth');
+            var yearSelect = document.getElementById('editDobYear');
+            
+            if (daySelect) {
+                var days = '';
+                days += '<option value="">Day</option>';
+                for (var d = 1; d <= 31; d++) { days += '<option value="' + d + '">' + d + '</option>'; }
+                daySelect.innerHTML = days;
+            }
+            
+            if (monthSelect) {
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var mHtml = '<option value="">Month</option>';
+                for (var m = 0; m < 12; m++) { mHtml += '<option value="' + (m+1) + '">' + months[m] + '</option>'; }
+                monthSelect.innerHTML = mHtml;
+            }
+            
+            if (yearSelect) {
+                var yHtml = '<option value="">Year</option>';
+                var currentYear = new Date().getFullYear();
+                for (var y = currentYear - 25; y <= currentYear - 3; y++) { yHtml += '<option value="' + y + '">' + y + '</option>'; }
+                yearSelect.innerHTML = yHtml;
+            }
+        }
+        
+        function updateDobFromDropdowns() {
+            var day = document.getElementById('editDobDay')?.value || '';
+            var month = document.getElementById('editDobMonth')?.value || '';
+            var year = document.getElementById('editDobYear')?.value || '';
+            
+            if (day && month && year) {
+                var formattedDob = day + '/' + month + '/' + year;
+                setText('cardDob', formattedDob);
+            } else {
+                setText('cardDob', '-');
+            }
+        }
+        
+        function loadSchoolSettings() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            API.getSchool(school).then(function(schoolInfo) {
+                if (schoolInfo) {
+                    if (schoolInfo.motto) {
+                        schoolMotto = schoolInfo.motto;
+                        setText('cardMotto', schoolMotto);
+                        console.log('✅ Motto loaded from settings:', schoolMotto);
+                    }
+                    if (schoolInfo.address) {
+                        var footerItems = document.querySelectorAll('.footer-item');
+                        if (footerItems.length > 1) {
+                            footerItems[1].innerHTML = '<span class="footer-icon">◆</span> ' + schoolInfo.address;
+                        }
+                    }
+                }
+            }).catch(function(err) {
+                console.error('❌ Error loading school settings:', err);
+            });
+        }
+        
         function setIssuedDate() {
             var now = new Date();
             var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
@@ -1080,18 +1202,7 @@
             setText('editIssuedDate', issuedStr);
             setText('cardIssuedDate', issuedStr);
             setText('cardValidDate', validStr);
-            setText('cardAcademicYear', String(now.getFullYear()));
-        }
-        
-        function setText(id, value) {
-            var el = document.getElementById(id);
-            if (el) {
-                if (value.includes('<br>')) {
-                    el.innerHTML = value;
-                } else {
-                    el.textContent = value;
-                }
-            }
+            console.log('✅ Date issued set:', issuedStr);
         }
         
         function loadAllStudents() {
@@ -1104,7 +1215,18 @@
                 var allStudents = [];
                 var seenAdms = {};
                 students.forEach(function(s) {
-                    if (s.adm && !seenAdms[s.adm]) { seenAdms[s.adm] = true; allStudents.push(s); }
+                    if (s.adm && !seenAdms[s.adm]) {
+                        seenAdms[s.adm] = true;
+                        allStudents.push({
+                            name: s.name || '', adm: s.adm,
+                            studentId: s.studentId || '',
+                            form: s.form || '', stream: s.stream || '',
+                            dob: s.dob || '',
+                            parentName: s.parentName || '',
+                            parentPhone: s.parentPhone || '',
+                            parentEmail: s.parentEmail || ''
+                        });
+                    }
                 });
                 classes.forEach(function(c) {
                     (c.students || []).forEach(function(st) {
@@ -1115,8 +1237,12 @@
                             allStudents.push({
                                 name: name, adm: adm,
                                 studentId: st.studentId || st.StudentID || '',
-                                form: c.name, stream: c.stream || '',
-                                dob: st.DOB || st.dob || ''
+                                form: c.name || st.Form || '',
+                                stream: c.stream || st.stream || '',
+                                dob: st.DOB || st.dob || '',
+                                parentName: st['Parent Name'] || st.parentName || '',
+                                parentPhone: st['Parent Phone'] || st.parentPhone || st['Parent Contact'] || '',
+                                parentEmail: st['Parent Email'] || st.parentEmail || ''
                             });
                         }
                     });
@@ -1147,17 +1273,16 @@
             var html = '';
             students.forEach(function(s) {
                 var hasCard = s.idCardSaved || s.idCardImage || s.qrCode ? true : false;
-                var badge = hasCard ? '<span class="id-badge generated">✅ Card Saved</span>' : '<span class="id-badge pending">⏳ Pending</span>';
+                var badge = hasCard ? '<span class="id-badge generated">✅ Saved</span>' : '<span class="id-badge pending">⏳ Pending</span>';
                 html += '<div class="student-list-item" onclick="selectStudent(\'' + s.adm + '\')">' +
                     '<div class="avatar-small">' + getInitials(s.name) + '</div>' +
                     '<div class="info"><div class="name">' + s.name + '</div>' +
-                    '<div class="adm">ADM: ' + s.adm + ' | ' + (s.form || 'Form: N/A') + '</div></div>' + badge + '</div>';
+                    '<div class="adm">ADM: ' + s.adm + ' | ' + (s.form || 'N/A') + '</div></div>' + badge + '</div>';
             });
             container.innerHTML = html;
         }
         
         function selectStudent(adm) {
-            console.log('👤 Selecting student:', adm);
             var select = document.getElementById('studentSelect');
             if (select) select.value = adm;
             loadStudentForCard();
@@ -1174,13 +1299,35 @@
             document.getElementById('editName').value = student.name || '';
             document.getElementById('editAdm').value = student.adm || '';
             document.getElementById('editStudentId').value = student.studentId || student.adm || '';
-            document.getElementById('editDob').value = student.dob || '';
             document.getElementById('editForm').value = student.form || '';
             document.getElementById('editStream').value = student.stream || '';
+            
+            // PARENT INFO AUTO-FILL from student data
+            document.getElementById('editParentName').value = student.parentName || '';
+            document.getElementById('editParentPhone').value = student.parentPhone || '';
+            document.getElementById('editParentEmail').value = student.parentEmail || '';
+            
+            // DOB dropdown auto-fill
+            if (student.dob) {
+                var dobParts = student.dob.split(/[/-]/);
+                if (dobParts.length === 3) {
+                    var day = parseInt(dobParts[0]);
+                    var month = parseInt(dobParts[1]);
+                    var year = parseInt(dobParts[2]);
+                    if (year < 100) year = 2000 + year;
+                    document.getElementById('editDobDay').value = day;
+                    document.getElementById('editDobMonth').value = month;
+                    document.getElementById('editDobYear').value = year;
+                    updateDobFromDropdowns();
+                } else {
+                    setText('cardDob', student.dob);
+                }
+            }
             
             setIssuedDate();
             updateCardFromEditor();
             console.log('✅ Student loaded:', student.name);
+            if (student.parentName) console.log('✅ Parent auto-filled:', student.parentName);
         }
         
         function updateCardFromEditor() {
@@ -1188,29 +1335,63 @@
             var name = document.getElementById('editName')?.value || 'STUDENT NAME';
             var adm = document.getElementById('editAdm')?.value || '-';
             var studentId = document.getElementById('editStudentId')?.value || '-';
-            var dob = document.getElementById('editDob')?.value || '-';
             var form = document.getElementById('editForm')?.value || '-';
             var stream = document.getElementById('editStream')?.value || '-';
             var issuedDate = document.getElementById('editIssuedDate')?.value || '-';
+            var parentName = document.getElementById('editParentName')?.value || '-';
             
             setText('cardSchool', schoolName.toUpperCase());
             setText('cardName', name.toUpperCase());
             setText('cardAdm', adm);
             setText('cardStudentId', studentId);
             setText('cardIdBelowPhoto', studentId);
-            setText('cardDob', dob);
             setText('cardForm', form.toUpperCase());
             setText('cardStream', stream.toUpperCase());
             setText('cardIssuedDate', issuedDate);
+            setText('cardParentName', parentName);
             setText('cardSignature', name);
             setText('cardWatermark', schoolName.substring(0, 6).toUpperCase());
             setText('cardLogoLetter', schoolName.charAt(0).toUpperCase());
             setText('cardStampSchool', schoolName.substring(0, 10).toUpperCase() + '<br>OFFICIAL<br>' + new Date().getFullYear());
             setText('cardMicrotext', schoolName.toUpperCase() + ' • AUTHORIZED STUDENT IDENTIFICATION •');
+            setText('cardMotto', schoolMotto);
+            
+            updateDobFromDropdowns();
+        }
+        
+        function saveParentInfo() {
+            var adm = document.getElementById('editAdm')?.value;
+            if (!adm) { showNotification('Select a student first', 'warning'); return; }
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            var parentName = document.getElementById('editParentName')?.value || '';
+            var parentPhone = document.getElementById('editParentPhone')?.value || '';
+            var parentEmail = document.getElementById('editParentEmail')?.value || '';
+            
+            var updates = {};
+            updates['schools/' + school + '/students/' + adm + '/parentName'] = parentName;
+            updates['schools/' + school + '/students/' + adm + '/parentPhone'] = parentPhone;
+            updates['schools/' + school + '/students/' + adm + '/parentEmail'] = parentEmail;
+            
+            database.ref().update(updates).then(function() {
+                allStudentsData.forEach(function(s) {
+                    if (s.adm === adm) {
+                        s.parentName = parentName;
+                        s.parentPhone = parentPhone;
+                        s.parentEmail = parentEmail;
+                    }
+                });
+                renderStudentsList(allStudentsData);
+                showNotification('Parent info saved!', 'success');
+            }).catch(function(err) {
+                console.error('❌ Save parent error:', err);
+                showNotification('Failed to save parent info', 'error');
+            });
         }
         
         function generateQRCode() {
-            console.log('📱 Generating QR code...');
+            console.log('📱 Generating QR...');
             var adm = document.getElementById('editAdm')?.value || '';
             var school = getCurrentSchool() || '';
             if (!adm) { showNotification('Select a student first', 'warning'); return; }
@@ -1219,7 +1400,7 @@
             var studentId = document.getElementById('editStudentId')?.value || '';
             var form = document.getElementById('editForm')?.value || '';
             var house = document.getElementById('editStream')?.value || '';
-            var dob = document.getElementById('editDob')?.value || '';
+            var dob = document.getElementById('cardDob')?.textContent || '';
             var year = new Date().getFullYear();
             
             var verificationText = school.toUpperCase() + '\nSTUDENT ID VERIFICATION\n\nName: ' + name + '\nAdmission: ' + adm + '\nStudent ID: ' + studentId + '\nDOB: ' + dob + '\nClass: ' + form + '\nHouse: ' + house + '\nAcademic Year: ' + year;
@@ -1240,7 +1421,6 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
                 showNotification('QR generated!', 'success');
-                console.log('✅ QR generated');
             } catch(err) {
                 console.error('❌ QR error:', err);
                 showNotification('QR generation failed', 'error');
@@ -1260,46 +1440,29 @@
         }
         
         function saveCardAsImage() {
-            console.log('💾 Saving card as image...');
             updateCardFromEditor();
             if (!currentQRData) generateQRCode();
-            
             setTimeout(function() {
                 var card = document.getElementById('card');
                 if (!card) { showNotification('Card not found', 'error'); return; }
-                
                 html2canvas(card, {
-                    scale: 3,
-                    backgroundColor: null,
-                    allowTaint: true,
-                    useCORS: true,
-                    logging: false
+                    scale: 3, backgroundColor: null, allowTaint: true, useCORS: true, logging: false
                 }).then(function(canvas) {
                     var imageData = canvas.toDataURL('image/png');
                     var adm = document.getElementById('editAdm')?.value || '';
-                    if (!adm) { showNotification('Select a student first', 'warning'); return; }
-                    
                     var link = document.createElement('a');
                     link.download = adm + '_id_card.png';
                     link.href = imageData;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
                     
                     var school = getCurrentSchool();
                     if (school) {
                         var updates = {};
                         updates['schools/' + school + '/students/' + adm + '/idCardImage'] = imageData;
                         updates['schools/' + school + '/students/' + adm + '/qrCode'] = adm;
-                        updates['schools/' + school + '/students/' + adm + '/idGeneratedAt'] = new Date().toISOString();
                         updates['schools/' + school + '/students/' + adm + '/idCardSaved'] = true;
-                        
                         database.ref().update(updates).then(function() {
-                            allStudentsData.forEach(function(s) {
-                                if (s.adm === adm) { s.qrCode = adm; s.idCardSaved = true; s.idCardImage = imageData; }
-                            });
-                            renderStudentsList(allStudentsData);
-                            showNotification('Card saved & attached!', 'success');
+                            showNotification('Card saved!', 'success');
                         }).catch(function() {
                             showNotification('Card downloaded!', 'success');
                         });
@@ -1312,28 +1475,16 @@
         }
         
         function addToQueue() {
-            console.log('📦 Adding to queue...');
-            if (cardQueue.length >= 6) {
-                showNotification('Queue limit reached (Max 6 cards per sheet)', 'warning');
-                return;
-            }
+            if (cardQueue.length >= 6) { showNotification('Queue limit reached', 'warning'); return; }
             updateCardFromEditor();
             if (!currentQRData) generateQRCode();
-
             setTimeout(function() {
                 var cardElement = document.getElementById('card');
                 var name = document.getElementById('editName')?.value || 'Student';
                 var adm = document.getElementById('editAdm')?.value || 'N/A';
-
-                cardQueue.push({
-                    name: name,
-                    adm: adm,
-                    clone: cardElement.cloneNode(true)
-                });
-
+                cardQueue.push({ name: name, adm: adm, clone: cardElement.cloneNode(true) });
                 renderQueue();
                 showNotification(name + ' added to queue!', 'success');
-                console.log('✅ Added to queue:', name);
             }, 300);
         }
 
@@ -1341,48 +1492,29 @@
             var grid = document.getElementById('queueGrid');
             var count = document.getElementById('queueCount');
             if (count) count.textContent = cardQueue.length;
-
             if (cardQueue.length === 0) {
-                grid.innerHTML = '<p style="font-size:0.65rem; color:rgba(255,255,255,0.3); grid-column:1/-1;">No cards in queue. Click "Add to Queue" above.</p>';
+                grid.innerHTML = '<p style="font-size:0.65rem;color:rgba(255,255,255,0.3);grid-column:1/-1;">No cards in queue.</p>';
                 return;
             }
-
             var html = '';
             cardQueue.forEach(function(item, idx) {
                 html += '<div class="queue-card-item">' +
                     '<button class="remove-btn" onclick="removeFromQueue(' + idx + ')"><i class="fas fa-times"></i></button>' +
-                    '<div style="font-size: 18px; color:#d4af37;"><i class="fas fa-id-card"></i></div>' +
+                    '<div style="font-size:18px;color:#d4af37;"><i class="fas fa-id-card"></i></div>' +
                     '<div class="q-name">' + item.name + '</div>' +
-                    '<div class="q-adm">ADM: ' + item.adm + '</div>' +
-                '</div>';
+                    '<div class="q-adm">ADM: ' + item.adm + '</div></div>';
             });
             grid.innerHTML = html;
         }
 
-        function removeFromQueue(index) {
-            cardQueue.splice(index, 1);
-            renderQueue();
-            showNotification('Card removed from queue', 'info');
-        }
-
-        function clearQueue() {
-            cardQueue = [];
-            renderQueue();
-            showNotification('Queue cleared', 'info');
-        }
+        function removeFromQueue(index) { cardQueue.splice(index, 1); renderQueue(); showNotification('Card removed', 'info'); }
+        function clearQueue() { cardQueue = []; renderQueue(); showNotification('Queue cleared', 'info'); }
 
         function exportQueueSheet(type) {
-            console.log('📤 Exporting queue as:', type);
-            if (cardQueue.length === 0) {
-                showNotification('Add at least 1 card to queue first', 'warning');
-                return;
-            }
-
+            if (cardQueue.length === 0) { showNotification('Add at least 1 card first', 'warning'); return; }
             showNotification('Generating landscape A4 sheet...', 'info');
-
             var container = document.getElementById('printSheetContainer');
             container.innerHTML = '';
-
             cardQueue.forEach(function(item) {
                 var wrapper = document.createElement('div');
                 wrapper.style.cssText = 'display:flex;justify-content:center;align-items:center;width:100%;height:100%;';
@@ -1392,37 +1524,25 @@
                 wrapper.appendChild(clone);
                 container.appendChild(wrapper);
             });
-
             for (var i = cardQueue.length; i < 6; i++) {
                 var emptyDiv = document.createElement('div');
-                emptyDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;border:2px dashed #ccc;border-radius:8px;width:100%;height:100%;';
+                emptyDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;border:2px dashed #ccc;border-radius:8px;';
                 emptyDiv.innerHTML = '<span style="font-size:0.5rem;color:#999;">EMPTY</span>';
                 container.appendChild(emptyDiv);
             }
-
             setTimeout(function() {
-                html2canvas(container, {
-                    scale: 2,
-                    backgroundColor: '#ffffff',
-                    useCORS: true,
-                    logging: false
-                }).then(function(canvas) {
+                html2canvas(container, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false }).then(function(canvas) {
                     if (type === 'png') {
-                        var imageData = canvas.toDataURL('image/png');
                         var link = document.createElement('a');
                         link.download = 'Student_IDs_Sheet_Landscape.png';
-                        link.href = imageData;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+                        link.href = canvas.toDataURL('image/png');
+                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
                         showNotification('PNG Sheet Downloaded!', 'success');
                     } else if (type === 'pdf') {
                         const { jsPDF } = window.jspdf;
                         var pdf = new jsPDF('l', 'mm', 'a4');
                         var imgData = canvas.toDataURL('image/png');
-                        var imgWidth = 297;
-                        var imgHeight = (canvas.height * imgWidth) / canvas.width;
-                        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                        pdf.addImage(imgData, 'PNG', 0, 0, 297, (canvas.height * 297) / canvas.width);
                         pdf.save('Student_IDs_Sheet_Landscape.pdf');
                         showNotification('PDF Sheet Downloaded!', 'success');
                     }
@@ -1434,36 +1554,21 @@
         }
         
         function printCard() {
-            console.log('🖨️ Printing single card...');
             updateCardFromEditor();
             if (!currentQRData) generateQRCode();
-            
             setTimeout(function() {
                 var cardElement = document.getElementById('card');
                 if (!cardElement) { showNotification('Card not found', 'error'); return; }
                 var cardClone = cardElement.cloneNode(true);
-                var cardHTML = cardClone.outerHTML;
-                
                 var printWindow = window.open('', '_blank', 'width=1100,height=700');
                 if (!printWindow) { showNotification('Popup blocked!', 'error'); return; }
-                
-                printWindow.document.write('<html><head><title>Print ID Card</title>' +
-                    '<style>' +
-                    '@page { size: 85.6mm 54mm; margin: 0; }' +
-                    'body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fff; }' +
-                    '.student-id { width: 85.6mm; height: 54mm; border-radius: 3mm; }' +
-                    '</style></head><body>' + cardHTML + '</body></html>');
+                printWindow.document.write('<html><head><title>Print</title><style>@page{size:85.6mm 54mm;margin:0;}body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;}.student-id{width:85.6mm;height:54mm;border-radius:3mm;}</style></head><body>' + cardClone.outerHTML + '</body></html>');
                 printWindow.document.close();
-                
-                setTimeout(function() {
-                    printWindow.focus();
-                    printWindow.print();
-                }, 800);
+                setTimeout(function() { printWindow.focus(); printWindow.print(); }, 800);
             }, 800);
         }
         
         function loadPhoto(event) {
-            console.log('📷 Loading photo...');
             var file = event.target.files[0];
             if (!file) return;
             var reader = new FileReader();
@@ -1486,9 +1591,7 @@
                 DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
                     if (result === 'confirm') logout();
                 });
-            } else {
-                if (confirm('Logout?')) logout();
-            }
+            } else { if (confirm('Logout?')) logout(); }
         }
         
         function logout() {
@@ -1509,6 +1612,8 @@
         window.removeFromQueue = removeFromQueue;
         window.clearQueue = clearQueue;
         window.exportQueueSheet = exportQueueSheet;
+        window.saveParentInfo = saveParentInfo;
+        window.updateDobFromDropdowns = updateDobFromDropdowns;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
         
