@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Full Version - Fixed Class Creation
+// Full Version - FIXED Class Creation
 // ============================================
 
 var firebaseConfig = {
@@ -635,14 +635,14 @@ var API = {
       });
   },
 
-  // ============ CLASSES (FIXED - Sequential Writes) ============
+  // ============ CLASSES (FIXED - Uses .set() on students path only) ============
   addClass: function (schoolName, classData) {
     var classRef = database.ref("schools/" + schoolName + "/classes").push();
     var classId = classRef.key;
     var students = classData.students || [];
     var studentIdsGenerated = 0;
 
-    // Step 1: Create class with empty students array
+    // Step 1: Create class with empty students using .set()
     return classRef
       .set({
         name: classData.name,
@@ -695,12 +695,11 @@ var API = {
         return Promise.all(studentPromises);
       })
       .then(function () {
-        // Step 3: Update class with students (with IDs)
+        // Step 3: Set students array using .set() on the students path ONLY
+        // This avoids parent/child conflict
         return database
-          .ref("schools/" + schoolName + "/classes/" + classId)
-          .update({
-            students: students,
-          });
+          .ref("schools/" + schoolName + "/classes/" + classId + "/students")
+          .set(students);
       })
       .then(function () {
         clearCache("classes_" + schoolName);
@@ -712,6 +711,7 @@ var API = {
         };
       })
       .catch(function (error) {
+        console.error("Add class error:", error);
         return { success: false, error: error.message };
       });
   },
