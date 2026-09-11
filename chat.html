@@ -217,6 +217,10 @@
             text-align: left;
         }
         .chat-user-btn:hover { background: rgba(255,255,255,0.1); }
+        .chat-user-btn.active {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.5);
+        }
         
         .chat-messages {
             background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
@@ -282,7 +286,7 @@
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-comment-dots" style="color:var(--accent);"></i> Private Chat</h1>
-            <p>Message staff members directly</p>
+            <p>Message staff members directly — updates in real-time</p>
         </div>
         
         <div class="chat-container">
@@ -374,39 +378,68 @@
     <script src="js/app.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        /* ============================================================
+           CHAT PAGE — page-specific logic
+           Chat messages auto-update via app.js realtime subscriptions.
+           ============================================================ */
+        
+        document.addEventListener('DOMContentLoaded', function () {
             var user = checkAuth();
             if (!user) return;
-            
-            if (typeof loadChatUsers === 'function') {
-                loadChatUsers();
-            }
+
+            // app.js already calls loadChatUsers() via loadPageData("chat.html")
+            // and sets up realtime subscriptions for "chat" and "users".
+            // We only need to make sure the badge shows up.
+            setTimeout(function () {
+                if (typeof checkUnreadMessages === "function") {
+                    checkUnreadMessages();
+                }
+            }, 800);
         });
         
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { 
-                    title: 'Logout', 
-                    type: 'info', 
-                    confirmText: 'Logout', 
-                    cancelText: 'Cancel' 
-                }).then(function(result) {
-                    if (result === 'confirm') {
-                        logout();
-                    }
+                DialogSystem.confirm('Are you sure you want to logout?', {
+                    title: 'Logout',
+                    type: 'info',
+                    confirmText: 'Logout',
+                    cancelText: 'Cancel'
+                }).then(function (result) {
+                    if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) {
-                    logout();
-                }
+                if (confirm('Are you sure you want to logout?')) logout();
             }
         }
         
         function logout() {
+            if (typeof window.wipeAllCache === 'function') {
+                window.wipeAllCache();
+            }
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
+        
+        // Enhance selectChatUser to highlight the active user
+        var _originalSelectChatUser = window.selectChatUser;
+        window.selectChatUser = function (email, name) {
+            // Call original
+            if (typeof _originalSelectChatUser === "function") {
+                _originalSelectChatUser(email, name);
+            } else if (typeof selectChatUser === "function") {
+                selectChatUser(email, name);
+            }
+            // Highlight the active user in the list
+            document.querySelectorAll(".chat-user-btn").forEach(function (btn) {
+                btn.classList.remove("active");
+            });
+            document.querySelectorAll(".chat-user-btn").forEach(function (btn) {
+                if (btn.getAttribute("onclick") && btn.getAttribute("onclick").indexOf(email) > -1) {
+                    btn.classList.add("active");
+                }
+            });
+        };
         
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;

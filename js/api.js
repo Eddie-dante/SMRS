@@ -2,8 +2,8 @@
 // SRMS - Firebase API
 // Full Version with CACHE-FIRST PERSISTENCE
 // + UNIQUE INVITE CODE per school (8 chars, safe alphabet)
-// + 15s timeout (was 6s) — rules allow reads
-// + null-safe failures
+// + 15s timeout — rules allow reads
+// + REALTIME SUBSCRIPTIONS (instant live updates)
 // ============================================
 
 var firebaseConfig = {
@@ -393,11 +393,6 @@ setTimeout(backgroundSync, 800);
    HELPERS
    ============================================================ */
 
-/**
- * Unique mixed-character invite code.
- * Uses an unambiguous alphabet: no 0/O, no 1/I/L.
- * Default length: 8 characters.
- */
 function generateInviteCode(length) {
   length = length || 8;
   var chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -512,9 +507,7 @@ function extractName(student) {
 var API = {
   // ============ SCHOOL ============
   getSchool: function (schoolName) {
-    if (!database) {
-      return Promise.resolve(null);
-    }
+    if (!database) return Promise.resolve(null);
     var cleanSchool = String(schoolName || "").trim();
     return getCachedData(
       "school_" + cleanSchool,
@@ -531,9 +524,7 @@ var API = {
   },
 
   getSchoolFast: function (schoolName) {
-    if (!database) {
-      return Promise.resolve(null);
-    }
+    if (!database) return Promise.resolve(null);
     var cleanSchool = String(schoolName || "").trim();
     return getCachedData(
       "school_" + cleanSchool,
@@ -547,43 +538,32 @@ var API = {
       },
       10 * 60 * 1000,
     ).then(function (data) {
-      if (!data || typeof data !== "object" || Array.isArray(data)) {
-        return null;
-      }
+      if (!data || typeof data !== "object" || Array.isArray(data)) return null;
       return data;
     });
   },
 
-  /**
-   * verifyInviteCode — reads the school's real invite code from Firebase
-   * and compares it to what the user typed.
-   *
-   * Uses the shared cache layer, so repeat verifications are instant.
-   */
   verifyInviteCode: function (schoolName, code) {
     var normalized = String(code || "")
       .trim()
       .toUpperCase();
     var cleanSchool = String(schoolName || "").trim();
 
-    if (!cleanSchool) {
+    if (!cleanSchool)
       return Promise.resolve({
         success: false,
         error: "School name is required.",
       });
-    }
-    if (!normalized) {
+    if (!normalized)
       return Promise.resolve({
         success: false,
         error: "Invite code is required.",
       });
-    }
-    if (!database) {
+    if (!database)
       return Promise.resolve({
         success: false,
         error: "Firebase is not ready yet. Please reload the page.",
       });
-    }
 
     return getCachedData(
       "school_" + cleanSchool,
@@ -595,7 +575,7 @@ var API = {
             return s.val() || null;
           });
       },
-      10 * 60 * 1000, // cache for 10 min
+      10 * 60 * 1000,
     )
       .then(function (school) {
         if (!school || typeof school !== "object") {
@@ -608,18 +588,16 @@ var API = {
         var stored = String(school.inviteCode || "")
           .trim()
           .toUpperCase();
-        if (!stored) {
+        if (!stored)
           return {
             success: false,
             error: "This school has no invite code set. Ask the admin.",
           };
-        }
-        if (stored !== normalized) {
+        if (stored !== normalized)
           return {
             success: false,
             error: "Invalid invite code. Please try again.",
           };
-        }
         return { success: true, school: school };
       })
       .catch(function () {
@@ -632,7 +610,7 @@ var API = {
   },
 
   createSchool: function (schoolData) {
-    var inviteCode = generateInviteCode(8); // unique, e.g. "QT1BH2CF"
+    var inviteCode = generateInviteCode(8);
     var emailKey = schoolData.adminEmail.replace(/\./g, ",");
 
     return database
@@ -2145,6 +2123,163 @@ var API = {
 };
 
 /* ============================================================
+   REALTIME SUBSCRIPTIONS
+   ------------------------------------------------------------
+   Firebase `.on("value")` pushes updates instantly — no polling.
+
+   Usage:
+     var unsub = API.subscribe("SchoolName", "books", function(data) {
+       console.log("Books changed:", data);
+     });
+     unsub();
+   ============================================================ */
+
+var _subscriptions = {};
+
+function _subKey(school, collection) {
+  return school + "::" + collection;
+}
+
+function _subscribeOne(school, collection, onChange) {
+  var key = _subKey(school, collection);
+
+  // Already subscribed — add another callback
+  if (_subscriptions[key]) {
+    _subscriptions[key].callbacks.push(onChange);
+    var cached = dataCache[collection + "_" + school];
+    if (cached && cached.data) {
+      try {
+        onChange(cached.data);
+      } catch (e) {}
+    }
+    return function () {
+      var entry = _subscriptions[key];
+      if (!entry) return;
+      var idx = entry.callbacks.indexOf(onChange);
+      if (idx >= 0) entry.callbacks.splice(idx, 1);
+      if (entry.callbacks.length === 0) {
+        try {
+          entry.ref.off("value", entry.handler);
+        } catch (e) {}
+        delete _subscriptions[key];
+      }
+    };
+  }
+
+  var ref = database.ref("schools/" + school + "/" + collection);
+
+  var handler = ref.on(
+    "value",
+    function (snapshot) {
+      var raw = snapshot.val();
+      var arr;
+      if (!raw) {
+        arr = [];
+      } else if (Array.isArray(raw)) {
+        arr = raw;
+      } else {
+        arr = Object.keys(raw).map(function (k) {
+          var item = raw[k];
+          if (item && typeof item === "object") {
+            return Object.assign({ id: k }, item);
+          }
+          return { id: k, value: item };
+        });
+      }
+
+      // Strip heavy blobs for list views
+      if (collection === "students" || collection === "classes") {
+        arr = JSON.parse(
+          JSON.stringify(arr, function (k, v) {
+            if (k === "photo" || k === "idCardImage") return undefined;
+            return v;
+          }),
+        );
+      }
+
+      // Update cache so getCachedData() sees fresh data
+      dataCache[collection + "_" + school] = {
+        timestamp: Date.now(),
+        data: arr,
+      };
+      persistCacheEntry(
+        collection + "_" + school,
+        dataCache[collection + "_" + school],
+      );
+
+      // Notify all callbacks
+      var entry = _subscriptions[key];
+      if (entry) {
+        entry.callbacks.slice().forEach(function (cb) {
+          try {
+            cb(arr);
+          } catch (e) {
+            console.error("Sub callback error:", e);
+          }
+        });
+      }
+    },
+    function (err) {
+      console.warn("⚠️ Realtime error for " + collection + ":", err.message);
+      // Auto-retry after 3s
+      setTimeout(function () {
+        var entry = _subscriptions[key];
+        if (!entry) return;
+        try {
+          entry.ref.off("value", entry.handler);
+        } catch (e) {}
+        var callbacks = entry.callbacks.slice();
+        delete _subscriptions[key];
+        callbacks.forEach(function (cb) {
+          _subscribeOne(school, collection, cb);
+        });
+      }, 3000);
+    },
+  );
+
+  _subscriptions[key] = {
+    ref: ref,
+    handler: handler,
+    callbacks: [onChange],
+  };
+
+  return function () {
+    var entry = _subscriptions[key];
+    if (!entry) return;
+    var idx = entry.callbacks.indexOf(onChange);
+    if (idx >= 0) entry.callbacks.splice(idx, 1);
+    if (entry.callbacks.length === 0) {
+      try {
+        entry.ref.off("value", entry.handler);
+      } catch (e) {}
+      delete _subscriptions[key];
+    }
+  };
+}
+
+API.subscribe = function (school, collection, onChange) {
+  if (!database) {
+    console.warn("⚠️ API.subscribe called before Firebase ready");
+    return function () {};
+  }
+  return _subscribeOne(school, collection, onChange);
+};
+
+API.unsubscribeAll = function () {
+  Object.keys(_subscriptions).forEach(function (key) {
+    var entry = _subscriptions[key];
+    try {
+      entry.ref.off("value", entry.handler);
+    } catch (e) {}
+  });
+  _subscriptions = {};
+};
+
+window.addEventListener("beforeunload", function () {
+  API.unsubscribeAll();
+});
+
+/* ============================================================
    API GUARD — prevents calls before Firebase is ready
    ============================================================ */
 (function guardApiCalls() {
@@ -2174,7 +2309,7 @@ window.generateInviteCode = generateInviteCode;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
 
-console.log("✅ API loaded — CACHE-FIRST + PERSISTENT + BACKGROUND SYNC");
+console.log("✅ API loaded — CACHE-FIRST + REALTIME SUBSCRIPTIONS");
 console.log("📦 Cache version: v" + CACHE_VERSION);
 console.log("⏱️ Firebase timeout: " + FIREBASE_TIMEOUT_MS + "ms");
-console.log("🔑 Invite codes are UNIQUE per school (8 chars)");
+console.log("🔴 Realtime subscriptions enabled — instant live updates");

@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version - PERFORMANCE OPTIMIZED
+// Full Version with REALTIME LIVE DATA
 // ============================================
 
 var currentChatUserEmail = null;
@@ -15,6 +15,9 @@ var allQRCodesCache = [];
 var isAppInitialized = false;
 var bulkBookClass = null;
 var bulkFurnitureClass = null;
+
+// Track live subscriptions for the current page
+var _pageUnsubscribers = [];
 
 // ============ INITIALIZATION ============
 document.addEventListener("DOMContentLoaded", function () {
@@ -47,7 +50,6 @@ function initDropdownController() {
   navGroups.forEach(function (group) {
     var dropdown = group.querySelector(".dropdown-menu");
     var button = group.querySelector(".classy-btn");
-
     if (!dropdown || !button) return;
 
     var closeTimeout = null;
@@ -125,51 +127,87 @@ function initDropdownController() {
 
 // ============ PAGE ROUTER ============
 function loadPageData(page) {
+  // Clean up previous page's live subscriptions
+  if (window.API && API.unsubscribeAll) API.unsubscribeAll();
+  _pageUnsubscribers.forEach(function (u) {
+    try {
+      u();
+    } catch (e) {}
+  });
+  _pageUnsubscribers = [];
+
   switch (page) {
     case "dashboard.html":
       loadDashboardData();
+      watchLive(
+        page,
+        [
+          "books",
+          "students",
+          "borrowed",
+          "furniture",
+          "teachers",
+          "classes",
+          "events",
+          "fees",
+        ],
+        loadDashboardData,
+      );
       break;
     case "library.html":
       loadLibraryData();
+      watchLive(page, ["books", "borrowed"], loadLibraryData);
       break;
     case "students.html":
       loadStudentsData();
+      watchLive(page, ["students", "classes"], loadStudentsData);
       break;
     case "furniture.html":
       loadFurnitureData();
+      watchLive(page, ["furniture"], loadFurnitureData);
       break;
     case "chat.html":
       loadChatUsers();
+      watchLive(page, ["chat", "users"], handleChatLiveUpdate);
       break;
     case "forum.html":
       loadForumMessages();
+      watchLive(page, ["forum"], loadForumMessages);
       break;
     case "notepad.html":
       loadNotes();
       break;
     case "events.html":
       loadEvents();
+      watchLive(page, ["events"], loadEvents);
       break;
     case "fees.html":
       loadFeesData();
+      watchLive(page, ["fees", "students"], loadFeesData);
       break;
     case "timetable.html":
       loadTimetableData();
+      watchLive(page, ["timetable"], loadTimetableData);
       break;
     case "teachers.html":
       loadTeachersData();
+      watchLive(page, ["teachers"], loadTeachersData);
       break;
     case "classes.html":
       loadClassesData();
+      watchLive(page, ["classes"], loadClassesData);
       break;
     case "terms.html":
       loadTerms();
+      watchLive(page, ["terms"], loadTerms);
       break;
     case "auditlog.html":
       loadAuditLog();
+      watchLive(page, ["auditLog"], loadAuditLog);
       break;
     case "reports.html":
       loadReports();
+      watchLive(page, ["borrowed", "furniture"], loadReports);
       break;
     case "settings.html":
       loadSettingsData();
@@ -179,11 +217,55 @@ function loadPageData(page) {
       break;
     case "qrcodes.html":
       loadQRCodeList();
+      watchLive(page, ["qrcodes"], loadQRCodeList);
       break;
     default:
-      if (document.getElementById("welcomeUserName")) loadDashboardData();
+      if (document.getElementById("welcomeUserName")) {
+        loadDashboardData();
+        watchLive(
+          page,
+          ["books", "students", "borrowed", "furniture"],
+          loadDashboardData,
+        );
+      }
       break;
   }
+}
+
+// ============ REALTIME WATCHER ============
+function watchLive(page, collections, pageLoader) {
+  if (!window.API || !API.subscribe) return;
+  var school = getCurrentSchool();
+  if (!school) return;
+
+  var renderTimer = null;
+  function scheduleRender() {
+    if (renderTimer) clearTimeout(renderTimer);
+    renderTimer = setTimeout(function () {
+      try {
+        pageLoader();
+      } catch (e) {
+        console.error("Live render error:", e);
+      }
+    }, 120);
+  }
+
+  collections.forEach(function (collection) {
+    var unsub = API.subscribe(school, collection, function () {
+      scheduleRender();
+    });
+    _pageUnsubscribers.push(unsub);
+  });
+
+  console.log("🔴 Live: " + page + " → [" + collections.join(", ") + "]");
+}
+
+// Special chat handler — re-renders messages when chat collection changes
+function handleChatLiveUpdate() {
+  if (currentChatUserEmail) {
+    loadChatMessages();
+  }
+  checkUnreadMessages();
 }
 
 // ============ AUDIT LOGGING ============
@@ -253,7 +335,7 @@ function loadDashboardData() {
             var codeEl = document.getElementById("inviteCode");
             var bannerEl = document.getElementById("inviteCodeBanner");
             if (codeEl) codeEl.textContent = schoolInfo.inviteCode;
-            if (bannerEl) bannerEl.style.display = "block";
+            if (bannerEl) bannerEl.classList.add("visible");
           }
         })
         .catch(function () {});
@@ -417,7 +499,8 @@ function animateNumber(elementId, targetValue) {
   var element = document.getElementById(elementId);
   if (!element) return;
   var startValue = parseInt(element.textContent) || 0;
-  var duration = 600;
+  if (startValue === targetValue) return;
+  var duration = 400;
   var startTime = performance.now();
   function update(currentTime) {
     var elapsed = currentTime - startTime;
@@ -553,7 +636,7 @@ function loadLibraryData() {
             '<tr><td colspan="5" style="text-align:center;">No records</td></tr>';
         } else {
           var borrowedHtml = "";
-          borrowed.forEach(function (b) {
+          borrowed.slice(0, 200).forEach(function (b) {
             var status = b.returned
               ? '<span class="badge badge-success">Returned</span>'
               : '<span class="badge badge-warning">Active</span>';
@@ -1719,20 +1802,17 @@ function loadFeesData() {
               (fee.studentName || "-") +
               "</td><td>" +
               (fee.studentAdm || "-") +
-              "</td>" +
-              "<td>KES " +
+              "</td><td>KES " +
               formatNumber(fee.amount || 0) +
               "</td><td>KES " +
               formatNumber(fee.paid || 0) +
-              "</td>" +
-              "<td>KES " +
+              "</td><td>KES " +
               formatNumber(fee.balance || 0) +
               "</td><td>" +
               (fee.term || "") +
               "</td><td>" +
               badge +
-              "</td>" +
-              '<td><button class="btn btn-sm btn-primary" onclick="editFee(\'' +
+              '</td><td><button class="btn btn-sm btn-primary" onclick="editFee(\'' +
               fee.id +
               '\')"><i class="fas fa-edit"></i></button> ' +
               '<button class="btn btn-sm btn-danger" onclick="deleteFee(\'' +
@@ -2663,8 +2743,7 @@ function loadQRCodeList() {
           (qr.code || "") +
           "</strong></td><td>" +
           (qr.type || "") +
-          "</td>" +
-          '<td><span class="badge ' +
+          '</td><td><span class="badge ' +
           badgeClass +
           '">' +
           status +
@@ -2693,7 +2772,7 @@ function loadQRCodeList() {
   window.addEventListener(
     "scroll",
     function () {
-      if (window.innerWidth > 768) return; // only on mobile
+      if (window.innerWidth > 768) return;
 
       var y = window.scrollY;
       var goingDown = y > lastY;
@@ -2711,7 +2790,6 @@ function loadQRCodeList() {
 
       if (dimTimer) clearTimeout(dimTimer);
       dimTimer = setTimeout(function () {
-        // Auto-reveal after 4s of no scrolling
         if (Date.now() - hiddenAt > 4000) {
           navbar.classList.remove("navbar-dimmed");
         }
@@ -2720,7 +2798,6 @@ function loadQRCodeList() {
     { passive: true },
   );
 
-  // Reveal on tap anywhere (so user can always get it back)
   document.addEventListener(
     "touchstart",
     function () {
@@ -2792,10 +2869,10 @@ window.issueBulkBooks = issueBulkBooks;
 window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
 window.allocateBulkFurniture = allocateBulkFurniture;
 window.updateStudentStats = updateStudentStats;
+window.watchLive = watchLive;
 
 // ============================================
-// MOBILE DROPDOWN — tap to open / tap outside to close
-// Fixes hover-only dropdowns on touch devices
+// MOBILE DROPDOWN FIX
 // ============================================
 (function mobileDropdownFix() {
   function isTouchDevice() {
@@ -2814,33 +2891,23 @@ window.updateStudentStats = updateStudentStats;
 
   function initMobileDropdowns() {
     var navGroups = document.querySelectorAll(".floating-navbar .nav-group");
-
     navGroups.forEach(function (group) {
       var button = group.querySelector(".classy-btn");
       var dropdown = group.querySelector(".dropdown-menu");
       if (!button || !dropdown) return;
-
-      // Remove any prior listeners by cloning (safe way to prevent dupes)
-      // We just add once and guard against re-init
       if (button.dataset.mobileInit === "1") return;
       button.dataset.mobileInit = "1";
 
       button.addEventListener("click", function (e) {
-        if (!isTouchDevice()) return; // desktop keeps hover behavior
+        if (!isTouchDevice()) return;
         e.preventDefault();
         e.stopPropagation();
-
         var isOpen = dropdown.classList.contains("open");
         closeAllDropdowns(dropdown);
-
-        if (isOpen) {
-          dropdown.classList.remove("open");
-        } else {
-          dropdown.classList.add("open");
-        }
+        if (isOpen) dropdown.classList.remove("open");
+        else dropdown.classList.add("open");
       });
 
-      // Tapping a dropdown item should close it
       dropdown.querySelectorAll(".dropdown-item").forEach(function (item) {
         item.addEventListener("click", function () {
           dropdown.classList.remove("open");
@@ -2849,7 +2916,6 @@ window.updateStudentStats = updateStudentStats;
     });
   }
 
-  // Close on outside tap
   document.addEventListener("click", function (e) {
     if (!isTouchDevice()) return;
     if (!e.target.closest(".floating-navbar .nav-group")) {
@@ -2857,7 +2923,6 @@ window.updateStudentStats = updateStudentStats;
     }
   });
 
-  // Close on scroll (feels natural on mobile)
   window.addEventListener(
     "scroll",
     function () {
@@ -2867,7 +2932,6 @@ window.updateStudentStats = updateStudentStats;
     { passive: true },
   );
 
-  // Re-init on load + window resize (to handle orientation changes)
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initMobileDropdowns);
   } else {
@@ -2877,9 +2941,8 @@ window.updateStudentStats = updateStudentStats;
     if (isTouchDevice()) initMobileDropdowns();
   });
 
-  // Auto-init any newly-added nav groups (rare, but safe)
   setTimeout(initMobileDropdowns, 500);
   setTimeout(initMobileDropdowns, 1500);
 })();
 
-console.log("✅ SRMS App loaded - PERFORMANCE OPTIMIZED");
+console.log("✅ SRMS App loaded — REALTIME LIVE DATA");

@@ -164,9 +164,10 @@
             background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
             border: 2px dashed rgba(212,175,55,0.5);
             border-radius: 16px; padding: 20px; text-align: center;
-            margin-bottom: 20px; display: none;
+            margin-bottom: 20px;
             position: relative;
             backdrop-filter: blur(15px);
+            display: none;
         }
         .invite-code-banner.visible { display: block; animation: fadeIn 0.4s ease; }
         .invite-code-banner .banner-title {
@@ -480,277 +481,68 @@
     
     <script>
         /* ============================================================
-           DASHBOARD LOGIC
+           DASHBOARD LOGIC (app.js handles the heavy lifting)
            ============================================================ */
+        document.addEventListener('DOMContentLoaded', function () {
+            var user = checkAuth();
+            if (!user) return;
+            console.log('✅ Dashboard authenticated:', user.name, '| Role:', user.role);
+        });
         
-        var _cachedInviteCode = "";
-        
-        function loadDashboard() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            var user = getCurrentUser();
-            
-            // Welcome banner
-            if (user) {
-                var nameEl = document.getElementById('welcomeUserName');
-                var roleEl = document.getElementById('welcomeUserRole');
-                var schoolEl = document.getElementById('welcomeSchoolName');
-                var dateEl = document.getElementById('dateDisplay');
-                if (nameEl) nameEl.textContent = user.name || 'User';
-                if (roleEl) roleEl.textContent = (user.role || 'user').toUpperCase();
-                if (schoolEl) schoolEl.textContent = school;
-                if (dateEl) dateEl.textContent = getDateDisplay();
-            }
-            
-            // Invite code banner — show for admins only
-            if (user && user.role === 'admin') {
-                loadInviteCode(school);
-            }
-            
-            // Stats
-            Promise.all([
-                API.getBooks(school),
-                API.getStudents(school),
-                API.getBorrowed(school),
-                API.getFurniture(school),
-                API.getTeachers(school),
-                API.getClasses(school),
-                API.getEvents(school),
-                API.getFees(school),
-            ]).then(function (results) {
-                var books = results[0] || [];
-                var students = results[1] || [];
-                var borrowed = results[2] || [];
-                var furniture = results[3] || [];
-                var teachers = results[4] || [];
-                var classes = results[5] || [];
-                var events = results[6] || [];
-                var fees = results[7] || [];
-                
-                var totalBooks = books.reduce(function (s, b) { return s + (b.quantity || 0); }, 0);
-                var availableBooks = books.reduce(function (s, b) { return s + (b.available || 0); }, 0);
-                animateNumber("totalBooks", totalBooks);
-                animateNumber("availableBooks", availableBooks);
-                
-                var totalStudents = students.length;
-                var seenAdms = {};
-                students.forEach(function (s) { if (s.adm) seenAdms[s.adm] = true; });
-                classes.forEach(function (c) {
-                    (c.students || []).forEach(function (st) {
-                        var adm = extractAdm(st);
-                        if (adm && !seenAdms[adm]) {
-                            seenAdms[adm] = true;
-                            totalStudents++;
-                        }
-                    });
-                });
-                animateNumber("totalStudents", totalStudents);
-                
-                var activeLoans = borrowed.filter(function (b) { return !b.returned; });
-                animateNumber("activeLoans", activeLoans.length);
-                var overdue = activeLoans.filter(function (b) { return isOverdue(b.returnDate); });
-                animateNumber("overdueBooks", overdue.length);
-                animateNumber("activeFurniture", furniture.length);
-                
-                var teachersStat = document.getElementById("totalTeachersStat");
-                var classesStat = document.getElementById("totalClassesStat");
-                if (teachersStat) teachersStat.textContent = teachers.length;
-                if (classesStat) classesStat.textContent = classes.length;
-                
-                var today = new Date().toISOString().split("T")[0];
-                var upcomingEvents = events.filter(function (e) { return e.eventDate >= today; });
-                var upcomingEl = document.getElementById("upcomingEventsStat");
-                if (upcomingEl) upcomingEl.textContent = upcomingEvents.length;
-                
-                var totalBalance = fees.reduce(function (s, f) { return s + (f.balance || 0); }, 0);
-                var outstandingEl = document.getElementById("outstandingFeesStat");
-                if (outstandingEl) outstandingEl.textContent = "KES " + formatNumber(totalBalance);
-                
-                var returned = borrowed.filter(function (b) { return b.returned; });
-                var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
-                var rateEl = document.getElementById("returnRateStat");
-                if (rateEl) rateEl.textContent = returnRate + "%";
-                
-                displayRecentActivity(borrowed, furniture);
-            }).catch(function (err) {
-                console.error("Dashboard error:", err);
-            });
-        }
-        
-        /* ============================================================
-           INVITE CODE — read from Firebase (unique per school)
-           ============================================================ */
-        function loadInviteCode(school) {
-            API.getSchool(school).then(function (schoolInfo) {
-                var banner = document.getElementById('inviteCodeBanner');
-                var codeEl = document.getElementById('inviteCode');
-                if (!banner || !codeEl) return;
-
-                var code = schoolInfo && schoolInfo.inviteCode;
-
-                if (code) {
-                    _cachedInviteCode = code;
-                    codeEl.textContent = code;
-                    banner.classList.add('visible');
-                } else {
-                    // No code stored — generate one and save it
-                    var newCode = (window.generateInviteCode ? window.generateInviteCode(8) : "ABCD1234");
-                    _cachedInviteCode = newCode;
-                    codeEl.textContent = newCode;
-                    banner.classList.add('visible');
-                    API.updateSchool(school, { inviteCode: newCode }).catch(function () {});
-                }
-            }).catch(function (err) {
-                console.error("Invite code load error:", err);
-                var banner = document.getElementById('inviteCodeBanner');
-                var codeEl = document.getElementById('inviteCode');
-                if (banner && codeEl) {
-                    codeEl.textContent = "------";
-                    banner.classList.add('visible');
-                }
-            });
-        }
-        
-        function copyInviteCode() {
-            if (!_cachedInviteCode) {
-                if (typeof showNotification === 'function') {
-                    showNotification('Code not loaded yet — try again in a moment', 'warning');
+        // These wrappers let the navbar buttons work even before app.js loads
+        window.copyInviteCode = window.copyInviteCode || function () {
+            var codeEl = document.getElementById("inviteCode");
+            var code = codeEl ? codeEl.textContent : "";
+            if (!code || code === "------") {
+                if (typeof showNotification === "function") {
+                    showNotification("Code not loaded yet — try again in a moment", "warning");
                 }
                 return;
             }
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(_cachedInviteCode).then(function () {
-                    if (typeof showNotification === 'function') {
-                        showNotification('Invite code copied: ' + _cachedInviteCode, 'success');
+                navigator.clipboard.writeText(code).then(function () {
+                    if (typeof showNotification === "function") {
+                        showNotification("Invite code copied: " + code, "success");
                     }
-                }).catch(function () {
-                    fallbackCopy();
-                });
+                }).catch(function () {});
             } else {
-                fallbackCopy();
+                var temp = document.createElement("textarea");
+                temp.value = code;
+                temp.style.position = "fixed";
+                temp.style.opacity = "0";
+                document.body.appendChild(temp);
+                temp.select();
+                try {
+                    document.execCommand("copy");
+                    if (typeof showNotification === "function") {
+                        showNotification("Invite code copied!", "success");
+                    }
+                } catch (e) {}
+                document.body.removeChild(temp);
             }
-        }
+        };
         
-        function fallbackCopy() {
-            var temp = document.createElement('textarea');
-            temp.value = _cachedInviteCode;
-            temp.style.position = 'fixed';
-            temp.style.opacity = '0';
-            document.body.appendChild(temp);
-            temp.select();
-            try {
-                document.execCommand('copy');
-                if (typeof showNotification === 'function') {
-                    showNotification('Invite code copied!', 'success');
-                }
-            } catch (e) {
-                if (typeof showNotification === 'function') {
-                    showNotification('Copy failed. Code: ' + _cachedInviteCode, 'warning');
-                }
-            }
-            document.body.removeChild(temp);
-        }
-        
-        /* ============================================================
-           RECENT ACTIVITY
-           ============================================================ */
-        function displayRecentActivity(borrowed, furniture) {
-            var activityList = document.getElementById("recentActivity");
-            if (!activityList) return;
-            var activities = [];
-            
-            (borrowed || []).slice(0, 10).forEach(function (b) {
-                activities.push({
-                    icon: "fa-book",
-                    color: "rgba(233, 69, 96, 0.2)",
-                    text: "<strong>" + (b.studentName || "Unknown") + '</strong> borrowed "' + (b.bookTitle || "") + '"',
-                    time: b.createdAt || new Date().toISOString(),
-                });
-            });
-            
-            (furniture || []).slice(0, 10).forEach(function (f) {
-                activities.push({
-                    icon: "fa-chair",
-                    color: "rgba(255, 193, 7, 0.2)",
-                    text: "<strong>" + (f.studentName || "Unknown") + "</strong> allocated " + (f.chairNo || ""),
-                    time: f.createdAt || new Date().toISOString(),
-                });
-            });
-            
-            activities.sort(function (a, b) { return new Date(b.time) - new Date(a.time); });
-            activities = activities.slice(0, 8);
-            
-            if (activities.length === 0) {
-                activityList.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No recent activity</p></div>';
-                return;
-            }
-            
-            var html = "";
-            activities.forEach(function (a) {
-                html += '<div class="activity-item">' +
-                    '<div class="activity-icon" style="background:' + a.color + ';"><i class="fas ' + a.icon + '"></i></div>' +
-                    '<div><div class="activity-text">' + a.text + '</div>' +
-                    '<div class="activity-time">' + formatDateTime(a.time) + '</div></div></div>';
-            });
-            activityList.innerHTML = html;
-        }
-        
-        function animateNumber(elementId, targetValue) {
-            var element = document.getElementById(elementId);
-            if (!element) return;
-            var startValue = parseInt(element.textContent) || 0;
-            var duration = 600;
-            var startTime = performance.now();
-            function update(currentTime) {
-                var elapsed = currentTime - startTime;
-                var progress = Math.min(elapsed / duration, 1);
-                var eased = 1 - Math.pow(1 - progress, 3);
-                var currentValue = Math.round(startValue + (targetValue - startValue) * eased);
-                element.textContent = currentValue;
-                if (progress < 1) requestAnimationFrame(update);
-            }
-            requestAnimationFrame(update);
-        }
-        
-        /* ============================================================
-           LOGOUT
-           ============================================================ */
-        function logoutWithConfirm() {
+        window.logoutWithConfirm = function () {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', {
                     title: 'Logout', type: 'info',
                     confirmText: 'Logout', cancelText: 'Cancel'
                 }).then(function (result) {
-                    if (result === 'confirm') logout();
+                    if (result === 'confirm') window.logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) logout();
+                if (confirm('Are you sure you want to logout?')) window.logout();
             }
-        }
+        };
         
-        function logout() {
+        window.logout = function () {
             if (typeof window.wipeAllCache === 'function') {
                 window.wipeAllCache();
             }
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
-        }
-        
-        /* ============================================================
-           INIT
-           ============================================================ */
-        document.addEventListener('DOMContentLoaded', function () {
-            var user = checkAuth();
-            if (!user) return;
-            console.log('✅ Dashboard authenticated:', user.name, '| Role:', user.role);
-            setTimeout(loadDashboard, 200);
-        });
-        
-        window.copyInviteCode = copyInviteCode;
-        window.logoutWithConfirm = logoutWithConfirm;
-        window.logout = logout;
+        };
     </script>
 </body>
 </html>
