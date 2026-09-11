@@ -32,77 +32,157 @@
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        body {
-            font-family: 'Inter', sans-serif;
+        html, body {
             min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            background:
+                radial-gradient(1200px 700px at 10% -10%, rgba(212, 175, 55, 0.08), transparent 60%),
+                radial-gradient(1000px 600px at 110% 20%, rgba(233, 69, 96, 0.08), transparent 60%),
+                linear-gradient(160deg, #05070f 0%, #0a0e27 40%, #0f1429 100%);
             background-attachment: fixed;
             padding: 20px;
             position: relative;
+            color: #fff;
+        }
+        
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.25;
+            pointer-events: none;
+            animation: drift 26s ease-in-out infinite;
+            z-index: 0;
+        }
+        body::before {
+            background: radial-gradient(circle, #d4af37 0%, transparent 70%);
+            top: -180px; left: -180px;
+        }
+        body::after {
+            background: radial-gradient(circle, #e94560 0%, transparent 70%);
+            bottom: -200px; right: -180px;
+            animation-delay: -13s;
+        }
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, 60px) scale(1.15); }
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 20px; left: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 13px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            background: rgba(255,255,255,0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .back-link:hover {
+            color: var(--gold);
+            background: rgba(255,255,255,0.1);
         }
         
         .auth-container {
+            position: relative;
+            z-index: 2;
             width: 100%;
             max-width: 440px;
-            background: var(--glass-bg);
+            background: rgba(15, 20, 45, 0.75);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 40px 35px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
             animation: slideUp 0.5s ease;
+        }
+        .auth-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 20px; right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border-radius: 0 0 4px 4px;
         }
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .auth-logo { text-align: center; margin-bottom: 30px; }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 26px;
+        }
         .auth-logo .logo-icon {
-            width: 80px;
-            height: 80px;
+            width: 76px; height: 76px;
             background: linear-gradient(135deg, #d4af37, #f0d060, #d4af37);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 35px;
+            font-size: 34px;
             color: #0a0e27;
-            margin: 0 auto 15px;
-            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
+            margin: 0 auto 14px;
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
         }
         .auth-logo h1 {
-            font-size: 28px;
+            font-size: 27px;
             font-weight: 900;
             font-family: 'Cinzel', serif;
             background: linear-gradient(180deg, #f0d060, #d4af37);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
         .auth-logo p {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
+            font-size: 12px;
             margin-top: 5px;
         }
         
-        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group {
+            margin-bottom: 14px;
+            text-align: left;
+        }
         .form-group label {
             display: block;
             color: rgba(255, 255, 255, 0.75);
             margin-bottom: 6px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
+            letter-spacing: 0.5px;
         }
-        .form-group label i { margin-right: 8px; color: var(--accent); width: 16px; }
-        .form-group input {
+        .form-group label i {
+            margin-right: 8px;
+            color: var(--accent);
+            width: 14px;
+        }
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 13px 16px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
@@ -112,19 +192,22 @@
             transition: var(--transition);
             outline: none;
         }
-        .form-group input:focus {
+        .form-group select option { background: #1a1f4e; }
+        .form-group input:focus, .form-group select:focus {
             border-color: rgba(212, 175, 55, 0.6);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.09);
         }
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
         
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 13px;
             border: none;
             border-radius: 12px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: var(--transition);
@@ -144,23 +227,20 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
         }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        
-        .auth-links {
-            text-align: center;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
-        .auth-links a {
-            color: rgba(212, 175, 55, 0.7);
-            text-decoration: none;
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #b89228);
+            color: #1a1400;
         }
-        .auth-links a:hover { color: var(--gold); }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+        }
         
         .message {
             padding: 12px 15px;
@@ -174,18 +254,23 @@
         .message.show { display: flex; }
         .message.error {
             background: rgba(220, 53, 69, 0.15);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #ff4757;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+            color: #ff6b8a;
         }
         .message.success {
             background: rgba(40, 167, 69, 0.15);
-            border: 1px solid rgba(40, 167, 69, 0.3);
+            border: 1px solid rgba(40, 167, 69, 0.4);
             color: #34ce57;
+        }
+        .message.info {
+            background: rgba(23, 162, 184, 0.15);
+            border: 1px solid rgba(23, 162, 184, 0.4);
+            color: #4dc9f6;
         }
         
         .divider {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin: 20px 0;
+            margin: 18px 0;
             position: relative;
         }
         .divider::after {
@@ -194,42 +279,117 @@
             top: -10px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1a1f4e;
-            padding: 0 10px;
+            background: rgba(15, 20, 45, 0.95);
+            padding: 0 12px;
             font-size: 11px;
             color: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
         }
         
-        .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 14px;
-            z-index: 10;
+        .auth-links {
+            text-align: center;
             display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            background: rgba(255,255,255,0.05);
-            padding: 8px 15px;
-            border-radius: 8px;
+            flex-direction: column;
+            gap: 6px;
         }
-        .back-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); }
+        .auth-links a {
+            color: rgba(212, 175, 55, 0.8);
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px;
+            border-radius: 6px;
+        }
+        .auth-links a:hover {
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.08);
+        }
+        
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .password-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .password-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 4px;
+        }
+        
+        /* Hidden admin-only link */
+        #adminCreateLink {
+            display: none;
+        }
+        #adminCreateLink.visible {
+            display: inline-flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Tiny hint that admin mode is unlocked */
+        .admin-badge {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: var(--gold);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-badge.visible { display: flex; }
+        
+        .invite-code-input {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+        }
         
         @media (max-width: 480px) {
-            .auth-container { padding: 25px 20px; }
-            .auth-logo .logo-icon { width: 60px; height: 60px; font-size: 26px; }
+            .auth-container { padding: 28px 22px; }
+            .auth-logo .logo-icon { width: 62px; height: 62px; font-size: 26px; }
             .auth-logo h1 { font-size: 24px; }
-            .form-group input { padding: 11px 14px; font-size: 13px; }
-            .btn { padding: 12px; font-size: 14px; }
-            .back-link { top: 10px; left: 10px; padding: 6px 10px; font-size: 12px; }
+            .form-group input, .form-group select { padding: 10px 14px; font-size: 13px; }
+            .btn { padding: 12px; font-size: 13px; }
+            .back-link { top: 10px; left: 10px; padding: 6px 10px; font-size: 11px; }
+            .password-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <a href="landing.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+    
+    <!-- Admin mode badge (hidden by default) -->
+    <div class="admin-badge" id="adminBadge">
+        <i class="fas fa-unlock"></i> Admin Mode
+    </div>
     
     <div class="auth-container">
         <div class="auth-logo">
@@ -240,7 +400,8 @@
         
         <div id="message" class="message"></div>
         
-        <div id="loginFormDiv">
+        <!-- ============== LOGIN FORM ============== -->
+        <div id="loginFormDiv" class="form-section active">
             <div class="form-group">
                 <label><i class="fas fa-school"></i> School Name</label>
                 <input type="text" id="schoolName" placeholder="Enter school name" autocomplete="off">
@@ -260,12 +421,64 @@
             <div class="divider"></div>
             
             <div class="auth-links">
-                <a onclick="showCreateForm()"><i class="fas fa-plus-circle"></i> Create New School</a>
+                <a onclick="showSignupForm()"><i class="fas fa-user-plus"></i> Sign Up as Teacher (Invite Code)</a>
+                <a onclick="showCreateForm()" id="adminCreateLink"><i class="fas fa-plus-circle"></i> Create New School</a>
                 <a href="landing.html"><i class="fas fa-info-circle"></i> Learn More</a>
             </div>
         </div>
         
-        <div id="createFormDiv" style="display:none;">
+        <!-- ============== TEACHER SIGNUP FORM ============== -->
+        <div id="signupFormDiv" class="form-section">
+            <div class="form-group">
+                <label><i class="fas fa-ticket-alt"></i> Invite Code *</label>
+                <input type="text" id="signupInviteCode" class="invite-code-input" placeholder="XXXXXXXX" maxlength="12" autocomplete="off">
+                <div class="password-hint"><i class="fas fa-info-circle"></i> Ask your school admin for the 8-character code.</div>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-school"></i> School Name *</label>
+                <input type="text" id="signupSchoolName" placeholder="Enter school name" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Your Full Name *</label>
+                <input type="text" id="signupName" placeholder="Enter your full name" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Your Email *</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user-tag"></i> Role</label>
+                <select id="signupRole">
+                    <option value="teacher">Teacher</option>
+                    <option value="librarian">Librarian</option>
+                    <option value="accountant">Accountant</option>
+                    <option value="staff">General Staff</option>
+                </select>
+            </div>
+            <div class="password-row">
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password *</label>
+                    <input type="password" id="signupPassword" placeholder="Min 8 characters" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Confirm *</label>
+                    <input type="password" id="signupConfirmPassword" placeholder="Repeat password" autocomplete="new-password">
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-gold" id="signupBtn" onclick="handleSignup()" style="margin-top:10px;">
+                <i class="fas fa-user-plus"></i> Create Account & Join School
+            </button>
+            
+            <div class="divider"></div>
+            
+            <div class="auth-links">
+                <a onclick="showLoginForm()"><i class="fas fa-arrow-left"></i> Back to Login</a>
+            </div>
+        </div>
+        
+        <!-- ============== CREATE SCHOOL FORM (hidden) ============== -->
+        <div id="createFormDiv" class="form-section">
             <div class="form-group">
                 <label><i class="fas fa-school"></i> School Name</label>
                 <input type="text" id="createSchoolName" placeholder="Enter school name" autocomplete="off">
@@ -278,15 +491,20 @@
                 <label><i class="fas fa-envelope"></i> Admin Email</label>
                 <input type="email" id="createAdminEmail" placeholder="Enter admin email" autocomplete="off">
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="createPassword" placeholder="Minimum 8 characters" autocomplete="new-password">
+            <div class="password-row">
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="createPassword" placeholder="Min 8 characters" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Confirm</label>
+                    <input type="password" id="createConfirmPassword" placeholder="Repeat password" autocomplete="new-password">
+                </div>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-lock"></i> Confirm Password</label>
-                <input type="password" id="createConfirmPassword" placeholder="Confirm your password" autocomplete="new-password">
+            <div class="password-hint">
+                <i class="fas fa-info-circle"></i> Password must be at least 8 characters.
             </div>
-            <button type="button" class="btn btn-primary" id="createSchoolBtn" onclick="handleCreateSchool()">
+            <button type="button" class="btn btn-primary" id="createSchoolBtn" onclick="handleCreateSchool()" style="margin-top:16px;">
                 <i class="fas fa-plus-circle"></i> Create School
             </button>
             
@@ -302,45 +520,71 @@
     <script src="js/utils.js"></script>
 
     <script>
+        /* ============================================================
+           FORM SWITCHING
+           ============================================================ */
+        function hideAllForms() {
+            document.querySelectorAll('.form-section').forEach(function (s) {
+                s.classList.remove('active');
+            });
+            clearMessage();
+        }
         function showLoginForm() {
-            document.getElementById('loginFormDiv').style.display = 'block';
-            document.getElementById('createFormDiv').style.display = 'none';
-            document.getElementById('message').className = 'message';
+            hideAllForms();
+            document.getElementById('loginFormDiv').classList.add('active');
         }
-
+        function showSignupForm() {
+            hideAllForms();
+            document.getElementById('signupFormDiv').classList.add('active');
+        }
         function showCreateForm() {
-            document.getElementById('loginFormDiv').style.display = 'none';
-            document.getElementById('createFormDiv').style.display = 'block';
-            document.getElementById('message').className = 'message';
+            hideAllForms();
+            document.getElementById('createFormDiv').classList.add('active');
         }
 
+        /* ============================================================
+           MESSAGES
+           ============================================================ */
         function showMessage(text, type) {
             var msg = document.getElementById('message');
-            msg.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
+            if (!msg) return;
+            var icons = { error: 'exclamation-circle', success: 'check-circle', info: 'info-circle' };
+            msg.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i> <span>' + text + '</span>';
             msg.className = 'message show ' + type;
-            setTimeout(function() { msg.className = 'message'; }, 5000);
+            if (type !== 'info') {
+                setTimeout(function () { msg.className = 'message'; }, 5000);
+            }
         }
-
+        function clearMessage() {
+            var msg = document.getElementById('message');
+            msg.className = 'message';
+            msg.innerHTML = '';
+        }
         function showToast(text, type) {
-            var existingToast = document.querySelector('.toast-notification');
-            if (existingToast) existingToast.remove();
-            
+            if (typeof window.showNotification === 'function') {
+                window.showNotification(text, type);
+                return;
+            }
+            var existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
             var toast = document.createElement('div');
             toast.className = 'toast-notification';
-            toast.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:12px;color:#fff;z-index:9999;max-width:350px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform 0.3s ease;';
-            
+            toast.style.cssText = 'position:fixed;top:20px;right:20px;padding:14px 20px;border-radius:10px;color:#fff;z-index:9999;max-width:350px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform 0.3s ease;';
             var colors = { success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8' };
             toast.style.background = colors[type] || colors.info;
-            toast.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + text;
+            var icon = type === 'error' ? 'exclamation-circle' : 'check-circle';
+            toast.innerHTML = '<i class="fas fa-' + icon + '"></i> ' + text;
             document.body.appendChild(toast);
-            
-            setTimeout(function() { toast.style.transform = 'translateX(0)'; }, 100);
-            setTimeout(function() {
+            setTimeout(function () { toast.style.transform = 'translateX(0)'; }, 100);
+            setTimeout(function () {
                 toast.style.transform = 'translateX(120%)';
-                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
+                setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
             }, 3000);
         }
 
+        /* ============================================================
+           LOGIN
+           ============================================================ */
         function handleLogin() {
             var schoolName = document.getElementById('schoolName').value.trim();
             var email = document.getElementById('email').value.trim();
@@ -350,29 +594,128 @@
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
+            if (!validateEmail(email)) {
+                showMessage('Please enter a valid email address', 'error');
+                return;
+            }
             
             var loginBtn = document.getElementById('loginBtn');
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            clearMessage();
             
             API.login(schoolName, email, password)
-                .then(function(result) {
+                .then(function (result) {
                     if (result.success) {
-                        showToast('Login successful! Redirecting...', 'success');
-                        setTimeout(function() { window.location.href = 'dashboard.html'; }, 800);
+                        showMessage('Login successful! Redirecting...', 'success');
+                        showToast('Welcome back, ' + (result.user.name || 'User') + '!', 'success');
+                        setTimeout(function () {
+                            window.location.href = 'dashboard.html';
+                        }, 700);
                     } else {
                         showMessage(result.error || 'Invalid credentials', 'error');
                         loginBtn.disabled = false;
                         loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
                     }
                 })
-                .catch(function(error) {
-                    showMessage('Login failed: ' + error.message, 'error');
+                .catch(function (error) {
+                    console.error('Login error:', error);
+                    showMessage('Login failed: ' + (error.message || 'unknown error'), 'error');
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
                 });
         }
 
+        /* ============================================================
+           TEACHER SIGNUP (with invite code)
+           ============================================================ */
+        function handleSignup() {
+            var inviteCode = document.getElementById('signupInviteCode').value.trim().toUpperCase();
+            var schoolName = document.getElementById('signupSchoolName').value.trim();
+            var name = document.getElementById('signupName').value.trim();
+            var email = document.getElementById('signupEmail').value.trim();
+            var role = document.getElementById('signupRole').value;
+            var password = document.getElementById('signupPassword').value;
+            var confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            // Validation
+            if (!inviteCode || !schoolName || !name || !email || !password) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            if (inviteCode.length < 6) {
+                showMessage('Invite code looks too short', 'error');
+                return;
+            }
+            if (!validateEmail(email)) {
+                showMessage('Please enter a valid email address', 'error');
+                return;
+            }
+            if (password.length < 8) {
+                showMessage('Password must be at least 8 characters', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            var signupBtn = document.getElementById('signupBtn');
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying invite code...';
+            clearMessage();
+            
+            // Step 1: Check the school exists
+            API.getSchool(schoolName).then(function (school) {
+                if (!school) {
+                    throw new Error('School "' + schoolName + '" not found. Check the spelling.');
+                }
+                
+                // Step 2: Verify invite code
+                var storedCode = (school.inviteCode || '').toUpperCase();
+                if (!storedCode) {
+                    throw new Error('This school has no invite code. Ask the admin to set one.');
+                }
+                if (storedCode !== inviteCode) {
+                    throw new Error('Invalid invite code. Please check and try again.');
+                }
+                
+                // Step 3: Create the user
+                signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+                
+                return API.createUser(schoolName, {
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: role
+                });
+            }).then(function (result) {
+                if (result && result.success) {
+                    showMessage('Account created! Redirecting to login...', 'success');
+                    showToast('Welcome, ' + name + '!', 'success');
+                    
+                    // Prefill login form
+                    document.getElementById('schoolName').value = schoolName;
+                    document.getElementById('email').value = email;
+                    
+                    setTimeout(function () {
+                        showLoginForm();
+                        showMessage('Account created! Enter your password to log in.', 'success');
+                    }, 1200);
+                } else {
+                    throw new Error((result && result.error) || 'Failed to create account');
+                }
+            }).catch(function (error) {
+                console.error('Signup error:', error);
+                showMessage(error.message || 'Signup failed', 'error');
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account & Join School';
+            });
+        }
+
+        /* ============================================================
+           CREATE SCHOOL
+           ============================================================ */
         function handleCreateSchool() {
             var schoolName = document.getElementById('createSchoolName').value.trim();
             var adminName = document.getElementById('createAdminName').value.trim();
@@ -384,18 +727,14 @@
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
-            
-            var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(adminEmail)) {
+            if (!validateEmail(adminEmail)) {
                 showMessage('Please enter a valid email address', 'error');
                 return;
             }
-            
             if (password.length < 8) {
                 showMessage('Password must be at least 8 characters', 'error');
                 return;
             }
-            
             if (password !== confirmPassword) {
                 showMessage('Passwords do not match', 'error');
                 return;
@@ -404,63 +743,184 @@
             var createBtn = document.getElementById('createSchoolBtn');
             createBtn.disabled = true;
             createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating School...';
+            clearMessage();
             
             API.createSchool({
                 name: schoolName,
                 adminName: adminName,
                 adminEmail: adminEmail,
                 password: password
-            }).then(function(result) {
+            }).then(function (result) {
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
+                
                 if (result.success) {
-                    createBtn.disabled = false;
-                    createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
-                    
-                    var overlay = document.createElement('div');
-                    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-                    
-                    var dialog = document.createElement('div');
-                    dialog.style.cssText = 'background:linear-gradient(135deg,#1a1f4e,#0a0e27);border:2px solid #d4af37;border-radius:20px;padding:30px;max-width:400px;width:100%;text-align:center;';
-                    dialog.innerHTML = '<i class="fas fa-check-circle" style="font-size:60px;color:#34ce57;margin-bottom:15px;"></i>' +
-                        '<h3 style="color:#f0d060;margin-bottom:10px;">School Created!</h3>' +
-                        '<p style="color:rgba(255,255,255,0.7);margin-bottom:15px;">Share this invite code:</p>' +
-                        '<div style="background:rgba(212,175,55,0.15);border:2px dashed #d4af37;border-radius:12px;padding:20px;margin-bottom:20px;">' +
-                        '<div style="font-family:Courier New,monospace;font-size:28px;font-weight:800;letter-spacing:5px;color:#f0d060;">' + result.inviteCode + '</div></div>' +
-                        '<button onclick="this.closest(\'div\').parentNode.remove()" style="padding:12px 30px;background:linear-gradient(135deg,#e94560,#c62a47);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;width:100%;">Got it! Proceed to Login</button>';
-                    
-                    overlay.appendChild(dialog);
-                    document.body.appendChild(overlay);
-                    
-                    document.getElementById('schoolName').value = schoolName;
-                    document.getElementById('email').value = adminEmail;
-                    showLoginForm();
+                    showInviteCodeDialog(result.inviteCode, schoolName, adminEmail);
                 } else {
                     showMessage(result.error || 'Failed to create school', 'error');
-                    createBtn.disabled = false;
-                    createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
                 }
-            }).catch(function(error) {
-                showMessage('Failed: ' + error.message, 'error');
+            }).catch(function (error) {
+                console.error('Create school error:', error);
+                showMessage('Failed: ' + (error.message || 'unknown error'), 'error');
                 createBtn.disabled = false;
                 createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create School';
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        /* ============================================================
+           INVITE CODE DIALOG
+           ============================================================ */
+        function showInviteCodeDialog(code, schoolName, adminEmail) {
+            var overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            
+            var dialog = document.createElement('div');
+            dialog.style.cssText = 'background:linear-gradient(135deg,#1a1f4e,#0a0e27);border:2px solid #d4af37;border-radius:20px;padding:30px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.6);';
+            
+            dialog.innerHTML =
+                '<i class="fas fa-check-circle" style="font-size:60px;color:#34ce57;margin-bottom:15px;"></i>' +
+                '<h3 style="color:#f0d060;margin-bottom:10px;font-family:Cinzel,serif;letter-spacing:1.5px;">School Created!</h3>' +
+                '<p style="color:rgba(255,255,255,0.7);margin-bottom:15px;font-size:13px;">Share this invite code with your staff so they can join:</p>' +
+                '<div style="background:rgba(212,175,55,0.15);border:2px dashed #d4af37;border-radius:12px;padding:20px;margin-bottom:20px;">' +
+                '<div style="font-family:Courier New,monospace;font-size:28px;font-weight:800;letter-spacing:5px;color:#f0d060;">' + code + '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:8px;">' +
+                '<button id="copyCodeBtn" style="flex:1;padding:10px;background:rgba(212,175,55,0.2);border:1px solid rgba(212,175,55,0.4);border-radius:10px;color:#f0d060;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:12px;">' +
+                '<i class="fas fa-copy"></i> Copy Code</button>' +
+                '<button id="closeDialogBtn" style="flex:1;padding:10px;background:linear-gradient(135deg,#e94560,#c62a47);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">' +
+                '<i class="fas fa-sign-in-alt"></i> Proceed to Login</button>' +
+                '</div>';
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            document.getElementById('schoolName').value = schoolName;
+            document.getElementById('email').value = adminEmail;
+            
+            document.getElementById('copyCodeBtn').onclick = function () {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(function () {
+                        showToast('Invite code copied!', 'success');
+                    });
+                }
+            };
+            
+            document.getElementById('closeDialogBtn').onclick = function () {
+                overlay.remove();
+                showLoginForm();
+                showMessage('School created! Please log in with your admin account.', 'success');
+            };
+        }
+
+        /* ============================================================
+           ADMIN MODE UNLOCK (Ctrl+Shift+Alt+V)
+           ============================================================ */
+        function unlockAdminMode() {
+            var link = document.getElementById('adminCreateLink');
+            var badge = document.getElementById('adminBadge');
+            if (link) link.classList.add('visible');
+            if (badge) badge.classList.add('visible');
+            
+            try { sessionStorage.setItem('srms_admin_unlocked', '1'); } catch (e) {}
+            
+            showToast('Admin mode unlocked', 'success');
+            console.log('🔓 Admin mode unlocked — "Create New School" is now visible');
+        }
+
+        function restoreAdminMode() {
+            // Restore admin mode if unlocked earlier in this session
+            try {
+                if (sessionStorage.getItem('srms_admin_unlocked') === '1') {
+                    var link = document.getElementById('adminCreateLink');
+                    var badge = document.getElementById('adminBadge');
+                    if (link) link.classList.add('visible');
+                    if (badge) badge.classList.add('visible');
+                }
+            } catch (e) {}
+        }
+
+        // Keyboard listener — must use capture phase to catch before others
+        document.addEventListener('keydown', function (e) {
+            // Ctrl + Shift + Alt + V
+            if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === 'V' || e.key === 'v')) {
+                e.preventDefault();
+                unlockAdminMode();
+            }
+        }, true);
+
+        /* ============================================================
+           HELPERS
+           ============================================================ */
+        function validateEmail(email) {
+            var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return pattern.test(email);
+        }
+
+        /* ============================================================
+           INIT
+           ============================================================ */
+        document.addEventListener('DOMContentLoaded', function () {
+            // Redirect if already logged in
             var existingUser = localStorage.getItem('srms_user');
             var existingSchool = localStorage.getItem('srms_school');
             if (existingUser && existingSchool) {
                 window.location.href = 'dashboard.html';
+                return;
             }
             
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') handleLogin();
-            });
+            // Restore admin mode if unlocked earlier in this tab session
+            restoreAdminMode();
+            
+            // Enter key navigation
+            var passwordField = document.getElementById('password');
+            if (passwordField) {
+                passwordField.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') handleLogin();
+                });
+            }
+            
+            var emailField = document.getElementById('email');
+            if (emailField) {
+                emailField.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        passwordField.focus();
+                    }
+                });
+            }
+            
+            // Signup form: Enter on confirm triggers submit
+            var signupConfirm = document.getElementById('signupConfirmPassword');
+            if (signupConfirm) {
+                signupConfirm.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') handleSignup();
+                });
+            }
+            
+            // Create form: Enter on confirm triggers submit
+            var createConfirm = document.getElementById('createConfirmPassword');
+            if (createConfirm) {
+                createConfirm.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') handleCreateSchool();
+                });
+            }
+            
+            // Auto-uppercase invite code as user types
+            var inviteInput = document.getElementById('signupInviteCode');
+            if (inviteInput) {
+                inviteInput.addEventListener('input', function () {
+                    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                });
+            }
         });
 
         window.showLoginForm = showLoginForm;
+        window.showSignupForm = showSignupForm;
         window.showCreateForm = showCreateForm;
         window.handleLogin = handleLogin;
+        window.handleSignup = handleSignup;
         window.handleCreateSchool = handleCreateSchool;
+        window.unlockAdminMode = unlockAdminMode;
     </script>
 </body>
 </html>
