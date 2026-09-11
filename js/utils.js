@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Utility Functions
-// Full Version
+// Full Version + Glass Opacity Loader
 // ============================================
 
 // ============ DATE FUNCTIONS ============
@@ -415,6 +415,40 @@ function exportToCSV(data, filename) {
   showNotification("Export successful!", "success");
 }
 
+// ============================================
+// GLASS OPACITY — reads from localStorage on every page
+// and applies it to the --glass-alpha CSS variable
+// ============================================
+(function applyGlassOpacity() {
+  var saved = localStorage.getItem("srms_glass_opacity");
+  var alpha = saved !== null ? parseFloat(saved) : 0.32;
+  if (isNaN(alpha)) alpha = 0.32;
+
+  function set() {
+    document.documentElement.style.setProperty(
+      "--glass-alpha",
+      alpha.toFixed(2),
+    );
+  }
+
+  if (document.documentElement) {
+    set();
+  }
+  document.addEventListener("DOMContentLoaded", set);
+})();
+
+function setGlassOpacity(alpha) {
+  alpha = Math.max(0, Math.min(1, parseFloat(alpha)));
+  localStorage.setItem("srms_glass_opacity", alpha);
+  document.documentElement.style.setProperty("--glass-alpha", alpha.toFixed(2));
+}
+
+function getGlassOpacity() {
+  var saved = localStorage.getItem("srms_glass_opacity");
+  var alpha = saved !== null ? parseFloat(saved) : 0.32;
+  return isNaN(alpha) ? 0.32 : alpha;
+}
+
 // ============ EXPORT ALL ============
 window.getCurrentDate = getCurrentDate;
 window.getCurrentDateTime = getCurrentDateTime;
@@ -455,3 +489,5 @@ window.closeModal = closeModal;
 window.closeAllModals = closeAllModals;
 window.filterTable = filterTable;
 window.exportToCSV = exportToCSV;
+window.setGlassOpacity = setGlassOpacity;
+window.getGlassOpacity = getGlassOpacity;

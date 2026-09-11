@@ -9,7 +9,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -41,8 +41,9 @@
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
             height: 60px;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(25px);
+            background: rgba(8, 12, 30, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
@@ -105,7 +106,9 @@
         .dropdown-menu {
             display: none;
             position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-            background: rgba(10, 14, 39, 0.98);
+            background: rgba(10, 14, 39, 0.94);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 12px; padding: 8px; min-width: 180px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
@@ -141,12 +144,14 @@
         .page-header p { color: rgba(255,255,255,0.6); font-size: 12px; }
         
         .settings-section {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.32));
+            backdrop-filter: blur(18px) saturate(150%);
+            -webkit-backdrop-filter: blur(18px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 15px;
+            transition: background 0.3s ease;
         }
         .settings-section h3 { color: var(--accent); margin-bottom: 15px; font-size: 0.95em; }
         
@@ -192,10 +197,13 @@
         .btn-promote:hover { background: rgba(212, 175, 55, 0.4); }
         
         .table-container {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: rgba(12, 18, 42, calc(var(--glass-alpha, 0.32) - 0.04));
+            backdrop-filter: blur(18px) saturate(150%);
+            -webkit-backdrop-filter: blur(18px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 15px; overflow-x: auto;
+            transition: background 0.3s ease;
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
@@ -222,7 +230,9 @@
         }
         .modal.active { display: flex; }
         .modal-content {
-            background: rgba(26, 31, 78, 0.95);
+            background: rgba(14, 20, 46, 0.85);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 16px; padding: 25px;
             width: 90%; max-width: 500px;
@@ -240,6 +250,133 @@
             text-align: center; padding: 25px 15px; color: rgba(255,255,255,0.4);
         }
         .empty-state i { font-size: 28px; margin-bottom: 8px; opacity: 0.5; color: var(--accent); }
+
+        /* ===== GLASS OPACITY SLIDER ===== */
+        .opacity-slider-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .opacity-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+        }
+        .opacity-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 6px;
+            background: linear-gradient(
+                90deg,
+                #e94560 0%,
+                #d4af37 50%,
+                #4dc9f6 100%
+            );
+            outline: none;
+            cursor: pointer;
+            transition: box-shadow 0.25s ease;
+        }
+        .opacity-slider:hover {
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+        }
+        .opacity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #f4dc8c, #d4af37 55%, #a37717);
+            border: 2px solid #0a0e27;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(212, 175, 55, 0.4);
+            cursor: grab;
+            transition: transform 0.15s ease;
+        }
+        .opacity-slider::-webkit-slider-thumb:active {
+            transform: scale(1.15);
+            cursor: grabbing;
+        }
+        .opacity-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #f4dc8c, #d4af37 55%, #a37717);
+            border: 2px solid #0a0e27;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(212, 175, 55, 0.4);
+            cursor: grab;
+        }
+
+        .opacity-meter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 14px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .opacity-meter-label {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.45);
+        }
+        .opacity-meter-value {
+            font-family: "JetBrains Mono", "Courier New", monospace;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+        .opacity-meter-value strong {
+            color: #d4af37;
+            font-size: 16px;
+        }
+
+        .opacity-preview {
+            margin-bottom: 14px;
+            padding: 14px;
+            border-radius: 12px;
+            background:
+                linear-gradient(120deg, #ff6b8a 0%, #d4af37 50%, #4dc9f6 100%);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .opacity-preview-swatch {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(12, 18, 42, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: background 0.2s ease;
+        }
+        .opacity-preview-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .opacity-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .opacity-actions .btn {
+            justify-content: center;
+            font-size: 11.5px;
+            padding: 9px 12px;
+        }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 6px 8px; gap: 4px; }
@@ -247,6 +384,10 @@
             .main-content { padding: 65px 10px 10px; }
             .form-row { grid-template-columns: 1fr; }
             .settings-actions .btn { flex: none; width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .opacity-actions { grid-template-columns: 1fr; }
+            .opacity-label { font-size: 10px; }
         }
     </style>
 </head>
@@ -265,6 +406,56 @@
         <div class="page-header">
             <h1><i class="fas fa-cog" style="color:var(--accent);"></i> Settings</h1>
             <p>Manage your school settings</p>
+        </div>
+
+        <!-- APPEARANCE / WALLPAPER SLIDER -->
+        <div class="settings-section">
+            <h3><i class="fas fa-palette"></i> Appearance</h3>
+            <p style="font-size:12px;color:rgba(255,255,255,0.55);margin-bottom:14px;line-height:1.5;">
+                Adjust how transparent the glass panels are. Lower values hide the wallpaper
+                behind solid cards; higher values let the wallpaper shine through.
+            </p>
+
+            <div class="opacity-slider-row">
+                <span class="opacity-label">Solid</span>
+                <input
+                    type="range"
+                    id="glassOpacitySlider"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="32"
+                    class="opacity-slider"
+                    oninput="onGlassSliderMove(this.value)"
+                    onchange="onGlassSliderCommit(this.value)">
+                <span class="opacity-label">Transparent</span>
+            </div>
+
+            <div class="opacity-meter">
+                <span class="opacity-meter-label">Transparency</span>
+                <span class="opacity-meter-value"><strong id="glassOpacityValue">32</strong>%</span>
+            </div>
+
+            <div class="opacity-preview">
+                <div class="opacity-preview-swatch" id="opacityPreviewSwatch">
+                    <span class="opacity-preview-text">Live preview</span>
+                </div>
+            </div>
+
+            <div class="opacity-actions">
+                <button type="button" class="btn btn-secondary" onclick="resetGlassOpacity()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button type="button" class="btn btn-primary" onclick="applyPresetGlass(0.10)">
+                    <i class="fas fa-eye"></i> Max Wallpaper
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="applyPresetGlass(0.32)">
+                    <i class="fas fa-balance-scale"></i> Balanced
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="applyPresetGlass(0.60)">
+                    <i class="fas fa-book"></i> High Contrast
+                </button>
+            </div>
         </div>
         
         <div class="settings-section">
@@ -401,6 +592,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof loadSettingsData === 'function') loadSettingsData();
+            initGlassSlider();
         });
         
         function saveSchoolInfo(event) {
@@ -540,6 +732,54 @@
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
+
+        /* ===== GLASS OPACITY SLIDER LOGIC ===== */
+        function initGlassSlider() {
+            var slider = document.getElementById("glassOpacitySlider");
+            if (!slider) return;
+            var stored = getGlassOpacity();
+            var percent = Math.round(stored * 100);
+            slider.value = percent;
+            updateGlassUI(stored);
+        }
+
+        function onGlassSliderMove(value) {
+            var alpha = Math.max(0, Math.min(1, parseFloat(value) / 100));
+            updateGlassUI(alpha);
+        }
+
+        function onGlassSliderCommit(value) {
+            var alpha = Math.max(0, Math.min(1, parseFloat(value) / 100));
+            setGlassOpacity(alpha);
+            showNotification("Appearance updated", "success");
+        }
+
+        function updateGlassUI(alpha) {
+            var pct = Math.round(alpha * 100);
+            var valEl = document.getElementById("glassOpacityValue");
+            if (valEl) valEl.textContent = pct;
+            var swatch = document.getElementById("opacityPreviewSwatch");
+            if (swatch) {
+                swatch.style.background = "rgba(12, 18, 42, " + alpha.toFixed(2) + ")";
+            }
+        }
+
+        function resetGlassOpacity() {
+            setGlassOpacity(0.32);
+            var slider = document.getElementById("glassOpacitySlider");
+            if (slider) slider.value = 32;
+            updateGlassUI(0.32);
+            showNotification("Appearance reset to default", "info");
+        }
+
+        function applyPresetGlass(alpha) {
+            setGlassOpacity(alpha);
+            var slider = document.getElementById("glassOpacitySlider");
+            if (slider) slider.value = Math.round(alpha * 100);
+            updateGlassUI(alpha);
+            var label = alpha <= 0.15 ? "Max Wallpaper" : alpha <= 0.4 ? "Balanced" : "High Contrast";
+            showNotification("Applied preset: " + label, "success");
+        }
         
         window.saveSchoolInfo = saveSchoolInfo;
         window.saveSettings = saveSettings;
@@ -551,6 +791,10 @@
         window.clearAllData = clearAllData;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
+        window.onGlassSliderMove = onGlassSliderMove;
+        window.onGlassSliderCommit = onGlassSliderCommit;
+        window.resetGlassOpacity = resetGlassOpacity;
+        window.applyPresetGlass = applyPresetGlass;
     </script>
 </body>
 </html>
