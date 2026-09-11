@@ -1,8 +1,11 @@
 // ============================================
-// SRMS - Complete Firebase API
-// Full Version - PERFORMANCE OPTIMIZED
-// Includes backward-compatible aliases
-// + Resilient Firebase init with retry
+// SRMS - Firebase API
+// Full Version with CACHE-FIRST PERSISTENCE
+// - Data survives page reloads (localStorage)
+// - Background sync on every page load
+// - Version-stamped cache (auto-wipes on schema change)
+// - Size guard (warns near 5MB limit)
+// - API surface unchanged — all pages work as-is
 // ============================================
 
 var firebaseConfig = {
@@ -35,7 +38,6 @@ function initFirebase() {
   }
 }
 
-// Try immediately
 if (!initFirebase()) {
   var _fbAttempts = 0;
   var _fbTimer = setInterval(function () {
@@ -53,34 +55,231 @@ if (!initFirebase()) {
   }, 300);
 }
 
-// ============ CACHE SYSTEM ============
-var dataCache = {};
-var CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
+/* ============================================================
+   PERSISTENT CACHE SYSTEM
+   ------------------------------------------------------------
+   - In-memory cache for the current page (fast repeated reads)
+   - localStorage persistence (survives reloads + navigation)
+   - Version stamp (auto-wipes if schema version changes)
+   - Size guard (warns above 4MB)
+   ============================================================ */
 
+var CACHE_VERSION = 3; // bump this if you change data shape
+var CACHE_PREFIX = "srms_cache_v" + CACHE_VERSION + "_";
+var META_KEY = "srms_cache_meta";
+var CACHE_EXPIRY = 10 * 60 * 1000; // in-memory TTL: 10 min
+var MAX_CACHE_BYTES = 4 * 1024 * 1024; // warn above 4MB
+
+var dataCache = {}; // in-memory
+
+// ---- Boot: load cached data from localStorage into memory ----
+function hydrateCacheFromStorage() {
+  try {
+    // Version check — wipe if mismatched
+    var storedVersion = localStorage.getItem("srms_cache_version");
+    if (String(storedVersion) !== String(CACHE_VERSION)) {
+      // Wipe all SRMS cache keys
+      var toDelete = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf("srms_cache_") === 0) toDelete.push(k);
+      }
+      toDelete.forEach(function (k) {
+        localStorage.removeItem(k);
+      });
+      localStorage.setItem("srms_cache_version", String(CACHE_VERSION));
+      console.log("🧹 Cache wiped (version mismatch) — now v" + CACHE_VERSION);
+      return;
+    }
+
+    // Hydrate
+    var count = 0;
+    for (var j = 0; j < localStorage.length; j++) {
+      var key = localStorage.key(j);
+      if (!key || key.indexOf(CACHE_PREFIX) !== 0) continue;
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) continue;
+        var parsed = JSON.parse(raw);
+        var logicalKey = key.substring(CACHE_PREFIX.length);
+        dataCache[logicalKey] = {
+          timestamp: parsed.timestamp || 0,
+          data: parsed.data,
+        };
+        count++;
+      } catch (e) {
+        // Skip broken entries
+      }
+    }
+    if (count > 0) {
+      console.log("💾 Cache hydrated from storage: " + count + " collections");
+    }
+  } catch (e) {
+    console.warn("Cache hydration failed:", e);
+  }
+}
+
+// ---- Persist a single cache entry ----
+function persistCacheEntry(key, entry) {
+  try {
+    var payload = JSON.stringify({
+      timestamp: entry.timestamp,
+      data: entry.data,
+    });
+    localStorage.setItem(CACHE_PREFIX + key, payload);
+  } catch (e) {
+    // Likely quota exceeded — try clearing old entries
+    console.warn("⚠️ Cache write failed (quota?):", e);
+    pruneCacheIfTooBig();
+  }
+}
+
+// ---- Estimate total cache size and prune if too big ----
+function pruneCacheIfTooBig() {
+  try {
+    var total = 0;
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      if (k.indexOf("srms_cache_") === 0) {
+        var size = (localStorage.getItem(k) || "").length;
+        total += size;
+        keys.push({ key: k, size: size });
+      }
+    }
+    if (total > MAX_CACHE_BYTES) {
+      console.warn(
+        "⚠️ Cache is " +
+          (total / 1024 / 1024).toFixed(2) +
+          "MB — pruning oldest",
+      );
+      // Sort by timestamp (oldest first) and remove until under 3MB
+      keys.sort(function (a, b) {
+        var aData = {};
+        var bData = {};
+        try {
+          aData = JSON.parse(localStorage.getItem(a.key) || "{}");
+        } catch (e) {}
+        try {
+          bData = JSON.parse(localStorage.getItem(b.key) || "{}");
+        } catch (e) {}
+        return (aData.timestamp || 0) - (bData.timestamp || 0);
+      });
+      var target = 3 * 1024 * 1024;
+      for (var j = 0; j < keys.length && total > target; j++) {
+        total -= keys[j].size;
+        localStorage.removeItem(keys[j].key);
+        var logical = keys[j].key.substring(CACHE_PREFIX.length);
+        delete dataCache[logical];
+      }
+      console.log(
+        "✅ Cache pruned to " + (total / 1024 / 1024).toFixed(2) + "MB",
+      );
+    }
+  } catch (e) {}
+}
+
+// ---- Read: memory first, then storage, then fetch ----
 function getCachedData(key, fetchFunction, expiryMs) {
   expiryMs = expiryMs || CACHE_EXPIRY;
   var now = Date.now();
+
+  // 1. In-memory hit (fastest)
   if (dataCache[key] && now - dataCache[key].timestamp < expiryMs) {
     return Promise.resolve(dataCache[key].data);
   }
+
+  // 2. Storage hit (still fast, survives reload)
+  try {
+    var raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.data !== undefined) {
+        // Refresh memory entry
+        dataCache[key] = {
+          timestamp: parsed.timestamp || now,
+          data: parsed.data,
+        };
+
+        // If storage entry is old, still return it immediately
+        // but kick off a background refresh
+        if (now - (parsed.timestamp || 0) > expiryMs) {
+          fetchFunction()
+            .then(function (fresh) {
+              dataCache[key] = { timestamp: now, data: fresh };
+              persistCacheEntry(key, dataCache[key]);
+            })
+            .catch(function () {});
+        }
+        return Promise.resolve(parsed.data);
+      }
+    }
+  } catch (e) {}
+
+  // 3. Miss — fetch from network
   return fetchFunction()
     .then(function (data) {
       dataCache[key] = { timestamp: now, data: data };
+      persistCacheEntry(key, dataCache[key]);
       return data;
     })
     .catch(function (error) {
-      console.error("Cache error for " + key + ":", error);
-      return dataCache[key] ? dataCache[key].data : [];
+      console.error("Fetch error for " + key + ":", error);
+      return [];
     });
 }
 
+// ---- Clear (invalidates both memory + storage for a key) ----
 function clearCache(key) {
   if (key) {
     delete dataCache[key];
+    try {
+      localStorage.removeItem(CACHE_PREFIX + key);
+    } catch (e) {}
   } else {
     dataCache = {};
+    try {
+      var toDelete = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(CACHE_PREFIX) === 0) toDelete.push(k);
+      }
+      toDelete.forEach(function (k) {
+        localStorage.removeItem(k);
+      });
+    } catch (e) {}
   }
 }
+
+// ---- Wipe everything (used on logout) ----
+function wipeAllCache() {
+  try {
+    var toDelete = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (
+        k &&
+        (k.indexOf("srms_cache_") === 0 ||
+          k === "srms_cache_version" ||
+          k === "srms_cache_meta")
+      ) {
+        toDelete.push(k);
+      }
+    }
+    toDelete.forEach(function (k) {
+      localStorage.removeItem(k);
+    });
+    dataCache = {};
+    console.log("🧹 Cache wiped");
+  } catch (e) {}
+}
+
+// Expose for logout handlers
+window.wipeAllCache = wipeAllCache;
+
+// Hydrate on script load
+hydrateCacheFromStorage();
 
 function snapshotToArray(snapshot) {
   var data = snapshot.val();
@@ -92,7 +291,88 @@ function snapshotToArray(snapshot) {
   return result;
 }
 
-// ============ HELPERS ============
+/* ============================================================
+   BACKGROUND SYNC
+   ------------------------------------------------------------
+   On page load, checks each collection's server-side "updatedAt"
+   stamp against what we have cached. If it differs, refreshes
+   just that collection silently.
+   ============================================================ */
+
+function getServerChangeMarker(schoolName) {
+  return database
+    .ref("schools/" + schoolName + "/meta/updatedAt")
+    .once("value")
+    .then(function (snap) {
+      return snap.val() || null;
+    })
+    .catch(function () {
+      return null;
+    });
+}
+
+function backgroundSync() {
+  var school = getCurrentSchoolFromStorage();
+  if (!school) return;
+
+  getServerChangeMarker(school).then(function (serverMarker) {
+    var localMarker = localStorage.getItem("srms_cache_meta_" + school);
+    if (!serverMarker) return; // nothing to compare
+    if (serverMarker === localMarker) {
+      // No server changes — cache is fresh
+      return;
+    }
+
+    // Server changed — invalidate cached collections
+    // (individual fetches on the current page will pick up new data)
+    console.log("🔄 Server data changed — refreshing cache...");
+    var keysToInvalidate = [
+      "books_" + school,
+      "borrowed_" + school,
+      "students_" + school,
+      "furniture_" + school,
+      "teachers_" + school,
+      "classes_" + school,
+      "events_" + school,
+      "fees_" + school,
+      "terms_" + school,
+      "qrcodes_" + school,
+      "assignments_" + school,
+      "users_" + school,
+      "school_" + school,
+    ];
+    keysToInvalidate.forEach(function (k) {
+      clearCache(k);
+    });
+
+    localStorage.setItem("srms_cache_meta_" + school, serverMarker);
+  });
+}
+
+function getCurrentSchoolFromStorage() {
+  try {
+    return localStorage.getItem("srms_school");
+  } catch (e) {
+    return null;
+  }
+}
+
+// Marker bump — call after any write to invalidate other devices' caches
+function bumpServerMarker(schoolName) {
+  if (!database || !schoolName) return;
+  database
+    .ref("schools/" + schoolName + "/meta")
+    .update({ updatedAt: new Date().toISOString() })
+    .catch(function () {});
+}
+
+// Run background sync shortly after load (don't block)
+setTimeout(backgroundSync, 800);
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
 function generateInviteCode(length) {
   length = length || 8;
   var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -155,8 +435,7 @@ function generateUniqueStudentId(schoolName, adm) {
     randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
   }
 
-  var studentId = schoolInitials + "-" + year + "-" + randomPart;
-  return studentId;
+  return schoolInitials + "-" + year + "-" + randomPart;
 }
 
 function extractAdm(student) {
@@ -185,7 +464,7 @@ function extractAdm(student) {
 
 function extractName(student) {
   if (!student) return "Unknown";
-  var name =
+  return (
     student.Name ||
     student.name ||
     student["Full Name"] ||
@@ -197,11 +476,14 @@ function extractName(student) {
     student.Student_Name ||
     student["Name of Student"] ||
     student["Student"] ||
-    "Unknown";
-  return name;
+    "Unknown"
+  );
 }
 
-// ============ API OBJECT ============
+/* ============================================================
+   API OBJECT
+   ============================================================ */
+
 var API = {
   // ============ SCHOOL ============
   getSchool: function (schoolName) {
@@ -211,8 +493,8 @@ var API = {
         return database
           .ref("schools/" + schoolName)
           .once("value")
-          .then(function (snapshot) {
-            return snapshot.val() || null;
+          .then(function (s) {
+            return s.val() || null;
           });
       },
       60000,
@@ -258,6 +540,7 @@ var API = {
       })
       .then(function () {
         clearCache("school_" + schoolData.name);
+        bumpServerMarker(schoolData.name);
         return { success: true, inviteCode: inviteCode };
       })
       .catch(function (error) {
@@ -271,6 +554,7 @@ var API = {
       .update(schoolData)
       .then(function () {
         clearCache("school_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -331,6 +615,7 @@ var API = {
       })
       .then(function () {
         clearCache("users_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -354,6 +639,7 @@ var API = {
       .update(userData)
       .then(function () {
         clearCache("users_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -368,6 +654,7 @@ var API = {
       .update({ isActive: false })
       .then(function () {
         clearCache("users_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -391,6 +678,7 @@ var API = {
       })
       .then(function () {
         clearCache("books_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -413,6 +701,7 @@ var API = {
       .update(bookData)
       .then(function () {
         clearCache("books_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -426,6 +715,7 @@ var API = {
       .remove()
       .then(function () {
         clearCache("books_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -473,6 +763,7 @@ var API = {
       })
       .then(function () {
         clearCache("borrowed_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -480,7 +771,6 @@ var API = {
       });
   },
 
-  // ALIAS: library.html calls API.addBorrowed(...)
   addBorrowed: function (schoolName, borrowData) {
     return API.issueBook(schoolName, borrowData);
   },
@@ -506,9 +796,13 @@ var API = {
   returnBook: function (schoolName, borrowId) {
     return database
       .ref("schools/" + schoolName + "/borrowed/" + borrowId)
-      .update({ returned: true })
+      .update({
+        returned: true,
+        returnDate: new Date().toISOString().split("T")[0],
+      })
       .then(function () {
         clearCache("borrowed_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -550,6 +844,7 @@ var API = {
           .update(updates)
           .then(function () {
             clearCache("qrcodes_" + schoolName);
+            bumpServerMarker(schoolName);
             return { success: true, codes: generated };
           });
       })
@@ -587,6 +882,7 @@ var API = {
       })
       .then(function () {
         clearCache("qrcodes_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -608,6 +904,7 @@ var API = {
       })
       .then(function () {
         clearCache("qrcodes_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -648,6 +945,7 @@ var API = {
           .then(function () {
             clearCache("qrcodes_" + schoolName);
             clearCache("students_" + schoolName);
+            bumpServerMarker(schoolName);
             return { success: true, qrCode: qrCode, student: student };
           });
       })
@@ -692,6 +990,7 @@ var API = {
       })
       .then(function () {
         clearCache("students_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true, studentId: studentId };
       })
       .catch(function (error) {
@@ -734,6 +1033,7 @@ var API = {
       .remove()
       .then(function () {
         clearCache("students_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -760,7 +1060,6 @@ var API = {
       })
       .then(function () {
         var studentPromises = [];
-
         for (var i = 0; i < students.length; i++) {
           var student = students[i];
           var adm = extractAdm(student);
@@ -768,7 +1067,6 @@ var API = {
 
           if (adm) {
             var studentId = generateUniqueStudentId(schoolName, adm);
-
             studentPromises.push(
               database.ref("schools/" + schoolName + "/students/" + adm).set({
                 name: name,
@@ -794,13 +1092,11 @@ var API = {
                 idGeneratedAt: new Date().toISOString(),
               }),
             );
-
             students[i].studentId = studentId;
             students[i].StudentID = studentId;
             studentIdsGenerated++;
           }
         }
-
         return Promise.all(studentPromises);
       })
       .then(function () {
@@ -811,6 +1107,7 @@ var API = {
       .then(function () {
         clearCache("classes_" + schoolName);
         clearCache("students_" + schoolName);
+        bumpServerMarker(schoolName);
         return {
           success: true,
           classId: classId,
@@ -856,6 +1153,7 @@ var API = {
       .remove()
       .then(function () {
         clearCache("classes_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1008,6 +1306,7 @@ var API = {
           .then(function () {
             clearCache("classes_" + schoolName);
             clearCache("students_" + schoolName);
+            bumpServerMarker(schoolName);
             return { success: true, studentsDeleted: studentAdms.length };
           });
       })
@@ -1031,6 +1330,7 @@ var API = {
         })
         .then(function () {
           clearCache("fees_" + schoolName);
+          bumpServerMarker(schoolName);
           return { success: true };
         })
         .catch(function (error) {
@@ -1051,6 +1351,7 @@ var API = {
         })
         .then(function () {
           clearCache("fees_" + schoolName);
+          bumpServerMarker(schoolName);
           return { success: true };
         })
         .catch(function (error) {
@@ -1083,6 +1384,7 @@ var API = {
       .remove()
       .then(function () {
         clearCache("fees_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1119,6 +1421,7 @@ var API = {
       })
       .then(function () {
         clearCache("furniture_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1150,6 +1453,7 @@ var API = {
       .remove()
       .then(function () {
         clearCache("furniture_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1171,6 +1475,7 @@ var API = {
       })
       .then(function () {
         clearCache("teachers_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1193,6 +1498,7 @@ var API = {
       .remove()
       .then(function () {
         clearCache("teachers_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1214,6 +1520,7 @@ var API = {
       })
       .then(function () {
         clearCache("events_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1248,6 +1555,7 @@ var API = {
       })
       .then(function () {
         clearCache("timetable_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1293,6 +1601,7 @@ var API = {
       })
       .then(function () {
         clearCache("terms_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1382,6 +1691,7 @@ var API = {
         return database.ref().update(updates);
       })
       .then(function () {
+        clearCache("chat_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1442,6 +1752,7 @@ var API = {
           timestamp: new Date().toISOString(),
         })
         .then(function () {
+          clearCache("notes_" + schoolName);
           return { success: true };
         })
         .catch(function (error) {
@@ -1460,6 +1771,7 @@ var API = {
           isDeleted: false,
         })
         .then(function () {
+          clearCache("notes_" + schoolName);
           return { success: true };
         })
         .catch(function (error) {
@@ -1474,9 +1786,13 @@ var API = {
       .once("value")
       .then(snapshotToArray)
       .then(function (notes) {
-        return notes.filter(function (note) {
-          return !note.isDeleted && note.authorEmail === userEmail;
-        });
+        return notes
+          .filter(function (note) {
+            return !note.isDeleted && note.authorEmail === userEmail;
+          })
+          .sort(function (a, b) {
+            return new Date(b.timestamp) - new Date(a.timestamp);
+          });
       })
       .catch(function () {
         return [];
@@ -1488,6 +1804,7 @@ var API = {
       .ref("schools/" + schoolName + "/notes/" + noteId)
       .update({ isDeleted: true })
       .then(function () {
+        clearCache("notes_" + schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1502,6 +1819,7 @@ var API = {
       .set({
         timestamp: new Date().toISOString(),
         user: logData.user || "System",
+        userEmail: logData.userEmail || "",
         action: logData.action,
         details: logData.details || "",
       })
@@ -1550,6 +1868,7 @@ var API = {
       .ref("schools/" + schoolName + "/settings")
       .update(settingsData)
       .then(function () {
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1589,10 +1908,13 @@ var API = {
         itemNo: itemData.itemNo,
         assignedDate: new Date().toISOString().split("T")[0],
         assignedBy: itemData.assignedBy || "",
+        notes: itemData.notes || "",
         returned: false,
         createdAt: new Date().toISOString(),
       })
       .then(function () {
+        clearCache("assignments_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1642,6 +1964,8 @@ var API = {
         returnDate: new Date().toISOString().split("T")[0],
       })
       .then(function () {
+        clearCache("assignments_" + schoolName);
+        bumpServerMarker(schoolName);
         return { success: true };
       })
       .catch(function (error) {
@@ -1664,12 +1988,35 @@ var API = {
         return { success: false, error: error.message };
       });
   },
+
+  // ============ CACHE UTILITIES (new) ============
+  wipeAllCache: wipeAllCache,
+  clearCache: clearCache,
+  getCacheStats: function () {
+    try {
+      var total = 0,
+        count = 0;
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(CACHE_PREFIX) === 0) {
+          total += (localStorage.getItem(k) || "").length;
+          count++;
+        }
+      }
+      return {
+        collections: count,
+        bytes: total,
+        mb: (total / 1024 / 1024).toFixed(2),
+      };
+    } catch (e) {
+      return { collections: 0, bytes: 0, mb: "0.00" };
+    }
+  },
 };
 
-// ============================================
-// API GUARD — prevents API calls before Firebase is ready
-// (each call returns a friendly error if DB isn't ready yet)
-// ============================================
+/* ============================================================
+   API GUARD — prevents calls before Firebase is ready
+   ============================================================ */
 (function guardApiCalls() {
   Object.keys(API).forEach(function (key) {
     if (typeof API[key] === "function") {
@@ -1691,8 +2038,10 @@ var API = {
 window.API = API;
 window.dataCache = dataCache;
 window.clearCache = clearCache;
+window.wipeAllCache = wipeAllCache;
 window.generateUniqueStudentId = generateUniqueStudentId;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
 
-console.log("✅ API loaded - PERFORMANCE OPTIMIZED + ALIASES + RESILIENT INIT");
+console.log("✅ API loaded — CACHE-FIRST + PERSISTENT + BACKGROUND SYNC");
+console.log("📦 Cache version: v" + CACHE_VERSION);
