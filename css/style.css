@@ -2,7 +2,8 @@
    SRMS - Main Styles
    Complete Version
    + Wallpaper Layer Support
-   + Fixed-position navbar support
+   + Fixed-position navbar
+   + No background on navbar container
    ============================================ */
 
 :root {
@@ -97,7 +98,6 @@ html {
   -webkit-overflow-scrolling: touch;
   -webkit-text-size-adjust: 100%;
   background: #05070f !important;
-  /* Never let transform/filter on html break fixed positioning */
   transform: none !important;
   filter: none !important;
   perspective: none !important;
@@ -113,7 +113,6 @@ body {
   overflow-x: hidden;
   position: relative;
   padding-bottom: 120px;
-  /* Same guard for body */
   transform: none !important;
   filter: none !important;
   perspective: none !important;
@@ -695,7 +694,7 @@ small {
   }
 }
 
-/* ============ PERFORMANCE (careful: no transform on fixed elements) ============ */
+/* ============ PERFORMANCE (no transform on fixed elements) ============ */
 .taskbar,
 .stat-card,
 .btn-action,
@@ -832,7 +831,6 @@ img {
   }
 
   .taskbar,
-  .floating-navbar,
   .stat-card,
   .glass,
   .glass-strong,
@@ -843,9 +841,6 @@ img {
 
   .taskbar {
     background: rgba(8, 12, 30, 0.95) !important;
-  }
-  .floating-navbar {
-    background: rgba(10, 14, 30, 0.9) !important;
   }
 }
 
@@ -895,9 +890,6 @@ img {
 
 /* ============================================================
    WALLPAPER LAYER — page content floats above the wallpaper
-   IMPORTANT: DO NOT add .floating-navbar-container to the
-   "position: relative" rule below, or the navbar will stop
-   being fixed to the viewport and will scroll with the page.
    ============================================================ */
 #srms-wallpaper-bg {
   position: fixed !important;
