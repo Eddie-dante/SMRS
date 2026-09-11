@@ -1,7 +1,8 @@
 // ============================================
 // SRMS - Wallpaper Loader (Curated Real Images)
-// Uses specific Unsplash photo IDs matched to names
-// + dedicated fixed <div> behind everything
+// + Light overlay so wallpaper is visible
+// + Overlay amount tunable via localStorage key "srms_wallpaper_darkness"
+// + Dedicated fixed <div> behind everything
 // ============================================
 
 var WALLPAPER_DATA = {
@@ -463,6 +464,30 @@ var WALLPAPER_DATA = {
   },
 };
 
+// ---------------------------------------------------------------
+// Overlay darkness config
+// Reads from localStorage key "srms_wallpaper_darkness" (0 to 0.7)
+// Default = 0.15 top, 0.28 bottom (light, wallpaper clearly visible)
+// ---------------------------------------------------------------
+function getWallpaperDarkness() {
+  var saved = localStorage.getItem("srms_wallpaper_darkness");
+  var v = saved !== null ? parseFloat(saved) : 0.15;
+  if (isNaN(v)) v = 0.15;
+  return Math.max(0, Math.min(0.7, v));
+}
+
+function buildOverlay() {
+  var top = getWallpaperDarkness();
+  var bottom = Math.min(0.7, top + 0.13);
+  return (
+    "linear-gradient(rgba(8, 12, 28, " +
+    top.toFixed(2) +
+    "), rgba(8, 12, 28, " +
+    bottom.toFixed(2) +
+    "))"
+  );
+}
+
 function buildImageUrl(key, width) {
   var w = width || 1920;
   var wallpaper = WALLPAPER_DATA[key];
@@ -486,7 +511,7 @@ function ensureBackgroundLayer() {
     "background-position:center;" +
     "background-repeat:no-repeat;" +
     "background-attachment:fixed;" +
-    "transition:background-image 0.6s ease, background 0.6s ease;";
+    "transition:background-image 0.7s ease, background 0.7s ease;";
 
   if (document.body) {
     document.body.insertBefore(el, document.body.firstChild);
@@ -511,11 +536,9 @@ function applyWallpaper(key, opts) {
   var wallpaper = WALLPAPER_DATA[key] || WALLPAPER_DATA["library"];
   if (!wallpaper) return;
 
-  // Always ensure the layer exists + body is transparent
   var layer = ensureBackgroundLayer();
   transparentizeBody();
 
-  // Preload the image BEFORE swapping, so there's no flash
   var proceed = function () {
     if (wallpaper.type === "gradient") {
       layer.style.backgroundImage = wallpaper.css;
@@ -526,10 +549,8 @@ function applyWallpaper(key, opts) {
       layer.style.backgroundAttachment = "";
     } else {
       var url = buildImageUrl(key, 1920);
-      layer.style.background =
-        'linear-gradient(rgba(8, 12, 28, 0.55), rgba(8, 12, 28, 0.68)), url("' +
-        url +
-        '")';
+      var overlay = buildOverlay();
+      layer.style.background = overlay + ', url("' + url + '")';
       layer.style.backgroundSize = "cover";
       layer.style.backgroundPosition = "center";
       layer.style.backgroundRepeat = "no-repeat";
@@ -543,7 +564,6 @@ function applyWallpaper(key, opts) {
   if (wallpaper.type === "gradient") {
     proceed();
   } else {
-    // Preload to avoid flicker
     var img = new Image();
     img.onload = proceed;
     img.onerror = proceed;
@@ -568,7 +588,6 @@ function setupBaseStyles() {
   document.head.appendChild(style);
 }
 
-// Runs immediately, before DOM ready
 setupBaseStyles();
 ensureBackgroundLayer();
 transparentizeBody();
@@ -579,7 +598,6 @@ document.addEventListener("DOMContentLoaded", function () {
   applyWallpaper(savedWallpaper, { silent: true });
 });
 
-// Watchdog: if body got replaced somehow, re-inject
 var layerWatch = setInterval(function () {
   if (document.body && !document.getElementById("srms-wallpaper-bg")) {
     ensureBackgroundLayer();
@@ -592,9 +610,10 @@ var layerWatch = setInterval(function () {
 window.WALLPAPER_DATA = WALLPAPER_DATA;
 window.applyWallpaper = applyWallpaper;
 window.buildImageUrl = buildImageUrl;
+window.getWallpaperDarkness = getWallpaperDarkness;
 
 console.log(
-  "✅ Wallpaper Loader ready (curated images) — " +
+  "✅ Wallpaper Loader ready (curated images, light overlay) — " +
     Object.keys(WALLPAPER_DATA).length +
     " wallpapers",
 );
