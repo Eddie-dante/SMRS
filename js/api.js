@@ -2,6 +2,7 @@
 // SRMS - Complete Firebase API
 // Full Version - PERFORMANCE OPTIMIZED
 // Includes backward-compatible aliases
+// + Resilient Firebase init with retry
 // ============================================
 
 var firebaseConfig = {
@@ -14,14 +15,42 @@ var firebaseConfig = {
   appId: "1:828888967437:web:90461f6b1bc79854ea6844",
 };
 
-try {
-  if (typeof firebase !== "undefined" && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-    console.log("✅ Firebase initialized");
+var database = null;
+
+function initFirebase() {
+  if (typeof firebase === "undefined") {
+    console.warn("⚠️ Firebase SDK not loaded yet — will retry.");
+    return false;
   }
-  var database = firebase.database();
-} catch (error) {
-  console.error("❌ Firebase init error:", error);
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log("✅ Firebase initialized");
+    }
+    database = firebase.database();
+    return true;
+  } catch (error) {
+    console.error("❌ Firebase init error:", error);
+    return false;
+  }
+}
+
+// Try immediately
+if (!initFirebase()) {
+  var _fbAttempts = 0;
+  var _fbTimer = setInterval(function () {
+    _fbAttempts++;
+    if (initFirebase() || _fbAttempts > 33) {
+      clearInterval(_fbTimer);
+      if (!database) {
+        console.error(
+          "❌ Firebase SDK failed to load after 10s. Check that " +
+            "firebase-app-compat.js and firebase-database-compat.js " +
+            "are included BEFORE js/api.js on this page.",
+        );
+      }
+    }
+  }, 300);
 }
 
 // ============ CACHE SYSTEM ============
@@ -1637,6 +1666,28 @@ var API = {
   },
 };
 
+// ============================================
+// API GUARD — prevents API calls before Firebase is ready
+// (each call returns a friendly error if DB isn't ready yet)
+// ============================================
+(function guardApiCalls() {
+  Object.keys(API).forEach(function (key) {
+    if (typeof API[key] === "function") {
+      var original = API[key];
+      API[key] = function () {
+        if (!database) {
+          console.warn("⚠️ API." + key + " called before Firebase was ready.");
+          return Promise.resolve({
+            success: false,
+            error: "Firebase not ready yet. Please reload the page.",
+          });
+        }
+        return original.apply(this, arguments);
+      };
+    }
+  });
+})();
+
 window.API = API;
 window.dataCache = dataCache;
 window.clearCache = clearCache;
@@ -1644,4 +1695,4 @@ window.generateUniqueStudentId = generateUniqueStudentId;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
 
-console.log("✅ API loaded - PERFORMANCE OPTIMIZED + ALIASES");
+console.log("✅ API loaded - PERFORMANCE OPTIMIZED + ALIASES + RESILIENT INIT");
