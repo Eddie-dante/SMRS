@@ -9,7 +9,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://picsum.photos">
+    <link rel="preconnect" href="https://images.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -24,27 +24,33 @@
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { background: #05070f; }
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            background: transparent;
             color: #ffffff;
             overflow-x: hidden;
+            padding-bottom: 30px;
         }
         
         .wallpaper-page {
             padding: 30px;
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
         
         .page-header {
             text-align: center;
             margin-bottom: 30px;
             padding: 25px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(12, 18, 42, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
         .page-header h1 {
             font-size: 2em;
@@ -56,13 +62,13 @@
             background-clip: text;
             margin-bottom: 8px;
         }
-        .page-header p { color: rgba(255,255,255,0.5); font-size: 14px; }
+        .page-header p { color: rgba(255,255,255,0.55); font-size: 14px; }
         
         .back-btn {
             position: fixed;
             top: 20px; left: 20px;
             padding: 10px 18px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(12, 18, 42, 0.6);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 10px;
             color: #fff;
@@ -73,19 +79,22 @@
             gap: 8px;
             z-index: 100;
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             transition: var(--transition);
         }
-        .back-btn:hover { background: rgba(255,255,255,0.15); color: var(--accent); }
+        .back-btn:hover { background: rgba(12, 18, 42, 0.85); color: var(--accent); }
         
         .search-bar {
             display: flex; align-items: center; gap: 10px;
             padding: 14px 18px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(12, 18, 42, 0.42);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 12px;
             margin-bottom: 20px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
         .search-bar i { color: rgba(255,255,255,0.4); }
         .search-bar input {
@@ -93,7 +102,7 @@
             color: #fff; font-size: 15px; outline: none;
             font-family: 'Inter', sans-serif;
         }
-        .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.35); }
         
         .category-filters {
             display: flex;
@@ -104,18 +113,20 @@
         }
         .category-filters button {
             padding: 8px 16px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(12, 18, 42, 0.42);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 20px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.7);
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             font-size: 12px;
             transition: var(--transition);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-        .category-filters button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .category-filters button:hover { background: rgba(12, 18, 42, 0.65); color: #fff; }
         .category-filters button.active {
-            background: rgba(212,175,55,0.2);
+            background: rgba(212,175,55,0.25);
             border-color: #d4af37;
             color: #d4af37;
             font-weight: 700;
@@ -128,13 +139,15 @@
         }
         
         .wallpaper-card {
-            background: rgba(255,255,255,0.05);
+            background: rgba(12, 18, 42, 0.4);
             border: 2px solid rgba(255,255,255,0.1);
             border-radius: 14px;
             overflow: hidden;
             cursor: pointer;
             transition: var(--transition);
             position: relative;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         .wallpaper-card:hover {
             transform: translateY(-4px);
@@ -207,14 +220,14 @@
         .wallpaper-info {
             padding: 12px;
             text-align: center;
-            background: rgba(0,0,0,0.4);
+            background: rgba(6, 10, 24, 0.55);
             position: relative;
             z-index: 4;
         }
         .wallpaper-info h3 { font-size: 13px; margin-bottom: 3px; font-weight: 600; }
         .wallpaper-info .category-tag {
             font-size: 9px;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.45);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -243,6 +256,32 @@
             grid-column: 1 / -1;
         }
         .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+        
+        /* Toast */
+        .wp-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .wp-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
         
         @media (max-width: 768px) {
             .wallpaper-page { padding: 15px; }
@@ -289,27 +328,10 @@
         var currentCategory = 'all';
         var searchTerm = '';
 
-        /**
-         * Build a Picsum Photos URL from a seed (deterministic per key).
-         * Picsum is 100% free, no API key, never blocks hotlinks.
-         * Each seed gives a consistent, beautiful random image.
-         */
-        function buildPicsumUrl(seed, w, h) {
-            w = w || 400;
-            h = h || 250;
-            return 'https://picsum.photos/seed/' + encodeURIComponent(seed) + '/' + w + '/' + h;
+        function buildThumbUrl(key) {
+            return window.buildImageUrl ? window.buildImageUrl(key, 400) : null;
         }
 
-        /**
-         * Build a large background URL (for the actual wallpaper)
-         */
-        function buildPicsumFullUrl(seed) {
-            return 'https://picsum.photos/seed/' + encodeURIComponent(seed) + '/1920/1080';
-        }
-
-        /**
-         * Deterministic gradient fallback based on key
-         */
         function buildGradientFallback(key) {
             var palettes = [
                 'linear-gradient(135deg, #1a1f4e, #0f3460)',
@@ -322,9 +344,7 @@
                 'linear-gradient(135deg, #0f2027, #203a43)'
             ];
             var h = 0;
-            for (var i = 0; i < key.length; i++) {
-                h = (h * 31 + key.charCodeAt(i)) & 0xffffffff;
-            }
+            for (var i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) & 0xffffffff;
             return palettes[Math.abs(h) % palettes.length];
         }
 
@@ -373,8 +393,7 @@
                         '<div class="category-tag">' + category + '</div>' +
                         '</div></div>';
                 } else {
-                    // Use the wallpaper key as a stable Picsum seed
-                    var thumbUrl = buildPicsumUrl(key, 400, 250);
+                    var thumbUrl = buildThumbUrl(key);
                     var gradient = buildGradientFallback(key);
                     html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\', event)">' +
                         '<div class="check-badge"><i class="fas fa-check"></i></div>' +
@@ -397,43 +416,47 @@
             
             grid.innerHTML = html;
             
-            // Lazy-load each thumbnail
             var previews = grid.querySelectorAll('.wallpaper-preview[data-src]');
             previews.forEach(function (preview, i) {
                 var img = preview.querySelector('img');
                 var url = preview.getAttribute('data-src');
                 setTimeout(function () {
                     lazyLoadImage(img, url);
-                }, i * 40);
+                }, i * 60);
             });
+        }
+
+        function showToast(msg) {
+            var existing = document.querySelector('.wp-toast');
+            if (existing) existing.remove();
+            var t = document.createElement('div');
+            t.className = 'wp-toast';
+            t.innerHTML = '<i class="fas fa-check-circle"></i> ' + msg;
+            document.body.appendChild(t);
+            requestAnimationFrame(function () { t.classList.add('show'); });
+            setTimeout(function () {
+                t.classList.remove('show');
+                setTimeout(function () { if (t.parentNode) t.remove(); }, 300);
+            }, 1400);
         }
 
         function selectWallpaper(key, event) {
             localStorage.setItem('srms_wallpaper', key);
-            
+
+            // Update the active card
             var cards = document.querySelectorAll('.wallpaper-card');
             for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
-            
             var target = event ? event.target.closest('.wallpaper-card') : null;
             if (target) target.classList.add('active');
-            
-            var wallpaper = WALLPAPER_DATA[key];
-            
-            if (wallpaper.type === 'gradient') {
-                document.body.style.background = wallpaper.css;
-                document.body.style.backgroundImage = 'none';
-                document.body.style.backgroundAttachment = 'fixed';
-            } else {
-                // Use Picsum large image for the actual wallpaper
-                var fullUrl = buildPicsumFullUrl(key);
-                document.body.style.background = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + fullUrl + '")';
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                document.body.style.backgroundRepeat = 'no-repeat';
+
+            // Fire loader's applyWallpaper silently (no built-in toast)
+            if (typeof applyWallpaper === 'function') {
+                applyWallpaper(key, { silent: true });
             }
-            
-            alert('✅ Wallpaper applied: ' + wallpaper.name);
+
+            // Show our own small toast
+            var wp = WALLPAPER_DATA[key];
+            showToast('Applied: ' + (wp ? wp.name : key));
         }
 
         function searchWallpapers() {

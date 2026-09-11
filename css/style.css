@@ -943,3 +943,61 @@ body {
 .notification {
   z-index: 2000 !important;
 }
+
+/* ============================================================
+   WALLPAPER LAYER
+   ============================================================ */
+html {
+  background: #05070f !important;
+}
+
+body {
+  background: transparent !important;
+  background-image: none !important;
+  background-attachment: scroll !important;
+}
+
+#srms-wallpaper-bg {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  transition:
+    background-image 0.7s ease,
+    background 0.7s ease !important;
+}
+
+.taskbar,
+.floating-navbar-container,
+.main-content,
+.modal,
+.notification,
+.dropdown-menu {
+  position: relative;
+  z-index: 1;
+}
+
+.taskbar {
+  z-index: 1000 !important;
+}
+.floating-navbar-container {
+  z-index: 1000 !important;
+}
+.dropdown-menu {
+  z-index: 1200 !important;
+}
+.modal {
+  z-index: 1300 !important;
+}
+.notification {
+  z-index: 2000 !important;
+}
