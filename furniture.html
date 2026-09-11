@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SRMS - Furniture Allocation | School Resource Management System</title>
-    <meta name="description" content="Allocate furniture to individual students or entire classes">
+    <title>SRMS - Furniture | School Resource Management System</title>
+    <meta name="description" content="Allocate furniture to students or entire classes">
     <meta name="theme-color" content="#0a0e27">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,7 @@
             --gold: #f0d060;
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --transition: all 0.2s ease;
+            --transition: all 0.3s ease;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -67,25 +67,25 @@
         }
         .floating-navbar {
             display: flex; align-items: center; justify-content: center;
-            gap: 12px; padding: 12px 24px;
+            gap: 10px; padding: 12px 20px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
         }
         .nav-group { position: relative; display: inline-block; }
         .classy-btn {
             font-family: 'Cinzel', serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px; font-weight: 600;
             color: #f0e6d2;
             background: linear-gradient(135deg, rgba(35, 30, 25, 0.85), rgba(10, 8, 5, 0.95));
             border: 1px solid rgba(212, 175, 55, 0.5);
             border-radius: 30px;
-            padding: 10px 22px;
+            padding: 10px 18px;
             cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 8px;
             transition: var(--transition);
         }
         .classy-btn i { color: var(--accent); }
@@ -103,32 +103,20 @@
         }
         .dropdown-menu {
             display: none;
-            position: absolute;
-            bottom: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.94);
             backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 14px;
-            padding: 10px;
-            min-width: 200px;
-            z-index: 1200;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-radius: 14px; padding: 10px; min-width: 200px;
+            z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
         .dropdown-menu.open { display: block !important; }
         .nav-group:hover .dropdown-menu { display: block; }
         .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px;
+            font-size: 13px; cursor: pointer; white-space: nowrap;
             transition: var(--transition);
         }
         .dropdown-item i { color: var(--accent); width: 20px; }
@@ -144,210 +132,144 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
         .page-header h1 {
-            font-size: 2em;
-            font-weight: 900;
+            font-size: 1.8em; font-weight: 900;
             background: linear-gradient(180deg, #fff, #d4af37);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .page-header p { color: rgba(255,255,255,0.6); }
+        .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
         
-        .btn-primary {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #e94560, #c62a47);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px;
         }
+        .btn-primary { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
-        .btn-secondary {
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-        }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
         .btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
+        .btn-danger { background: rgba(220,53,69,0.2); color: #ff4757; border: 1px solid rgba(220,53,69,0.4); }
+        .btn-danger:hover { background: rgba(220,53,69,0.4); }
+        .btn-success { background: rgba(40,167,69,0.2); color: #34ce57; border: 1px solid rgba(40,167,69,0.4); }
+        .btn-success:hover { background: rgba(40,167,69,0.4); }
         
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .mini-stat {
-            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            backdrop-filter: blur(15px);
-        }
-        .mini-stat i { font-size: 28px; color: var(--accent); margin-bottom: 10px; }
-        .mini-stat .value { font-size: 1.8em; font-weight: 900; }
-        .mini-stat .label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
-        
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab {
-            padding: 12px 20px;
+            padding: 10px 18px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 10px;
             color: rgba(255,255,255,0.7);
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            transition: var(--transition);
+            font-size: 13px; transition: var(--transition);
         }
+        .tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .tab.active { background: linear-gradient(135deg, #e94560, #c62a47); color: #fff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        .furniture-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
+        .search-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; margin-bottom: 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
         }
-        .furniture-card {
+        .search-bar i { color: rgba(255,255,255,0.5); }
+        .search-bar input {
+            flex: 1; background: none; border: none;
+            color: #fff; font-size: 14px; outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
+        
+        .table-container {
             background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 20px;
-            position: relative;
-            transition: var(--transition);
+            padding: 20px; overflow-x: auto;
             backdrop-filter: blur(15px);
         }
-        .furniture-card:hover { transform: translateY(-3px); border-color: rgba(212,175,55,0.4); }
-        .status-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
+        .data-table { width: 100%; border-collapse: collapse; color: #fff; }
+        .data-table th {
+            background: rgba(233, 69, 96, 0.8);
+            padding: 15px; text-align: left;
+            font-weight: 700; font-size: 12px; text-transform: uppercase; white-space: nowrap;
         }
-        .status-active { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .furniture-icon {
-            width: 45px;
-            height: 45px;
-            background: rgba(255,193,7,0.15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #ffc107;
-            margin-bottom: 10px;
+        .data-table td {
+            padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
         }
-        .furniture-student-name { font-weight: 700; font-size: 15px; }
-        .furniture-adm { font-size: 12px; color: rgba(255,255,255,0.5); }
-        .furniture-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        .furniture-detail-item {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .furniture-detail-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-        .furniture-detail-value { font-size: 14px; font-weight: 600; color: var(--gold); }
-        .btn-return {
-            width: 100%;
-            padding: 10px;
-            background: rgba(40,167,69,0.2);
-            border: 1px solid rgba(40,167,69,0.4);
-            border-radius: 8px;
-            color: #34ce57;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-        .btn-return:hover { background: rgba(40,167,69,0.4); }
+        .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+        }
+        .badge-success { background: rgba(40,167,69,0.2); color: #34ce57; }
+        .badge-warning { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .badge-danger { background: rgba(220,53,69,0.2); color: #ff4757; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .stat-card {
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+        }
+        .stat-card .value { font-size: 1.4em; font-weight: 900; color: var(--gold); }
+        .stat-card .label { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+        
+        .form-container {
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+        }
+        .form-container h3 { color: var(--accent); margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: rgba(255,255,255,0.7); }
         .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 15px;
+            width: 100%; padding: 10px 15px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: #fff;
+            border-radius: 10px; color: #fff;
             font-family: 'Inter', sans-serif;
+            font-size: 13px;
         }
         .form-group select option { background: #1a1f4e; }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: var(--accent);
+        }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1300;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: rgba(14, 20, 46, 0.85);
-            backdrop-filter: blur(26px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .modal-header h3 { color: var(--accent); }
-        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
-        
         .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: rgba(255,255,255,0.4);
+            text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);
         }
         .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
         @media (max-width: 768px) {
-            .floating-navbar { padding: 8px 12px; gap: 6px; }
-            .classy-btn { padding: 8px 12px; font-size: 11px; }
+            .floating-navbar { padding: 8px 10px; gap: 4px; }
+            .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
-            .furniture-grid { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -365,77 +287,146 @@
     <div class="main-content">
         <div class="page-header">
             <div>
-                <h1><i class="fas fa-chair" style="color:var(--accent);"></i> Furniture Allocation</h1>
-                <p>Allocate to individual or entire class</p>
+                <h1><i class="fas fa-chair" style="color:var(--accent);"></i> Furniture Management</h1>
+                <p>Allocate furniture to individual students or entire classes</p>
             </div>
-            <div style="display:flex;gap:10px;">
-                <button class="btn-secondary" onclick="openModal('allocateModal')"><i class="fas fa-user"></i> Individual</button>
-                <button class="btn-primary" onclick="openModal('bulkFurnitureModal')"><i class="fas fa-users"></i> Bulk (Class)</button>
-            </div>
+            <button class="btn btn-primary" onclick="openAllocateModal()">
+                <i class="fas fa-plus"></i> Allocate Furniture
+            </button>
         </div>
         
-        <div class="stats-row">
-            <div class="mini-stat"><i class="fas fa-chair"></i><div class="value" id="totalFurnitureStat">0</div><div class="label">Total</div></div>
-            <div class="mini-stat"><i class="fas fa-check-circle"></i><div class="value" id="activeFurnitureStat">0</div><div class="label">Active</div></div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="value" id="statTotal">0</div><div class="label">Total Allocations</div></div>
+            <div class="stat-card"><div class="value" id="statChairs">0</div><div class="label">Chairs Assigned</div></div>
+            <div class="stat-card"><div class="value" id="statLockers">0</div><div class="label">Lockers Assigned</div></div>
+            <div class="stat-card"><div class="value" id="statStudents">0</div><div class="label">Students with Furniture</div></div>
         </div>
         
         <div class="tabs">
-            <button class="tab active" onclick="switchFurnitureTab('active')">Active</button>
-            <button class="tab" onclick="switchFurnitureTab('all')">All Records</button>
+            <button class="tab active" onclick="switchFurnitureTab('active')"><i class="fas fa-chair"></i> Active Allocations</button>
+            <button class="tab" onclick="switchFurnitureTab('all')"><i class="fas fa-list"></i> All Records</button>
         </div>
         
-        <div id="activeFurnitureTab" class="tab-content active">
-            <div class="furniture-grid" id="activeFurnitureList">
-                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading furniture...</p></div>
+        <div id="activeTab" class="tab-content active">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchActive" placeholder="Search by student name, ADM, chair or locker number..." onkeyup="filterActiveTable()">
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Student</th><th>ADM</th><th>Chair No</th><th>Locker No</th><th>Date</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="activeTableBody">
+                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading furniture...</p></div></td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div id="allFurnitureTab" class="tab-content">
-            <div class="furniture-grid" id="allFurnitureList"></div>
+        
+        <div id="allTab" class="tab-content">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchAll" placeholder="Search all records..." onkeyup="filterAllTable()">
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Student</th><th>ADM</th><th>Chair No</th><th>Locker No</th><th>Date</th><th>Issued By</th></tr>
+                    </thead>
+                    <tbody id="allTableBody">
+                        <tr><td colspan="6" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
+    <!-- Allocate Modal -->
     <div class="modal" id="allocateModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width:700px;">
             <div class="modal-header">
-                <h3><i class="fas fa-user"></i> Allocate to Individual</h3>
+                <h3><i class="fas fa-chair"></i> Allocate Furniture</h3>
                 <button class="modal-close" onclick="closeModal('allocateModal')"><i class="fas fa-times"></i></button>
             </div>
-            <form onsubmit="return allocateFurniture(event)">
-                <div class="form-group"><label>Student Name *</label><input type="text" id="furnitureStudentName" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label>ADM Number *</label><input type="text" id="furnitureADM" required></div>
-                    <div class="form-group"><label>Form</label><select id="furnitureForm"><option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option></select></div>
+            
+            <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+                <button class="btn btn-primary" id="individualBtn" onclick="showIndividualForm()"><i class="fas fa-user"></i> Individual</button>
+                <button class="btn btn-secondary" id="bulkBtn" onclick="showBulkForm()"><i class="fas fa-users"></i> Bulk (Class)</button>
+            </div>
+            
+            <!-- Individual Form -->
+            <div id="individualForm">
+                <form onsubmit="return allocateIndividual(event)">
+                    <div class="form-group">
+                        <label>🎓 Class/Form *</label>
+                        <select id="allocClass" required onchange="loadStreamsForAlloc()">
+                            <option value="">-- Select Class --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏠 Stream</label>
+                        <select id="allocStream" onchange="loadStudentsForAlloc()">
+                            <option value="">-- Select Stream --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>👨‍🎓 Student *</label>
+                        <select id="allocStudent" required onchange="updateAllocStudentDetails()">
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>👤 Student Name</label><input type="text" id="allocStudentName" readonly style="background:rgba(255,255,255,0.02);"></div>
+                        <div class="form-group"><label>🔢 ADM Number</label><input type="text" id="allocADM" readonly style="background:rgba(255,255,255,0.02);"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>🪑 Chair Number *</label><input type="text" id="allocChair" placeholder="e.g., CH-001" required></div>
+                        <div class="form-group"><label>🔒 Locker Number</label><input type="text" id="allocLocker" placeholder="e.g., LK-001"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>📅 Allocation Date</label>
+                        <input type="date" id="allocDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                        <i class="fas fa-chair"></i> Allocate to Student
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Bulk Form -->
+            <div id="bulkForm" style="display:none;">
+                <div class="form-group">
+                    <label>🏫 Select Class *</label>
+                    <select id="bulkClass" onchange="loadClassStudentsForBulk()">
+                        <option value="">-- Select Class --</option>
+                    </select>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Stream</label><select id="furnitureStream"><option>East</option><option>West</option><option>North</option><option>South</option></select></div>
-                    <div class="form-group"><label>Allocation Date</label><input type="date" id="furnitureAllocationDate" required></div>
+                    <div class="form-group">
+                        <label>🪑 Chair Prefix</label>
+                        <input type="text" id="bulkChairPrefix" value="CH" placeholder="e.g., CH">
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Locker Prefix</label>
+                        <input type="text" id="bulkLockerPrefix" value="LK" placeholder="e.g., LK">
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Chair Number *</label><input type="text" id="chairNumber" placeholder="CH-001" required></div>
-                    <div class="form-group"><label>Locker Number</label><input type="text" id="lockerNumber" placeholder="LK-001"></div>
+                    <div class="form-group">
+                        <label>🔢 Starting Chair Number</label>
+                        <input type="number" id="bulkChairStart" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>📅 Allocation Date</label>
+                        <input type="date" id="bulkDate">
+                    </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-chair"></i> Allocate</button>
-            </form>
-        </div>
-    </div>
-    
-    <div class="modal" id="bulkFurnitureModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-users"></i> Bulk Allocate to Class</h3>
-                <button class="modal-close" onclick="closeModal('bulkFurnitureModal')"><i class="fas fa-times"></i></button>
+                <div id="bulkStudentsList" style="margin-top:15px;max-height:300px;overflow-y:auto;"></div>
+                <button class="btn btn-primary" onclick="allocateBulk()" style="width:100%;justify-content:center;margin-top:15px;">
+                    <i class="fas fa-users"></i> Allocate to All Selected
+                </button>
             </div>
-            <div class="form-group">
-                <label>Select Class</label>
-                <select id="bulkFurnitureClass" onchange="loadClassStudentsForFurniture()">
-                    <option value="">Select Class</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Allocation Date</label>
-                <input type="date" id="bulkFurnitureDate">
-            </div>
-            <div id="bulkFurnitureStudents"></div>
         </div>
     </div>
     
@@ -444,7 +435,6 @@
             <button class="classy-btn" onclick="location.href='dashboard.html'">
                 <span class="btn-badge"><i class="fas fa-th-large"></i></span> <span class="btn-label">Dashboard</span>
             </button>
-            
             <div class="nav-group">
                 <button class="classy-btn active">
                     <span class="btn-badge"><i class="fas fa-layer-group"></i></span> <span class="btn-label">Resources</span> <i class="fas fa-chevron-up"></i>
@@ -455,7 +445,6 @@
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
-            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-user-friends"></i></span> <span class="btn-label">People</span> <i class="fas fa-chevron-up"></i>
@@ -468,10 +457,9 @@
                     <a class="dropdown-item" href="StudentsIDs.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
-            
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Comms</span> <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Communication</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -479,7 +467,6 @@
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
-            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> <span class="btn-label">More</span> <i class="fas fa-chevron-up"></i>
@@ -506,74 +493,524 @@
     <script src="js/app.js"></script>
     
     <script>
-        function switchFurnitureTab(tab) {
+        var allFurnitureData = [];
+        var allClassesData = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = checkAuth();
+            if (!user) return;
+            
+            var today = new Date().toISOString().split('T')[0];
+            var allocDate = document.getElementById('allocDate');
+            var bulkDate = document.getElementById('bulkDate');
+            if (allocDate) allocDate.value = today;
+            if (bulkDate) bulkDate.value = today;
+            
+            loadFurnitureData();
+            loadClasses();
+        });
+        
+        /* ================================================================
+           DATA LOADING
+           ================================================================ */
+        function loadFurnitureData() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getFurniture(school).then(function(furniture) {
+                allFurnitureData = furniture || [];
+                renderActiveTable(allFurnitureData);
+                renderAllTable(allFurnitureData);
+                updateStats(allFurnitureData);
+            }).catch(function(err) {
+                console.error('Error loading furniture:', err);
+                document.getElementById('activeTableBody').innerHTML = 
+                    '<tr><td colspan="7" style="text-align:center;color:#ff4757;padding:20px;">Failed to load furniture</td></tr>';
+            });
+        }
+        
+        function loadClasses() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            API.getClasses(school).then(function(classes) {
+                allClassesData = classes || [];
+                populateClassDropdowns();
+            }).catch(function(err) {
+                console.error('Error loading classes:', err);
+            });
+        }
+        
+        function populateClassDropdowns() {
+            var allocClassSelect = document.getElementById('allocClass');
+            var bulkClassSelect = document.getElementById('bulkClass');
+            
+            if (allocClassSelect) {
+                var html = '<option value="">-- Select Class --</option>';
+                allClassesData.forEach(function(c) {
+                    html += '<option value="' + (c.name || '') + '">' + (c.name || '') + ' ' + (c.stream || '') + '</option>';
+                });
+                allocClassSelect.innerHTML = html;
+            }
+            
+            if (bulkClassSelect) {
+                var html2 = '<option value="">-- Select Class --</option>';
+                allClassesData.forEach(function(c) {
+                    var count = (c.students || []).length;
+                    html2 += '<option value="' + (c.name || '') + '">' + (c.name || '') + ' ' + (c.stream || '') + ' (' + count + ')</option>';
+                });
+                bulkClassSelect.innerHTML = html2;
+            }
+        }
+        
+        /* ================================================================
+           RENDERING
+           ================================================================ */
+        function renderActiveTable(furniture) {
+            var tbody = document.getElementById('activeTableBody');
+            if (!tbody) return;
+            
+            if (!furniture || furniture.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-chair"></i><p>No furniture allocated yet</p></div></td></tr>';
+                return;
+            }
+            
+            var html = '';
+            furniture.forEach(function(f) {
+                html += '<tr>' +
+                    '<td>' + (f.studentName || '-') + '</td>' +
+                    '<td>' + (f.adm || '-') + '</td>' +
+                    '<td><span class="badge badge-warning">' + (f.chairNo || '-') + '</span></td>' +
+                    '<td>' + (f.lockerNo || '-') + '</td>' +
+                    '<td>' + (f.allocationDate || '-') + '</td>' +
+                    '<td><span class="badge badge-success">Active</span></td>' +
+                    '<td>' +
+                    '<button class="btn btn-sm btn-success" onclick="returnFurnitureItem(\'' + (f.id || f.key || '') + '\')">' +
+                    '<i class="fas fa-undo"></i> Return</button>' +
+                    '</td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function renderAllTable(furniture) {
+            var tbody = document.getElementById('allTableBody');
+            if (!tbody) return;
+            
+            if (!furniture || furniture.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><div class="empty-state"><i class="fas fa-list"></i><p>No records</p></div></td></tr>';
+                return;
+            }
+            
+            var html = '';
+            furniture.forEach(function(f) {
+                html += '<tr>' +
+                    '<td>' + (f.studentName || '-') + '</td>' +
+                    '<td>' + (f.adm || '-') + '</td>' +
+                    '<td>' + (f.chairNo || '-') + '</td>' +
+                    '<td>' + (f.lockerNo || '-') + '</td>' +
+                    '<td>' + (f.allocationDate || '-') + '</td>' +
+                    '<td>' + (f.issuedBy || '-') + '</td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function updateStats(furniture) {
+            var totalEl = document.getElementById('statTotal');
+            var chairsEl = document.getElementById('statChairs');
+            var lockersEl = document.getElementById('statLockers');
+            var studentsEl = document.getElementById('statStudents');
+            
+            var chairCount = 0, lockerCount = 0;
+            var uniqueStudents = {};
+            
+            furniture.forEach(function(f) {
+                if (f.chairNo) chairCount++;
+                if (f.lockerNo) lockerCount++;
+                if (f.adm) uniqueStudents[f.adm] = true;
+            });
+            
+            if (totalEl) totalEl.textContent = furniture.length;
+            if (chairsEl) chairsEl.textContent = chairCount;
+            if (lockersEl) lockersEl.textContent = lockerCount;
+            if (studentsEl) studentsEl.textContent = Object.keys(uniqueStudents).length;
+        }
+        
+        /* ================================================================
+           TABS
+           ================================================================ */
+        function switchFurnitureTab(tabName) {
             var tabs = document.querySelectorAll('.tab');
             var contents = document.querySelectorAll('.tab-content');
             
             tabs.forEach(function(t) { t.classList.remove('active'); });
             contents.forEach(function(c) { c.classList.remove('active'); });
             
-            if (tab === 'active') {
+            if (tabName === 'active') {
                 tabs[0].classList.add('active');
-                document.getElementById('activeFurnitureTab').classList.add('active');
+                document.getElementById('activeTab').classList.add('active');
             } else {
                 tabs[1].classList.add('active');
-                document.getElementById('allFurnitureTab').classList.add('active');
-                
-                var activeContent = document.getElementById('activeFurnitureList');
-                var allContent = document.getElementById('allFurnitureList');
-                if (activeContent && allContent) {
-                    allContent.innerHTML = activeContent.innerHTML;
-                }
+                document.getElementById('allTab').classList.add('active');
             }
         }
         
-        function logoutWithConfirm() {
-            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { 
-                    title: 'Logout', 
-                    type: 'info', 
-                    confirmText: 'Logout', 
-                    cancelText: 'Cancel' 
-                }).then(function(result) {
-                    if (result === 'confirm') {
-                        logout();
-                    }
+        /* ================================================================
+           ALLOCATE MODAL
+           ================================================================ */
+        function openAllocateModal() {
+            closeModal('allocateModal');
+            setTimeout(function() { openModal('allocateModal'); }, 50);
+        }
+        
+        function openModal(id) {
+            var m = document.getElementById(id);
+            if (m) { m.classList.add('active'); m.style.display = 'flex'; }
+        }
+        
+        function closeModal(id) {
+            var m = document.getElementById(id);
+            if (m) { m.classList.remove('active'); m.style.display = 'none'; }
+        }
+        
+        function showIndividualForm() {
+            document.getElementById('individualForm').style.display = 'block';
+            document.getElementById('bulkForm').style.display = 'none';
+            document.getElementById('individualBtn').className = 'btn btn-primary';
+            document.getElementById('bulkBtn').className = 'btn btn-secondary';
+        }
+        
+        function showBulkForm() {
+            document.getElementById('individualForm').style.display = 'none';
+            document.getElementById('bulkForm').style.display = 'block';
+            document.getElementById('individualBtn').className = 'btn btn-secondary';
+            document.getElementById('bulkBtn').className = 'btn btn-primary';
+        }
+        
+        /* ================================================================
+           INDIVIDUAL ALLOCATION
+           ================================================================ */
+        function loadStreamsForAlloc() {
+            var selectedClass = document.getElementById('allocClass').value;
+            var streamSelect = document.getElementById('allocStream');
+            var studentSelect = document.getElementById('allocStudent');
+            
+            if (!selectedClass) {
+                streamSelect.innerHTML = '<option value="">-- Select Stream --</option>';
+                studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+                return;
+            }
+            
+            var streams = [];
+            allClassesData.forEach(function(c) {
+                if (c.name === selectedClass) {
+                    if (c.stream) streams.push(c.stream);
+                    (c.students || []).forEach(function(st) {
+                        var s = st.stream || st.Stream || '';
+                        if (s && streams.indexOf(s) === -1) streams.push(s);
+                    });
+                }
+            });
+            
+            var html = '<option value="">-- Select Stream --</option>';
+            if (streams.length > 0) {
+                streams.forEach(function(s) {
+                    html += '<option value="' + s + '">' + s + '</option>';
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) {
-                    logout();
+                html += '<option value="all">All Streams</option>';
+            }
+            streamSelect.innerHTML = html;
+            studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+        }
+        
+        function loadStudentsForAlloc() {
+            var selectedClass = document.getElementById('allocClass').value;
+            var selectedStream = document.getElementById('allocStream').value;
+            var studentSelect = document.getElementById('allocStudent');
+            
+            if (!selectedClass) return;
+            
+            var students = [];
+            var seenAdms = {};
+            
+            allClassesData.forEach(function(c) {
+                if (c.name === selectedClass) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = extractAdm(st);
+                        var name = extractName(st);
+                        var stream = st.stream || st.Stream || '';
+                        
+                        if (seenAdms[adm]) return;
+                        
+                        var matchesStream = !selectedStream || 
+                                            selectedStream === 'all' || 
+                                            stream === selectedStream;
+                        
+                        if (matchesStream && adm) {
+                            seenAdms[adm] = true;
+                            students.push({ name: name, adm: adm });
+                        }
+                    });
                 }
+            });
+            
+            students.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            
+            var html = '<option value="">-- Select Student (' + students.length + ') --</option>';
+            students.forEach(function(s) {
+                html += '<option value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '">' + s.name + ' (' + s.adm + ')</option>';
+            });
+            studentSelect.innerHTML = html;
+            
+            document.getElementById('allocStudentName').value = '';
+            document.getElementById('allocADM').value = '';
+        }
+        
+        function updateAllocStudentDetails() {
+            var studentSelect = document.getElementById('allocStudent');
+            var nameInput = document.getElementById('allocStudentName');
+            var admInput = document.getElementById('allocADM');
+            
+            if (!studentSelect.value) {
+                nameInput.value = '';
+                admInput.value = '';
+                return;
+            }
+            
+            var opt = studentSelect.options[studentSelect.selectedIndex];
+            nameInput.value = opt.getAttribute('data-name') || '';
+            admInput.value = studentSelect.value;
+        }
+        
+        function allocateIndividual(event) {
+            event.preventDefault();
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            
+            var studentName = document.getElementById('allocStudentName').value;
+            var adm = document.getElementById('allocADM').value;
+            var chairNo = document.getElementById('allocChair').value.trim();
+            var lockerNo = document.getElementById('allocLocker').value.trim();
+            var allocDate = document.getElementById('allocDate').value;
+            
+            if (!adm || !studentName) { showNotification('Select a student', 'warning'); return false; }
+            if (!chairNo) { showNotification('Chair number required', 'warning'); return false; }
+            
+            API.allocateFurniture(school, {
+                studentName: studentName,
+                adm: adm,
+                chairNo: chairNo,
+                lockerNo: lockerNo,
+                allocationDate: allocDate,
+                issuedBy: user ? user.name : ''
+            }).then(function(result) {
+                if (result.success) {
+                    showNotification('Allocated ' + chairNo + ' to ' + studentName + '!', 'success');
+                    closeModal('allocateModal');
+                    
+                    // Reset form
+                    document.getElementById('allocChair').value = '';
+                    document.getElementById('allocLocker').value = '';
+                    document.getElementById('allocStudent').value = '';
+                    document.getElementById('allocStudentName').value = '';
+                    document.getElementById('allocADM').value = '';
+                    
+                    loadFurnitureData();
+                } else {
+                    showNotification(result.error || 'Failed', 'error');
+                }
+            }).catch(function(err) {
+                console.error('Allocate error:', err);
+                showNotification('Failed to allocate', 'error');
+            });
+            
+            return false;
+        }
+        
+        /* ================================================================
+           BULK ALLOCATION
+           ================================================================ */
+        function loadClassStudentsForBulk() {
+            var selectedClass = document.getElementById('bulkClass').value;
+            var container = document.getElementById('bulkStudentsList');
+            
+            if (!container) return;
+            if (!selectedClass) { container.innerHTML = ''; return; }
+            
+            var students = [];
+            var seenAdms = {};
+            
+            allClassesData.forEach(function(c) {
+                if (c.name === selectedClass) {
+                    (c.students || []).forEach(function(st) {
+                        var adm = extractAdm(st);
+                        var name = extractName(st);
+                        if (adm && !seenAdms[adm]) {
+                            seenAdms[adm] = true;
+                            students.push({ name: name, adm: adm });
+                        }
+                    });
+                }
+            });
+            
+            if (students.length === 0) {
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:12px;text-align:center;">No students in this class.</p>';
+                return;
+            }
+            
+            var html = '<h4 style="color:var(--accent);margin-bottom:10px;font-size:14px;">👥 Students (' + students.length + ')</h4>';
+            html += '<div style="max-height:260px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;background:rgba(0,0,0,0.2);">';
+            students.forEach(function(s, i) {
+                html += '<label style="display:flex;align-items:center;gap:10px;padding:6px 4px;cursor:pointer;">' +
+                    '<input type="checkbox" class="bulk-student-check" value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '" checked style="width:auto;">' +
+                    '<span style="font-size:12px;flex:1;">' + s.name + ' (' + s.adm + ')</span>' +
+                    '</label>';
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function allocateBulk() {
+            var chairPrefix = document.getElementById('bulkChairPrefix').value.trim() || 'CH';
+            var lockerPrefix = document.getElementById('bulkLockerPrefix').value.trim() || 'LK';
+            var chairStart = parseInt(document.getElementById('bulkChairStart').value) || 1;
+            var allocDate = document.getElementById('bulkDate').value;
+            var checkboxes = document.querySelectorAll('.bulk-student-check:checked');
+            
+            if (checkboxes.length === 0) {
+                showNotification('Select at least one student', 'warning');
+                return;
+            }
+            
+            var school = getCurrentSchool();
+            var user = getCurrentUser();
+            var promises = [];
+            var chairNum = chairStart;
+            var lockerNum = chairStart;
+            
+            checkboxes.forEach(function(cb) {
+                var chairNo = chairPrefix + '-' + String(chairNum).padStart(3, '0');
+                var lockerNo = lockerPrefix + '-' + String(lockerNum).padStart(3, '0');
+                chairNum++;
+                lockerNum++;
+                
+                promises.push(API.allocateFurniture(school, {
+                    studentName: cb.getAttribute('data-name'),
+                    adm: cb.value,
+                    chairNo: chairNo,
+                    lockerNo: lockerNo,
+                    allocationDate: allocDate,
+                    issuedBy: user ? user.name : ''
+                }));
+            });
+            
+            Promise.all(promises).then(function() {
+                showNotification('Allocated to ' + checkboxes.length + ' students!', 'success');
+                closeModal('allocateModal');
+                document.getElementById('bulkStudentsList').innerHTML = '';
+                loadFurnitureData();
+            }).catch(function(err) {
+                console.error('Bulk error:', err);
+                showNotification('Failed to allocate', 'error');
+            });
+        }
+        
+        /* ================================================================
+           RETURN / DELETE
+           ================================================================ */
+        function returnFurnitureItem(id) {
+            if (!id) {
+                showNotification('Invalid record', 'warning');
+                return;
+            }
+            
+            var doReturn = function() {
+                var school = getCurrentSchool();
+                API.returnFurniture(school, id).then(function() {
+                    showNotification('Furniture returned!', 'success');
+                    loadFurnitureData();
+                }).catch(function(err) {
+                    console.error('Return error:', err);
+                    showNotification('Failed to return', 'error');
+                });
+            };
+            
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Return this furniture?', {
+                    title: 'Return Furniture',
+                    type: 'info',
+                    confirmText: 'Return',
+                    cancelText: 'Cancel'
+                }).then(function(r) { if (r === 'confirm') doReturn(); });
+            } else if (confirm('Return this furniture?')) {
+                doReturn();
             }
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            var user = checkAuth();
-            if (!user) return;
-            
-            var allocDate = document.getElementById('furnitureAllocationDate');
-            var bulkDate = document.getElementById('bulkFurnitureDate');
-            
-            if (allocDate && typeof getCurrentDate === 'function') {
-                allocDate.value = getCurrentDate();
+        /* ================================================================
+           FILTERING
+           ================================================================ */
+        function filterActiveTable() {
+            var search = document.getElementById('searchActive').value.toLowerCase();
+            var rows = document.getElementById('activeTableBody').getElementsByTagName('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var text = rows[i].textContent.toLowerCase();
+                rows[i].style.display = text.indexOf(search) > -1 ? '' : 'none';
             }
-            
-            if (bulkDate && typeof getCurrentDate === 'function') {
-                bulkDate.value = getCurrentDate();
-            }
-            
-            if (typeof loadFurnitureData === 'function') {
-                loadFurnitureData();
-            }
-        });
+        }
         
-        window.switchFurnitureTab = switchFurnitureTab;
-        window.logoutWithConfirm = logoutWithConfirm;
-        window.logout = function() {
+        function filterAllTable() {
+            var search = document.getElementById('searchAll').value.toLowerCase();
+            var rows = document.getElementById('allTableBody').getElementsByTagName('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var text = rows[i].textContent.toLowerCase();
+                rows[i].style.display = text.indexOf(search) > -1 ? '' : 'none';
+            }
+        }
+        
+        /* ================================================================
+           LOGOUT
+           ================================================================ */
+        function logoutWithConfirm() {
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm('Logout?', {
+                    title: 'Logout', type: 'info',
+                    confirmText: 'Logout', cancelText: 'Cancel'
+                }).then(function(r) { if (r === 'confirm') logout(); });
+            } else if (confirm('Logout?')) logout();
+        }
+        
+        function logout() {
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
-        };
+        }
+        
+        /* ================================================================
+           EXPOSE
+           ================================================================ */
+        window.loadFurnitureData = loadFurnitureData;
+        window.switchFurnitureTab = switchFurnitureTab;
+        window.openAllocateModal = openAllocateModal;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.showIndividualForm = showIndividualForm;
+        window.showBulkForm = showBulkForm;
+        window.loadStreamsForAlloc = loadStreamsForAlloc;
+        window.loadStudentsForAlloc = loadStudentsForAlloc;
+        window.updateAllocStudentDetails = updateAllocStudentDetails;
+        window.allocateIndividual = allocateIndividual;
+        window.loadClassStudentsForBulk = loadClassStudentsForBulk;
+        window.allocateBulk = allocateBulk;
+        window.returnFurnitureItem = returnFurnitureItem;
+        window.filterActiveTable = filterActiveTable;
+        window.filterAllTable = filterAllTable;
+        window.logoutWithConfirm = logoutWithConfirm;
+        window.logout = logout;
+        
+        console.log('✅ Furniture page loaded');
     </script>
 </body>
 </html>
