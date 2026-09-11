@@ -1435,3 +1435,37 @@ body,
     display: none;
   }
 }
+
+/* ============================================================
+   MOBILE DROPDOWN FIX
+   Hover doesn't work on touch. Enable click-to-open on phones.
+   ============================================================ */
+
+@media (max-width: 968px) {
+  /* Disable hover-open on phones (only tap should open) */
+  .nav-group:hover .dropdown-menu {
+    display: none;
+  }
+
+  /* But if the .open class is added by JS (tap), show it */
+  .nav-group .dropdown-menu.open {
+    display: block !important;
+  }
+
+  /* Slight reposition for small screens — anchor to right edge */
+  .floating-navbar .dropdown-menu {
+    position: fixed;
+    bottom: 90px;
+    left: 12px;
+    right: 12px;
+    transform: none;
+    max-width: 320px;
+    margin: 0 auto;
+    z-index: 5000;
+  }
+
+  /* Raise navbar so menu isn't covered */
+  .floating-navbar-container {
+    z-index: 4000;
+  }
+}

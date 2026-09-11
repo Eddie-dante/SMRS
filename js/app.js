@@ -2793,4 +2793,93 @@ window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
 window.allocateBulkFurniture = allocateBulkFurniture;
 window.updateStudentStats = updateStudentStats;
 
+// ============================================
+// MOBILE DROPDOWN — tap to open / tap outside to close
+// Fixes hover-only dropdowns on touch devices
+// ============================================
+(function mobileDropdownFix() {
+  function isTouchDevice() {
+    return (
+      window.matchMedia("(max-width: 968px)").matches ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0
+    );
+  }
+
+  function closeAllDropdowns(except) {
+    document.querySelectorAll(".dropdown-menu.open").forEach(function (d) {
+      if (d !== except) d.classList.remove("open");
+    });
+  }
+
+  function initMobileDropdowns() {
+    var navGroups = document.querySelectorAll(".floating-navbar .nav-group");
+
+    navGroups.forEach(function (group) {
+      var button = group.querySelector(".classy-btn");
+      var dropdown = group.querySelector(".dropdown-menu");
+      if (!button || !dropdown) return;
+
+      // Remove any prior listeners by cloning (safe way to prevent dupes)
+      // We just add once and guard against re-init
+      if (button.dataset.mobileInit === "1") return;
+      button.dataset.mobileInit = "1";
+
+      button.addEventListener("click", function (e) {
+        if (!isTouchDevice()) return; // desktop keeps hover behavior
+        e.preventDefault();
+        e.stopPropagation();
+
+        var isOpen = dropdown.classList.contains("open");
+        closeAllDropdowns(dropdown);
+
+        if (isOpen) {
+          dropdown.classList.remove("open");
+        } else {
+          dropdown.classList.add("open");
+        }
+      });
+
+      // Tapping a dropdown item should close it
+      dropdown.querySelectorAll(".dropdown-item").forEach(function (item) {
+        item.addEventListener("click", function () {
+          dropdown.classList.remove("open");
+        });
+      });
+    });
+  }
+
+  // Close on outside tap
+  document.addEventListener("click", function (e) {
+    if (!isTouchDevice()) return;
+    if (!e.target.closest(".floating-navbar .nav-group")) {
+      closeAllDropdowns(null);
+    }
+  });
+
+  // Close on scroll (feels natural on mobile)
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!isTouchDevice()) return;
+      closeAllDropdowns(null);
+    },
+    { passive: true },
+  );
+
+  // Re-init on load + window resize (to handle orientation changes)
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMobileDropdowns);
+  } else {
+    initMobileDropdowns();
+  }
+  window.addEventListener("resize", function () {
+    if (isTouchDevice()) initMobileDropdowns();
+  });
+
+  // Auto-init any newly-added nav groups (rare, but safe)
+  setTimeout(initMobileDropdowns, 500);
+  setTimeout(initMobileDropdowns, 1500);
+})();
+
 console.log("✅ SRMS App loaded - PERFORMANCE OPTIMIZED");
