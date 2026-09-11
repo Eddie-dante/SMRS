@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Utility Functions
-// Full Version + Glass Opacity Loader
+// Full Version + Glass Opacity Loader (0-100%)
 // ============================================
 
 // ============ DATE FUNCTIONS ============
@@ -416,38 +416,50 @@ function exportToCSV(data, filename) {
 }
 
 // ============================================
-// GLASS OPACITY — reads from localStorage on every page
-// and applies it to the --glass-alpha CSS variable
+// GLASS OPACITY
+// Applies --glass-alpha on every page from localStorage
+// Also sets data-glass-zero="true" when alpha is 0
+// so CSS can kill blur/border/shadow for fully invisible cards.
 // ============================================
-(function applyGlassOpacity() {
-  var saved = localStorage.getItem("srms_glass_opacity");
-  var alpha = saved !== null ? parseFloat(saved) : 0.32;
-  if (isNaN(alpha)) alpha = 0.32;
 
-  function set() {
-    document.documentElement.style.setProperty(
-      "--glass-alpha",
-      alpha.toFixed(2),
-    );
-  }
-
-  if (document.documentElement) {
-    set();
-  }
-  document.addEventListener("DOMContentLoaded", set);
-})();
+function applyGlassAlpha(alpha) {
+  alpha = Math.max(0, Math.min(1, parseFloat(alpha)));
+  if (isNaN(alpha)) alpha = 0.18;
+  document.documentElement.style.setProperty("--glass-alpha", alpha.toFixed(2));
+  document.documentElement.setAttribute(
+    "data-glass-zero",
+    alpha <= 0.01 ? "true" : "false",
+  );
+}
 
 function setGlassOpacity(alpha) {
   alpha = Math.max(0, Math.min(1, parseFloat(alpha)));
+  if (isNaN(alpha)) alpha = 0.18;
   localStorage.setItem("srms_glass_opacity", alpha);
-  document.documentElement.style.setProperty("--glass-alpha", alpha.toFixed(2));
+  applyGlassAlpha(alpha);
 }
 
 function getGlassOpacity() {
   var saved = localStorage.getItem("srms_glass_opacity");
-  var alpha = saved !== null ? parseFloat(saved) : 0.32;
-  return isNaN(alpha) ? 0.32 : alpha;
+  var alpha = saved !== null ? parseFloat(saved) : 0.18;
+  return isNaN(alpha) ? 0.18 : alpha;
 }
+
+// Apply immediately (before DOM ready) so there's no flash
+(function applyGlassOpacityNow() {
+  var saved = localStorage.getItem("srms_glass_opacity");
+  var alpha = saved !== null ? parseFloat(saved) : 0.18;
+  if (isNaN(alpha)) alpha = 0.18;
+  document.documentElement.style.setProperty("--glass-alpha", alpha.toFixed(2));
+  document.documentElement.setAttribute(
+    "data-glass-zero",
+    alpha <= 0.01 ? "true" : "false",
+  );
+})();
+
+document.addEventListener("DOMContentLoaded", function () {
+  applyGlassAlpha(getGlassOpacity());
+});
 
 // ============ EXPORT ALL ============
 window.getCurrentDate = getCurrentDate;
@@ -491,3 +503,4 @@ window.filterTable = filterTable;
 window.exportToCSV = exportToCSV;
 window.setGlassOpacity = setGlassOpacity;
 window.getGlassOpacity = getGlassOpacity;
+window.applyGlassAlpha = applyGlassAlpha;

@@ -1,8 +1,8 @@
 /* ============================================
    SRMS - Component Styles
    Complete Version
-   + Wallpaper-Friendly Glass
-   + Responsive Navbar (transparent container, restructured buttons per screen)
+   + Wallpaper-Friendly Glass (0% to 100%)
+   + Responsive Navbar (icons fixed, text clips)
    ============================================ */
 
 /* ============ HEADER BAR (TASKBAR) ============ */
@@ -72,7 +72,7 @@
   transform: scale(1.05);
 }
 
-/* ============ FLOATING BOTTOM NAVBAR — TRANSPARENT CONTAINER ============ */
+/* ============ FLOATING BOTTOM NAVBAR ============ */
 .floating-navbar-container {
   position: fixed !important;
   bottom: 20px !important;
@@ -110,13 +110,15 @@
 .nav-group {
   position: relative;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .classy-btn {
   font-family: "Cinzel", "Inter", serif;
-  font-size: 14px;
+  /* FIXED font size — never shrinks */
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   color: #f0e6d2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   background: linear-gradient(
@@ -138,18 +140,35 @@
   position: relative;
   z-index: 1100;
   white-space: nowrap;
+  /* Allow text label to truncate */
+  overflow: hidden;
 }
 
+/* Icons NEVER shrink — fixed size */
 .classy-btn i {
   color: #d4af37;
-  font-size: 15px;
+  font-size: 14px;
   transition: transform 0.3s ease;
   pointer-events: none;
+  flex-shrink: 0;
 }
 
 .classy-btn .fa-chevron-up {
   font-size: 9px;
   color: rgba(212, 175, 55, 0.7);
+  flex-shrink: 0;
+}
+
+/* Text labels — clip gracefully with ellipsis */
+.classy-btn span:not(.btn-badge) {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  /* Default: no limit (auto width on desktop) */
+  max-width: none;
+  transition: max-width 0.25s ease;
 }
 
 .classy-btn:hover {
@@ -174,8 +193,8 @@
 }
 
 .btn-badge {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
@@ -188,6 +207,10 @@
   justify-content: center;
   flex-shrink: 0;
   pointer-events: none;
+}
+
+.btn-badge i {
+  font-size: 11px;
 }
 
 .message-badge {
@@ -1016,6 +1039,7 @@
 
 /* ============================================================
    WALLPAPER-FRIENDLY GLASS — driven by --glass-alpha
+   Range: 0 (fully transparent, no visible card) to 1 (solid)
    ============================================================ */
 :root {
   --glass-alpha: 0.18;
@@ -1061,12 +1085,77 @@
 .recent-activity,
 .quick-stats,
 .term-card,
-.event-card {
+.event-card,
+.stat-card,
+.class-card,
+.furniture-card,
+.note-card,
+.wallpaper-card,
+.chat-user-list,
+.chat-messages {
   background: rgba(12, 18, 42, var(--glass-alpha, 0.18)) !important;
+  /* If --glass-alpha is 0, disable blur so cards look fully transparent */
   backdrop-filter: blur(18px) saturate(150%) !important;
   -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
-  transition: background 0.3s ease;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    backdrop-filter 0.3s ease;
+}
+
+/* When fully transparent — kill blur + border to look truly invisible */
+html[data-glass-zero="true"] .panel,
+html[data-glass-zero="true"] .glass,
+html[data-glass-zero="true"] .glass-strong,
+html[data-glass-zero="true"] .glass-light,
+html[data-glass-zero="true"] .form-container,
+html[data-glass-zero="true"] .table-container,
+html[data-glass-zero="true"] .selector-container,
+html[data-glass-zero="true"] .search-bar,
+html[data-glass-zero="true"] .chart-container,
+html[data-glass-zero="true"] .settings-section,
+html[data-glass-zero="true"] .report-section,
+html[data-glass-zero="true"] .records-container,
+html[data-glass-zero="true"] .notes-library,
+html[data-glass-zero="true"] .editor-column,
+html[data-glass-zero="true"] .document-surface,
+html[data-glass-zero="true"] .notepad-sidebar,
+html[data-glass-zero="true"] .notepad-editor,
+html[data-glass-zero="true"] .notes-sidebar,
+html[data-glass-zero="true"] .reports-container,
+html[data-glass-zero="true"] .database-container,
+html[data-glass-zero="true"] .audit-container,
+html[data-glass-zero="true"] .dashboard-grid > *,
+html[data-glass-zero="true"] .app-grid > .panel,
+html[data-glass-zero="true"] .filters,
+html[data-glass-zero="true"] .filter-section,
+html[data-glass-zero="true"] .info-banner,
+html[data-glass-zero="true"] .student-info-banner,
+html[data-glass-zero="true"] .student-info-display,
+html[data-glass-zero="true"] .parent-info-section,
+html[data-glass-zero="true"] .scan-result,
+html[data-glass-zero="true"] .scanner-frame,
+html[data-glass-zero="true"] .qr-item,
+html[data-glass-zero="true"] .excel-preview-container,
+html[data-glass-zero="true"] .file-upload-area,
+html[data-glass-zero="true"] .quick-actions,
+html[data-glass-zero="true"] .recent-activity,
+html[data-glass-zero="true"] .quick-stats,
+html[data-glass-zero="true"] .term-card,
+html[data-glass-zero="true"] .event-card,
+html[data-glass-zero="true"] .stat-card,
+html[data-glass-zero="true"] .class-card,
+html[data-glass-zero="true"] .furniture-card,
+html[data-glass-zero="true"] .note-card,
+html[data-glass-zero="true"] .wallpaper-card,
+html[data-glass-zero="true"] .chat-user-list,
+html[data-glass-zero="true"] .chat-messages {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
 }
 
 .table-container {
@@ -1119,7 +1208,7 @@ body,
 
 /* ============================================================
    TABLET (≤1024px)
-   Navbar: still inline (wrapped), slightly smaller buttons
+   Buttons keep icon size; text label clips progressively
    ============================================================ */
 @media (max-width: 1024px) {
   .floating-navbar {
@@ -1127,14 +1216,17 @@ body,
     max-width: 96vw;
   }
   .floating-navbar .classy-btn {
-    padding: 9px 15px;
-    font-size: 12.5px;
+    padding: 9px 16px;
+    gap: 8px;
+  }
+  .floating-navbar .classy-btn span:not(.btn-badge) {
+    max-width: 80px;
   }
 }
 
 /* ============================================================
    PHONES (≤768px)
-   Navbar: compact, single scrollable row, translucent buttons
+   Same font/icon size; text clips at narrower widths
    ============================================================ */
 @media (max-width: 768px) {
   .floating-navbar-container {
@@ -1162,10 +1254,6 @@ body,
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-    transition:
-      background 0.3s ease,
-      padding 0.3s ease,
-      box-shadow 0.3s ease;
   }
   .floating-navbar::-webkit-scrollbar {
     display: none;
@@ -1176,31 +1264,30 @@ body,
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
   }
 
+  /* Icons + font stay the same; text label truncates */
   .floating-navbar .classy-btn {
-    font-size: 10px;
-    padding: 7px 11px;
-    gap: 5px;
+    padding: 8px 12px;
+    gap: 6px;
     border-radius: 18px;
-    letter-spacing: 0.3px;
     flex-shrink: 0;
   }
   .floating-navbar .classy-btn i {
-    font-size: 11px;
+    font-size: 14px;
   }
   .floating-navbar .classy-btn .fa-chevron-up {
     display: none;
   }
-  .floating-navbar .classy-btn:active {
-    transform: scale(0.95);
+
+  .floating-navbar .classy-btn span:not(.btn-badge) {
+    max-width: 55px;
   }
 
   .floating-navbar .btn-badge {
-    width: 18px;
-    height: 18px;
-    border-width: 1px;
+    width: 24px;
+    height: 24px;
   }
   .floating-navbar .btn-badge i {
-    font-size: 8px;
+    font-size: 10px;
   }
 
   .floating-navbar .dropdown-menu {
@@ -1256,6 +1343,7 @@ body,
 
 /* ============================================================
    SMALL PHONES (≤480px)
+   Text clips tighter; icon still the same size
    ============================================================ */
 @media (max-width: 480px) {
   .stats-grid {
@@ -1263,21 +1351,18 @@ body,
   }
 
   .floating-navbar .classy-btn {
-    font-size: 9px;
-    padding: 6px 9px;
+    padding: 7px 10px;
+    gap: 5px;
   }
   .floating-navbar .classy-btn span:not(.btn-badge) {
-    max-width: 55px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    max-width: 38px;
   }
   .floating-navbar .btn-badge {
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 22px;
   }
   .floating-navbar .btn-badge i {
-    font-size: 7px;
+    font-size: 9px;
   }
 
   .notification {
@@ -1287,14 +1372,15 @@ body,
 }
 
 /* ============================================================
-   TINY PHONES (≤340px)
-   Icons only — labels hidden
+   TINY PHONES (≤360px)
+   Text clip disappears — icons only, still same icon size
    ============================================================ */
-@media (max-width: 340px) {
+@media (max-width: 360px) {
   .floating-navbar .classy-btn span:not(.btn-badge) {
-    display: none;
+    max-width: 0;
+    margin: 0;
   }
   .floating-navbar .classy-btn {
-    padding: 6px 8px;
+    padding: 8px 10px;
   }
 }
