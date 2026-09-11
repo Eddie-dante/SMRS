@@ -160,14 +160,83 @@
             border-radius: 25px; font-size: 13px;
         }
         
+        /* ===== INVITE CODE BANNER ===== */
         .invite-code-banner {
-            background: rgba(212,175,55,0.1); border: 2px dashed rgba(212,175,55,0.4);
-            border-radius: 16px; padding: 15px; text-align: center;
+            background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
+            border: 2px dashed rgba(212,175,55,0.5);
+            border-radius: 16px; padding: 20px; text-align: center;
             margin-bottom: 20px; display: none;
+            position: relative;
+            backdrop-filter: blur(15px);
+        }
+        .invite-code-banner.visible { display: block; animation: fadeIn 0.4s ease; }
+        .invite-code-banner .banner-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 12px;
+            font-weight: 700;
         }
         .invite-code-banner .code {
-            font-family: 'Courier New', monospace; font-size: 1.8em;
-            font-weight: 800; letter-spacing: 5px; color: var(--gold);
+            font-family: 'Courier New', monospace;
+            font-size: 2.2em;
+            font-weight: 800;
+            letter-spacing: 8px;
+            color: var(--gold);
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+            margin: 8px 0 14px;
+            user-select: all;
+            word-break: break-all;
+        }
+        .invite-code-banner .banner-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 14px;
+        }
+        .invite-code-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .copy-code-btn {
+            padding: 10px 18px;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 10px;
+            color: var(--gold);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .copy-code-btn:hover {
+            background: rgba(212, 175, 55, 0.35);
+            transform: translateY(-2px);
+        }
+        .refresh-code-btn {
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .refresh-code-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
         
         .stats-grid {
@@ -259,6 +328,7 @@
             .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
             .stat-card { padding: 15px; }
             .stat-value { font-size: 1.3em; }
+            .invite-code-banner .code { font-size: 1.6em; letter-spacing: 5px; }
         }
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
@@ -285,9 +355,19 @@
             <div class="date-display" id="dateDisplay"></div>
         </div>
         
+        <!-- ===== INVITE CODE BANNER ===== -->
         <div class="invite-code-banner" id="inviteCodeBanner">
-            <p style="margin-bottom:8px;">School Invite Code</p>
-            <div class="code" id="inviteCode">CODE</div>
+            <div class="banner-title"><i class="fas fa-ticket-alt"></i> School Invite Code</div>
+            <div class="code" id="inviteCode">-----</div>
+            <div class="banner-hint">Share this code with teachers to let them sign up and join your school.</div>
+            <div class="invite-code-actions">
+                <button class="copy-code-btn" onclick="copyInviteCode()">
+                    <i class="fas fa-copy"></i> Copy Code
+                </button>
+                <button class="refresh-code-btn" onclick="regenerateInviteCode()">
+                    <i class="fas fa-sync-alt"></i> Regenerate
+                </button>
+            </div>
         </div>
         
         <div class="stats-grid">
@@ -423,9 +503,283 @@
     <script src="js/app.js"></script>
     
     <script>
+        /* ============================================================
+           DASHBOARD LOGIC
+           ============================================================ */
+        
+        var currentInviteCode = '';
+        
+        function loadDashboard() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            var user = getCurrentUser();
+            
+            // Welcome banner
+            if (user) {
+                var nameEl = document.getElementById('welcomeUserName');
+                var roleEl = document.getElementById('welcomeUserRole');
+                var schoolEl = document.getElementById('welcomeSchoolName');
+                var dateEl = document.getElementById('dateDisplay');
+                if (nameEl) nameEl.textContent = user.name || 'User';
+                if (roleEl) roleEl.textContent = (user.role || 'user').toUpperCase();
+                if (schoolEl) schoolEl.textContent = school;
+                if (dateEl) dateEl.textContent = getDateDisplay();
+            }
+            
+            // Invite code banner — show for admins only
+            if (user && user.role === 'admin') {
+                loadInviteCode(school);
+            }
+            
+            // Stats
+            Promise.all([
+                API.getBooks(school),
+                API.getStudents(school),
+                API.getBorrowed(school),
+                API.getFurniture(school),
+                API.getTeachers(school),
+                API.getClasses(school),
+                API.getEvents(school),
+                API.getFees(school),
+            ]).then(function (results) {
+                var books = results[0] || [];
+                var students = results[1] || [];
+                var borrowed = results[2] || [];
+                var furniture = results[3] || [];
+                var teachers = results[4] || [];
+                var classes = results[5] || [];
+                var events = results[6] || [];
+                var fees = results[7] || [];
+                
+                // Book stats
+                var totalBooks = books.reduce(function (s, b) { return s + (b.quantity || 0); }, 0);
+                var availableBooks = books.reduce(function (s, b) { return s + (b.available || 0); }, 0);
+                animateNumber("totalBooks", totalBooks);
+                animateNumber("availableBooks", availableBooks);
+                
+                // Student count
+                var totalStudents = students.length;
+                var seenAdms = {};
+                students.forEach(function (s) { if (s.adm) seenAdms[s.adm] = true; });
+                classes.forEach(function (c) {
+                    (c.students || []).forEach(function (st) {
+                        var adm = extractAdm(st);
+                        if (adm && !seenAdms[adm]) {
+                            seenAdms[adm] = true;
+                            totalStudents++;
+                        }
+                    });
+                });
+                animateNumber("totalStudents", totalStudents);
+                
+                // Loans
+                var activeLoans = borrowed.filter(function (b) { return !b.returned; });
+                animateNumber("activeLoans", activeLoans.length);
+                var overdue = activeLoans.filter(function (b) { return isOverdue(b.returnDate); });
+                animateNumber("overdueBooks", overdue.length);
+                animateNumber("activeFurniture", furniture.length);
+                
+                var teachersStat = document.getElementById("totalTeachersStat");
+                var classesStat = document.getElementById("totalClassesStat");
+                if (teachersStat) teachersStat.textContent = teachers.length;
+                if (classesStat) classesStat.textContent = classes.length;
+                
+                var today = new Date().toISOString().split("T")[0];
+                var upcomingEvents = events.filter(function (e) { return e.eventDate >= today; });
+                var upcomingEl = document.getElementById("upcomingEventsStat");
+                if (upcomingEl) upcomingEl.textContent = upcomingEvents.length;
+                
+                var totalBalance = fees.reduce(function (s, f) { return s + (f.balance || 0); }, 0);
+                var outstandingEl = document.getElementById("outstandingFeesStat");
+                if (outstandingEl) outstandingEl.textContent = "KES " + formatNumber(totalBalance);
+                
+                var returned = borrowed.filter(function (b) { return b.returned; });
+                var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
+                var rateEl = document.getElementById("returnRateStat");
+                if (rateEl) rateEl.textContent = returnRate + "%";
+                
+                displayRecentActivity(borrowed, furniture);
+            }).catch(function (err) {
+                console.error("Dashboard error:", err);
+            });
+        }
+        
+        /* ============================================================
+           INVITE CODE
+           ============================================================ */
+        function loadInviteCode(school) {
+            API.getSchool(school).then(function (schoolInfo) {
+                var banner = document.getElementById('inviteCodeBanner');
+                var codeEl = document.getElementById('inviteCode');
+                if (!banner || !codeEl) return;
+                
+                var code = schoolInfo && schoolInfo.inviteCode;
+                
+                if (code) {
+                    currentInviteCode = code;
+                    codeEl.textContent = code;
+                    banner.classList.add('visible');
+                } else {
+                    // Generate one on the fly if missing
+                    var newCode = generateCode('', 8);
+                    codeEl.textContent = newCode;
+                    currentInviteCode = newCode;
+                    banner.classList.add('visible');
+                    
+                    // Save it silently
+                    API.updateSchool(school, { inviteCode: newCode }).then(function () {
+                        console.log('✅ Generated and saved missing invite code:', newCode);
+                    });
+                }
+            }).catch(function (err) {
+                console.error('Invite code load error:', err);
+            });
+        }
+        
+        function copyInviteCode() {
+            if (!currentInviteCode) return;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentInviteCode).then(function () {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Invite code copied: ' + currentInviteCode, 'success');
+                    }
+                }).catch(function () {
+                    fallbackCopy();
+                });
+            } else {
+                fallbackCopy();
+            }
+        }
+        
+        function fallbackCopy() {
+            var temp = document.createElement('textarea');
+            temp.value = currentInviteCode;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.select();
+            try {
+                document.execCommand('copy');
+                if (typeof showNotification === 'function') {
+                    showNotification('Invite code copied!', 'success');
+                }
+            } catch (e) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Copy failed. Code: ' + currentInviteCode, 'warning');
+                }
+            }
+            document.body.removeChild(temp);
+        }
+        
+        function regenerateInviteCode() {
+            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
+                DialogSystem.confirm(
+                    'Regenerate invite code? The old code will stop working.',
+                    { title: 'Regenerate Code', type: 'warning', confirmText: 'Regenerate', cancelText: 'Cancel' }
+                ).then(function (result) {
+                    if (result === 'confirm') doRegenerate();
+                });
+            } else if (confirm('Regenerate invite code? The old code will stop working.')) {
+                doRegenerate();
+            }
+        }
+        
+        function doRegenerate() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            var newCode = generateCode('', 8);
+            API.updateSchool(school, { inviteCode: newCode }).then(function (result) {
+                if (result.success) {
+                    currentInviteCode = newCode;
+                    var codeEl = document.getElementById('inviteCode');
+                    if (codeEl) codeEl.textContent = newCode;
+                    if (typeof showNotification === 'function') {
+                        showNotification('New invite code: ' + newCode, 'success');
+                    }
+                } else {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Failed to regenerate', 'error');
+                    }
+                }
+            }).catch(function () {
+                if (typeof showNotification === 'function') {
+                    showNotification('Failed to regenerate', 'error');
+                }
+            });
+        }
+        
+        /* ============================================================
+           RECENT ACTIVITY
+           ============================================================ */
+        function displayRecentActivity(borrowed, furniture) {
+            var activityList = document.getElementById("recentActivity");
+            if (!activityList) return;
+            var activities = [];
+            
+            (borrowed || []).slice(0, 10).forEach(function (b) {
+                activities.push({
+                    icon: "fa-book",
+                    color: "rgba(233, 69, 96, 0.2)",
+                    text: "<strong>" + (b.studentName || "Unknown") + '</strong> borrowed "' + (b.bookTitle || "") + '"',
+                    time: b.createdAt || new Date().toISOString(),
+                });
+            });
+            
+            (furniture || []).slice(0, 10).forEach(function (f) {
+                activities.push({
+                    icon: "fa-chair",
+                    color: "rgba(255, 193, 7, 0.2)",
+                    text: "<strong>" + (f.studentName || "Unknown") + "</strong> allocated " + (f.chairNo || ""),
+                    time: f.createdAt || new Date().toISOString(),
+                });
+            });
+            
+            activities.sort(function (a, b) { return new Date(b.time) - new Date(a.time); });
+            activities = activities.slice(0, 8);
+            
+            if (activities.length === 0) {
+                activityList.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No recent activity</p></div>';
+                return;
+            }
+            
+            var html = "";
+            activities.forEach(function (a) {
+                html += '<div class="activity-item">' +
+                    '<div class="activity-icon" style="background:' + a.color + ';"><i class="fas ' + a.icon + '"></i></div>' +
+                    '<div><div class="activity-text">' + a.text + '</div>' +
+                    '<div class="activity-time">' + formatDateTime(a.time) + '</div></div></div>';
+            });
+            activityList.innerHTML = html;
+        }
+        
+        function animateNumber(elementId, targetValue) {
+            var element = document.getElementById(elementId);
+            if (!element) return;
+            var startValue = parseInt(element.textContent) || 0;
+            var duration = 600;
+            var startTime = performance.now();
+            function update(currentTime) {
+                var elapsed = currentTime - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var currentValue = Math.round(startValue + (targetValue - startValue) * eased);
+                element.textContent = currentValue;
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+        
+        /* ============================================================
+           LOGOUT
+           ============================================================ */
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
+                DialogSystem.confirm('Are you sure you want to logout?', {
+                    title: 'Logout', type: 'info',
+                    confirmText: 'Logout', cancelText: 'Cancel'
+                }).then(function (result) {
                     if (result === 'confirm') logout();
                 });
             } else {
@@ -434,20 +788,26 @@
         }
         
         function logout() {
+            if (typeof window.wipeAllCache === 'function') {
+                window.wipeAllCache();
+            }
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
+        /* ============================================================
+           INIT
+           ============================================================ */
+        document.addEventListener('DOMContentLoaded', function () {
             var user = checkAuth();
             if (!user) return;
-            
-            if (typeof loadDashboardData === 'function') {
-                setTimeout(loadDashboardData, 300);
-            }
+            console.log('✅ Dashboard authenticated:', user.name, '| Role:', user.role);
+            setTimeout(loadDashboard, 200);
         });
         
+        window.copyInviteCode = copyInviteCode;
+        window.regenerateInviteCode = regenerateInviteCode;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
     </script>
