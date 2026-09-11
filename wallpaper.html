@@ -9,6 +9,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://picsum.photos">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -148,24 +149,72 @@
         .wallpaper-preview {
             width: 100%;
             height: 130px;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            position: relative;
+            overflow: hidden;
+            background: #1a1f4e;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            color: rgba(255,255,255,0.7);
         }
+        
+        .wallpaper-preview::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.15), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 1.6s infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .wallpaper-preview.loaded::before,
+        .wallpaper-preview.failed::before {
+            display: none;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        
+        .wallpaper-preview img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 2;
+        }
+        .wallpaper-preview img.loaded { opacity: 1; }
+        
+        .wallpaper-preview .gradient-fallback {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+        
+        .wallpaper-preview .preview-icon {
+            position: relative;
+            z-index: 3;
+            color: rgba(255,255,255,0.85);
+            font-size: 36px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+            transition: opacity 0.4s ease;
+        }
+        .wallpaper-preview.loaded .preview-icon { opacity: 0; }
         
         .wallpaper-info {
             padding: 12px;
             text-align: center;
+            background: rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 4;
         }
         .wallpaper-info h3 { font-size: 13px; margin-bottom: 3px; font-weight: 600; }
         .wallpaper-info .category-tag {
             font-size: 9px;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -182,6 +231,8 @@
             color: #0a0e27;
             font-weight: 900;
             font-size: 13px;
+            z-index: 5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
         .wallpaper-card.active .check-badge { display: flex; }
         
@@ -238,6 +289,61 @@
         var currentCategory = 'all';
         var searchTerm = '';
 
+        /**
+         * Build a Picsum Photos URL from a seed (deterministic per key).
+         * Picsum is 100% free, no API key, never blocks hotlinks.
+         * Each seed gives a consistent, beautiful random image.
+         */
+        function buildPicsumUrl(seed, w, h) {
+            w = w || 400;
+            h = h || 250;
+            return 'https://picsum.photos/seed/' + encodeURIComponent(seed) + '/' + w + '/' + h;
+        }
+
+        /**
+         * Build a large background URL (for the actual wallpaper)
+         */
+        function buildPicsumFullUrl(seed) {
+            return 'https://picsum.photos/seed/' + encodeURIComponent(seed) + '/1920/1080';
+        }
+
+        /**
+         * Deterministic gradient fallback based on key
+         */
+        function buildGradientFallback(key) {
+            var palettes = [
+                'linear-gradient(135deg, #1a1f4e, #0f3460)',
+                'linear-gradient(135deg, #2d1b4e, #4a1e5f)',
+                'linear-gradient(135deg, #4e1a1a, #6b2d2d)',
+                'linear-gradient(135deg, #1a3d4e, #2d5f5f)',
+                'linear-gradient(135deg, #3d3419, #5f4a2d)',
+                'linear-gradient(135deg, #243b55, #141e30)',
+                'linear-gradient(135deg, #3a1c71, #d76d77)',
+                'linear-gradient(135deg, #0f2027, #203a43)'
+            ];
+            var h = 0;
+            for (var i = 0; i < key.length; i++) {
+                h = (h * 31 + key.charCodeAt(i)) & 0xffffffff;
+            }
+            return palettes[Math.abs(h) % palettes.length];
+        }
+
+        function lazyLoadImage(imgEl, url) {
+            if (!imgEl || !url) return;
+            imgEl.loading = 'lazy';
+            imgEl.onload = function () {
+                imgEl.classList.add('loaded');
+                var parent = imgEl.closest('.wallpaper-preview');
+                if (parent) parent.classList.add('loaded');
+            };
+            imgEl.onerror = function () {
+                imgEl.style.display = 'none';
+                var parent = imgEl.closest('.wallpaper-preview');
+                if (parent) parent.classList.add('failed');
+            };
+            imgEl.src = url;
+        }
+
         function loadWallpapers() {
             var grid = document.getElementById('wallpaperGrid');
             var currentWallpaper = localStorage.getItem('srms_wallpaper') || 'library';
@@ -255,28 +361,51 @@
                 found = true;
                 var isActive = key === currentWallpaper ? ' active' : '';
                 
-                var previewStyle = '';
                 if (wallpaper.type === 'gradient') {
-                    previewStyle = 'background:' + wallpaper.css + ';';
+                    html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\', event)">' +
+                        '<div class="check-badge"><i class="fas fa-check"></i></div>' +
+                        '<div class="wallpaper-preview loaded">' +
+                        '<div class="gradient-fallback" style="background:' + wallpaper.css + '"></div>' +
+                        '<i class="fas ' + (wallpaper.icon || 'fa-moon') + ' preview-icon"></i>' +
+                        '</div>' +
+                        '<div class="wallpaper-info">' +
+                        '<h3>' + wallpaper.name + '</h3>' +
+                        '<div class="category-tag">' + category + '</div>' +
+                        '</div></div>';
                 } else {
-                    var thumbUrl = wallpaper.url.replace(/w=\d+/, 'w=400').replace(/q=\d+/, 'q=60');
-                    previewStyle = 'background-image:url("' + thumbUrl + '");background-size:cover;background-position:center;';
+                    // Use the wallpaper key as a stable Picsum seed
+                    var thumbUrl = buildPicsumUrl(key, 400, 250);
+                    var gradient = buildGradientFallback(key);
+                    html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\', event)">' +
+                        '<div class="check-badge"><i class="fas fa-check"></i></div>' +
+                        '<div class="wallpaper-preview" data-src="' + thumbUrl + '">' +
+                        '<div class="gradient-fallback" style="background:' + gradient + '"></div>' +
+                        '<i class="fas ' + (wallpaper.icon || 'fa-image') + ' preview-icon"></i>' +
+                        '<img alt="' + wallpaper.name + '">' +
+                        '</div>' +
+                        '<div class="wallpaper-info">' +
+                        '<h3>' + wallpaper.name + '</h3>' +
+                        '<div class="category-tag">' + category + '</div>' +
+                        '</div></div>';
                 }
-                
-                html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\', event)">' +
-                    '<div class="check-badge"><i class="fas fa-check"></i></div>' +
-                    '<div class="wallpaper-preview" style="' + previewStyle + '"></div>' +
-                    '<div class="wallpaper-info">' +
-                    '<h3>' + wallpaper.name + '</h3>' +
-                    '<div class="category-tag">' + category + '</div>' +
-                    '</div></div>';
             }
             
             if (!found) {
                 grid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>No wallpapers found</p></div>';
-            } else {
-                grid.innerHTML = html;
+                return;
             }
+            
+            grid.innerHTML = html;
+            
+            // Lazy-load each thumbnail
+            var previews = grid.querySelectorAll('.wallpaper-preview[data-src]');
+            previews.forEach(function (preview, i) {
+                var img = preview.querySelector('img');
+                var url = preview.getAttribute('data-src');
+                setTimeout(function () {
+                    lazyLoadImage(img, url);
+                }, i * 40);
+            });
         }
 
         function selectWallpaper(key, event) {
@@ -288,24 +417,23 @@
             var target = event ? event.target.closest('.wallpaper-card') : null;
             if (target) target.classList.add('active');
             
-            if (typeof applyWallpaper === 'function') {
-                applyWallpaper(key);
+            var wallpaper = WALLPAPER_DATA[key];
+            
+            if (wallpaper.type === 'gradient') {
+                document.body.style.background = wallpaper.css;
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundAttachment = 'fixed';
             } else {
-                var wallpaper = WALLPAPER_DATA[key];
-                if (wallpaper.type === 'gradient') {
-                    document.body.style.background = wallpaper.css;
-                    document.body.style.backgroundImage = 'none';
-                } else {
-                    document.body.style.background = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + wallpaper.url + '")';
-                    document.body.style.backgroundSize = 'cover';
-                    document.body.style.backgroundPosition = 'center';
-                    document.body.style.backgroundAttachment = 'fixed';
-                    document.body.style.backgroundRepeat = 'no-repeat';
-                }
+                // Use Picsum large image for the actual wallpaper
+                var fullUrl = buildPicsumFullUrl(key);
+                document.body.style.background = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + fullUrl + '")';
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundRepeat = 'no-repeat';
             }
             
-            var wallpaperName = WALLPAPER_DATA[key] ? WALLPAPER_DATA[key].name : key;
-            alert('✅ Wallpaper applied: ' + wallpaperName);
+            alert('✅ Wallpaper applied: ' + wallpaper.name);
         }
 
         function searchWallpapers() {
@@ -315,14 +443,9 @@
 
         function filterCategory(category, event) {
             currentCategory = category;
-            
             var buttons = document.querySelectorAll('.category-filters button');
             for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
-            
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-            
+            if (event && event.target) event.target.classList.add('active');
             loadWallpapers();
         }
 
