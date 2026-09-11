@@ -1,6 +1,7 @@
 // ============================================
-// SRMS - Wallpaper Loader
-// Uses Picsum Photos for reliability
+// SRMS - Wallpaper Loader (Bulletproof Version)
+// Uses a dedicated fixed <div> behind everything
+// so no page's own background can hide it.
 // ============================================
 
 var WALLPAPER_DATA = {
@@ -10,7 +11,6 @@ var WALLPAPER_DATA = {
     type: "gradient",
     css: "linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%)",
     category: "Default",
-    credit: "SRMS Default",
   },
   library: {
     name: "Library Classic",
@@ -398,58 +398,111 @@ function buildPicsumFullUrl(seed) {
   );
 }
 
+function ensureBackgroundLayer() {
+  var el = document.getElementById("srms-wallpaper-bg");
+  if (el) return el;
+
+  el = document.createElement("div");
+  el.id = "srms-wallpaper-bg";
+  el.style.cssText =
+    "position:fixed;" +
+    "top:0;left:0;right:0;bottom:0;" +
+    "width:100vw;height:100vh;" +
+    "z-index:-1;" +
+    "pointer-events:none;" +
+    "background-size:cover;" +
+    "background-position:center;" +
+    "background-repeat:no-repeat;" +
+    "background-attachment:fixed;" +
+    "transition:background-image 0.6s ease;";
+
+  if (document.body) {
+    document.body.insertBefore(el, document.body.firstChild);
+  } else {
+    document.addEventListener("DOMContentLoaded", function () {
+      document.body.insertBefore(el, document.body.firstChild);
+    });
+  }
+  return el;
+}
+
+function transparentizeBody() {
+  document.documentElement.style.background = "#05070f";
+  if (document.body) {
+    document.body.style.background = "transparent";
+    document.body.style.backgroundImage = "none";
+  }
+}
+
 function applyWallpaper(key) {
   var wallpaper = WALLPAPER_DATA[key] || WALLPAPER_DATA["library"];
   if (!wallpaper) return;
 
-  var body = document.body;
+  var layer = ensureBackgroundLayer();
+  transparentizeBody();
+
   if (wallpaper.type === "gradient") {
-    body.style.background = wallpaper.css;
-    body.style.backgroundImage = "none";
-    body.style.backgroundAttachment = "fixed";
+    layer.style.backgroundImage = wallpaper.css;
+    layer.style.background = wallpaper.css;
+    layer.style.backgroundSize = "";
+    layer.style.backgroundPosition = "";
+    layer.style.backgroundRepeat = "";
+    layer.style.backgroundAttachment = "";
   } else {
     var url = buildPicsumFullUrl(key);
-    body.style.background =
-      'linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), url("' +
+    layer.style.background =
+      'linear-gradient(rgba(8, 12, 28, 0.55), rgba(8, 12, 28, 0.68)), url("' +
       url +
       '")';
-    body.style.backgroundSize = "cover";
-    body.style.backgroundPosition = "center";
-    body.style.backgroundAttachment = "fixed";
-    body.style.backgroundRepeat = "no-repeat";
+    layer.style.backgroundSize = "cover";
+    layer.style.backgroundPosition = "center";
+    layer.style.backgroundRepeat = "no-repeat";
+    layer.style.backgroundAttachment = "fixed";
   }
 }
 
+function setupBaseStyles() {
+  var styleId = "srms-wallpaper-base-style";
+  if (document.getElementById(styleId)) return;
+  var style = document.createElement("style");
+  style.id = styleId;
+  style.textContent =
+    "html { background: #05070f !important; }" +
+    "body { background: transparent !important; background-image: none !important; }" +
+    "#srms-wallpaper-bg { z-index: -1 !important; }" +
+    ".taskbar, .floating-navbar-container, .main-content, .modal, .notification { position: relative; z-index: 1; }" +
+    ".taskbar { z-index: 1000 !important; }" +
+    ".floating-navbar-container { z-index: 1000 !important; }" +
+    ".modal { z-index: 1300 !important; }" +
+    ".notification { z-index: 2000 !important; }";
+  document.head.appendChild(style);
+}
+
+setupBaseStyles();
+ensureBackgroundLayer();
+transparentizeBody();
+
 document.addEventListener("DOMContentLoaded", function () {
+  setupBaseStyles();
   var savedWallpaper = localStorage.getItem("srms_wallpaper") || "library";
   applyWallpaper(savedWallpaper);
 });
 
-// Apply immediately (before DOM ready) to avoid flash
-(function () {
-  var savedWallpaper = localStorage.getItem("srms_wallpaper") || "library";
-  var wallpaper = WALLPAPER_DATA[savedWallpaper];
-  if (wallpaper && wallpaper.type !== "gradient") {
-    var url = buildPicsumFullUrl(savedWallpaper);
-    document.body.style.background =
-      'linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), url("' +
-      url +
-      '")';
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundRepeat = "no-repeat";
-  } else if (wallpaper && wallpaper.type === "gradient") {
-    document.body.style.background = wallpaper.css;
+var layerWatch = setInterval(function () {
+  if (document.body && !document.getElementById("srms-wallpaper-bg")) {
+    ensureBackgroundLayer();
+    transparentizeBody();
+    var saved = localStorage.getItem("srms_wallpaper") || "library";
+    applyWallpaper(saved);
   }
-})();
+}, 2000);
 
 window.WALLPAPER_DATA = WALLPAPER_DATA;
 window.applyWallpaper = applyWallpaper;
 window.buildPicsumFullUrl = buildPicsumFullUrl;
 
 console.log(
-  "✅ Wallpaper Loader ready (Picsum) — " +
+  "✅ Wallpaper Loader ready (fixed-layer mode) — " +
     Object.keys(WALLPAPER_DATA).length +
     " wallpapers",
 );

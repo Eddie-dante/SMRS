@@ -1,6 +1,7 @@
 /* ============================================
    SRMS - Main Styles
    Complete Version
+   + Wallpaper Layer Support
    ============================================ */
 
 :root {
@@ -94,12 +95,13 @@ html {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   -webkit-text-size-adjust: 100%;
+  background: #05070f !important;
 }
 
 body {
   font-family: var(--font-primary);
-  background: var(--gradient-dark);
-  background-attachment: fixed;
+  background: transparent !important;
+  background-image: none !important;
   min-height: 100vh;
   color: var(--white);
   line-height: 1.6;
@@ -419,13 +421,11 @@ small {
   width: 100%;
   display: block;
 }
-
 .btn-sm {
   padding: 6px 12px;
   font-size: var(--font-size-xs);
   border-radius: var(--border-radius-sm);
 }
-
 .btn-lg {
   padding: 14px 28px;
   font-size: var(--font-size-lg);
@@ -731,7 +731,6 @@ img {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-
   .form-row-3 {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -742,7 +741,6 @@ img {
   html {
     font-size: 14px;
   }
-
   body {
     padding-bottom: 90px;
   }
@@ -821,7 +819,6 @@ img {
   .tabs {
     gap: 4px;
   }
-
   .tab {
     padding: 8px 14px;
     font-size: 11px;
@@ -838,10 +835,10 @@ img {
   }
 
   .taskbar {
-    background: rgba(10, 14, 39, 0.98) !important;
+    background: rgba(8, 12, 30, 0.95) !important;
   }
   .floating-navbar {
-    background: rgba(10, 14, 39, 0.98) !important;
+    background: rgba(10, 14, 30, 0.9) !important;
   }
 }
 
@@ -887,4 +884,62 @@ img {
   .main-content {
     max-width: 2200px;
   }
+}
+
+/* ============================================================
+   WALLPAPER LAYER — kill any page-specific body backgrounds
+   so the fixed background layer shows through everywhere
+   ============================================================ */
+html {
+  background: #05070f !important;
+}
+
+body {
+  background: transparent !important;
+  background-image: none !important;
+  background-attachment: scroll !important;
+}
+
+#srms-wallpaper-bg {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  transition: background-image 0.6s ease !important;
+}
+
+/* Ensure all main content floats ABOVE the wallpaper layer */
+.taskbar,
+.floating-navbar-container,
+.main-content,
+.modal,
+.notification,
+.dropdown-menu {
+  position: relative;
+  z-index: 1;
+}
+
+.taskbar {
+  z-index: 1000 !important;
+}
+.floating-navbar-container {
+  z-index: 1000 !important;
+}
+.dropdown-menu {
+  z-index: 1200 !important;
+}
+.modal {
+  z-index: 1300 !important;
+}
+.notification {
+  z-index: 2000 !important;
 }
