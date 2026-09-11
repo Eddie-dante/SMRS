@@ -7,19 +7,14 @@
     <meta name="description" content="Group forum for staff announcements and discussions">
     <meta name="theme-color" content="#0a0e27">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- CSS Files - FIXED PATHS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -38,7 +33,7 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            background: transparent;
             color: #ffffff;
             overflow-x: hidden;
             padding-bottom: 120px;
@@ -47,9 +42,8 @@
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
             height: 65px;
-            background: rgba(10, 14, 39, 0.9);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(8, 12, 30, 0.72);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex;
@@ -86,7 +80,6 @@
             padding: 12px 24px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -128,7 +121,8 @@
             bottom: calc(100% + 12px);
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(10, 14, 39, 0.98);
+            background: rgba(10, 14, 39, 0.94);
+            backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 14px;
             padding: 10px;
@@ -175,11 +169,12 @@
         .page-header p { color: rgba(255,255,255,0.6); }
         
         .post-form {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
+            backdrop-filter: blur(15px);
         }
         .post-form textarea {
             width: 100%;
@@ -211,12 +206,13 @@
         .post-form button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.6); }
         
         .forum-message {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
             transition: var(--transition);
+            backdrop-filter: blur(15px);
         }
         .forum-message:hover { border-color: rgba(212,175,55,0.3); }
         .forum-message-header {
@@ -246,7 +242,6 @@
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -257,14 +252,12 @@
         </div>
     </div>
     
-    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-bullhorn" style="color:var(--accent);"></i> Group Forum</h1>
             <p>Share announcements with all staff</p>
         </div>
         
-        <!-- Post Form -->
         <div class="post-form">
             <form onsubmit="return postForumMessage(event)">
                 <textarea id="forumMessageInput" placeholder="Share something with the team..." required></textarea>
@@ -272,22 +265,20 @@
             </form>
         </div>
         
-        <!-- Messages List -->
         <div id="forumMessages">
             <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading messages...</p></div>
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> <span class="btn-label">Dashboard</span>
             </button>
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> <span class="btn-label">Resources</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
@@ -298,7 +289,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> <span class="btn-label">People</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
@@ -311,7 +302,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Communication</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -322,7 +313,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> <span class="btn-label">More</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
@@ -339,7 +330,6 @@
         </div>
     </div>
     
-    <!-- JavaScript Files - FIXED PATHS -->
     <script src="js/api.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
@@ -347,18 +337,16 @@
     <script src="js/app.js"></script>
     
     <script>
-        /**
-         * ============================================
-         * SRMS - Forum Page Logic
-         * ============================================
-         */
-        
-        /**
-         * Logout with confirmation dialog
-         */
-        function logoutWithConfirm() {
-            console.log('🔄 Logout requested');
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = checkAuth();
+            if (!user) return;
             
+            if (typeof loadForumMessages === 'function') {
+                loadForumMessages();
+            }
+        });
+        
+        function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', { 
                     title: 'Logout', 
@@ -366,44 +354,21 @@
                     confirmText: 'Logout', 
                     cancelText: 'Cancel' 
                 }).then(function(result) {
-                    if (result === 'confirm') {
-                        console.log('✅ Logout confirmed');
-                        logout();
-                    }
+                    if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) {
-                    logout();
-                }
+                if (confirm('Are you sure you want to logout?')) logout();
             }
         }
         
-        /**
-         * Initialize page on DOM ready
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Forum page loaded');
-            
-            // Verify authentication
-            var user = checkAuth();
-            if (!user) {
-                console.log('❌ No authenticated user, redirecting...');
-                return;
-            }
-            
-            console.log('✅ User authenticated:', user.name);
-            
-            // Load forum messages
-            if (typeof loadForumMessages === 'function') {
-                console.log('📊 Loading forum messages...');
-                loadForumMessages();
-            } else {
-                console.error('❌ loadForumMessages function not found');
-            }
-        });
+        function logout() {
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
+        }
         
         window.logoutWithConfirm = logoutWithConfirm;
-        console.log('✅ Forum page scripts loaded successfully');
+        window.logout = logout;
     </script>
 </body>
 </html>

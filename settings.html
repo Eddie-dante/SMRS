@@ -43,7 +43,6 @@
             height: 60px;
             background: rgba(8, 12, 30, 0.72);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
@@ -108,7 +107,6 @@
             position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
             background: rgba(10, 14, 39, 0.94);
             backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 12px; padding: 8px; min-width: 180px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
@@ -146,7 +144,6 @@
         .settings-section {
             background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             backdrop-filter: blur(18px) saturate(150%);
-            -webkit-backdrop-filter: blur(18px) saturate(150%);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             padding: 20px;
@@ -199,7 +196,6 @@
         .table-container {
             background: rgba(12, 18, 42, calc(var(--glass-alpha, 0.18) - 0.03));
             backdrop-filter: blur(18px) saturate(150%);
-            -webkit-backdrop-filter: blur(18px) saturate(150%);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 15px; overflow-x: auto;
@@ -232,7 +228,6 @@
         .modal-content {
             background: rgba(14, 20, 46, 0.85);
             backdrop-filter: blur(26px);
-            -webkit-backdrop-filter: blur(26px);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 16px; padding: 25px;
             width: 90%; max-width: 500px;
@@ -537,11 +532,11 @@
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> <span class="btn-label">Dashboard</span>
             </button>
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> <span class="btn-label">Resources</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
@@ -551,7 +546,7 @@
             </div>
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> <span class="btn-label">People</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
@@ -563,7 +558,7 @@
             </div>
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Comms <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Comms</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -573,7 +568,7 @@
             </div>
             <div class="nav-group">
                 <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> <span class="btn-label">More</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
@@ -792,12 +787,10 @@
             var slider = document.getElementById("glassOpacitySlider");
             if (slider) slider.value = Math.round(alpha * 100);
             updateGlassUI(alpha);
-            var labels = [
-                alpha <= 0.01 ? "Fully Transparent" :
+            var label = alpha <= 0.01 ? "Fully Transparent" :
                 alpha <= 0.25 ? "Balanced" :
-                alpha <= 0.55 ? "Readable" : "Solid Cards"
-            ];
-            showNotification("Applied: " + labels[0], "success");
+                alpha <= 0.55 ? "Readable" : "Solid Cards";
+            showNotification("Applied: " + label, "success");
         }
         
         window.saveSchoolInfo = saveSchoolInfo;

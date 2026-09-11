@@ -7,22 +7,15 @@
     <meta name="description" content="Visual insights, analytics, and printable reports">
     <meta name="theme-color" content="#0a0e27">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- CSS Files - FIXED PATHS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -40,7 +33,7 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            background: transparent;
             color: #ffffff;
             overflow-x: hidden;
             padding-bottom: 120px;
@@ -49,9 +42,8 @@
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
             height: 65px;
-            background: rgba(10, 14, 39, 0.9);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(8, 12, 30, 0.72);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex;
@@ -85,7 +77,6 @@
             gap: 12px; padding: 12px 24px;
             background: rgba(15, 18, 30, 0.85);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -122,7 +113,8 @@
             bottom: calc(100% + 12px);
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(10, 14, 39, 0.98);
+            background: rgba(10, 14, 39, 0.94);
+            backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 14px; padding: 10px; min-width: 200px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
@@ -192,7 +184,7 @@
             margin-bottom: 20px;
         }
         .stat-card {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
@@ -208,29 +200,32 @@
             gap: 20px;
         }
         .chart-container {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 20px;
         }
         .chart-container h3 { color: var(--accent); margin-bottom: 15px; font-size: 1em; }
+        .chart-container canvas { max-height: 280px; }
         
         .report-section {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
+            backdrop-filter: blur(15px);
         }
         .report-section h3 { color: var(--accent); margin-bottom: 15px; font-size: 1.1em; }
         
         .table-container {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 15px;
             overflow-x: auto;
+            backdrop-filter: blur(15px);
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
@@ -282,7 +277,6 @@
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -293,7 +287,6 @@
         </div>
     </div>
     
-    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <div>
@@ -301,7 +294,7 @@
                 <p>Visual insights and statistics</p>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button class="btn-secondary" onclick="exportReport()"><i class="fas fa-download"></i> Export PDF</button>
+                <button class="btn-secondary" onclick="exportReport()"><i class="fas fa-download"></i> Export CSV</button>
                 <button class="btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Print Report</button>
             </div>
         </div>
@@ -346,7 +339,7 @@
             </div>
         </div>
         
-        <div class="report-section">
+        <div class="report-section" style="margin-top:20px;">
             <h3><i class="fas fa-chart-line"></i> Monthly Summary</h3>
             <div class="table-container">
                 <table class="data-table">
@@ -359,16 +352,15 @@
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> <span class="btn-label">Dashboard</span>
             </button>
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> <span class="btn-label">Resources</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
@@ -379,7 +371,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> <span class="btn-label">People</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
@@ -392,7 +384,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Communication <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Communication</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -403,7 +395,7 @@
             
             <div class="nav-group">
                 <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> <span class="btn-label">More</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>
@@ -420,7 +412,6 @@
         </div>
     </div>
     
-    <!-- JavaScript Files - FIXED PATHS -->
     <script src="js/api.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
@@ -428,42 +419,332 @@
     <script src="js/app.js"></script>
     
     <script>
-        /**
-         * ============================================
-         * SRMS - Reports Page Logic
-         * ============================================
-         */
-        
-        // Chart instances
         var booksByTypeChartInstance = null;
         var studentsByFormChartInstance = null;
         var furnitureChartInstance = null;
         var borrowingTrendChartInstance = null;
         
-        /**
-         * Print the report
-         */
+        // Chart.js dark defaults
+        if (typeof Chart !== 'undefined') {
+            Chart.defaults.color = '#e5e7eb';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+            Chart.defaults.font.family = "'Inter', sans-serif";
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = checkAuth();
+            if (!user) return;
+            loadReports();
+        });
+        
+        function loadReports() {
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            Promise.all([
+                API.getBooks(school),
+                API.getStudents(school),
+                API.getBorrowed(school),
+                API.getFurniture(school),
+                API.getClasses(school)
+            ]).then(function(results) {
+                var books = results[0] || [];
+                var students = results[1] || [];
+                var borrowed = results[2] || [];
+                var furniture = results[3] || [];
+                var classes = results[4] || [];
+                
+                // Calculate stats
+                var totalBooks = books.reduce(function(s, b) { return s + (b.quantity || 0); }, 0);
+                var activeLoans = borrowed.filter(function(b) { return !b.returned; });
+                var overdue = activeLoans.filter(function(b) { return isOverdue(b.returnDate); });
+                var returned = borrowed.filter(function(b) { return b.returned; });
+                var returnRate = borrowed.length > 0 ? Math.round((returned.length / borrowed.length) * 100) : 0;
+                
+                document.getElementById('totalBooksCount').textContent = totalBooks;
+                document.getElementById('totalStudentsCount').textContent = students.length;
+                document.getElementById('activeLoansCount').textContent = activeLoans.length;
+                document.getElementById('overdueCount').textContent = overdue.length;
+                document.getElementById('returnRate').textContent = returnRate + '%';
+                document.getElementById('furnitureCount').textContent = furniture.length;
+                
+                // Overdue report
+                renderOverdueReport(overdue);
+                
+                // Charts
+                renderBooksByTypeChart(books);
+                renderStudentsByFormChart(students, classes);
+                renderFurnitureChart(furniture);
+                renderBorrowingTrendChart(borrowed);
+                
+                // Monthly summary
+                renderMonthlySummary(borrowed, furniture);
+                
+            }).catch(function(err) {
+                console.error('Reports error:', err);
+            });
+        }
+        
+        function renderOverdueReport(overdue) {
+            var tbody = document.getElementById('overdueReportBody');
+            if (!tbody) return;
+            if (!overdue || overdue.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">No overdue books 🎉</td></tr>';
+                return;
+            }
+            var html = '';
+            overdue.forEach(function(b) {
+                html += '<tr>' +
+                    '<td>' + (b.studentName || '-') + '</td>' +
+                    '<td>' + (b.adm || '-') + '</td>' +
+                    '<td>' + (b.bookTitle || '-') + '</td>' +
+                    '<td>' + (b.bookNo || '-') + '</td>' +
+                    '<td>' + (b.returnDate || '-') + '</td>' +
+                    '<td><span class="badge badge-danger">' + daysOverdue(b.returnDate) + ' days</span></td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function renderBooksByTypeChart(books) {
+            var canvas = document.getElementById('booksByTypeChart');
+            if (!canvas) return;
+            var types = {};
+            books.forEach(function(b) {
+                var t = b.type || 'Other';
+                types[t] = (types[t] || 0) + (b.quantity || 0);
+            });
+            
+            if (booksByTypeChartInstance) booksByTypeChartInstance.destroy();
+            
+            booksByTypeChartInstance = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(types),
+                    datasets: [{
+                        data: Object.values(types),
+                        backgroundColor: ['#e94560', '#d4af37', '#4dc9f6', '#2ee6a8', '#a78bfa', '#f59e0b', '#17a2b8'],
+                        borderColor: 'rgba(0,0,0,0.2)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#e5e7eb', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+        
+        function renderStudentsByFormChart(students, classes) {
+            var canvas = document.getElementById('studentsByFormChart');
+            if (!canvas) return;
+            
+            var forms = {};
+            students.forEach(function(s) {
+                var f = s.form || 'Unknown';
+                forms[f] = (forms[f] || 0) + 1;
+            });
+            classes.forEach(function(c) {
+                var count = (c.students || []).length;
+                if (c.name && count > 0) {
+                    if (!forms[c.name]) forms[c.name] = 0;
+                }
+            });
+            
+            if (studentsByFormChartInstance) studentsByFormChartInstance.destroy();
+            
+            studentsByFormChartInstance = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(forms),
+                    datasets: [{
+                        label: 'Students',
+                        data: Object.values(forms),
+                        backgroundColor: 'rgba(212, 175, 55, 0.7)',
+                        borderColor: '#d4af37',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#9ca3af' } },
+                        x: { ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+        }
+        
+        function renderFurnitureChart(furniture) {
+            var canvas = document.getElementById('furnitureChart');
+            if (!canvas) return;
+            
+            var chairs = 0, lockers = 0, both = 0;
+            furniture.forEach(function(f) {
+                if (f.chairNo && f.lockerNo) both++;
+                else if (f.chairNo) chairs++;
+                else if (f.lockerNo) lockers++;
+            });
+            
+            if (furnitureChartInstance) furnitureChartInstance.destroy();
+            
+            furnitureChartInstance = new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels: ['Chairs Only', 'Lockers Only', 'Both'],
+                    datasets: [{
+                        data: [chairs, lockers, both],
+                        backgroundColor: ['#4dc9f6', '#a78bfa', '#2ee6a8'],
+                        borderColor: 'rgba(0,0,0,0.2)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#e5e7eb', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+        
+        function renderBorrowingTrendChart(borrowed) {
+            var canvas = document.getElementById('borrowingTrendChart');
+            if (!canvas) return;
+            
+            // Group by last 6 months
+            var months = {};
+            var now = new Date();
+            for (var i = 5; i >= 0; i--) {
+                var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                months[key] = { issued: 0, returned: 0 };
+            }
+            
+            borrowed.forEach(function(b) {
+                if (b.borrowDate) {
+                    var d = new Date(b.borrowDate);
+                    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                    if (months[key]) months[key].issued++;
+                }
+                if (b.returned && b.returnDate) {
+                    var d2 = new Date(b.returnDate);
+                    var key2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0');
+                    if (months[key2]) months[key2].returned++;
+                }
+            });
+            
+            var labels = Object.keys(months).map(function(k) {
+                var parts = k.split('-');
+                return getMonthShortName(parseInt(parts[1]) - 1) + ' ' + parts[0].slice(-2);
+            });
+            var issuedData = Object.values(months).map(function(m) { return m.issued; });
+            var returnedData = Object.values(months).map(function(m) { return m.returned; });
+            
+            if (borrowingTrendChartInstance) borrowingTrendChartInstance.destroy();
+            
+            borrowingTrendChartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Issued',
+                            data: issuedData,
+                            borderColor: '#e94560',
+                            backgroundColor: 'rgba(233, 69, 96, 0.15)',
+                            tension: 0.35,
+                            fill: true,
+                            pointBackgroundColor: '#e94560'
+                        },
+                        {
+                            label: 'Returned',
+                            data: returnedData,
+                            borderColor: '#2ee6a8',
+                            backgroundColor: 'rgba(46, 230, 168, 0.15)',
+                            tension: 0.35,
+                            fill: true,
+                            pointBackgroundColor: '#2ee6a8'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#e5e7eb', font: { size: 11 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#9ca3af' } },
+                        x: { ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+        }
+        
+        function renderMonthlySummary(borrowed, furniture) {
+            var tbody = document.getElementById('monthlySummaryBody');
+            if (!tbody) return;
+            
+            var monthlyData = {};
+            borrowed.forEach(function(b) {
+                if (!b.borrowDate) return;
+                var date = new Date(b.borrowDate);
+                var key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
+                monthlyData[key].issued++;
+                if (b.returned) monthlyData[key].returned++;
+            });
+            furniture.forEach(function(f) {
+                if (!f.allocationDate) return;
+                var date = new Date(f.allocationDate);
+                var key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                if (!monthlyData[key]) monthlyData[key] = { issued: 0, returned: 0, furniture: 0 };
+                monthlyData[key].furniture++;
+            });
+            
+            var months = Object.keys(monthlyData).sort().reverse();
+            if (months.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">No data yet</td></tr>';
+                return;
+            }
+            var html = '';
+            months.slice(0, 12).forEach(function(key) {
+                var parts = key.split('-');
+                var monthName = getMonthName(parseInt(parts[1]) - 1) + ' ' + parts[0];
+                var data = monthlyData[key];
+                html += '<tr>' +
+                    '<td>' + monthName + '</td>' +
+                    '<td>' + data.issued + '</td>' +
+                    '<td>' + data.returned + '</td>' +
+                    '<td>' + data.furniture + '</td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
         function printReport() {
-            console.log('🖨️ Print report requested');
             window.print();
         }
         
-        /**
-         * Export report
-         */
         function exportReport() {
-            console.log('📥 Export report requested');
-            if (typeof showNotification === 'function') {
-                showNotification('Report exported successfully!', 'success');
-            }
+            var school = getCurrentSchool();
+            if (!school) return;
+            API.getBorrowed(school).then(function(borrowed) {
+                if (!borrowed || borrowed.length === 0) {
+                    showNotification('No data to export', 'warning');
+                    return;
+                }
+                exportToCSV(borrowed, 'borrowed_report.csv');
+            });
         }
         
-        /**
-         * Logout with confirmation dialog
-         */
         function logoutWithConfirm() {
-            console.log('🔄 Logout requested');
-            
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', { 
                     title: 'Logout', 
@@ -471,46 +752,21 @@
                     confirmText: 'Logout', 
                     cancelText: 'Cancel' 
                 }).then(function(result) {
-                    if (result === 'confirm') {
-                        console.log('✅ Logout confirmed');
-                        logout();
-                    }
+                    if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) {
-                    logout();
-                }
+                if (confirm('Are you sure you want to logout?')) logout();
             }
         }
-        
-        /**
-         * Initialize page on DOM ready
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Reports page loaded');
-            
-            // Verify authentication
-            var user = checkAuth();
-            if (!user) {
-                console.log('❌ No authenticated user, redirecting...');
-                return;
-            }
-            
-            console.log('✅ User authenticated:', user.name);
-            
-            // Load reports data
-            if (typeof loadReports === 'function') {
-                console.log('📊 Loading reports data...');
-                loadReports();
-            } else {
-                console.error('❌ loadReports function not found');
-            }
-        });
         
         window.printReport = printReport;
         window.exportReport = exportReport;
         window.logoutWithConfirm = logoutWithConfirm;
-        console.log('✅ Reports page scripts loaded successfully');
+        window.logout = function() {
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
+        };
     </script>
 </body>
 </html>

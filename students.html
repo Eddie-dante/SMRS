@@ -32,7 +32,7 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%);
+            background: transparent;
             color: #ffffff;
             overflow-x: hidden;
             padding-bottom: 120px;
@@ -41,8 +41,8 @@
         .taskbar {
             position: fixed; top: 0; left: 0; right: 0;
             height: 60px;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(25px);
+            background: rgba(8, 12, 30, 0.72);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
@@ -105,7 +105,8 @@
         .dropdown-menu {
             display: none;
             position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
-            background: rgba(10, 14, 39, 0.98);
+            background: rgba(10, 14, 39, 0.94);
+            backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 12px; padding: 8px; min-width: 180px;
             z-index: 1200; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
@@ -163,11 +164,12 @@
             margin-bottom: 15px;
         }
         .stat-mini {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 10px;
             padding: 12px;
             text-align: center;
+            backdrop-filter: blur(15px);
         }
         .stat-mini .value { font-size: 1.3em; font-weight: 900; color: var(--gold); }
         .stat-mini .label { font-size: 9px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
@@ -175,9 +177,10 @@
         .search-bar {
             display: flex; align-items: center; gap: 10px;
             padding: 12px 15px; margin-bottom: 15px;
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 12px;
+            backdrop-filter: blur(15px);
         }
         .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
@@ -203,10 +206,11 @@
         .filters select option { background: #1a1f4e; }
         
         .table-container {
-            background: var(--glass-bg);
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
             border-radius: 14px;
             padding: 15px; overflow-x: auto;
+            backdrop-filter: blur(15px);
         }
         .data-table { width: 100%; border-collapse: collapse; color: #fff; }
         .data-table th {
@@ -235,7 +239,8 @@
         }
         .modal.active { display: flex; }
         .modal-content {
-            background: rgba(26, 31, 78, 0.95);
+            background: rgba(14, 20, 46, 0.85);
+            backdrop-filter: blur(26px);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 16px; padding: 25px;
             width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
@@ -374,11 +379,11 @@
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
-                <span class="btn-badge"><i class="fas fa-th-large"></i></span> Dashboard
+                <span class="btn-badge"><i class="fas fa-th-large"></i></span> <span class="btn-label">Dashboard</span>
             </button>
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> Resources <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-layer-group"></i></span> <span class="btn-label">Resources</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="library.html"><i class="fas fa-book"></i> Library</a>
@@ -388,7 +393,7 @@
             </div>
             <div class="nav-group">
                 <button class="classy-btn active">
-                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> People <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-user-friends"></i></span> <span class="btn-label">People</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
@@ -400,7 +405,7 @@
             </div>
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-comments"></i></span> Comms <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Comms</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="chat.html"><i class="fas fa-comment-dots"></i> Chat</a>
@@ -410,7 +415,7 @@
             </div>
             <div class="nav-group">
                 <button class="classy-btn">
-                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> More <i class="fas fa-chevron-up"></i>
+                    <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> <span class="btn-label">More</span> <i class="fas fa-chevron-up"></i>
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="events.html"><i class="fas fa-calendar"></i> Events</a>

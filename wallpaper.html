@@ -257,6 +257,17 @@
         }
         .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
         
+        .count-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--gold-light);
+            margin-left: 8px;
+        }
+        
         /* Toast */
         .wp-toast {
             position: fixed;
@@ -298,7 +309,7 @@
     <div class="wallpaper-page">
         <div class="page-header">
             <h1><i class="fas fa-image"></i> Choose Wallpaper</h1>
-            <p>Select a beautiful background for your dashboard</p>
+            <p>Select a beautiful background for your dashboard <span class="count-badge" id="countBadge">0 wallpapers</span></p>
         </div>
         
         <div class="search-bar">
@@ -312,6 +323,10 @@
             <button onclick="filterCategory('Nature', event)">🌿 Nature</button>
             <button onclick="filterCategory('City', event)">🏙️ City</button>
             <button onclick="filterCategory('Abstract', event)">🎨 Abstract</button>
+            <button onclick="filterCategory('Space', event)">🌌 Space</button>
+            <button onclick="filterCategory('Sports', event)">⚽ Sports</button>
+            <button onclick="filterCategory('Animals', event)">🦁 Animals</button>
+            <button onclick="filterCategory('Food', event)">🍕 Food</button>
             <button onclick="filterCategory('Default', event)">🌙 Default</button>
         </div>
         
@@ -328,10 +343,22 @@
         var currentCategory = 'all';
         var searchTerm = '';
 
-        function buildThumbUrl(key) {
-            return window.buildImageUrl ? window.buildImageUrl(key, 400) : null;
+        /**
+         * Build a thumbnail URL from Unsplash (already sized).
+         */
+        function buildThumbUrl(fullUrl) {
+            if (!fullUrl) return '';
+            try {
+                var base = fullUrl.split('?')[0];
+                return base + '?w=400&h=250&fit=crop&q=60&auto=format';
+            } catch (e) {
+                return fullUrl;
+            }
         }
 
+        /**
+         * Deterministic gradient fallback based on key
+         */
         function buildGradientFallback(key) {
             var palettes = [
                 'linear-gradient(135deg, #1a1f4e, #0f3460)',
@@ -351,6 +378,8 @@
         function lazyLoadImage(imgEl, url) {
             if (!imgEl || !url) return;
             imgEl.loading = 'lazy';
+            imgEl.referrerPolicy = 'no-referrer';
+            imgEl.crossOrigin = 'anonymous';
             imgEl.onload = function () {
                 imgEl.classList.add('loaded');
                 var parent = imgEl.closest('.wallpaper-preview');
@@ -370,6 +399,7 @@
             
             var html = '';
             var found = false;
+            var count = 0;
             
             for (var key in WALLPAPER_DATA) {
                 var wallpaper = WALLPAPER_DATA[key];
@@ -379,6 +409,7 @@
                 if (searchTerm && !wallpaper.name.toLowerCase().includes(searchTerm.toLowerCase())) continue;
                 
                 found = true;
+                count++;
                 var isActive = key === currentWallpaper ? ' active' : '';
                 
                 if (wallpaper.type === 'gradient') {
@@ -393,7 +424,7 @@
                         '<div class="category-tag">' + category + '</div>' +
                         '</div></div>';
                 } else {
-                    var thumbUrl = buildThumbUrl(key);
+                    var thumbUrl = buildThumbUrl(wallpaper.url);
                     var gradient = buildGradientFallback(key);
                     html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\', event)">' +
                         '<div class="check-badge"><i class="fas fa-check"></i></div>' +
@@ -409,6 +440,9 @@
                 }
             }
             
+            var countBadge = document.getElementById('countBadge');
+            if (countBadge) countBadge.textContent = count + ' wallpapers';
+            
             if (!found) {
                 grid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>No wallpapers found</p></div>';
                 return;
@@ -422,7 +456,7 @@
                 var url = preview.getAttribute('data-src');
                 setTimeout(function () {
                     lazyLoadImage(img, url);
-                }, i * 60);
+                }, i * 40);
             });
         }
 
@@ -443,18 +477,15 @@
         function selectWallpaper(key, event) {
             localStorage.setItem('srms_wallpaper', key);
 
-            // Update the active card
             var cards = document.querySelectorAll('.wallpaper-card');
             for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
             var target = event ? event.target.closest('.wallpaper-card') : null;
             if (target) target.classList.add('active');
 
-            // Fire loader's applyWallpaper silently (no built-in toast)
             if (typeof applyWallpaper === 'function') {
                 applyWallpaper(key, { silent: true });
             }
 
-            // Show our own small toast
             var wp = WALLPAPER_DATA[key];
             showToast('Applied: ' + (wp ? wp.name : key));
         }
