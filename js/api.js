@@ -1,9 +1,9 @@
 // ============================================
 // SRMS - Firebase API
 // Full Version with CACHE-FIRST PERSISTENCE
-// + FAST SCHOOL LOOKUP (timeout-protected)
-// + null-safe failures (no more [] masquerading as data)
-// + FIXED INVITE CODE "1" (never changes, no Firebase read on signup)
+// + UNIQUE INVITE CODE per school (8 chars, safe alphabet)
+// + 15s timeout (was 6s) — rules allow reads
+// + null-safe failures
 // ============================================
 
 var firebaseConfig = {
@@ -19,10 +19,7 @@ var firebaseConfig = {
 var database = null;
 
 // ⏱️ How long to wait for Firebase before giving up (ms)
-var FIREBASE_TIMEOUT_MS = 6000;
-
-// 🔑 The invite code for EVERY school. Never changes. Never read from Firebase.
-var FIXED_INVITE_CODE = "1";
+var FIREBASE_TIMEOUT_MS = 15000;
 
 function initFirebase() {
   if (typeof firebase === "undefined") {
@@ -199,10 +196,6 @@ function pruneCacheIfTooBig() {
     }
   } catch (e) {}
 }
-
-/* ============================================================
-   getCachedData — REWRITTEN
-   ============================================================ */
 
 var _inflightFetches = {};
 
@@ -400,9 +393,19 @@ setTimeout(backgroundSync, 800);
    HELPERS
    ============================================================ */
 
+/**
+ * Unique mixed-character invite code.
+ * Uses an unambiguous alphabet: no 0/O, no 1/I/L.
+ * Default length: 8 characters.
+ */
 function generateInviteCode(length) {
-  // Kept for backward compatibility — always returns "1" now.
-  return FIXED_INVITE_CODE;
+  length = length || 8;
+  var chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  var code = "";
+  for (var i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 function generateStaffId() {
@@ -512,11 +515,12 @@ var API = {
     if (!database) {
       return Promise.resolve(null);
     }
+    var cleanSchool = String(schoolName || "").trim();
     return getCachedData(
-      "school_" + schoolName,
+      "school_" + cleanSchool,
       function () {
         return database
-          .ref("schools/" + schoolName)
+          .ref("schools/" + cleanSchool)
           .once("value")
           .then(function (s) {
             return s.val() || null;
@@ -530,11 +534,12 @@ var API = {
     if (!database) {
       return Promise.resolve(null);
     }
+    var cleanSchool = String(schoolName || "").trim();
     return getCachedData(
-      "school_" + schoolName,
+      "school_" + cleanSchool,
       function () {
         return database
-          .ref("schools/" + schoolName)
+          .ref("schools/" + cleanSchool)
           .once("value")
           .then(function (s) {
             return s.val() || null;
@@ -550,24 +555,84 @@ var API = {
   },
 
   /**
-   * verifyInviteCode — LOCAL check only. No Firebase read.
-   * The invite code is ALWAYS "1" for every school.
+   * verifyInviteCode — reads the school's real invite code from Firebase
+   * and compares it to what the user typed.
+   *
+   * Uses the shared cache layer, so repeat verifications are instant.
    */
   verifyInviteCode: function (schoolName, code) {
     var normalized = String(code || "")
       .trim()
       .toUpperCase();
-    if (normalized === FIXED_INVITE_CODE) {
-      return Promise.resolve({ success: true });
+    var cleanSchool = String(schoolName || "").trim();
+
+    if (!cleanSchool) {
+      return Promise.resolve({
+        success: false,
+        error: "School name is required.",
+      });
     }
-    return Promise.resolve({
-      success: false,
-      error: "Invalid invite code. The code for this school is '1'.",
-    });
+    if (!normalized) {
+      return Promise.resolve({
+        success: false,
+        error: "Invite code is required.",
+      });
+    }
+    if (!database) {
+      return Promise.resolve({
+        success: false,
+        error: "Firebase is not ready yet. Please reload the page.",
+      });
+    }
+
+    return getCachedData(
+      "school_" + cleanSchool,
+      function () {
+        return database
+          .ref("schools/" + cleanSchool)
+          .once("value")
+          .then(function (s) {
+            return s.val() || null;
+          });
+      },
+      10 * 60 * 1000, // cache for 10 min
+    )
+      .then(function (school) {
+        if (!school || typeof school !== "object") {
+          return {
+            success: false,
+            error:
+              'School "' + cleanSchool + '" not found. Check the spelling.',
+          };
+        }
+        var stored = String(school.inviteCode || "")
+          .trim()
+          .toUpperCase();
+        if (!stored) {
+          return {
+            success: false,
+            error: "This school has no invite code set. Ask the admin.",
+          };
+        }
+        if (stored !== normalized) {
+          return {
+            success: false,
+            error: "Invalid invite code. Please try again.",
+          };
+        }
+        return { success: true, school: school };
+      })
+      .catch(function () {
+        return {
+          success: false,
+          error:
+            "Could not reach the server. Check your connection and try again.",
+        };
+      });
   },
 
   createSchool: function (schoolData) {
-    var inviteCode = FIXED_INVITE_CODE; // ← always "1"
+    var inviteCode = generateInviteCode(8); // unique, e.g. "QT1BH2CF"
     var emailKey = schoolData.adminEmail.replace(/\./g, ",");
 
     return database
@@ -614,11 +679,6 @@ var API = {
   },
 
   updateSchool: function (schoolName, schoolData) {
-    // Never allow changing the invite code — force "1" always.
-    schoolData = Object.assign({}, schoolData, {
-      inviteCode: FIXED_INVITE_CODE,
-    });
-
     return database
       .ref("schools/" + schoolName)
       .update(schoolData)
@@ -2110,11 +2170,11 @@ window.dataCache = dataCache;
 window.clearCache = clearCache;
 window.wipeAllCache = wipeAllCache;
 window.generateUniqueStudentId = generateUniqueStudentId;
+window.generateInviteCode = generateInviteCode;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
-window.FIXED_INVITE_CODE = FIXED_INVITE_CODE;
 
 console.log("✅ API loaded — CACHE-FIRST + PERSISTENT + BACKGROUND SYNC");
 console.log("📦 Cache version: v" + CACHE_VERSION);
 console.log("⏱️ Firebase timeout: " + FIREBASE_TIMEOUT_MS + "ms");
-console.log("🔑 Fixed invite code: '" + FIXED_INVITE_CODE + "'");
+console.log("🔑 Invite codes are UNIQUE per school (8 chars)");

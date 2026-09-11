@@ -160,7 +160,6 @@
             border-radius: 25px; font-size: 13px;
         }
         
-        /* ===== INVITE CODE BANNER ===== */
         .invite-code-banner {
             background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
             border: 2px dashed rgba(212,175,55,0.5);
@@ -180,9 +179,9 @@
         }
         .invite-code-banner .code {
             font-family: 'Courier New', monospace;
-            font-size: 3em;
+            font-size: 2.4em;
             font-weight: 800;
-            letter-spacing: 12px;
+            letter-spacing: 8px;
             color: var(--gold);
             text-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
             margin: 8px 0 14px;
@@ -309,7 +308,7 @@
             .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
             .stat-card { padding: 15px; }
             .stat-value { font-size: 1.3em; }
-            .invite-code-banner .code { font-size: 2em; letter-spacing: 8px; }
+            .invite-code-banner .code { font-size: 1.8em; letter-spacing: 5px; }
         }
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
@@ -336,11 +335,10 @@
             <div class="date-display" id="dateDisplay"></div>
         </div>
         
-        <!-- ===== INVITE CODE BANNER (code is always "1") ===== -->
         <div class="invite-code-banner" id="inviteCodeBanner">
             <div class="banner-title"><i class="fas fa-ticket-alt"></i> School Invite Code</div>
-            <div class="code" id="inviteCode">1</div>
-            <div class="banner-hint">Share this code with teachers so they can sign up and join your school. It never changes.</div>
+            <div class="code" id="inviteCode">------</div>
+            <div class="banner-hint">Share this code with teachers so they can sign up and join your school.</div>
             <div class="invite-code-actions">
                 <button class="copy-code-btn" onclick="copyInviteCode()">
                     <i class="fas fa-copy"></i> Copy Code
@@ -485,6 +483,8 @@
            DASHBOARD LOGIC
            ============================================================ */
         
+        var _cachedInviteCode = "";
+        
         function loadDashboard() {
             var school = getCurrentSchool();
             if (!school) return;
@@ -503,10 +503,9 @@
                 if (dateEl) dateEl.textContent = getDateDisplay();
             }
             
-            // Invite code banner — show for admins only.
-            // The code is ALWAYS "1" now, so no Firebase read needed.
+            // Invite code banner — show for admins only
             if (user && user.role === 'admin') {
-                showInviteCodeBanner();
+                loadInviteCode(school);
             }
             
             // Stats
@@ -580,21 +579,50 @@
         }
         
         /* ============================================================
-           INVITE CODE — always "1", no Firebase read
+           INVITE CODE — read from Firebase (unique per school)
            ============================================================ */
-        function showInviteCodeBanner() {
-            var banner = document.getElementById('inviteCodeBanner');
-            var codeEl = document.getElementById('inviteCode');
-            if (!banner || !codeEl) return;
-            codeEl.textContent = "1";
-            banner.classList.add('visible');
+        function loadInviteCode(school) {
+            API.getSchool(school).then(function (schoolInfo) {
+                var banner = document.getElementById('inviteCodeBanner');
+                var codeEl = document.getElementById('inviteCode');
+                if (!banner || !codeEl) return;
+
+                var code = schoolInfo && schoolInfo.inviteCode;
+
+                if (code) {
+                    _cachedInviteCode = code;
+                    codeEl.textContent = code;
+                    banner.classList.add('visible');
+                } else {
+                    // No code stored — generate one and save it
+                    var newCode = (window.generateInviteCode ? window.generateInviteCode(8) : "ABCD1234");
+                    _cachedInviteCode = newCode;
+                    codeEl.textContent = newCode;
+                    banner.classList.add('visible');
+                    API.updateSchool(school, { inviteCode: newCode }).catch(function () {});
+                }
+            }).catch(function (err) {
+                console.error("Invite code load error:", err);
+                var banner = document.getElementById('inviteCodeBanner');
+                var codeEl = document.getElementById('inviteCode');
+                if (banner && codeEl) {
+                    codeEl.textContent = "------";
+                    banner.classList.add('visible');
+                }
+            });
         }
         
         function copyInviteCode() {
+            if (!_cachedInviteCode) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Code not loaded yet — try again in a moment', 'warning');
+                }
+                return;
+            }
             if (navigator.clipboard) {
-                navigator.clipboard.writeText("1").then(function () {
+                navigator.clipboard.writeText(_cachedInviteCode).then(function () {
                     if (typeof showNotification === 'function') {
-                        showNotification('Invite code copied: 1', 'success');
+                        showNotification('Invite code copied: ' + _cachedInviteCode, 'success');
                     }
                 }).catch(function () {
                     fallbackCopy();
@@ -606,7 +634,7 @@
         
         function fallbackCopy() {
             var temp = document.createElement('textarea');
-            temp.value = "1";
+            temp.value = _cachedInviteCode;
             temp.style.position = 'fixed';
             temp.style.opacity = '0';
             document.body.appendChild(temp);
@@ -618,7 +646,7 @@
                 }
             } catch (e) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Copy failed. Code: 1', 'warning');
+                    showNotification('Copy failed. Code: ' + _cachedInviteCode, 'warning');
                 }
             }
             document.body.removeChild(temp);
