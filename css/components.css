@@ -1429,3 +1429,15 @@ body,
     -webkit-backdrop-filter: blur(18px) !important;
   }
 }
+
+/* Bonus: ultra-transparent mode (uncomment to enable) */
+
+.stat-card,
+.panel,
+.class-card,
+.furniture-card,
+.quick-actions,
+.recent-activity,
+.quick-stats {
+  background: rgba(12, 18, 42, 0.18) !important;
+}
