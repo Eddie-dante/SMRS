@@ -2,7 +2,7 @@
    SRMS - Component Styles
    Complete Version
    + Wallpaper-Friendly Glass
-   + Responsive Navbar (fixed, no card background)
+   + Responsive Navbar (transparent container, restructured buttons per screen)
    ============================================ */
 
 /* ============ HEADER BAR (TASKBAR) ============ */
@@ -72,7 +72,7 @@
   transform: scale(1.05);
 }
 
-/* ============ FLOATING BOTTOM NAVBAR — NO CARD BACKGROUND ============ */
+/* ============ FLOATING BOTTOM NAVBAR — TRANSPARENT CONTAINER ============ */
 .floating-navbar-container {
   position: fixed !important;
   bottom: 20px !important;
@@ -104,6 +104,7 @@
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-radius: 0;
+  flex-wrap: wrap;
 }
 
 .nav-group {
@@ -1118,20 +1119,22 @@ body,
 
 /* ============================================================
    TABLET (≤1024px)
+   Navbar: still inline (wrapped), slightly smaller buttons
    ============================================================ */
 @media (max-width: 1024px) {
   .floating-navbar {
-    padding: 0;
-    gap: 10px;
+    gap: 8px;
+    max-width: 96vw;
   }
   .floating-navbar .classy-btn {
-    padding: 9px 16px;
+    padding: 9px 15px;
     font-size: 12.5px;
   }
 }
 
 /* ============================================================
    PHONES (≤768px)
+   Navbar: compact, single scrollable row, translucent buttons
    ============================================================ */
 @media (max-width: 768px) {
   .floating-navbar-container {
@@ -1140,28 +1143,37 @@ body,
     top: auto !important;
     right: auto !important;
     transform: translateX(-50%) !important;
-    width: auto !important;
+    width: 100% !important;
     max-width: 100vw !important;
     padding: 0 6px;
-    background: transparent !important;
   }
 
   .floating-navbar {
-    padding: 0;
-    gap: 4px;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: visible;
+    gap: 6px;
+    padding: 6px 8px;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    border-radius: 26px;
+    background: rgba(10, 14, 30, 0.42);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+    transition:
+      background 0.3s ease,
+      padding 0.3s ease,
+      box-shadow 0.3s ease;
   }
   .floating-navbar::-webkit-scrollbar {
     display: none;
+  }
+
+  .floating-navbar.navbar-dimmed {
+    background: rgba(10, 14, 30, 0.2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
   }
 
   .floating-navbar .classy-btn {
@@ -1275,7 +1287,8 @@ body,
 }
 
 /* ============================================================
-   TINY PHONES (≤340px) — icons only
+   TINY PHONES (≤340px)
+   Icons only — labels hidden
    ============================================================ */
 @media (max-width: 340px) {
   .floating-navbar .classy-btn span:not(.btn-badge) {

@@ -3,7 +3,6 @@
    Complete Version
    + Wallpaper Layer Support
    + Fixed-position navbar
-   + No background on navbar container
    ============================================ */
 
 :root {
@@ -889,7 +888,7 @@ img {
 }
 
 /* ============================================================
-   WALLPAPER LAYER — page content floats above the wallpaper
+   WALLPAPER LAYER
    ============================================================ */
 #srms-wallpaper-bg {
   position: fixed !important;
@@ -932,7 +931,6 @@ img {
   z-index: 2000 !important;
 }
 
-/* Navbar is fixed — must NOT be in the "relative" list above */
 .floating-navbar-container {
   z-index: 9999 !important;
 }
