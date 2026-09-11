@@ -1249,3 +1249,183 @@
     padding: 6px !important;
   }
 }
+
+/* ============================================================
+   WALLPAPER-FRIENDLY GLASS — makes wallpaper visible through cards
+   Applied globally. Buttons/taskbar/dialogs keep their own styles.
+   ============================================================ */
+
+/* Global page backdrop — softer so wallpaper shines through */
+body {
+  background-attachment: fixed !important;
+}
+
+/* Soften every translucent surface that covers the wallpaper */
+.stat-card,
+.recent-activity,
+.quick-stats,
+.quick-actions,
+.panel,
+.glass,
+.glass-strong,
+.glass-light,
+.form-container,
+.table-container,
+.class-card,
+.furniture-card,
+.note-card,
+.term-card,
+.wallpaper-card,
+.event-card,
+.selector-container,
+.search-bar,
+.chart-container,
+.settings-section,
+.report-section,
+.records-container,
+.notes-library,
+.editor-column,
+.document-surface,
+.notepad-sidebar,
+.notepad-editor,
+.chat-user-list,
+.chat-messages,
+.notes-sidebar,
+.reports-container,
+.database-container,
+.audit-container,
+.dashboard-grid > *,
+.app-grid > .panel,
+.filters,
+.filter-section,
+.info-banner,
+.student-info-banner,
+.student-info-display,
+.parent-info-section,
+.scan-result,
+.scanner-frame,
+.qr-item,
+.excel-preview-container,
+.file-upload-area,
+.upload-area {
+  background: rgba(12, 18, 42, 0.32) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Table containers: keep readability, but very see-through */
+.table-container {
+  background: rgba(12, 18, 42, 0.28) !important;
+}
+
+/* Table body rows — keep them near-invisible so wallpaper shows */
+.data-table tbody tr {
+  background: rgba(12, 18, 42, 0.18) !important;
+}
+.data-table tbody tr:hover {
+  background: rgba(212, 175, 55, 0.12) !important;
+}
+.data-table th {
+  background: rgba(233, 69, 96, 0.65) !important;
+}
+
+/* Welcome / header banners — very light */
+.welcome-banner,
+.page-header,
+.settings-section h3,
+.invite-code-banner {
+  background: rgba(12, 18, 42, 0.3) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* Modal dialogs — keep readable, slightly more opaque than cards */
+.modal-content {
+  background: rgba(14, 20, 46, 0.85) !important;
+  backdrop-filter: blur(26px) !important;
+  -webkit-backdrop-filter: blur(26px) !important;
+}
+
+/* Dropdown menus — keep opaque so text is readable */
+.dropdown-menu {
+  background: rgba(10, 14, 39, 0.94) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* Floating navbar — small, transparent, doesn't hide wallpaper */
+.floating-navbar {
+  background: rgba(10, 14, 30, 0.45) !important;
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Taskbar — a touch lighter so wallpaper peeks through at the top */
+.taskbar {
+  background: rgba(8, 12, 30, 0.72) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Text stays crisp regardless */
+body,
+.stat-value,
+.stat-label,
+.data-table td,
+.data-table th,
+.panel h3,
+.class-card h4,
+.furniture-student-name,
+.term-card h4,
+.stat-card *,
+.quick-stat-label,
+.quick-stat-value {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Slightly brighten card borders when wallpaper is active */
+.stat-card:hover,
+.class-card:hover,
+.furniture-card:hover,
+.note-card:hover,
+.term-card:hover {
+  border-color: rgba(212, 175, 55, 0.5) !important;
+  background: rgba(12, 18, 42, 0.42) !important;
+}
+
+/* ============================================================
+   OPTIONAL: even more transparent on phones (less GPU cost)
+   ============================================================ */
+@media (max-width: 768px) {
+  .stat-card,
+  .recent-activity,
+  .quick-stats,
+  .quick-actions,
+  .panel,
+  .form-container,
+  .table-container,
+  .class-card,
+  .furniture-card,
+  .note-card,
+  .term-card,
+  .chart-container,
+  .settings-section,
+  .report-section,
+  .notes-library,
+  .document-surface,
+  .chat-user-list,
+  .chat-messages {
+    background: rgba(12, 18, 42, 0.28) !important;
+    backdrop-filter: blur(12px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  }
+
+  /* Keep dialogs solid on mobile (perf + readability) */
+  .modal-content {
+    background: rgba(14, 20, 46, 0.96) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+  }
+}
