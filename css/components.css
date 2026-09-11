@@ -1384,3 +1384,54 @@ body,
     padding: 8px 10px;
   }
 }
+
+/* ============================================================
+   NAVBAR LABEL CLIPPING — permanent fix
+   Icons stay the same size; only the text label shrinks.
+   ============================================================ */
+
+/* Base: label unlimited on desktop, but ellipsis when clipped */
+.classy-btn .btn-label {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  max-width: none;
+  transition: max-width 0.2s ease;
+}
+
+/* Tablet — clip label to 110px */
+@media (max-width: 1024px) {
+  .classy-btn .btn-label {
+    max-width: 110px;
+  }
+}
+
+/* Phone — clip label to 80px */
+@media (max-width: 768px) {
+  .floating-navbar .classy-btn .btn-label {
+    max-width: 80px;
+  }
+}
+
+/* Small phone — clip label to 55px */
+@media (max-width: 480px) {
+  .floating-navbar .classy-btn .btn-label {
+    max-width: 55px;
+  }
+}
+
+/* Tiny phone — clip label to 38px */
+@media (max-width: 380px) {
+  .floating-navbar .classy-btn .btn-label {
+    max-width: 38px;
+  }
+}
+
+/* Ultra tiny — hide label, keep the icon */
+@media (max-width: 320px) {
+  .floating-navbar .classy-btn .btn-label {
+    display: none;
+  }
+}
