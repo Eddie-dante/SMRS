@@ -7,19 +7,14 @@
     <meta name="description" content="SRMS Library Management">
     <meta name="theme-color" content="#0a0e27">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- CSS Files -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -244,50 +239,15 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        /* Student search results dropdown */
-        .student-search-results {
-            position: absolute;
-            z-index: 100;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background: rgba(26, 31, 78, 0.98);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            border-radius: 0 0 10px 10px;
-            display: none;
-        }
-        .student-search-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .student-search-item:hover { background: rgba(212, 175, 55, 0.15); }
-        .student-search-item .student-avatar {
-            width: 35px; height: 35px; border-radius: 50%;
-            background: linear-gradient(135deg, #d4af37, #f0d060);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: 800; color: #0a0e27;
-            flex-shrink: 0;
-        }
-        .student-search-item .student-info { flex: 1; min-width: 0; }
-        .student-search-item .student-name { font-size: 13px; font-weight: 700; color: #fff; }
-        .student-search-item .student-adm { font-size: 11px; color: rgba(255,255,255,0.5); }
-        
-        .student-select-wrapper { position: relative; }
-        
         .modal {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 1300;
             justify-content: center; align-items: center;
         }
-        .modal.active { display: flex; }
+        .modal.active { display: flex !important; }
         .modal-content {
-            background: rgba(26, 31, 78, 0.95);
+            background: rgba(26, 31, 78, 0.98);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px; padding: 30px;
             width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
@@ -301,6 +261,15 @@
         }
         .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
         
+        /* Toast notification */
+        .toast-notification {
+            position: fixed; top: 80px; right: 20px;
+            padding: 14px 20px; border-radius: 10px;
+            color: #fff; z-index: 9999; font-size: 13px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: opacity 0.3s;
+        }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 10px; gap: 4px; }
             .classy-btn { padding: 8px 10px; font-size: 10px; }
@@ -311,7 +280,6 @@
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -322,7 +290,6 @@
         </div>
     </div>
     
-    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <div>
@@ -361,7 +328,7 @@
         <div id="issueTab" class="tab-content">
             <div class="form-container">
                 <h3 style="color:var(--accent);margin-bottom:20px;"><i class="fas fa-book"></i> Issue Book</h3>
-                <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
                     <button class="btn btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
                     <button class="btn btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
                 </div>
@@ -371,31 +338,31 @@
                         <div class="form-group">
                             <label>🎓 Class/Form *</label>
                             <select id="issueClass" required onchange="loadStreamsForIssue()">
-                                <option value="">Select Class</option>
+                                <option value="">-- Select Class --</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label>🏠 Stream *</label>
-                            <select id="issueStream" required onchange="loadStudentsForIssue()">
-                                <option value="">Select Stream</option>
+                            <label>🏠 Stream</label>
+                            <select id="issueStream" onchange="loadStudentsForIssue()">
+                                <option value="">-- Select Stream --</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label>👨‍🎓 Student *</label>
                             <select id="issueStudent" required onchange="updateStudentDetails()">
-                                <option value="">Select Student</option>
+                                <option value="">-- Select Student --</option>
                             </select>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label>👤 Student Name (Auto-filled)</label>
+                                <label>👤 Student Name</label>
                                 <input type="text" id="issueStudentName" readonly style="background:rgba(255,255,255,0.02);">
                             </div>
                             <div class="form-group">
-                                <label>🔢 ADM Number (Auto-filled)</label>
+                                <label>🔢 ADM Number</label>
                                 <input type="text" id="issueADM" readonly style="background:rgba(255,255,255,0.02);">
                             </div>
                         </div>
@@ -404,7 +371,7 @@
                             <div class="form-group">
                                 <label>📚 Book Title *</label>
                                 <select id="issueBookTitle" required>
-                                    <option value="">Select Book</option>
+                                    <option value="">-- Select Book --</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -425,15 +392,15 @@
                 </div>
                 
                 <div id="bulkIssueForm" style="display:none;">
-                    <div class="form-group"><label>📚 Book Title *</label><select id="bulkBookTitle"><option value="">Select Book</option></select></div>
-                    <div class="form-group"><label>🏫 Select Class *</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">Select Class</option></select></div>
+                    <div class="form-group"><label>📚 Book Title *</label><select id="bulkBookTitle"><option value="">-- Select Book --</option></select></div>
+                    <div class="form-group"><label>🏫 Select Class *</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">-- Select Class --</option></select></div>
                     <div class="form-row">
                         <div class="form-group"><label>📅 Borrow Date</label><input type="date" id="bulkBookBorrowDate"></div>
                         <div class="form-group"><label>📅 Return Date</label><input type="date" id="bulkBookReturnDate"></div>
                     </div>
                     <div id="bulkBookStudents"></div>
                     <button class="btn btn-primary" onclick="issueBulkBooks()" style="width:100%;justify-content:center;margin-top:10px;">
-                        <i class="fas fa-users"></i> Issue to Class
+                        <i class="fas fa-users"></i> Issue to Selected Students
                     </button>
                 </div>
             </div>
@@ -466,7 +433,6 @@
         </div>
     </div>
     
-    <!-- Add Book Modal -->
     <div class="modal" id="addBookModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -483,12 +449,11 @@
                     <div class="form-group"><label>Subject</label><input type="text" id="bookSubject"></div>
                     <div class="form-group"><label>Quantity</label><input type="number" id="bookQuantity" min="1" value="1" required></div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Book</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;"><i class="fas fa-plus"></i> Add Book</button>
             </form>
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -549,7 +514,6 @@
         </div>
     </div>
     
-    <!-- JavaScript Files -->
     <script src="js/api.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
@@ -559,14 +523,277 @@
     <script>
         /**
          * ============================================
-         * SRMS - Library Page Logic (ENHANCED)
-         * Now with dropdown selection for students
+         * SRMS - Library Page Logic (FIXED)
          * ============================================
          */
         
         var allClassesData = [];
         var allStudentsData = [];
         var allBooksData = [];
+        var allBorrowedData = [];
+        
+        /**
+         * Show notification toast
+         */
+        function showNotification(message, type) {
+            var existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+            
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            var colors = { 
+                success: '#28a745', 
+                error: '#dc3545', 
+                warning: '#ffc107', 
+                info: '#17a2b8' 
+            };
+            toast.style.background = colors[type] || colors.info;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { 
+                    if (toast.parentNode) toast.remove(); 
+                }, 300);
+            }, 2500);
+        }
+        
+        /**
+         * Open modal
+         */
+        function openModal(modalId) {
+            console.log('📂 Opening modal:', modalId);
+            var modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.display = 'flex';
+            }
+        }
+        
+        /**
+         * Close modal
+         */
+        function closeModal(modalId) {
+            console.log('📂 Closing modal:', modalId);
+            var modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+        }
+        
+        /**
+         * Add a new book
+         */
+        function addBook(event) {
+            event.preventDefault();
+            console.log('📚 Adding book...');
+            
+            var school = getCurrentSchool();
+            if (!school) {
+                showNotification('School not found', 'error');
+                return false;
+            }
+            
+            var title = document.getElementById('bookTitle').value.trim();
+            var author = document.getElementById('bookAuthor').value.trim();
+            var type = document.getElementById('bookType').value;
+            var subject = document.getElementById('bookSubject').value.trim();
+            var quantity = parseInt(document.getElementById('bookQuantity').value) || 1;
+            
+            if (!title) {
+                showNotification('Book title is required', 'warning');
+                return false;
+            }
+            
+            var bookData = {
+                title: title,
+                name: title, // alias
+                author: author,
+                type: type,
+                subject: subject,
+                quantity: quantity,
+                available: quantity,
+                addedDate: new Date().toISOString()
+            };
+            
+            API.addBook(school, bookData).then(function() {
+                showNotification('Book added successfully!', 'success');
+                closeModal('addBookModal');
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookAuthor').value = '';
+                document.getElementById('bookSubject').value = '';
+                document.getElementById('bookQuantity').value = '1';
+                loadLibraryData();
+            }).catch(function(err) {
+                console.error('❌ Add book error:', err);
+                showNotification('Failed to add book', 'error');
+            });
+            
+            return false;
+        }
+        
+        /**
+         * Load all library data
+         */
+        function loadLibraryData() {
+            console.log('📊 Loading library data...');
+            
+            var school = getCurrentSchool();
+            if (!school) return;
+            
+            // Load books
+            API.getBooks(school).then(function(books) {
+                allBooksData = books || [];
+                renderBooksTable(allBooksData);
+            }).catch(function(err) {
+                console.error('❌ Error loading books:', err);
+                var tbody = document.getElementById('booksTableBody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ff4757;">Failed to load books</td></tr>';
+                }
+            });
+            
+            // Load borrowed books
+            API.getBorrowed(school).then(function(borrowed) {
+                allBorrowedData = borrowed || [];
+                renderBorrowedTable(allBorrowedData);
+                renderReturnsTable(allBorrowedData);
+            }).catch(function(err) {
+                console.error('❌ Error loading borrowed:', err);
+            });
+        }
+        
+        /**
+         * Render books table
+         */
+        function renderBooksTable(books) {
+            var tbody = document.getElementById('booksTableBody');
+            if (!tbody) return;
+            
+            if (!books || books.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-book"></i><p>No books in library yet. Add your first book!</p></div></td></tr>';
+                return;
+            }
+            
+            var html = '';
+            books.forEach(function(book) {
+                var available = book.available !== undefined ? book.available : (book.quantity || 0);
+                var statusClass = available > 0 ? 'badge-success' : 'badge-danger';
+                var statusText = available > 0 ? 'Available' : 'Out of Stock';
+                
+                html += '<tr>' +
+                    '<td><strong>' + (book.title || book.name || '-') + '</strong></td>' +
+                    '<td>' + (book.author || '-') + '</td>' +
+                    '<td>' + (book.type || '-') + '</td>' +
+                    '<td>' + (book.subject || '-') + '</td>' +
+                    '<td>' + (book.quantity || 0) + '</td>' +
+                    '<td><span class="badge ' + statusClass + '">' + available + ' ' + statusText + '</span></td>' +
+                    '<td>' +
+                    '<button class="btn btn-sm btn-danger" onclick="deleteBook(\'' + (book.id || book.key || book.title) + '\')">' +
+                    '<i class="fas fa-trash"></i> Delete</button>' +
+                    '</td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        /**
+         * Render borrowed table
+         */
+        function renderBorrowedTable(borrowed) {
+            var tbody = document.getElementById('borrowedTableBody');
+            if (!tbody) return;
+            
+            if (!borrowed || borrowed.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;"><div class="empty-state"><i class="fas fa-book-open"></i><p>No books borrowed yet</p></div></td></tr>';
+                return;
+            }
+            
+            var html = '';
+            borrowed.forEach(function(b) {
+                var status = b.returned ? 'badge-success' : 'badge-warning';
+                var statusText = b.returned ? 'Returned' : 'Borrowed';
+                
+                html += '<tr>' +
+                    '<td>' + (b.studentName || b.name || '-') + '</td>' +
+                    '<td>' + (b.bookTitle || '-') + '</td>' +
+                    '<td>' + (b.borrowDate || '-') + '</td>' +
+                    '<td>' + (b.returnDate || '-') + '</td>' +
+                    '<td><span class="badge ' + status + '">' + statusText + '</span></td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        /**
+         * Render returns table
+         */
+        function renderReturnsTable(borrowed) {
+            var tbody = document.getElementById('returnsTableBody');
+            if (!tbody) return;
+            
+            var active = borrowed.filter(function(b) { return !b.returned; });
+            
+            if (!active || active.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-undo"></i><p>No books pending return</p></div></td></tr>';
+                return;
+            }
+            
+            var today = new Date();
+            var html = '';
+            active.forEach(function(b) {
+                var dueDate = b.returnDate ? new Date(b.returnDate) : null;
+                var isOverdue = dueDate && dueDate < today;
+                var statusClass = isOverdue ? 'badge-danger' : 'badge-warning';
+                var statusText = isOverdue ? 'Overdue' : 'Active';
+                
+                html += '<tr>' +
+                    '<td>' + (b.studentName || '-') + '</td>' +
+                    '<td>' + (b.adm || '-') + '</td>' +
+                    '<td>' + (b.bookTitle || '-') + '</td>' +
+                    '<td>' + (b.bookNo || '-') + '</td>' +
+                    '<td>' + (b.returnDate || '-') + '</td>' +
+                    '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>' +
+                    '<td><button class="btn btn-sm btn-success" onclick="returnBook(\'' + (b.id || b.key || '') + '\')">' +
+                    '<i class="fas fa-check"></i> Return</button></td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        
+        /**
+         * Delete a book
+         */
+        function deleteBook(bookId) {
+            if (!confirm('Delete this book?')) return;
+            
+            var school = getCurrentSchool();
+            API.deleteBook(school, bookId).then(function() {
+                showNotification('Book deleted', 'success');
+                loadLibraryData();
+            }).catch(function(err) {
+                console.error('❌ Delete error:', err);
+                showNotification('Failed to delete book', 'error');
+            });
+        }
+        
+        /**
+         * Return a book
+         */
+        function returnBook(borrowedId) {
+            if (!confirm('Mark this book as returned?')) return;
+            
+            var school = getCurrentSchool();
+            API.returnBook(school, borrowedId).then(function() {
+                showNotification('Book returned!', 'success');
+                loadLibraryData();
+            }).catch(function(err) {
+                console.error('❌ Return error:', err);
+                showNotification('Failed to return book', 'error');
+            });
+        }
         
         /**
          * Switch between library tabs
@@ -585,7 +812,8 @@
             
             if (index !== -1) {
                 tabs[index].classList.add('active');
-                document.getElementById(tabName + 'Tab').classList.add('active');
+                var targetTab = document.getElementById(tabName + 'Tab');
+                if (targetTab) targetTab.classList.add('active');
             }
             
             if (tabName === 'issue') {
@@ -593,7 +821,9 @@
                 loadBooksForIssue();
             }
             
-            console.log('✅ Tab switched successfully');
+            if (tabName === 'returns' || tabName === 'borrowed') {
+                loadLibraryData();
+            }
         }
         
         /**
@@ -621,7 +851,7 @@
         }
         
         /**
-         * Load classes for individual issue dropdown
+         * Load classes for individual issue
          */
         function loadClassesForIssue() {
             console.log('📊 Loading classes for issue...');
@@ -633,7 +863,7 @@
                 allClassesData = classes || [];
                 var select = document.getElementById('issueClass');
                 if (select) {
-                    var html = '<option value="">Select Class</option>';
+                    var html = '<option value="">-- Select Class --</option>';
                     allClassesData.forEach(function(c) {
                         html += '<option value="' + (c.name || '') + '">' + (c.name || '') + '</option>';
                     });
@@ -655,51 +885,41 @@
             var studentSelect = document.getElementById('issueStudent');
             
             if (!selectedClass) {
-                streamSelect.innerHTML = '<option value="">Select Stream</option>';
-                studentSelect.innerHTML = '<option value="">Select Student</option>';
+                streamSelect.innerHTML = '<option value="">-- Select Stream --</option>';
+                studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
                 return;
             }
             
-            // Find streams from class data
             var streams = [];
             allClassesData.forEach(function(c) {
-                if (c.name === selectedClass && c.stream) {
-                    streams.push(c.stream);
+                if (c.name === selectedClass) {
+                    if (c.stream) streams.push(c.stream);
+                    (c.students || []).forEach(function(st) {
+                        var stream = st.stream || st.Stream || '';
+                        if (stream && streams.indexOf(stream) === -1) {
+                            streams.push(stream);
+                        }
+                    });
                 }
             });
             
-            if (streams.length === 0) {
-                // If no streams found, check students in the class
-                allClassesData.forEach(function(c) {
-                    if (c.name === selectedClass) {
-                        (c.students || []).forEach(function(st) {
-                            var stream = st.stream || st.Stream || '';
-                            if (stream && streams.indexOf(stream) === -1) {
-                                streams.push(stream);
-                            }
-                        });
-                    }
-                });
-            }
-            
-            var html = '<option value="">Select Stream</option>';
+            var html = '<option value="">-- Select Stream --</option>';
             if (streams.length > 0) {
                 streams.forEach(function(s) {
                     html += '<option value="' + s + '">' + s + '</option>';
                 });
             } else {
-                html += '<option value="none">No Stream</option>';
+                html += '<option value="all">All Streams</option>';
             }
             streamSelect.innerHTML = html;
-            studentSelect.innerHTML = '<option value="">Select Student</option>';
+            studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
             
-            // Clear auto-filled fields
             document.getElementById('issueStudentName').value = '';
             document.getElementById('issueADM').value = '';
         }
         
         /**
-         * Load students for issue based on class and stream
+         * Load students based on class and stream
          */
         function loadStudentsForIssue() {
             console.log('📊 Loading students...');
@@ -711,15 +931,24 @@
             if (!selectedClass) return;
             
             var students = [];
+            var seenAdms = {};
             
             allClassesData.forEach(function(c) {
                 if (c.name === selectedClass) {
                     (c.students || []).forEach(function(st) {
                         var adm = extractAdm(st);
                         var name = extractName(st);
-                        var stream = st.stream || st.Stream || 'none';
+                        var stream = st.stream || st.Stream || '';
                         
-                        if (!selectedStream || selectedStream === 'none' || stream === selectedStream || stream === 'none') {
+                        if (seenAdms[adm]) return;
+                        
+                        var matchesStream = !selectedStream || 
+                                          selectedStream === 'all' || 
+                                          selectedStream === 'none' || 
+                                          stream === selectedStream;
+                        
+                        if (matchesStream && adm) {
+                            seenAdms[adm] = true;
                             students.push({
                                 name: name,
                                 adm: adm,
@@ -731,14 +960,15 @@
                 }
             });
             
-            var html = '<option value="">Select Student</option>';
+            students.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            
+            var html = '<option value="">-- Select Student (' + students.length + ' available) --</option>';
             students.forEach(function(s) {
-                html += '<option value="' + s.adm + '" data-name="' + s.name + '" data-studentid="' + s.studentId + '">' + 
+                html += '<option value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '" data-studentid="' + s.studentId + '">' + 
                     s.name + ' (' + s.adm + ')' + '</option>';
             });
             studentSelect.innerHTML = html;
             
-            // Clear auto-filled fields
             document.getElementById('issueStudentName').value = '';
             document.getElementById('issueADM').value = '';
         }
@@ -763,7 +993,7 @@
         }
         
         /**
-         * Load books for issue dropdown
+         * Load books for individual issue
          */
         function loadBooksForIssue() {
             console.log('📊 Loading books for issue...');
@@ -775,11 +1005,12 @@
                 allBooksData = books || [];
                 var select = document.getElementById('issueBookTitle');
                 if (select) {
-                    var html = '<option value="">Select Book</option>';
+                    var html = '<option value="">-- Select Book --</option>';
                     allBooksData.forEach(function(b) {
-                        if (b.available > 0 || b.quantity > 0) {
+                        var available = b.available !== undefined ? b.available : (b.quantity || 0);
+                        if (available > 0) {
                             html += '<option value="' + (b.title || b.name || '') + '">' + 
-                                (b.title || b.name || '') + ' (Available: ' + (b.available || b.quantity || 0) + ')</option>';
+                                (b.title || b.name || '') + ' (Available: ' + available + ')</option>';
                         }
                     });
                     select.innerHTML = html;
@@ -800,11 +1031,12 @@
                 allBooksData = books || [];
                 var select = document.getElementById('bulkBookTitle');
                 if (select) {
-                    var html = '<option value="">Select Book</option>';
+                    var html = '<option value="">-- Select Book --</option>';
                     allBooksData.forEach(function(b) {
-                        if (b.available > 0 || b.quantity > 0) {
+                        var available = b.available !== undefined ? b.available : (b.quantity || 0);
+                        if (available > 0) {
                             html += '<option value="' + (b.title || b.name || '') + '">' + 
-                                (b.title || b.name || '') + ' (Available: ' + (b.available || b.quantity || 0) + ')</option>';
+                                (b.title || b.name || '') + ' (Available: ' + available + ')</option>';
                         }
                     });
                     select.innerHTML = html;
@@ -823,7 +1055,7 @@
                 allClassesData = classes || [];
                 var select = document.getElementById('bulkBookClass');
                 if (select) {
-                    var html = '<option value="">Select Class</option>';
+                    var html = '<option value="">-- Select Class --</option>';
                     allClassesData.forEach(function(c) {
                         html += '<option value="' + (c.name || '') + '">' + (c.name || '') + '</option>';
                     });
@@ -836,20 +1068,30 @@
          * Load class students for bulk issue
          */
         function loadClassStudentsForBooks() {
-            console.log('📊 Loading class students for bulk issue...');
+            console.log('📊 Loading class students...');
             
             var selectedClass = document.getElementById('bulkBookClass').value;
             var container = document.getElementById('bulkBookStudents');
             
-            if (!selectedClass || !container) return;
+            if (!container) return;
+            
+            if (!selectedClass) {
+                container.innerHTML = '';
+                return;
+            }
             
             var students = [];
+            var seenAdms = {};
+            
             allClassesData.forEach(function(c) {
                 if (c.name === selectedClass) {
                     (c.students || []).forEach(function(st) {
                         var adm = extractAdm(st);
                         var name = extractName(st);
-                        students.push({ name: name, adm: adm });
+                        if (adm && !seenAdms[adm]) {
+                            seenAdms[adm] = true;
+                            students.push({ name: name, adm: adm });
+                        }
                     });
                 }
             });
@@ -860,11 +1102,11 @@
             }
             
             var html = '<div style="margin-top:15px;">';
-            html += '<h4 style="color:var(--accent);margin-bottom:10px;font-size:14px;">Students in ' + selectedClass + ' (' + students.length + ')</h4>';
+            html += '<h4 style="color:var(--accent);margin-bottom:10px;font-size:14px;">👥 Students in ' + selectedClass + ' (' + students.length + ')</h4>';
             html += '<div style="max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
             students.forEach(function(s) {
                 html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;">' +
-                    '<input type="checkbox" class="bulk-student-check" value="' + s.adm + '" data-name="' + s.name + '" checked>' +
+                    '<input type="checkbox" class="bulk-student-check" value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '" checked style="width:auto;">' +
                     '<span style="font-size:12px;">' + s.name + ' (' + s.adm + ')</span>' +
                     '</div>';
             });
@@ -876,7 +1118,7 @@
          * Issue book to individual student
          */
         function issueBook(event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             console.log('📚 Issuing book...');
             
             var school = getCurrentSchool();
@@ -887,9 +1129,13 @@
             var borrowDate = document.getElementById('issueBorrowDate').value;
             var returnDate = document.getElementById('issueReturnDate').value;
             
-            if (!adm || !studentName || !bookTitle || !bookNumber) {
-                showNotification('Please fill all required fields', 'warning');
-                return;
+            if (!adm || !studentName) {
+                showNotification('Please select a student', 'warning');
+                return false;
+            }
+            if (!bookTitle || !bookNumber) {
+                showNotification('Please fill book details', 'warning');
+                return false;
             }
             
             var borrowedData = {
@@ -904,16 +1150,15 @@
             };
             
             API.addBorrowed(school, borrowedData).then(function() {
-                showNotification('Book issued successfully!', 'success');
-                // Reset form
+                showNotification('📚 Book issued to ' + studentName + '!', 'success');
+                
                 document.getElementById('issueStudent').value = '';
                 document.getElementById('issueStudentName').value = '';
                 document.getElementById('issueADM').value = '';
-                document.getElementById('issueBookTitle').value = '';
                 document.getElementById('issueBookNumber').value = '';
                 
-                // Reload books
                 loadBooksForIssue();
+                loadLibraryData();
             }).catch(function(err) {
                 console.error('❌ Issue error:', err);
                 showNotification('Failed to issue book', 'error');
@@ -933,18 +1178,25 @@
             var returnDate = document.getElementById('bulkBookReturnDate').value;
             var checkboxes = document.querySelectorAll('.bulk-student-check:checked');
             
-            if (!bookTitle) { showNotification('Select a book first', 'warning'); return; }
-            if (checkboxes.length === 0) { showNotification('Select at least one student', 'warning'); return; }
+            if (!bookTitle) { 
+                showNotification('Select a book first', 'warning'); 
+                return; 
+            }
+            if (checkboxes.length === 0) { 
+                showNotification('Select at least one student', 'warning'); 
+                return; 
+            }
             
             var school = getCurrentSchool();
             var promises = [];
+            var uniqueNum = Date.now();
             
-            checkboxes.forEach(function(cb) {
+            checkboxes.forEach(function(cb, index) {
                 var borrowedData = {
                     adm: cb.value,
                     studentName: cb.getAttribute('data-name'),
                     bookTitle: bookTitle,
-                    bookNo: 'BULK-' + Date.now(),
+                    bookNo: 'BULK-' + uniqueNum + '-' + (index + 1),
                     borrowDate: borrowDate,
                     returnDate: returnDate,
                     returned: false,
@@ -954,10 +1206,11 @@
             });
             
             Promise.all(promises).then(function() {
-                showNotification('Books issued to ' + checkboxes.length + ' students!', 'success');
+                showNotification('📚 Books issued to ' + checkboxes.length + ' students!', 'success');
                 document.getElementById('bulkBookTitle').value = '';
                 document.getElementById('bulkBookStudents').innerHTML = '';
                 loadBooksForBulkIssue();
+                loadLibraryData();
             }).catch(function(err) {
                 console.error('❌ Bulk issue error:', err);
                 showNotification('Failed to issue books', 'error');
@@ -968,8 +1221,6 @@
          * Filter books by search term
          */
         function filterBooks() {
-            console.log('🔍 Filtering books...');
-            
             var searchInput = document.getElementById('searchBooks');
             var tbody = document.getElementById('booksTableBody');
             
@@ -985,11 +1236,9 @@
         }
         
         /**
-         * Logout with confirmation dialog
+         * Logout with confirmation
          */
         function logoutWithConfirm() {
-            console.log('🔄 Logout requested');
-            
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', { 
                     title: 'Logout', 
@@ -997,31 +1246,30 @@
                     confirmText: 'Logout', 
                     cancelText: 'Cancel' 
                 }).then(function(result) {
-                    if (result === 'confirm') {
-                        console.log('✅ Logout confirmed');
-                        logout();
-                    }
+                    if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) {
-                    logout();
-                }
+                if (confirm('Are you sure you want to logout?')) logout();
             }
         }
         
+        function logout() {
+            localStorage.removeItem('srms_user');
+            localStorage.removeItem('srms_school');
+            window.location.href = 'index.html';
+        }
+        
         /**
-         * Initialize page on DOM ready
+         * Initialize page
          */
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 Library page loaded');
             
-            // Verify authentication
             var user = checkAuth();
             if (!user) {
-                console.log('❌ No authenticated user, redirecting...');
+                console.log('❌ No authenticated user');
                 return;
             }
-            
             console.log('✅ User authenticated:', user.name);
             
             // Set default dates
@@ -1030,26 +1278,29 @@
             returnDate.setDate(returnDate.getDate() + 14);
             var returnDateStr = returnDate.toISOString().split('T')[0];
             
-            if (document.getElementById('issueBorrowDate')) {
-                document.getElementById('issueBorrowDate').value = today;
-            }
-            if (document.getElementById('issueReturnDate')) {
-                document.getElementById('issueReturnDate').value = returnDateStr;
-            }
-            if (document.getElementById('bulkBookBorrowDate')) {
-                document.getElementById('bulkBookBorrowDate').value = today;
-            }
-            if (document.getElementById('bulkBookReturnDate')) {
-                document.getElementById('bulkBookReturnDate').value = returnDateStr;
-            }
+            var ids = ['issueBorrowDate', 'bulkBookBorrowDate'];
+            ids.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = today;
+            });
+            
+            ids = ['issueReturnDate', 'bulkBookReturnDate'];
+            ids.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = returnDateStr;
+            });
             
             // Load initial data
-            if (typeof loadLibraryData === 'function') {
-                console.log('📊 Loading library data...');
-                loadLibraryData();
-            }
+            loadLibraryData();
         });
         
+        // Expose functions to window
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.addBook = addBook;
+        window.loadLibraryData = loadLibraryData;
+        window.deleteBook = deleteBook;
+        window.returnBook = returnBook;
         window.switchLibraryTab = switchLibraryTab;
         window.showIndividualIssue = showIndividualIssue;
         window.showBulkIssue = showBulkIssue;
@@ -1065,7 +1316,10 @@
         window.issueBook = issueBook;
         window.issueBulkBooks = issueBulkBooks;
         window.logoutWithConfirm = logoutWithConfirm;
-        console.log('✅ Library page scripts loaded with dropdown selection');
+        window.logout = logout;
+        window.showNotification = showNotification;
+        
+        console.log('✅ Library page scripts loaded');
     </script>
 </body>
 </html>
