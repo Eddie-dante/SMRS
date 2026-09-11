@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version with REALTIME LIVE DATA
+// Full Version with REALTIME LIVE DATA + CHAT SYNC
 // ============================================
 
 var currentChatUserEmail = null;
@@ -18,6 +18,10 @@ var bulkFurnitureClass = null;
 
 // Track live subscriptions for the current page
 var _pageUnsubscribers = [];
+
+// Raw chat collection from realtime — used for instant filtering
+var _rawChatMessages = [];
+var _chatRenderTimer = null;
 
 // ============ INITIALIZATION ============
 document.addEventListener("DOMContentLoaded", function () {
@@ -233,17 +237,23 @@ function loadPageData(page) {
 }
 
 // ============ REALTIME WATCHER ============
+// Subscribes to collections and calls pageLoader whenever data changes.
+// If the pageLoader expects data as its first argument, the raw data is passed.
 function watchLive(page, collections, pageLoader) {
   if (!window.API || !API.subscribe) return;
   var school = getCurrentSchool();
   if (!school) return;
 
   var renderTimer = null;
-  function scheduleRender() {
+  function scheduleRender(data, collection) {
     if (renderTimer) clearTimeout(renderTimer);
     renderTimer = setTimeout(function () {
       try {
-        pageLoader();
+        if (pageLoader.length >= 1) {
+          pageLoader(data, collection);
+        } else {
+          pageLoader();
+        }
       } catch (e) {
         console.error("Live render error:", e);
       }
@@ -251,8 +261,8 @@ function watchLive(page, collections, pageLoader) {
   }
 
   collections.forEach(function (collection) {
-    var unsub = API.subscribe(school, collection, function () {
-      scheduleRender();
+    var unsub = API.subscribe(school, collection, function (data) {
+      scheduleRender(data, collection);
     });
     _pageUnsubscribers.push(unsub);
   });
@@ -260,12 +270,76 @@ function watchLive(page, collections, pageLoader) {
   console.log("🔴 Live: " + page + " → [" + collections.join(", ") + "]");
 }
 
+// ============ CHAT LIVE HANDLER ============
 // Special chat handler — re-renders messages when chat collection changes
-function handleChatLiveUpdate() {
-  if (currentChatUserEmail) {
-    loadChatMessages();
+function handleChatLiveUpdate(rawMessages, collection) {
+  // Store the raw list so we can filter it locally
+  if (collection === "chat" && Array.isArray(rawMessages)) {
+    _rawChatMessages = rawMessages;
   }
-  checkUnreadMessages();
+
+  // Also refresh the user list when "users" changes
+  if (collection === "users") {
+    loadChatUsers();
+  }
+
+  // Debounce the message re-render (bulk writes shouldn't cause N renders)
+  if (_chatRenderTimer) clearTimeout(_chatRenderTimer);
+  _chatRenderTimer = setTimeout(function () {
+    if (currentChatUserEmail) {
+      renderChatMessagesFromRaw();
+    }
+    checkUnreadMessages();
+  }, 80);
+}
+
+// Renders the current conversation from the raw realtime data
+function renderChatMessagesFromRaw() {
+  var user = getCurrentUser();
+  var container = document.getElementById("chatMessages");
+  if (!container || !user || !currentChatUserEmail) return;
+
+  var messages = _rawChatMessages
+    .filter(function (msg) {
+      return (
+        (msg.fromEmail === user.email &&
+          msg.toEmail === currentChatUserEmail) ||
+        (msg.fromEmail === currentChatUserEmail && msg.toEmail === user.email)
+      );
+    })
+    .sort(function (a, b) {
+      return new Date(a.timestamp) - new Date(b.timestamp);
+    });
+
+  if (messages.length === 0) {
+    container.innerHTML =
+      '<p style="text-align:center;color:rgba(255,255,255,0.4);padding:20px;">No messages yet — say hi!</p>';
+    return;
+  }
+
+  var html = "";
+  messages.forEach(function (msg) {
+    var isMine = msg.fromEmail === user.email;
+    var bg = isMine ? "rgba(233,69,96,0.4)" : "rgba(255,255,255,0.15)";
+    var align = isMine ? "flex-end" : "flex-start";
+    html +=
+      '<div style="display:flex;justify-content:' +
+      align +
+      ';margin:8px 0;">' +
+      '<div style="background:' +
+      bg +
+      ';padding:10px 16px;border-radius:16px;max-width:70%;word-wrap:break-word;">' +
+      "<strong>" +
+      (msg.fromName || "") +
+      ":</strong> " +
+      (msg.message || "") +
+      "<br><small style='opacity:0.7;'>" +
+      formatTime(msg.timestamp) +
+      "</small></div></div>";
+  });
+
+  container.innerHTML = html;
+  container.scrollTop = container.scrollHeight;
 }
 
 // ============ AUDIT LOGGING ============
@@ -294,22 +368,37 @@ function checkUnreadMessages() {
   var school = getCurrentSchool();
   var user = getCurrentUser();
   if (!school || !user) return;
+
+  // If we have raw chat data, count locally (instant)
+  var unread;
+  if (_rawChatMessages.length > 0) {
+    unread = _rawChatMessages.filter(function (msg) {
+      return msg.toEmail === user.email && !msg.readStatus;
+    }).length;
+    unreadMessagesCount = unread;
+    applyUnreadBadge();
+    return;
+  }
+
+  // Fallback: fetch
   API.getChatMessages(school, user.email, user.email)
     .then(function (messages) {
       unreadMessagesCount = messages ? messages.length : 0;
-      var badges = document.querySelectorAll(
-        ".message-badge, #communicationBadge",
-      );
-      badges.forEach(function (badge) {
-        if (unreadMessagesCount > 0) {
-          badge.textContent = unreadMessagesCount;
-          badge.style.display = "flex";
-        } else {
-          badge.style.display = "none";
-        }
-      });
+      applyUnreadBadge();
     })
     .catch(function () {});
+}
+
+function applyUnreadBadge() {
+  var badges = document.querySelectorAll(".message-badge, #communicationBadge");
+  badges.forEach(function (badge) {
+    if (unreadMessagesCount > 0) {
+      badge.textContent = unreadMessagesCount;
+      badge.style.display = "flex";
+    } else {
+      badge.style.display = "none";
+    }
+  });
 }
 
 // ============ DASHBOARD ============
@@ -1390,11 +1479,17 @@ function loadChatUsers() {
       var userList = document.getElementById("chatUserList");
       if (!userList) return;
 
+      // Preserve active highlight
+      var activeEmail = currentChatUserEmail;
+
       var html = "";
       (users || []).forEach(function (u) {
         if (u.email !== currentUser.email) {
+          var isActive = u.email === activeEmail ? " active" : "";
           html +=
-            '<button class="chat-user-btn" onclick="selectChatUser(\'' +
+            '<button class="chat-user-btn' +
+            isActive +
+            '" onclick="selectChatUser(\'' +
             u.email +
             "', '" +
             u.name +
@@ -1421,7 +1516,24 @@ function selectChatUser(email, name) {
   currentChatUserName = name;
   var header = document.getElementById("chatWithName");
   if (header) header.textContent = name;
-  loadChatMessages();
+
+  // Highlight the active button
+  document.querySelectorAll(".chat-user-btn").forEach(function (btn) {
+    btn.classList.remove("active");
+    var onclick = btn.getAttribute("onclick") || "";
+    if (onclick.indexOf(email) > -1) {
+      btn.classList.add("active");
+    }
+  });
+
+  // Render immediately from raw data if we have it
+  if (_rawChatMessages.length > 0) {
+    renderChatMessagesFromRaw();
+  } else {
+    loadChatMessages();
+  }
+
+  // Mark as read
   var school = getCurrentSchool();
   var user = getCurrentUser();
   if (school && user) {
@@ -1439,6 +1551,13 @@ function loadChatMessages() {
   var user = getCurrentUser();
   if (!school || !user) return;
 
+  // If we already have raw realtime data, render immediately
+  if (_rawChatMessages.length > 0) {
+    renderChatMessagesFromRaw();
+    return;
+  }
+
+  // Fallback: fetch once, then render
   API.getChatMessages(school, user.email, currentChatUserEmail)
     .then(function (messages) {
       var container = document.getElementById("chatMessages");
@@ -1461,12 +1580,12 @@ function loadChatMessages() {
           ';margin:8px 0;">' +
           '<div style="background:' +
           bg +
-          ';padding:10px 16px;border-radius:16px;max-width:70%;">' +
+          ';padding:10px 16px;border-radius:16px;max-width:70%;word-wrap:break-word;">' +
           "<strong>" +
           (msg.fromName || "") +
           ":</strong> " +
           (msg.message || "") +
-          "<br><small>" +
+          "<br><small style='opacity:0.7;'>" +
           formatTime(msg.timestamp) +
           "</small></div></div>";
       });
@@ -1487,17 +1606,41 @@ function sendMessage(event) {
   var input = document.getElementById("messageInput");
   if (!input || !input.value.trim()) return false;
 
+  var msgText = input.value.trim();
+  input.value = "";
+
+  // Optimistic: append locally so it shows instantly
+  var tempId = "tmp_" + Date.now();
+  _rawChatMessages.push({
+    id: tempId,
+    fromEmail: user.email,
+    fromName: user.name,
+    toEmail: currentChatUserEmail,
+    message: msgText,
+    timestamp: new Date().toISOString(),
+    readStatus: false,
+  });
+  renderChatMessagesFromRaw();
+
+  // Send to Firebase (realtime will replace this temp with confirmed)
   API.sendChatMessage(school, {
     fromEmail: user.email,
     fromName: user.name,
     toEmail: currentChatUserEmail,
-    message: input.value.trim(),
+    message: msgText,
   })
     .then(function () {
-      input.value = "";
-      loadChatMessages();
+      // Subscription will re-render with server-confirmed message
     })
-    .catch(function () {});
+    .catch(function (err) {
+      showNotification("Failed to send: " + (err.message || "error"), "error");
+      // Remove optimistic message on failure
+      _rawChatMessages = _rawChatMessages.filter(function (m) {
+        return m.id !== tempId;
+      });
+      renderChatMessagesFromRaw();
+    });
+
   return false;
 }
 
@@ -2870,6 +3013,8 @@ window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
 window.allocateBulkFurniture = allocateBulkFurniture;
 window.updateStudentStats = updateStudentStats;
 window.watchLive = watchLive;
+window.handleChatLiveUpdate = handleChatLiveUpdate;
+window.renderChatMessagesFromRaw = renderChatMessagesFromRaw;
 
 // ============================================
 // MOBILE DROPDOWN FIX
@@ -2945,4 +3090,4 @@ window.watchLive = watchLive;
   setTimeout(initMobileDropdowns, 1500);
 })();
 
-console.log("✅ SRMS App loaded — REALTIME LIVE DATA");
+console.log("✅ SRMS App loaded — REALTIME LIVE DATA + CHAT SYNC");
