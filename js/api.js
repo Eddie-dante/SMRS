@@ -1,11 +1,8 @@
 // ============================================
 // SRMS - Firebase API
 // Full Version with CACHE-FIRST PERSISTENCE
-// - Data survives page reloads (localStorage)
-// - Background sync on every page load
-// - Version-stamped cache (auto-wipes on schema change)
-// - Size guard (warns near 5MB limit)
-// - API surface unchanged — all pages work as-is
+// + FAST SCHOOL LOOKUP (timeout-protected)
+// + null-safe failures (no more [] masquerading as data)
 // ============================================
 
 var firebaseConfig = {
@@ -19,6 +16,9 @@ var firebaseConfig = {
 };
 
 var database = null;
+
+// ⏱️ How long to wait for Firebase before giving up (ms)
+var FIREBASE_TIMEOUT_MS = 6000;
 
 function initFirebase() {
   if (typeof firebase === "undefined") {
@@ -56,12 +56,41 @@ if (!initFirebase()) {
 }
 
 /* ============================================================
-   PERSISTENT CACHE SYSTEM
+   TIMEOUT WRAPPER
    ------------------------------------------------------------
-   - In-memory cache for the current page (fast repeated reads)
-   - localStorage persistence (survives reloads + navigation)
-   - Version stamp (auto-wipes if schema version changes)
-   - Size guard (warns above 4MB)
+   Wraps a Firebase promise so it rejects after FIREBASE_TIMEOUT_MS
+   instead of hanging for the SDK's default ~2 minute retry window.
+   ============================================================ */
+function withTimeout(promise, ms, label) {
+  ms = ms || FIREBASE_TIMEOUT_MS;
+  label = label || "Firebase read";
+  return new Promise(function (resolve, reject) {
+    var done = false;
+    var timer = setTimeout(function () {
+      if (done) return;
+      done = true;
+      reject(new Error(label + " timed out after " + ms + "ms"));
+    }, ms);
+
+    promise.then(
+      function (v) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        resolve(v);
+      },
+      function (e) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
+}
+
+/* ============================================================
+   PERSISTENT CACHE SYSTEM
    ============================================================ */
 
 var CACHE_VERSION = 3; // bump this if you change data shape
@@ -75,10 +104,8 @@ var dataCache = {}; // in-memory
 // ---- Boot: load cached data from localStorage into memory ----
 function hydrateCacheFromStorage() {
   try {
-    // Version check — wipe if mismatched
     var storedVersion = localStorage.getItem("srms_cache_version");
     if (String(storedVersion) !== String(CACHE_VERSION)) {
-      // Wipe all SRMS cache keys
       var toDelete = [];
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
@@ -92,7 +119,6 @@ function hydrateCacheFromStorage() {
       return;
     }
 
-    // Hydrate
     var count = 0;
     for (var j = 0; j < localStorage.length; j++) {
       var key = localStorage.key(j);
@@ -128,7 +154,6 @@ function persistCacheEntry(key, entry) {
     });
     localStorage.setItem(CACHE_PREFIX + key, payload);
   } catch (e) {
-    // Likely quota exceeded — try clearing old entries
     console.warn("⚠️ Cache write failed (quota?):", e);
     pruneCacheIfTooBig();
   }
@@ -154,7 +179,6 @@ function pruneCacheIfTooBig() {
           (total / 1024 / 1024).toFixed(2) +
           "MB — pruning oldest",
       );
-      // Sort by timestamp (oldest first) and remove until under 3MB
       keys.sort(function (a, b) {
         var aData = {};
         var bData = {};
@@ -180,7 +204,20 @@ function pruneCacheIfTooBig() {
   } catch (e) {}
 }
 
-// ---- Read: memory first, then storage, then fetch ----
+/* ============================================================
+   getCachedData — REWRITTEN
+   ------------------------------------------------------------
+   Key changes vs. original:
+   • fetchFunction is now WRAPPED with withTimeout() so it can't
+     hang for 2 minutes.
+   • On failure it returns null (not []) so callers can safely
+     do "if (!data)" checks.
+   • If a fetch is triggered while a previous one is in-flight
+     for the same key, they share the same promise (dedup).
+   ============================================================ */
+
+var _inflightFetches = {}; // key -> Promise, to dedup concurrent fetches
+
 function getCachedData(key, fetchFunction, expiryMs) {
   expiryMs = expiryMs || CACHE_EXPIRY;
   var now = Date.now();
@@ -196,7 +233,6 @@ function getCachedData(key, fetchFunction, expiryMs) {
     if (raw) {
       var parsed = JSON.parse(raw);
       if (parsed && parsed.data !== undefined) {
-        // Refresh memory entry
         dataCache[key] = {
           timestamp: parsed.timestamp || now,
           data: parsed.data,
@@ -205,10 +241,13 @@ function getCachedData(key, fetchFunction, expiryMs) {
         // If storage entry is old, still return it immediately
         // but kick off a background refresh
         if (now - (parsed.timestamp || 0) > expiryMs) {
-          fetchFunction()
+          var refresh = withTimeout(fetchFunction(), FIREBASE_TIMEOUT_MS, key);
+          refresh
             .then(function (fresh) {
-              dataCache[key] = { timestamp: now, data: fresh };
-              persistCacheEntry(key, dataCache[key]);
+              if (fresh !== null && fresh !== undefined) {
+                dataCache[key] = { timestamp: Date.now(), data: fresh };
+                persistCacheEntry(key, dataCache[key]);
+              }
             })
             .catch(function () {});
         }
@@ -217,17 +256,30 @@ function getCachedData(key, fetchFunction, expiryMs) {
     }
   } catch (e) {}
 
-  // 3. Miss — fetch from network
-  return fetchFunction()
+  // 3. Miss — fetch from network (with timeout, and dedup)
+  if (_inflightFetches[key]) {
+    return _inflightFetches[key];
+  }
+
+  var p = withTimeout(fetchFunction(), FIREBASE_TIMEOUT_MS, key)
     .then(function (data) {
-      dataCache[key] = { timestamp: now, data: data };
+      delete _inflightFetches[key];
+      if (data === null || data === undefined) {
+        console.warn("⚠️ " + key + " returned no data");
+        return null;
+      }
+      dataCache[key] = { timestamp: Date.now(), data: data };
       persistCacheEntry(key, dataCache[key]);
       return data;
     })
     .catch(function (error) {
-      console.error("Fetch error for " + key + ":", error);
-      return [];
+      delete _inflightFetches[key];
+      console.error("❌ Fetch failed for " + key + ":", error.message || error);
+      return null; // ← CHANGED: was [] — null is safe for if-checks
     });
+
+  _inflightFetches[key] = p;
+  return p;
 }
 
 // ---- Clear (invalidates both memory + storage for a key) ----
@@ -275,10 +327,8 @@ function wipeAllCache() {
   } catch (e) {}
 }
 
-// Expose for logout handlers
 window.wipeAllCache = wipeAllCache;
 
-// Hydrate on script load
 hydrateCacheFromStorage();
 
 function snapshotToArray(snapshot) {
@@ -293,16 +343,15 @@ function snapshotToArray(snapshot) {
 
 /* ============================================================
    BACKGROUND SYNC
-   ------------------------------------------------------------
-   On page load, checks each collection's server-side "updatedAt"
-   stamp against what we have cached. If it differs, refreshes
-   just that collection silently.
    ============================================================ */
 
 function getServerChangeMarker(schoolName) {
-  return database
-    .ref("schools/" + schoolName + "/meta/updatedAt")
-    .once("value")
+  if (!database) return Promise.resolve(null);
+  return withTimeout(
+    database.ref("schools/" + schoolName + "/meta/updatedAt").once("value"),
+    FIREBASE_TIMEOUT_MS,
+    "server-change-marker",
+  )
     .then(function (snap) {
       return snap.val() || null;
     })
@@ -312,19 +361,15 @@ function getServerChangeMarker(schoolName) {
 }
 
 function backgroundSync() {
+  if (!database) return; // ← guard: Firebase might not be ready
   var school = getCurrentSchoolFromStorage();
   if (!school) return;
 
   getServerChangeMarker(school).then(function (serverMarker) {
     var localMarker = localStorage.getItem("srms_cache_meta_" + school);
-    if (!serverMarker) return; // nothing to compare
-    if (serverMarker === localMarker) {
-      // No server changes — cache is fresh
-      return;
-    }
+    if (!serverMarker) return;
+    if (serverMarker === localMarker) return;
 
-    // Server changed — invalidate cached collections
-    // (individual fetches on the current page will pick up new data)
     console.log("🔄 Server data changed — refreshing cache...");
     var keysToInvalidate = [
       "books_" + school,
@@ -357,16 +402,17 @@ function getCurrentSchoolFromStorage() {
   }
 }
 
-// Marker bump — call after any write to invalidate other devices' caches
 function bumpServerMarker(schoolName) {
   if (!database || !schoolName) return;
-  database
-    .ref("schools/" + schoolName + "/meta")
-    .update({ updatedAt: new Date().toISOString() })
-    .catch(function () {});
+  withTimeout(
+    database
+      .ref("schools/" + schoolName + "/meta")
+      .update({ updatedAt: new Date().toISOString() }),
+    FIREBASE_TIMEOUT_MS,
+    "bump-server-marker",
+  ).catch(function () {});
 }
 
-// Run background sync shortly after load (don't block)
 setTimeout(backgroundSync, 800);
 
 /* ============================================================
@@ -487,6 +533,9 @@ function extractName(student) {
 var API = {
   // ============ SCHOOL ============
   getSchool: function (schoolName) {
+    if (!database) {
+      return Promise.resolve(null);
+    }
     return getCachedData(
       "school_" + schoolName,
       function () {
@@ -499,6 +548,37 @@ var API = {
       },
       60000,
     );
+  },
+
+  /**
+   * getSchoolFast — for signup / quick verification.
+   * - Uses a longer cache TTL (10 min instead of 60s) since school
+   *   data rarely changes and invite codes definitely don't.
+   * - Always resolves to an object or null. Never throws.
+   * - Fails in ≤6 seconds instead of hanging for 2 minutes.
+   */
+  getSchoolFast: function (schoolName) {
+    if (!database) {
+      return Promise.resolve(null);
+    }
+    return getCachedData(
+      "school_" + schoolName,
+      function () {
+        return database
+          .ref("schools/" + schoolName)
+          .once("value")
+          .then(function (s) {
+            return s.val() || null;
+          });
+      },
+      10 * 60 * 1000, // 10 minutes
+    ).then(function (data) {
+      // Belt and braces — never return a non-object
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        return null;
+      }
+      return data;
+    });
   },
 
   createSchool: function (schoolData) {
@@ -1989,7 +2069,7 @@ var API = {
       });
   },
 
-  // ============ CACHE UTILITIES (new) ============
+  // ============ CACHE UTILITIES ============
   wipeAllCache: wipeAllCache,
   clearCache: clearCache,
   getCacheStats: function () {
@@ -2045,3 +2125,4 @@ window.extractName = extractName;
 
 console.log("✅ API loaded — CACHE-FIRST + PERSISTENT + BACKGROUND SYNC");
 console.log("📦 Cache version: v" + CACHE_VERSION);
+console.log("⏱️ Firebase timeout: " + FIREBASE_TIMEOUT_MS + "ms");
