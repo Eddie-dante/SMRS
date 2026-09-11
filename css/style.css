@@ -2,6 +2,7 @@
    SRMS - Main Styles
    Complete Version
    + Wallpaper Layer Support
+   + Fixed-position navbar support
    ============================================ */
 
 :root {
@@ -74,7 +75,7 @@
   --transition-slow: all 0.3s ease;
 
   --z-header: 1000;
-  --z-navbar: 1000;
+  --z-navbar: 9999;
   --z-dropdown: 1200;
   --z-modal: 1300;
   --z-notification: 2000;
@@ -96,6 +97,10 @@ html {
   -webkit-overflow-scrolling: touch;
   -webkit-text-size-adjust: 100%;
   background: #05070f !important;
+  /* Never let transform/filter on html break fixed positioning */
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
 }
 
 body {
@@ -108,6 +113,10 @@ body {
   overflow-x: hidden;
   position: relative;
   padding-bottom: 120px;
+  /* Same guard for body */
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
 }
 
 /* ============ SCROLLBAR ============ */
@@ -686,15 +695,13 @@ small {
   }
 }
 
-/* ============ PERFORMANCE ============ */
+/* ============ PERFORMANCE (careful: no transform on fixed elements) ============ */
 .taskbar,
-.floating-navbar,
 .stat-card,
 .btn-action,
 .classy-btn,
 .furniture-card,
 .modal-content,
-.dropdown-menu,
 .dialog-box {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -887,76 +894,11 @@ img {
 }
 
 /* ============================================================
-   WALLPAPER LAYER — kill any page-specific body backgrounds
-   so the fixed background layer shows through everywhere
+   WALLPAPER LAYER — page content floats above the wallpaper
+   IMPORTANT: DO NOT add .floating-navbar-container to the
+   "position: relative" rule below, or the navbar will stop
+   being fixed to the viewport and will scroll with the page.
    ============================================================ */
-html {
-  background: #05070f !important;
-}
-
-body {
-  background: transparent !important;
-  background-image: none !important;
-  background-attachment: scroll !important;
-}
-
-#srms-wallpaper-bg {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: -1 !important;
-  pointer-events: none !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
-  transition: background-image 0.6s ease !important;
-}
-
-/* Ensure all main content floats ABOVE the wallpaper layer */
-.taskbar,
-.floating-navbar-container,
-.main-content,
-.modal,
-.notification,
-.dropdown-menu {
-  position: relative;
-  z-index: 1;
-}
-
-.taskbar {
-  z-index: 1000 !important;
-}
-.floating-navbar-container {
-  z-index: 1000 !important;
-}
-.dropdown-menu {
-  z-index: 1200 !important;
-}
-.modal {
-  z-index: 1300 !important;
-}
-.notification {
-  z-index: 2000 !important;
-}
-
-/* ============================================================
-   WALLPAPER LAYER
-   ============================================================ */
-html {
-  background: #05070f !important;
-}
-
-body {
-  background: transparent !important;
-  background-image: none !important;
-  background-attachment: scroll !important;
-}
-
 #srms-wallpaper-bg {
   position: fixed !important;
   top: 0 !important;
@@ -977,7 +919,6 @@ body {
 }
 
 .taskbar,
-.floating-navbar-container,
 .main-content,
 .modal,
 .notification,
@@ -989,9 +930,6 @@ body {
 .taskbar {
   z-index: 1000 !important;
 }
-.floating-navbar-container {
-  z-index: 1000 !important;
-}
 .dropdown-menu {
   z-index: 1200 !important;
 }
@@ -1000,4 +938,9 @@ body {
 }
 .notification {
   z-index: 2000 !important;
+}
+
+/* Navbar is fixed — must NOT be in the "relative" list above */
+.floating-navbar-container {
+  z-index: 9999 !important;
 }
