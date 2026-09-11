@@ -1,6 +1,7 @@
 // ============================================
 // SRMS - Complete Firebase API
 // Full Version - PERFORMANCE OPTIMIZED
+// Includes backward-compatible aliases
 // ============================================
 
 var firebaseConfig = {
@@ -450,6 +451,11 @@ var API = {
       });
   },
 
+  // ALIAS: library.html calls API.addBorrowed(...)
+  addBorrowed: function (schoolName, borrowData) {
+    return API.issueBook(schoolName, borrowData);
+  },
+
   getBorrowed: function (schoolName) {
     return getCachedData("borrowed_" + schoolName, function () {
       return database
@@ -664,7 +670,6 @@ var API = {
       });
   },
 
-  // ⚡ OPTIMIZED: Strips base64 photos from list view
   getStudents: function (schoolName) {
     return getCachedData("students_" + schoolName, function () {
       return database
@@ -685,7 +690,6 @@ var API = {
     });
   },
 
-  // ⚡ NEW: Fetch ONE student with full data (including photo)
   getStudentFull: function (schoolName, adm) {
     return database
       .ref("schools/" + schoolName + "/students/" + adm)
@@ -790,7 +794,6 @@ var API = {
       });
   },
 
-  // ⚡ OPTIMIZED: Strips base64 photos from nested student arrays
   getClasses: function (schoolName) {
     return getCachedData("classes_" + schoolName, function () {
       return database
@@ -1641,4 +1644,4 @@ window.generateUniqueStudentId = generateUniqueStudentId;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
 
-console.log("✅ API loaded - PERFORMANCE OPTIMIZED");
+console.log("✅ API loaded - PERFORMANCE OPTIMIZED + ALIASES");
