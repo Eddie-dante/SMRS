@@ -3,6 +3,7 @@
 // Full Version with CACHE-FIRST PERSISTENCE
 // + FAST SCHOOL LOOKUP (timeout-protected)
 // + null-safe failures (no more [] masquerading as data)
+// + FIXED INVITE CODE "1" (never changes, no Firebase read on signup)
 // ============================================
 
 var firebaseConfig = {
@@ -19,6 +20,9 @@ var database = null;
 
 // ⏱️ How long to wait for Firebase before giving up (ms)
 var FIREBASE_TIMEOUT_MS = 6000;
+
+// 🔑 The invite code for EVERY school. Never changes. Never read from Firebase.
+var FIXED_INVITE_CODE = "1";
 
 function initFirebase() {
   if (typeof firebase === "undefined") {
@@ -57,9 +61,6 @@ if (!initFirebase()) {
 
 /* ============================================================
    TIMEOUT WRAPPER
-   ------------------------------------------------------------
-   Wraps a Firebase promise so it rejects after FIREBASE_TIMEOUT_MS
-   instead of hanging for the SDK's default ~2 minute retry window.
    ============================================================ */
 function withTimeout(promise, ms, label) {
   ms = ms || FIREBASE_TIMEOUT_MS;
@@ -93,15 +94,14 @@ function withTimeout(promise, ms, label) {
    PERSISTENT CACHE SYSTEM
    ============================================================ */
 
-var CACHE_VERSION = 3; // bump this if you change data shape
+var CACHE_VERSION = 3;
 var CACHE_PREFIX = "srms_cache_v" + CACHE_VERSION + "_";
 var META_KEY = "srms_cache_meta";
-var CACHE_EXPIRY = 10 * 60 * 1000; // in-memory TTL: 10 min
-var MAX_CACHE_BYTES = 4 * 1024 * 1024; // warn above 4MB
+var CACHE_EXPIRY = 10 * 60 * 1000;
+var MAX_CACHE_BYTES = 4 * 1024 * 1024;
 
-var dataCache = {}; // in-memory
+var dataCache = {};
 
-// ---- Boot: load cached data from localStorage into memory ----
 function hydrateCacheFromStorage() {
   try {
     var storedVersion = localStorage.getItem("srms_cache_version");
@@ -133,9 +133,7 @@ function hydrateCacheFromStorage() {
           data: parsed.data,
         };
         count++;
-      } catch (e) {
-        // Skip broken entries
-      }
+      } catch (e) {}
     }
     if (count > 0) {
       console.log("💾 Cache hydrated from storage: " + count + " collections");
@@ -145,7 +143,6 @@ function hydrateCacheFromStorage() {
   }
 }
 
-// ---- Persist a single cache entry ----
 function persistCacheEntry(key, entry) {
   try {
     var payload = JSON.stringify({
@@ -159,7 +156,6 @@ function persistCacheEntry(key, entry) {
   }
 }
 
-// ---- Estimate total cache size and prune if too big ----
 function pruneCacheIfTooBig() {
   try {
     var total = 0;
@@ -206,28 +202,18 @@ function pruneCacheIfTooBig() {
 
 /* ============================================================
    getCachedData — REWRITTEN
-   ------------------------------------------------------------
-   Key changes vs. original:
-   • fetchFunction is now WRAPPED with withTimeout() so it can't
-     hang for 2 minutes.
-   • On failure it returns null (not []) so callers can safely
-     do "if (!data)" checks.
-   • If a fetch is triggered while a previous one is in-flight
-     for the same key, they share the same promise (dedup).
    ============================================================ */
 
-var _inflightFetches = {}; // key -> Promise, to dedup concurrent fetches
+var _inflightFetches = {};
 
 function getCachedData(key, fetchFunction, expiryMs) {
   expiryMs = expiryMs || CACHE_EXPIRY;
   var now = Date.now();
 
-  // 1. In-memory hit (fastest)
   if (dataCache[key] && now - dataCache[key].timestamp < expiryMs) {
     return Promise.resolve(dataCache[key].data);
   }
 
-  // 2. Storage hit (still fast, survives reload)
   try {
     var raw = localStorage.getItem(CACHE_PREFIX + key);
     if (raw) {
@@ -238,8 +224,6 @@ function getCachedData(key, fetchFunction, expiryMs) {
           data: parsed.data,
         };
 
-        // If storage entry is old, still return it immediately
-        // but kick off a background refresh
         if (now - (parsed.timestamp || 0) > expiryMs) {
           var refresh = withTimeout(fetchFunction(), FIREBASE_TIMEOUT_MS, key);
           refresh
@@ -256,7 +240,6 @@ function getCachedData(key, fetchFunction, expiryMs) {
     }
   } catch (e) {}
 
-  // 3. Miss — fetch from network (with timeout, and dedup)
   if (_inflightFetches[key]) {
     return _inflightFetches[key];
   }
@@ -275,14 +258,13 @@ function getCachedData(key, fetchFunction, expiryMs) {
     .catch(function (error) {
       delete _inflightFetches[key];
       console.error("❌ Fetch failed for " + key + ":", error.message || error);
-      return null; // ← CHANGED: was [] — null is safe for if-checks
+      return null;
     });
 
   _inflightFetches[key] = p;
   return p;
 }
 
-// ---- Clear (invalidates both memory + storage for a key) ----
 function clearCache(key) {
   if (key) {
     delete dataCache[key];
@@ -304,7 +286,6 @@ function clearCache(key) {
   }
 }
 
-// ---- Wipe everything (used on logout) ----
 function wipeAllCache() {
   try {
     var toDelete = [];
@@ -361,7 +342,7 @@ function getServerChangeMarker(schoolName) {
 }
 
 function backgroundSync() {
-  if (!database) return; // ← guard: Firebase might not be ready
+  if (!database) return;
   var school = getCurrentSchoolFromStorage();
   if (!school) return;
 
@@ -420,13 +401,8 @@ setTimeout(backgroundSync, 800);
    ============================================================ */
 
 function generateInviteCode(length) {
-  length = length || 8;
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  var code = "";
-  for (var i = 0; i < length; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+  // Kept for backward compatibility — always returns "1" now.
+  return FIXED_INVITE_CODE;
 }
 
 function generateStaffId() {
@@ -550,13 +526,6 @@ var API = {
     );
   },
 
-  /**
-   * getSchoolFast — for signup / quick verification.
-   * - Uses a longer cache TTL (10 min instead of 60s) since school
-   *   data rarely changes and invite codes definitely don't.
-   * - Always resolves to an object or null. Never throws.
-   * - Fails in ≤6 seconds instead of hanging for 2 minutes.
-   */
   getSchoolFast: function (schoolName) {
     if (!database) {
       return Promise.resolve(null);
@@ -571,9 +540,8 @@ var API = {
             return s.val() || null;
           });
       },
-      10 * 60 * 1000, // 10 minutes
+      10 * 60 * 1000,
     ).then(function (data) {
-      // Belt and braces — never return a non-object
       if (!data || typeof data !== "object" || Array.isArray(data)) {
         return null;
       }
@@ -581,8 +549,25 @@ var API = {
     });
   },
 
+  /**
+   * verifyInviteCode — LOCAL check only. No Firebase read.
+   * The invite code is ALWAYS "1" for every school.
+   */
+  verifyInviteCode: function (schoolName, code) {
+    var normalized = String(code || "")
+      .trim()
+      .toUpperCase();
+    if (normalized === FIXED_INVITE_CODE) {
+      return Promise.resolve({ success: true });
+    }
+    return Promise.resolve({
+      success: false,
+      error: "Invalid invite code. The code for this school is '1'.",
+    });
+  },
+
   createSchool: function (schoolData) {
-    var inviteCode = generateInviteCode();
+    var inviteCode = FIXED_INVITE_CODE; // ← always "1"
     var emailKey = schoolData.adminEmail.replace(/\./g, ",");
 
     return database
@@ -629,6 +614,11 @@ var API = {
   },
 
   updateSchool: function (schoolName, schoolData) {
+    // Never allow changing the invite code — force "1" always.
+    schoolData = Object.assign({}, schoolData, {
+      inviteCode: FIXED_INVITE_CODE,
+    });
+
     return database
       .ref("schools/" + schoolName)
       .update(schoolData)
@@ -2122,7 +2112,9 @@ window.wipeAllCache = wipeAllCache;
 window.generateUniqueStudentId = generateUniqueStudentId;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
+window.FIXED_INVITE_CODE = FIXED_INVITE_CODE;
 
 console.log("✅ API loaded — CACHE-FIRST + PERSISTENT + BACKGROUND SYNC");
 console.log("📦 Cache version: v" + CACHE_VERSION);
 console.log("⏱️ Firebase timeout: " + FIREBASE_TIMEOUT_MS + "ms");
+console.log("🔑 Fixed invite code: '" + FIXED_INVITE_CODE + "'");

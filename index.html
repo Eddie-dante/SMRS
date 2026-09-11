@@ -14,9 +14,6 @@
     
     <!-- ============================================================
          FIREBASE SDK LOADER (multi-CDN with automatic fallback)
-         ------------------------------------------------------------
-         Tries gstatic → jsDelivr → unpkg. Whichever loads first wins.
-         Sets window.__firebaseReady = true once both SDKs are loaded.
          ============================================================ -->
     <script>
         window.__firebaseReady = false;
@@ -160,7 +157,6 @@
             50% { transform: translate(80px, 60px) scale(1.15); }
         }
         
-        /* ============ FIREBASE LOADING OVERLAY ============ */
         #fbBootOverlay {
             position: fixed;
             inset: 0;
@@ -575,8 +571,8 @@
         <div id="signupFormDiv" class="form-section">
             <div class="form-group">
                 <label><i class="fas fa-ticket-alt"></i> Invite Code *</label>
-                <input type="text" id="signupInviteCode" class="invite-code-input" placeholder="XXXXXXXX" maxlength="12" autocomplete="off">
-                <div class="password-hint"><i class="fas fa-info-circle"></i> Ask your school admin for the 8-character code.</div>
+                <input type="text" id="signupInviteCode" class="invite-code-input" placeholder="1" maxlength="12" autocomplete="off">
+                <div class="password-hint"><i class="fas fa-info-circle"></i> The invite code for every school is simply <strong>1</strong>.</div>
             </div>
             <div class="form-group">
                 <label><i class="fas fa-school"></i> School Name *</label>
@@ -684,13 +680,11 @@
                 }
             }
             
-            // Kick off the multi-CDN load
             window.__loadFirebase().then(function (cdnName) {
                 console.log("✅ Firebase SDK loaded from:", cdnName,
                             "in", (Date.now() - startTime) + "ms");
                 window.__firebaseReady = true;
                 
-                // Now load our own scripts that depend on firebase global
                 return loadAppScript("js/api.js")
                     .then(function () { return loadAppScript("js/utils.js"); });
             }).then(function () {
@@ -835,12 +829,14 @@
         }
 
         /* ============================================================
-           TEACHER SIGNUP — timeout-protected + manual fallback
+           TEACHER SIGNUP — LOCAL CODE CHECK (no Firebase read)
+           ------------------------------------------------------------
+           The invite code is ALWAYS "1" for every school. We verify it
+           entirely in the browser, so signup never waits on Firebase
+           for verification. Only the createUser write touches Firebase.
            ============================================================ */
-        var _signupAttemptToken = 0;
-
         function handleSignup() {
-            var inviteCode = document.getElementById('signupInviteCode').value.trim().toUpperCase();
+            var inviteCode = document.getElementById('signupInviteCode').value.trim();
             var schoolName = document.getElementById('signupSchoolName').value.trim();
             var name = document.getElementById('signupName').value.trim();
             var email = document.getElementById('signupEmail').value.trim();
@@ -848,12 +844,9 @@
             var password = document.getElementById('signupPassword').value;
             var confirmPassword = document.getElementById('signupConfirmPassword').value;
 
+            // ---- Local validation ----
             if (!inviteCode || !schoolName || !name || !email || !password) {
                 showMessage('Please fill in all required fields', 'error');
-                return;
-            }
-            if (inviteCode.length < 6) {
-                showMessage('Invite code looks too short', 'error');
                 return;
             }
             if (!validateEmail(email)) {
@@ -874,28 +867,15 @@
             signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying code...';
             clearMessage();
 
-            var myToken = ++_signupAttemptToken;
-
-            API.getSchoolFast(schoolName).then(function (school) {
-                if (myToken !== _signupAttemptToken) return;
-
-                if (!school) {
-                    return offerManualVerification(
-                        schoolName, inviteCode, name, email, role, password
-                    );
+            // ---- Verify invite code LOCALLY (no Firebase read) ----
+            API.verifyInviteCode(schoolName, inviteCode).then(function (verifyResult) {
+                if (!verifyResult.success) {
+                    throw new Error(verifyResult.error || 'Invalid invite code');
                 }
 
-                var storedCode = String(school.inviteCode || '').trim().toUpperCase();
-                var enteredCode = String(inviteCode || '').trim().toUpperCase();
-
-                if (!storedCode) {
-                    throw new Error('This school has no invite code. Ask the admin to set one.');
-                }
-                if (storedCode !== enteredCode) {
-                    throw new Error('Invalid invite code. Please check and try again.');
-                }
-
+                // ---- Code is valid → create the account ----
                 signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+
                 return API.createUser(schoolName, {
                     name: name,
                     email: email,
@@ -903,9 +883,6 @@
                     role: role,
                 });
             }).then(function (result) {
-                if (myToken !== _signupAttemptToken) return;
-                if (result === undefined) return;
-
                 if (result && result.success) {
                     showMessage('Account created! Redirecting to login...', 'success');
                     showToast('Welcome, ' + name + '!', 'success');
@@ -921,7 +898,6 @@
                     throw new Error((result && result.error) || 'Failed to create account');
                 }
             }).catch(function (error) {
-                if (myToken !== _signupAttemptToken) return;
                 console.error('Signup error:', error);
                 showMessage(error.message || 'Signup failed', 'error');
                 resetSignupButton();
@@ -933,29 +909,6 @@
             if (!signupBtn) return;
             signupBtn.disabled = false;
             signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account & Join School';
-        }
-
-        function offerManualVerification(schoolName, inviteCode, name, email, role, password) {
-            var msg =
-                'Could not reach the server to verify the invite code. ' +
-                'This may be a slow connection. ' +
-                'Do you want to try creating the account anyway?\n\n' +
-                'If the code is wrong, you will see an error immediately.';
-
-            if (!confirm(msg)) {
-                resetSignupButton();
-                return undefined;
-            }
-
-            var signupBtn = document.getElementById('signupBtn');
-            signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
-
-            return API.createUser(schoolName, {
-                name: name,
-                email: email,
-                password: password,
-                role: role,
-            });
         }
 
         /* ============================================================
@@ -1025,10 +978,11 @@
             dialog.innerHTML =
                 '<i class="fas fa-check-circle" style="font-size:60px;color:#34ce57;margin-bottom:15px;"></i>' +
                 '<h3 style="color:#f0d060;margin-bottom:10px;font-family:Cinzel,serif;letter-spacing:1.5px;">School Created!</h3>' +
-                '<p style="color:rgba(255,255,255,0.7);margin-bottom:15px;font-size:13px;">Share this invite code with your staff so they can join:</p>' +
+                '<p style="color:rgba(255,255,255,0.7);margin-bottom:15px;font-size:13px;">The invite code for your school is:</p>' +
                 '<div style="background:rgba(212,175,55,0.15);border:2px dashed #d4af37;border-radius:12px;padding:20px;margin-bottom:20px;">' +
                 '<div style="font-family:Courier New,monospace;font-size:28px;font-weight:800;letter-spacing:5px;color:#f0d060;">' + code + '</div>' +
                 '</div>' +
+                '<p style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:15px;">Share this with your staff. It will never change.</p>' +
                 '<div style="display:flex;gap:8px;">' +
                 '<button id="copyCodeBtn" style="flex:1;padding:10px;background:rgba(212,175,55,0.2);border:1px solid rgba(212,175,55,0.4);border-radius:10px;color:#f0d060;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:12px;">' +
                 '<i class="fas fa-copy"></i> Copy Code</button>' +
