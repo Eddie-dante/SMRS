@@ -360,6 +360,7 @@
             display: none;
             align-items: center;
             gap: 6px;
+            transition: var(--transition);
         }
         .admin-badge.visible { display: flex; }
         
@@ -638,7 +639,6 @@
             var password = document.getElementById('signupPassword').value;
             var confirmPassword = document.getElementById('signupConfirmPassword').value;
             
-            // Validation
             if (!inviteCode || !schoolName || !name || !email || !password) {
                 showMessage('Please fill in all required fields', 'error');
                 return;
@@ -665,13 +665,11 @@
             signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying invite code...';
             clearMessage();
             
-            // Step 1: Check the school exists
             API.getSchool(schoolName).then(function (school) {
                 if (!school) {
                     throw new Error('School "' + schoolName + '" not found. Check the spelling.');
                 }
                 
-                // Step 2: Verify invite code
                 var storedCode = (school.inviteCode || '').toUpperCase();
                 if (!storedCode) {
                     throw new Error('This school has no invite code. Ask the admin to set one.');
@@ -680,7 +678,6 @@
                     throw new Error('Invalid invite code. Please check and try again.');
                 }
                 
-                // Step 3: Create the user
                 signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
                 
                 return API.createUser(schoolName, {
@@ -694,7 +691,6 @@
                     showMessage('Account created! Redirecting to login...', 'success');
                     showToast('Welcome, ' + name + '!', 'success');
                     
-                    // Prefill login form
                     document.getElementById('schoolName').value = schoolName;
                     document.getElementById('email').value = email;
                     
@@ -813,18 +809,39 @@
         }
 
         /* ============================================================
-           ADMIN MODE UNLOCK (Ctrl+Shift+Alt+V)
+           ADMIN MODE TOGGLE (Ctrl+Shift+Alt+V)
+           ------------------------------------------------------------
+           Press once  → unlock ("Create New School" appears + badge)
+           Press again → lock   (link and badge hide)
+           Press again → unlock (toggles every time)
            ============================================================ */
-        function unlockAdminMode() {
+        function toggleAdminMode() {
             var link = document.getElementById('adminCreateLink');
             var badge = document.getElementById('adminBadge');
-            if (link) link.classList.add('visible');
-            if (badge) badge.classList.add('visible');
-            
-            try { sessionStorage.setItem('srms_admin_unlocked', '1'); } catch (e) {}
-            
-            showToast('Admin mode unlocked', 'success');
-            console.log('🔓 Admin mode unlocked — "Create New School" is now visible');
+            if (!link || !badge) return;
+
+            var isCurrentlyVisible = link.classList.contains('visible');
+
+            if (isCurrentlyVisible) {
+                // LOCK — hide admin mode
+                link.classList.remove('visible');
+                badge.classList.remove('visible');
+                try { sessionStorage.removeItem('srms_admin_unlocked'); } catch (e) {}
+                showToast('Admin mode hidden', 'info');
+                console.log('🔒 Admin mode hidden');
+            } else {
+                // UNLOCK — show admin mode
+                link.classList.add('visible');
+                badge.classList.add('visible');
+                try { sessionStorage.setItem('srms_admin_unlocked', '1'); } catch (e) {}
+                showToast('Admin mode unlocked', 'success');
+                console.log('🔓 Admin mode unlocked — "Create New School" is now visible');
+            }
+        }
+
+        // Keep old name as alias (in case anything else calls it)
+        function unlockAdminMode() {
+            toggleAdminMode();
         }
 
         function restoreAdminMode() {
@@ -839,12 +856,12 @@
             } catch (e) {}
         }
 
-        // Keyboard listener — must use capture phase to catch before others
+        // Keyboard listener — capture phase to grab before other handlers
         document.addEventListener('keydown', function (e) {
-            // Ctrl + Shift + Alt + V
+            // Ctrl + Shift + Alt + V — toggles admin mode
             if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === 'V' || e.key === 'v')) {
                 e.preventDefault();
-                unlockAdminMode();
+                toggleAdminMode();
             }
         }, true);
 
@@ -889,7 +906,7 @@
                 });
             }
             
-            // Signup form: Enter on confirm triggers submit
+            // Signup: Enter on confirm triggers submit
             var signupConfirm = document.getElementById('signupConfirmPassword');
             if (signupConfirm) {
                 signupConfirm.addEventListener('keypress', function (e) {
@@ -897,7 +914,7 @@
                 });
             }
             
-            // Create form: Enter on confirm triggers submit
+            // Create: Enter on confirm triggers submit
             var createConfirm = document.getElementById('createConfirmPassword');
             if (createConfirm) {
                 createConfirm.addEventListener('keypress', function (e) {
@@ -920,6 +937,7 @@
         window.handleLogin = handleLogin;
         window.handleSignup = handleSignup;
         window.handleCreateSchool = handleCreateSchool;
+        window.toggleAdminMode = toggleAdminMode;
         window.unlockAdminMode = unlockAdminMode;
     </script>
 </body>
