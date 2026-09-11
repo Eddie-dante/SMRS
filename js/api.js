@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Firebase API
-// Full Version - Enhanced Field Detection
+// Full Version - PERFORMANCE OPTIMIZED
 // ============================================
 
 var firebaseConfig = {
@@ -25,7 +25,7 @@ try {
 
 // ============ CACHE SYSTEM ============
 var dataCache = {};
-var CACHE_EXPIRY = 30000;
+var CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
 
 function getCachedData(key, fetchFunction, expiryMs) {
   expiryMs = expiryMs || CACHE_EXPIRY;
@@ -129,7 +129,6 @@ function generateUniqueStudentId(schoolName, adm) {
   return studentId;
 }
 
-// ENHANCED: Extract ADM from any field name variation
 function extractAdm(student) {
   if (!student) return "";
   var adm =
@@ -154,7 +153,6 @@ function extractAdm(student) {
   return String(adm).trim();
 }
 
-// ENHANCED: Extract Name from any field name variation
 function extractName(student) {
   if (!student) return "Unknown";
   var name =
@@ -461,6 +459,15 @@ var API = {
     });
   },
 
+  getBorrowedByAdm: function (schoolName, adm) {
+    return database
+      .ref("schools/" + schoolName + "/borrowed")
+      .orderByChild("adm")
+      .equalTo(adm)
+      .once("value")
+      .then(snapshotToArray);
+  },
+
   returnBook: function (schoolName, borrowId) {
     return database
       .ref("schools/" + schoolName + "/borrowed/" + borrowId)
@@ -657,13 +664,35 @@ var API = {
       });
   },
 
+  // ⚡ OPTIMIZED: Strips base64 photos from list view
   getStudents: function (schoolName) {
     return getCachedData("students_" + schoolName, function () {
       return database
         .ref("schools/" + schoolName + "/students")
         .once("value")
-        .then(snapshotToArray);
+        .then(function (snapshot) {
+          var data = snapshot.val();
+          if (!data) return [];
+          var result = [];
+          Object.keys(data).forEach(function (key) {
+            var s = data[key];
+            delete s.photo;
+            delete s.idCardImage;
+            result.push(Object.assign({ id: key }, s));
+          });
+          return result;
+        });
     });
+  },
+
+  // ⚡ NEW: Fetch ONE student with full data (including photo)
+  getStudentFull: function (schoolName, adm) {
+    return database
+      .ref("schools/" + schoolName + "/students/" + adm)
+      .once("value")
+      .then(function (snap) {
+        return snap.val();
+      });
   },
 
   deleteStudent: function (schoolName, adm) {
@@ -679,14 +708,13 @@ var API = {
       });
   },
 
-  // ============ CLASSES (ENHANCED with extractAdm and extractName) ============
+  // ============ CLASSES ============
   addClass: function (schoolName, classData) {
     var classRef = database.ref("schools/" + schoolName + "/classes").push();
     var classId = classRef.key;
     var students = classData.students || [];
     var studentIdsGenerated = 0;
 
-    // Step 1: Create class with empty students
     return classRef
       .set({
         name: classData.name,
@@ -698,15 +726,12 @@ var API = {
         isActive: true,
       })
       .then(function () {
-        // Step 2: Save each student individually using ENHANCED extraction
         var studentPromises = [];
 
         for (var i = 0; i < students.length; i++) {
           var student = students[i];
           var adm = extractAdm(student);
           var name = extractName(student);
-
-          console.log("📊 Extracting student:", name, "ADM:", adm);
 
           if (adm) {
             var studentId = generateUniqueStudentId(schoolName, adm);
@@ -743,12 +768,9 @@ var API = {
           }
         }
 
-        console.log("📊 Student IDs generated:", studentIdsGenerated);
-
         return Promise.all(studentPromises);
       })
       .then(function () {
-        // Step 3: Set students array
         return database
           .ref("schools/" + schoolName + "/classes/" + classId + "/students")
           .set(students);
@@ -768,12 +790,31 @@ var API = {
       });
   },
 
+  // ⚡ OPTIMIZED: Strips base64 photos from nested student arrays
   getClasses: function (schoolName) {
     return getCachedData("classes_" + schoolName, function () {
       return database
         .ref("schools/" + schoolName + "/classes")
         .once("value")
-        .then(snapshotToArray);
+        .then(function (snapshot) {
+          var data = snapshot.val();
+          if (!data) return [];
+          var result = [];
+          Object.keys(data).forEach(function (key) {
+            var cls = data[key];
+            if (cls.students && Array.isArray(cls.students)) {
+              cls.students = cls.students.map(function (st) {
+                if (st) {
+                  delete st.photo;
+                  delete st.idCardImage;
+                }
+                return st;
+              });
+            }
+            result.push(Object.assign({ id: key }, cls));
+          });
+          return result;
+        });
     });
   },
 
@@ -995,6 +1036,15 @@ var API = {
     });
   },
 
+  getFeesByAdm: function (schoolName, adm) {
+    return database
+      .ref("schools/" + schoolName + "/fees")
+      .orderByChild("studentAdm")
+      .equalTo(adm)
+      .once("value")
+      .then(snapshotToArray);
+  },
+
   deleteFee: function (schoolName, feeId) {
     return database
       .ref("schools/" + schoolName + "/fees/" + feeId)
@@ -1051,6 +1101,15 @@ var API = {
         .once("value")
         .then(snapshotToArray);
     });
+  },
+
+  getFurnitureByAdm: function (schoolName, adm) {
+    return database
+      .ref("schools/" + schoolName + "/furniture")
+      .orderByChild("adm")
+      .equalTo(adm)
+      .once("value")
+      .then(snapshotToArray);
   },
 
   returnFurniture: function (schoolName, furnitureId) {
@@ -1521,6 +1580,18 @@ var API = {
       });
   },
 
+  getAssignmentsByAdm: function (schoolName, adm) {
+    return database
+      .ref("schools/" + schoolName + "/assignments")
+      .orderByChild("adm")
+      .equalTo(adm)
+      .once("value")
+      .then(snapshotToArray)
+      .catch(function () {
+        return [];
+      });
+  },
+
   getAllAssignments: function (schoolName) {
     return database
       .ref("schools/" + schoolName + "/assignments")
@@ -1570,4 +1641,4 @@ window.generateUniqueStudentId = generateUniqueStudentId;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
 
-console.log("✅ API loaded with Enhanced Field Detection");
+console.log("✅ API loaded - PERFORMANCE OPTIMIZED");
