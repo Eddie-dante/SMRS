@@ -217,12 +217,12 @@
         </div>
         
         <div class="category-filters" id="categoryFilters">
-            <button class="active" onclick="filterCategory('all')">All</button>
-            <button onclick="filterCategory('School')">🏫 School</button>
-            <button onclick="filterCategory('Nature')">🌿 Nature</button>
-            <button onclick="filterCategory('City')">🏙️ City</button>
-            <button onclick="filterCategory('Abstract')">🎨 Abstract</button>
-            <button onclick="filterCategory('Default')">🌙 Default</button>
+            <button class="active" onclick="filterCategory('all', event)">All</button>
+            <button onclick="filterCategory('School', event)">🏫 School</button>
+            <button onclick="filterCategory('Nature', event)">🌿 Nature</button>
+            <button onclick="filterCategory('City', event)">🏙️ City</button>
+            <button onclick="filterCategory('Abstract', event)">🎨 Abstract</button>
+            <button onclick="filterCategory('Default', event)">🌙 Default</button>
         </div>
         
         <div class="wallpaper-grid" id="wallpaperGrid">
@@ -230,200 +230,11 @@
         </div>
     </div>
     
-    <script>
-        // INLINE WALLPAPER DATA - No external dependency
-        var WALLPAPER_DATA = {
-            none: {
-                name: "Dark Gradient",
-                type: "gradient",
-                css: "linear-gradient(135deg, #0a0e27 0%, #1a1f4e 50%, #0f3460 100%)",
-                category: "Default",
-                credit: "SRMS Default"
-            },
-            library: {
-                name: "Library Classic",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Susan Q Yin"
-            },
-            classroom: {
-                name: "Modern Classroom",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Nguyen Dang Hoang Nhu"
-            },
-            bookshelf: {
-                name: "Bookshelf Heaven",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Giammarco Boscaro"
-            },
-            graduation: {
-                name: "Graduation Day",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Vasily Koloda"
-            },
-            lecture: {
-                name: "Lecture Hall",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Dom Fou"
-            },
-            computer: {
-                name: "Computer Lab",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "John Schnobrich"
-            },
-            science: {
-                name: "Science Lab",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Hans Reniers"
-            },
-            playground: {
-                name: "Playground Fun",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Mi Pham"
-            },
-            campus: {
-                name: "Sunset Campus",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80&auto=format&fit=crop",
-                category: "School",
-                credit: "Vasily Koloda"
-            },
-            ocean: {
-                name: "Ocean View",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Sean Oulashin"
-            },
-            forest: {
-                name: "Forest Path",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Lukasz Szmigiel"
-            },
-            mountain: {
-                name: "Mountain Peak",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Bailey Zindel"
-            },
-            galaxy: {
-                name: "Galaxy Stars",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Guillermo Ferla"
-            },
-            autumn: {
-                name: "Autumn Leaves",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Bailey Zindel"
-            },
-            winter: {
-                name: "Winter Snow",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Aaron Burden"
-            },
-            spring: {
-                name: "Spring Flowers",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Jen Theodore"
-            },
-            summer: {
-                name: "Summer Beach",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
-                category: "Nature",
-                credit: "Sean Oulashin"
-            },
-            citynight: {
-                name: "City Lights",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80&auto=format&fit=crop",
-                category: "City",
-                credit: "Pedro Lastra"
-            },
-            architecture: {
-                name: "Architecture",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920&q=80&auto=format&fit=crop",
-                category: "City",
-                credit: "Patrick Tomasso"
-            },
-            castle: {
-                name: "Castle",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80&auto=format&fit=crop",
-                category: "City",
-                credit: "Anna Church"
-            },
-            abstract: {
-                name: "Abstract Art",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80&auto=format&fit=crop",
-                category: "Abstract",
-                credit: "Pawel Czerwinski"
-            },
-            geometric: {
-                name: "Geometric",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=1920&q=80&auto=format&fit=crop",
-                category: "Abstract",
-                credit: "Ricardo Gomez Angel"
-            },
-            minimalist: {
-                name: "Minimalist",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80&auto=format&fit=crop",
-                category: "Abstract",
-                credit: "Bench Accounting"
-            },
-            blueabstract: {
-                name: "Blue Abstract",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80&auto=format&fit=crop",
-                category: "Abstract",
-                credit: "Pawel Czerwinski"
-            },
-            purple: {
-                name: "Purple Haze",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80&auto=format&fit=crop",
-                category: "Abstract",
-                credit: "Milad Fakurian"
-            },
-            technology: {
-                name: "Technology",
-                type: "image",
-                url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80&auto=format&fit=crop",
-                category: "Abstract",
-                credit: "Alex Knight"
-            }
-        };
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallpaper-loader.js"></script>
 
+    <script>
         var currentCategory = 'all';
         var searchTerm = '';
 
@@ -448,11 +259,11 @@
                 if (wallpaper.type === 'gradient') {
                     previewStyle = 'background:' + wallpaper.css + ';';
                 } else {
-                    var thumbUrl = wallpaper.url.replace('w=1920', 'w=400&h=250&fit=crop&q=60');
+                    var thumbUrl = wallpaper.url.replace(/w=\d+/, 'w=400').replace(/q=\d+/, 'q=60');
                     previewStyle = 'background-image:url("' + thumbUrl + '");background-size:cover;background-position:center;';
                 }
                 
-                html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\')">' +
+                html += '<div class="wallpaper-card' + isActive + '" onclick="selectWallpaper(\'' + key + '\', event)">' +
                     '<div class="check-badge"><i class="fas fa-check"></i></div>' +
                     '<div class="wallpaper-preview" style="' + previewStyle + '"></div>' +
                     '<div class="wallpaper-info">' +
@@ -468,7 +279,7 @@
             }
         }
 
-        function selectWallpaper(key) {
+        function selectWallpaper(key, event) {
             localStorage.setItem('srms_wallpaper', key);
             
             var cards = document.querySelectorAll('.wallpaper-card');
@@ -477,18 +288,24 @@
             var target = event ? event.target.closest('.wallpaper-card') : null;
             if (target) target.classList.add('active');
             
-            var wallpaper = WALLPAPER_DATA[key];
-            if (wallpaper.type === 'gradient') {
-                document.body.style.background = wallpaper.css;
-                document.body.style.backgroundImage = 'none';
+            if (typeof applyWallpaper === 'function') {
+                applyWallpaper(key);
             } else {
-                document.body.style.backgroundImage = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + wallpaper.url + '")';
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
+                var wallpaper = WALLPAPER_DATA[key];
+                if (wallpaper.type === 'gradient') {
+                    document.body.style.background = wallpaper.css;
+                    document.body.style.backgroundImage = 'none';
+                } else {
+                    document.body.style.background = 'linear-gradient(rgba(10,14,39,0.55),rgba(10,14,39,0.65)),url("' + wallpaper.url + '")';
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundPosition = 'center';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    document.body.style.backgroundRepeat = 'no-repeat';
+                }
             }
             
-            alert('✅ Wallpaper applied!');
+            var wallpaperName = WALLPAPER_DATA[key] ? WALLPAPER_DATA[key].name : key;
+            alert('✅ Wallpaper applied: ' + wallpaperName);
         }
 
         function searchWallpapers() {
@@ -496,19 +313,22 @@
             loadWallpapers();
         }
 
-        function filterCategory(category) {
+        function filterCategory(category, event) {
             currentCategory = category;
             
             var buttons = document.querySelectorAll('.category-filters button');
-            for (var i = 0; i < buttons.length; i++) {
-                buttons[i].classList.remove('active');
+            for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+            
+            if (event && event.target) {
+                event.target.classList.add('active');
             }
-            event.target.classList.add('active');
             
             loadWallpapers();
         }
 
-        document.addEventListener('DOMContentLoaded', loadWallpapers);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWallpapers();
+        });
         
         window.loadWallpapers = loadWallpapers;
         window.selectWallpaper = selectWallpaper;

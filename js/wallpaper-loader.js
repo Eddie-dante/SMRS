@@ -1,6 +1,7 @@
 // ============================================
 // SRMS - Wallpaper Loader
-// Complete Version with All Wallpapers
+// Full Version - PERFORMANCE OPTIMIZED
+// (Images reduced to w=800&q=60 for speed)
 // ============================================
 
 var WALLPAPER_DATA = {
@@ -16,7 +17,7 @@ var WALLPAPER_DATA = {
     name: "Library Classic",
     icon: "fa-book",
     type: "image",
-    url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Susan Q Yin",
   },
@@ -24,7 +25,7 @@ var WALLPAPER_DATA = {
     name: "Modern Classroom",
     icon: "fa-chalkboard",
     type: "image",
-    url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Nguyen Dang Hoang Nhu",
   },
@@ -32,7 +33,7 @@ var WALLPAPER_DATA = {
     name: "Bookshelf Heaven",
     icon: "fa-layer-group",
     type: "image",
-    url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Giammarco Boscaro",
   },
@@ -40,7 +41,7 @@ var WALLPAPER_DATA = {
     name: "Graduation Day",
     icon: "fa-graduation-cap",
     type: "image",
-    url: "https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1523050854058-8df90910f68e?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Vasily Koloda",
   },
@@ -48,7 +49,7 @@ var WALLPAPER_DATA = {
     name: "Lecture Hall",
     icon: "fa-university",
     type: "image",
-    url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Dom Fou",
   },
@@ -56,7 +57,7 @@ var WALLPAPER_DATA = {
     name: "Computer Lab",
     icon: "fa-laptop",
     type: "image",
-    url: "https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1571266028243-e4c84c8a40b7?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "John Schnobrich",
   },
@@ -64,7 +65,7 @@ var WALLPAPER_DATA = {
     name: "Science Lab",
     icon: "fa-flask",
     type: "image",
-    url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Hans Reniers",
   },
@@ -72,7 +73,7 @@ var WALLPAPER_DATA = {
     name: "Playground Fun",
     icon: "fa-futbol",
     type: "image",
-    url: "https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1472898965229-f9b06b9c9bbe?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Mi Pham",
   },
@@ -80,7 +81,7 @@ var WALLPAPER_DATA = {
     name: "Sunset Campus",
     icon: "fa-building",
     type: "image",
-    url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Vasily Koloda",
   },
@@ -88,7 +89,7 @@ var WALLPAPER_DATA = {
     name: "Study Desk",
     icon: "fa-desk",
     type: "image",
-    url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Green Chameleon",
   },
@@ -96,7 +97,7 @@ var WALLPAPER_DATA = {
     name: "Art Studio",
     icon: "fa-palette",
     type: "image",
-    url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Alice Dietrich",
   },
@@ -104,7 +105,7 @@ var WALLPAPER_DATA = {
     name: "Music Room",
     icon: "fa-music",
     type: "image",
-    url: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Wes Hicks",
   },
@@ -112,7 +113,7 @@ var WALLPAPER_DATA = {
     name: "Sports Field",
     icon: "fa-volleyball-ball",
     type: "image",
-    url: "https://images.unsplash.com/photo-1459865264687-595d652de67e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Ben Hershey",
   },
@@ -120,7 +121,7 @@ var WALLPAPER_DATA = {
     name: "Cafeteria",
     icon: "fa-utensils",
     type: "image",
-    url: "https://images.unsplash.com/photo-1574482620811-1aa16ffe3c82?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1574482620811-1aa16ffe3c82?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Dan Gold",
   },
@@ -128,7 +129,7 @@ var WALLPAPER_DATA = {
     name: "School Hallway",
     icon: "fa-door-open",
     type: "image",
-    url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Taylor Flowe",
   },
@@ -136,7 +137,7 @@ var WALLPAPER_DATA = {
     name: "School Lockers",
     icon: "fa-archive",
     type: "image",
-    url: "https://images.unsplash.com/photo-1588072432836-e10032774350?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1588072432836-e10032774350?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Taylor Flowe",
   },
@@ -144,7 +145,7 @@ var WALLPAPER_DATA = {
     name: "Reading Corner",
     icon: "fa-book-reader",
     type: "image",
-    url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Ben White",
   },
@@ -152,7 +153,7 @@ var WALLPAPER_DATA = {
     name: "Study Group",
     icon: "fa-users",
     type: "image",
-    url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Annie Spratt",
   },
@@ -160,7 +161,7 @@ var WALLPAPER_DATA = {
     name: "Notebook",
     icon: "fa-pen",
     type: "image",
-    url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Green Chameleon",
   },
@@ -168,7 +169,7 @@ var WALLPAPER_DATA = {
     name: "Colored Pencils",
     icon: "fa-paint-brush",
     type: "image",
-    url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Alice Dietrich",
   },
@@ -176,7 +177,7 @@ var WALLPAPER_DATA = {
     name: "Globe Map",
     icon: "fa-globe-africa",
     type: "image",
-    url: "https://images.unsplash.com/photo-1524666643752-b381eb00effb?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1524666643752-b381eb00effb?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Kyle Glenn",
   },
@@ -184,7 +185,7 @@ var WALLPAPER_DATA = {
     name: "Microscope",
     icon: "fa-microscope",
     type: "image",
-    url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Hans Reniers",
   },
@@ -192,7 +193,7 @@ var WALLPAPER_DATA = {
     name: "Math Blackboard",
     icon: "fa-square-root-alt",
     type: "image",
-    url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Jeswin Thomas",
   },
@@ -200,7 +201,7 @@ var WALLPAPER_DATA = {
     name: "Chemistry",
     icon: "fa-vial",
     type: "image",
-    url: "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Alex Kondratiev",
   },
@@ -208,7 +209,7 @@ var WALLPAPER_DATA = {
     name: "Physics",
     icon: "fa-atom",
     type: "image",
-    url: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "Hal Gatewood",
   },
@@ -216,7 +217,7 @@ var WALLPAPER_DATA = {
     name: "Biology",
     icon: "fa-dna",
     type: "image",
-    url: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "National Cancer Institute",
   },
@@ -224,7 +225,7 @@ var WALLPAPER_DATA = {
     name: "Geography",
     icon: "fa-globe",
     type: "image",
-    url: "https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=800&q=60&auto=format&fit=crop",
     category: "School",
     credit: "USGS",
   },
@@ -232,7 +233,7 @@ var WALLPAPER_DATA = {
     name: "Ocean View",
     icon: "fa-water",
     type: "image",
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Sean Oulashin",
   },
@@ -240,7 +241,7 @@ var WALLPAPER_DATA = {
     name: "Forest Path",
     icon: "fa-tree",
     type: "image",
-    url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Lukasz Szmigiel",
   },
@@ -248,7 +249,7 @@ var WALLPAPER_DATA = {
     name: "Mountain Peak",
     icon: "fa-mountain",
     type: "image",
-    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Bailey Zindel",
   },
@@ -256,7 +257,7 @@ var WALLPAPER_DATA = {
     name: "Galaxy Stars",
     icon: "fa-star",
     type: "image",
-    url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Guillermo Ferla",
   },
@@ -264,7 +265,7 @@ var WALLPAPER_DATA = {
     name: "Cherry Blossom",
     icon: "fa-seedling",
     type: "image",
-    url: "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "AJ",
   },
@@ -272,7 +273,7 @@ var WALLPAPER_DATA = {
     name: "Northern Lights",
     icon: "fa-bolt",
     type: "image",
-    url: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Vincent Guth",
   },
@@ -280,7 +281,7 @@ var WALLPAPER_DATA = {
     name: "Autumn Leaves",
     icon: "fa-leaf",
     type: "image",
-    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Bailey Zindel",
   },
@@ -288,7 +289,7 @@ var WALLPAPER_DATA = {
     name: "Winter Snow",
     icon: "fa-snowflake",
     type: "image",
-    url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Aaron Burden",
   },
@@ -296,7 +297,7 @@ var WALLPAPER_DATA = {
     name: "Spring Flowers",
     icon: "fa-flower",
     type: "image",
-    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Jen Theodore",
   },
@@ -304,7 +305,7 @@ var WALLPAPER_DATA = {
     name: "Summer Beach",
     icon: "fa-umbrella-beach",
     type: "image",
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Sean Oulashin",
   },
@@ -312,7 +313,7 @@ var WALLPAPER_DATA = {
     name: "Rainy Window",
     icon: "fa-cloud-rain",
     type: "image",
-    url: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Maksym Kaharlytskyi",
   },
@@ -320,7 +321,7 @@ var WALLPAPER_DATA = {
     name: "Starry Night",
     icon: "fa-moon",
     type: "image",
-    url: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Vincentiu Solomon",
   },
@@ -328,7 +329,7 @@ var WALLPAPER_DATA = {
     name: "Golden Hour",
     icon: "fa-sun",
     type: "image",
-    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Johannes Plenio",
   },
@@ -336,23 +337,23 @@ var WALLPAPER_DATA = {
     name: "Lavender Field",
     icon: "fa-spa",
     type: "image",
-    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Jen Theodore",
   },
   sunflower: {
     name: "Sunflower Field",
-    icon: "fa-sunflower",
+    icon: "fa-sun",
     type: "image",
-    url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Lukasz Szmigiel",
   },
   rose: {
     name: "Rose Garden",
-    icon: "fa-rose",
+    icon: "fa-heart",
     type: "image",
-    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Annie Spratt",
   },
@@ -360,7 +361,7 @@ var WALLPAPER_DATA = {
     name: "Tulip Field",
     icon: "fa-flower",
     type: "image",
-    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Jen Theodore",
   },
@@ -368,7 +369,7 @@ var WALLPAPER_DATA = {
     name: "Zen Garden",
     icon: "fa-peace",
     type: "image",
-    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Annie Spratt",
   },
@@ -376,7 +377,7 @@ var WALLPAPER_DATA = {
     name: "Green Nature",
     icon: "fa-seedling",
     type: "image",
-    url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Lukasz Szmigiel",
   },
@@ -384,7 +385,7 @@ var WALLPAPER_DATA = {
     name: "Sunrise",
     icon: "fa-sun",
     type: "image",
-    url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=60&auto=format&fit=crop",
     category: "Nature",
     credit: "Bailey Zindel",
   },
@@ -392,7 +393,7 @@ var WALLPAPER_DATA = {
     name: "City Lights",
     icon: "fa-city",
     type: "image",
-    url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Pedro Lastra",
   },
@@ -400,7 +401,7 @@ var WALLPAPER_DATA = {
     name: "Architecture",
     icon: "fa-landmark",
     type: "image",
-    url: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Patrick Tomasso",
   },
@@ -408,7 +409,7 @@ var WALLPAPER_DATA = {
     name: "Castle",
     icon: "fa-chess-rook",
     type: "image",
-    url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Anna Church",
   },
@@ -416,15 +417,15 @@ var WALLPAPER_DATA = {
     name: "Cathedral",
     icon: "fa-church",
     type: "image",
-    url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Chris Karidis",
   },
   bridge: {
     name: "Bridge",
-    icon: "fa-bridge",
+    icon: "fa-archway",
     type: "image",
-    url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Lukasz Szmigiel",
   },
@@ -432,7 +433,7 @@ var WALLPAPER_DATA = {
     name: "Lighthouse",
     icon: "fa-lightbulb",
     type: "image",
-    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Sean Oulashin",
   },
@@ -440,15 +441,15 @@ var WALLPAPER_DATA = {
     name: "Windmill",
     icon: "fa-wind",
     type: "image",
-    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Johannes Plenio",
   },
   balloon: {
     name: "Hot Air Balloon",
-    icon: "fa-balloon",
+    icon: "fa-parachute-box",
     type: "image",
-    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=60&auto=format&fit=crop",
     category: "City",
     credit: "Johannes Plenio",
   },
@@ -456,7 +457,7 @@ var WALLPAPER_DATA = {
     name: "Abstract Art",
     icon: "fa-paint-brush",
     type: "image",
-    url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Pawel Czerwinski",
   },
@@ -464,7 +465,7 @@ var WALLPAPER_DATA = {
     name: "Geometric",
     icon: "fa-shapes",
     type: "image",
-    url: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Ricardo Gomez Angel",
   },
@@ -472,15 +473,15 @@ var WALLPAPER_DATA = {
     name: "Minimalist",
     icon: "fa-circle",
     type: "image",
-    url: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Bench Accounting",
   },
   blueabstract: {
     name: "Blue Abstract",
-    icon: "fa-wave",
+    icon: "fa-water",
     type: "image",
-    url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Pawel Czerwinski",
   },
@@ -488,7 +489,7 @@ var WALLPAPER_DATA = {
     name: "Purple Haze",
     icon: "fa-feather",
     type: "image",
-    url: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Milad Fakurian",
   },
@@ -496,7 +497,7 @@ var WALLPAPER_DATA = {
     name: "Technology",
     icon: "fa-microchip",
     type: "image",
-    url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Alex Knight",
   },
@@ -504,7 +505,7 @@ var WALLPAPER_DATA = {
     name: "Knowledge",
     icon: "fa-book-open",
     type: "image",
-    url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Kimberly Farmer",
   },
@@ -512,61 +513,65 @@ var WALLPAPER_DATA = {
     name: "Success Path",
     icon: "fa-trophy",
     type: "image",
-    url: "https://images.unsplash.com/photo-1494178270175-e96de2971df9?w=1920&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1494178270175-e96de2971df9?w=800&q=60&auto=format&fit=crop",
     category: "Abstract",
     credit: "Clark Tibbs",
   },
 };
 
-// Auto-apply saved wallpaper on every page load
-document.addEventListener("DOMContentLoaded", function () {
-  var savedWallpaper = localStorage.getItem("srms_wallpaper");
-  if (!savedWallpaper) {
-    savedWallpaper = "library";
-    localStorage.setItem("srms_wallpaper", "library");
-  }
+// ============ APPLY WALLPAPER ============
+function applyWallpaper(key) {
+  var wallpaper = WALLPAPER_DATA[key] || WALLPAPER_DATA["library"];
+  if (!wallpaper) return;
 
-  var wallpaper = WALLPAPER_DATA[savedWallpaper] || WALLPAPER_DATA["library"];
-
+  var body = document.body;
   if (wallpaper.type === "gradient") {
-    document.body.style.background = wallpaper.css;
-    document.body.style.backgroundImage = "none";
-    document.body.style.backgroundAttachment = "fixed";
+    body.style.background = wallpaper.css;
+    body.style.backgroundImage = "none";
+    body.style.backgroundAttachment = "fixed";
   } else {
-    document.body.style.backgroundImage =
-      'linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url("' +
+    body.style.background =
+      'linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), url("' +
       wallpaper.url +
       '")';
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundRepeat = "no-repeat";
+    body.style.backgroundSize = "cover";
+    body.style.backgroundPosition = "center";
+    body.style.backgroundAttachment = "fixed";
+    body.style.backgroundRepeat = "no-repeat";
   }
+}
+
+// Apply on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+  var savedWallpaper = localStorage.getItem("srms_wallpaper") || "library";
+  applyWallpaper(savedWallpaper);
 });
 
-// Also apply immediately (not waiting for DOMContentLoaded)
+// Apply immediately too (before DOM fully ready) to reduce flash
 (function () {
-  var savedWallpaper = localStorage.getItem("srms_wallpaper");
-  if (savedWallpaper && WALLPAPER_DATA[savedWallpaper]) {
-    var wallpaper = WALLPAPER_DATA[savedWallpaper];
+  var savedWallpaper = localStorage.getItem("srms_wallpaper") || "library";
+  var wallpaper = WALLPAPER_DATA[savedWallpaper];
+  if (wallpaper) {
     if (wallpaper.type === "gradient") {
       document.body.style.background = wallpaper.css;
     } else {
-      document.body.style.backgroundImage =
-        'linear-gradient(rgba(10, 14, 39, 0.55), rgba(10, 14, 39, 0.65)), url("' +
+      document.body.style.background =
+        'linear-gradient(rgba(10, 14, 39, 0.6), rgba(10, 14, 39, 0.7)), url("' +
         wallpaper.url +
         '")';
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundPosition = "center";
       document.body.style.backgroundAttachment = "fixed";
+      document.body.style.backgroundRepeat = "no-repeat";
     }
   }
 })();
 
 window.WALLPAPER_DATA = WALLPAPER_DATA;
+window.applyWallpaper = applyWallpaper;
 
 console.log(
   "✅ Wallpaper Loader ready with " +
     Object.keys(WALLPAPER_DATA).length +
-    " wallpapers",
+    " wallpapers (optimized)",
 );

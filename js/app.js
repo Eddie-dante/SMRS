@@ -1,6 +1,6 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version - Enhanced Student Extraction
+// Full Version - PERFORMANCE OPTIMIZED
 // ============================================
 
 var currentChatUserEmail = null;
@@ -21,15 +21,11 @@ document.addEventListener("DOMContentLoaded", function () {
   if (isAppInitialized) return;
   isAppInitialized = true;
 
-  console.log("🚀 SRMS App initializing...");
-
   var user = checkAuth();
   if (!user) return;
 
   var page = window.location.pathname.split("/").pop() || "dashboard.html";
   if (page === "") page = "dashboard.html";
-
-  console.log("📄 Current page:", page);
 
   initDropdownController();
 
@@ -129,8 +125,6 @@ function initDropdownController() {
 
 // ============ PAGE ROUTER ============
 function loadPageData(page) {
-  console.log("📄 Loading data for:", page);
-
   switch (page) {
     case "dashboard.html":
       loadDashboardData();
@@ -210,9 +204,7 @@ function logAction(action, details) {
     userEmail: user.email,
     action: action,
     details: details,
-  }).catch(function (error) {
-    console.error("Audit log error:", error);
-  });
+  }).catch(function () {});
 }
 
 // ============ MESSAGE NOTIFICATIONS ============
@@ -240,7 +232,6 @@ function checkUnreadMessages() {
 
 // ============ DASHBOARD ============
 function loadDashboardData() {
-  console.log("📊 Loading dashboard data...");
   var school = getCurrentSchool();
   if (!school) return;
 
@@ -305,16 +296,7 @@ function loadDashboardData() {
       });
       classes.forEach(function (c) {
         (c.students || []).forEach(function (st) {
-          var adm =
-            st.ADM ||
-            st.adm ||
-            st["ADM No"] ||
-            st["ADM No."] ||
-            st["Admission No"] ||
-            st["Admission Number"] ||
-            st.ADMNO ||
-            st.admNo ||
-            "";
+          var adm = extractAdm(st);
           if (adm && !seenAdms[adm]) {
             seenAdms[adm] = true;
             totalStudents++;
@@ -777,9 +759,8 @@ function loadClassStudentsForBooks() {
         selectedClass.students.length +
         ")</h4>";
       selectedClass.students.forEach(function (student) {
-        var name =
-          student.Name || student.name || student["Full Name"] || "Unknown";
-        var adm = student.ADM || student.adm || student["ADM No"] || "";
+        var name = extractName(student);
+        var adm = extractAdm(student);
         html +=
           '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
           '<span style="flex:1;">' +
@@ -840,41 +821,19 @@ function issueBulkBooks() {
     .catch(function () {});
 }
 
-// ============ STUDENTS (ENHANCED FIELD DETECTION) ============
+// ============ STUDENTS ============
 function loadStudentsData() {
   var school = getCurrentSchool();
   if (!school) return;
-
-  console.log("📊 Loading students from database AND classes...");
 
   Promise.all([API.getStudents(school), API.getClasses(school)])
     .then(function (results) {
       var dbStudents = results[0] || [];
       var classes = results[1] || [];
 
-      console.log("📊 DB Students:", dbStudents.length);
-      console.log("📊 Classes:", classes.length);
-
-      // Debug: Log first class structure
-      if (
-        classes.length > 0 &&
-        classes[0].students &&
-        classes[0].students.length > 0
-      ) {
-        console.log(
-          "📊 First student keys:",
-          Object.keys(classes[0].students[0]),
-        );
-        console.log(
-          "📊 First student:",
-          JSON.stringify(classes[0].students[0]).substring(0, 300),
-        );
-      }
-
       var allStudents = [];
       var seenAdms = {};
 
-      // Add DB students
       dbStudents.forEach(function (s) {
         if (s.adm && !seenAdms[s.adm]) {
           seenAdms[s.adm] = true;
@@ -883,42 +842,11 @@ function loadStudentsData() {
         }
       });
 
-      // Extract from classes with ENHANCED field detection
       classes.forEach(function (cls) {
         var classStudents = cls.students || [];
-
         classStudents.forEach(function (st) {
-          // ENHANCED ADM detection - try ALL variations
-          var adm =
-            st.ADM ||
-            st.adm ||
-            st["ADM No"] ||
-            st["ADM No."] ||
-            st["Admission No"] ||
-            st["Admission Number"] ||
-            st["AdmissionNo"] ||
-            st.ADMNO ||
-            st.admNo ||
-            st["ADM NO"] ||
-            st.adm_no ||
-            st["adm_no"] ||
-            st.AdmissionNumber ||
-            st.admission_no ||
-            "";
-
-          // ENHANCED Name detection
-          var name =
-            st.Name ||
-            st.name ||
-            st["Full Name"] ||
-            st["FullName"] ||
-            st["Student Name"] ||
-            st["StudentName"] ||
-            st["NAME"] ||
-            st["Student's Name"] ||
-            st.Student_Name ||
-            "Unknown";
-
+          var adm = extractAdm(st);
+          var name = extractName(st);
           var gender = st.Gender || st.gender || st["Sex"] || st.sex || "";
           var stream = st.Stream || st.stream || cls.stream || "";
           var dob =
@@ -965,15 +893,13 @@ function loadStudentsData() {
         });
       });
 
-      console.log("📊 Total students:", allStudents.length);
-
       allStudentsCache = allStudents;
 
       var tbody = document.getElementById("studentsTableBody");
       if (tbody) {
         if (allStudents.length === 0) {
           tbody.innerHTML =
-            '<tr><td colspan="8" style="text-align:center;">No students found. Check console for field names.</td></tr>';
+            '<tr><td colspan="8" style="text-align:center;">No students found.</td></tr>';
         } else {
           var html = "";
           allStudents.slice(0, 200).forEach(function (s) {
@@ -1017,7 +943,7 @@ function loadStudentsData() {
       updateStudentStats(allStudents, dbStudents, classes);
     })
     .catch(function (err) {
-      console.error("❌ Students error:", err);
+      console.error("Students error:", err);
     });
 }
 
@@ -1299,9 +1225,8 @@ function loadClassStudentsForFurniture() {
         selectedClass.students.length +
         ")</h4>";
       selectedClass.students.forEach(function (student) {
-        var name =
-          student.Name || student.name || student["Full Name"] || "Unknown";
-        var adm = student.ADM || student.adm || student["ADM No"] || "";
+        var name = extractName(student);
+        var adm = extractAdm(student);
         html +=
           '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
           '<span style="flex:1;">' +
@@ -1340,14 +1265,13 @@ function allocateBulkFurniture() {
 
       if (bulkFurnitureClass && bulkFurnitureClass.students) {
         bulkFurnitureClass.students.forEach(function (s) {
-          var sAdm = s.ADM || s.adm || s["ADM No"] || "";
+          var sAdm = extractAdm(s);
           if (sAdm === adm) student = s;
         });
       }
 
       if (student) {
-        var name =
-          student.Name || student.name || student["Full Name"] || "Unknown";
+        var name = extractName(student);
         promises.push(
           API.allocateFurniture(school, {
             studentName: name,
@@ -2257,8 +2181,8 @@ function viewClassStudents(classId) {
         html +=
           '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>ADM</th><th>Gender</th></tr></thead><tbody>';
         students.forEach(function (s, i) {
-          var name = s.Name || s.name || s["Full Name"] || "Unknown";
-          var adm = s.ADM || s.adm || s["ADM No"] || "-";
+          var name = extractName(s);
+          var adm = extractAdm(s) || "-";
           var gender = s.Gender || s.gender || "-";
           html +=
             "<tr><td>" +
@@ -2410,11 +2334,14 @@ function loadReports() {
           ? Math.round((returned.length / borrowed.length) * 100)
           : 0;
 
-      document.getElementById("overdueCount").textContent = overdue.length;
-      document.getElementById("activeLoansCount").textContent =
-        activeLoans.length;
-      document.getElementById("returnRate").textContent = returnRate + "%";
-      document.getElementById("furnitureCount").textContent = furniture.length;
+      var ocEl = document.getElementById("overdueCount");
+      var alEl = document.getElementById("activeLoansCount");
+      var rrEl = document.getElementById("returnRate");
+      var fcEl = document.getElementById("furnitureCount");
+      if (ocEl) ocEl.textContent = overdue.length;
+      if (alEl) alEl.textContent = activeLoans.length;
+      if (rrEl) rrEl.textContent = returnRate + "%";
+      if (fcEl) fcEl.textContent = furniture.length;
 
       renderOverdueReport(overdue);
       renderMonthlySummary(borrowed, furniture);
@@ -2499,14 +2426,16 @@ function loadSettingsData() {
   API.getSchool(school)
     .then(function (schoolInfo) {
       if (schoolInfo) {
-        document.getElementById("schoolNameInput").value =
-          schoolInfo.name || "";
-        document.getElementById("schoolAddress").value =
-          schoolInfo.address || "";
-        document.getElementById("adminName").value = schoolInfo.adminName || "";
-        document.getElementById("adminEmail").value =
-          schoolInfo.adminEmail || "";
-        document.getElementById("schoolMotto").value = schoolInfo.motto || "";
+        var nameEl = document.getElementById("schoolNameInput");
+        var addrEl = document.getElementById("schoolAddress");
+        var admNameEl = document.getElementById("adminName");
+        var admEmailEl = document.getElementById("adminEmail");
+        var mottoEl = document.getElementById("schoolMotto");
+        if (nameEl) nameEl.value = schoolInfo.name || "";
+        if (addrEl) addrEl.value = schoolInfo.address || "";
+        if (admNameEl) admNameEl.value = schoolInfo.adminName || "";
+        if (admEmailEl) admEmailEl.value = schoolInfo.adminEmail || "";
+        if (mottoEl) mottoEl.value = schoolInfo.motto || "";
       }
     })
     .catch(function () {});
@@ -2514,11 +2443,12 @@ function loadSettingsData() {
   API.getSettings(school)
     .then(function (settings) {
       if (settings) {
-        document.getElementById("maxBorrowDays").value =
-          settings.maxBorrowDays || 14;
-        document.getElementById("maxBooksPerStudent").value =
-          settings.maxBooksPerStudent || 3;
-        document.getElementById("finePerDay").value = settings.finePerDay || 10;
+        var mbEl = document.getElementById("maxBorrowDays");
+        var mbpsEl = document.getElementById("maxBooksPerStudent");
+        var fpdEl = document.getElementById("finePerDay");
+        if (mbEl) mbEl.value = settings.maxBorrowDays || 14;
+        if (mbpsEl) mbpsEl.value = settings.maxBooksPerStudent || 3;
+        if (fpdEl) fpdEl.value = settings.finePerDay || 10;
       }
     })
     .catch(function () {});
@@ -2688,7 +2618,7 @@ function loadDatabaseTable() {
       headHtml += "</tr>";
       thead.innerHTML = headHtml;
       var bodyHtml = "";
-      data.forEach(function (row) {
+      data.slice(0, 100).forEach(function (row) {
         bodyHtml += "<tr>";
         filteredColumns.forEach(function (col) {
           var value = row[col];
@@ -2751,7 +2681,7 @@ function loadQRCodeList() {
     .catch(function () {});
 }
 
-// ============ EXPORT ALL ============
+// ============ EXPORTS ============
 window.loadDashboardData = loadDashboardData;
 window.loadLibraryData = loadLibraryData;
 window.loadStudentsData = loadStudentsData;
@@ -2814,4 +2744,4 @@ window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
 window.allocateBulkFurniture = allocateBulkFurniture;
 window.updateStudentStats = updateStudentStats;
 
-console.log("✅ SRMS App loaded successfully - All functions ready!");
+console.log("✅ SRMS App loaded - PERFORMANCE OPTIMIZED");

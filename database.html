@@ -7,19 +7,14 @@
     <meta name="description" content="View and manage database tables">
     <meta name="theme-color" content="#0a0e27">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- CSS Files -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/components.css">
@@ -183,7 +178,6 @@
         }
         .data-table tr:hover { background: rgba(255, 255, 255, 0.05); }
         
-        /* Student photo thumbnail in table */
         .student-photo-thumb {
             width: 40px;
             height: 50px;
@@ -233,7 +227,6 @@
     </style>
 </head>
 <body>
-    <!-- Taskbar -->
     <div class="taskbar">
         <div class="taskbar-left">
             <a href="dashboard.html" class="taskbar-logo"><i class="fas fa-school"></i><span>SRMS</span></a>
@@ -244,7 +237,6 @@
         </div>
     </div>
     
-    <!-- Main Content -->
     <div class="main-content">
         <div class="page-header">
             <h1><i class="fas fa-database" style="color:var(--accent);"></i> Database Manager</h1>
@@ -286,7 +278,6 @@
         </div>
     </div>
     
-    <!-- Floating Navbar -->
     <div class="floating-navbar-container">
         <div class="floating-navbar">
             <button class="classy-btn" onclick="location.href='dashboard.html'">
@@ -343,7 +334,6 @@
         </div>
     </div>
     
-    <!-- JavaScript Files -->
     <script src="js/api.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/utils.js"></script>
@@ -351,42 +341,24 @@
     <script src="js/app.js"></script>
     
     <script>
-        /**
-         * ============================================
-         * SRMS - Database Manager Page Logic
-         * Enhanced with photo display for students
-         * ============================================
-         */
+        var MAX_ROWS = 100;
         
-        /**
-         * Load database table data
-         */
         function loadDatabaseTable() {
-            console.log('📊 Loading database table...');
-            
             var school = getCurrentSchool();
             var select = document.getElementById('databaseTableSelect');
             var tbody = document.getElementById('databaseTableBody');
             var thead = document.getElementById('databaseTableHead');
             var countEl = document.getElementById('recordCount');
             
-            if (!select || !select.value) {
-                console.log('⚠️ No table selected');
-                return;
-            }
+            if (!select || !select.value) return;
             
             var tableName = select.value;
             
-            if (!tbody || !thead || !countEl) {
-                console.error('❌ Required elements not found');
-                return;
-            }
+            if (!tbody || !thead || !countEl) return;
             
             tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading ' + tableName + '...</p></div></td></tr>';
             
             API.getTableData(school, tableName).then(function(data) {
-                console.log('✅ Data loaded for ' + tableName + ':', data ? data.length : 0, 'records');
-                
                 if (!data || data.length === 0) {
                     thead.innerHTML = '';
                     tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-inbox"></i><p>No data in ' + tableName + ' table</p></div></td></tr>';
@@ -394,19 +366,15 @@
                     return;
                 }
                 
-                // Update record count
-                countEl.textContent = data.length + ' records found in ' + tableName;
+                countEl.textContent = data.length + ' total records (showing ' + Math.min(MAX_ROWS, data.length) + ')';
                 
-                // Get columns (exclude password)
                 var columns = Object.keys(data[0]);
                 var filteredColumns = columns.filter(function(c) { return c !== 'password'; });
                 
-                // For students table, add Photo column if not present
                 if (tableName === 'students' && filteredColumns.indexOf('photo') === -1) {
                     filteredColumns.unshift('photo');
                 }
                 
-                // Build header
                 var headHtml = '<tr>';
                 filteredColumns.forEach(function(col) {
                     var displayName = col;
@@ -417,14 +385,14 @@
                 headHtml += '</tr>';
                 thead.innerHTML = headHtml;
                 
-                // Build body
                 var bodyHtml = '';
-                data.forEach(function(row) {
+                var rowsToShow = data.slice(0, MAX_ROWS);
+                
+                rowsToShow.forEach(function(row) {
                     bodyHtml += '<tr>';
                     filteredColumns.forEach(function(col) {
                         var value = row[col];
                         
-                        // Handle photo column specially
                         if (col === 'photo' && tableName === 'students') {
                             if (value && typeof value === 'string' && value.startsWith('data:image')) {
                                 bodyHtml += '<td><img src="' + value + '" class="student-photo-thumb" alt="Student Photo"></td>';
@@ -434,17 +402,15 @@
                             return;
                         }
                         
-                        // Handle ID card image (show thumbnail or save icon)
                         if (col === 'idCardImage' && tableName === 'students') {
                             if (value && typeof value === 'string' && value.startsWith('data:image')) {
-                                bodyHtml += '<td><button class="btn btn-view" onclick="viewImage(\'' + value.substring(0, 50) + '...\')"><i class="fas fa-id-card"></i> View</button></td>';
+                                bodyHtml += '<td><button class="btn btn-view" onclick="viewImage(this)" data-image="' + value + '"><i class="fas fa-id-card"></i> View</button></td>';
                             } else {
                                 bodyHtml += '<td>-</td>';
                             }
                             return;
                         }
                         
-                        // Handle long base64 strings
                         if (typeof value === 'string' && value.startsWith('data:image')) {
                             bodyHtml += '<td><button class="btn btn-view" onclick="viewImage(this)" data-image="' + value + '"><i class="fas fa-image"></i> View</button></td>';
                             return;
@@ -463,21 +429,22 @@
                     });
                     bodyHtml += '</tr>';
                 });
+                
+                if (data.length > MAX_ROWS) {
+                    bodyHtml += '<tr><td colspan="' + filteredColumns.length + '" style="text-align:center;color:rgba(255,255,255,0.5);padding:15px;">' +
+                        '⚠️ Showing ' + MAX_ROWS + ' of ' + data.length + ' rows for performance. Refine your selection to see more.' +
+                        '</td></tr>';
+                }
+                
                 tbody.innerHTML = bodyHtml;
-                
-                console.log('✅ Table rendered successfully with photos');
-                
             }).catch(function(error) {
-                console.error('❌ Database table error:', error);
+                console.error('Database table error:', error);
                 thead.innerHTML = '';
                 tbody.innerHTML = '<tr><td><div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading data</p></div></td></tr>';
                 countEl.textContent = 'Error loading ' + tableName;
             });
         }
         
-        /**
-         * View image in new window
-         */
         function viewImage(element) {
             var imageData = element.getAttribute('data-image');
             if (!imageData) return;
@@ -491,12 +458,7 @@
             }
         }
         
-        /**
-         * Logout with confirmation dialog
-         */
         function logoutWithConfirm() {
-            console.log('🔄 Logout requested');
-            
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Are you sure you want to logout?', { 
                     title: 'Logout', 
@@ -504,47 +466,26 @@
                     confirmText: 'Logout', 
                     cancelText: 'Cancel' 
                 }).then(function(result) {
-                    if (result === 'confirm') {
-                        console.log('✅ Logout confirmed');
-                        logout();
-                    }
+                    if (result === 'confirm') logout();
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) {
-                    logout();
-                }
+                if (confirm('Are you sure you want to logout?')) logout();
             }
         }
         
-        /**
-         * Logout function
-         */
         function logout() {
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
         
-        /**
-         * Initialize page on DOM ready
-         */
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Database Manager page loaded');
-            
-            // VERIFY AUTHENTICATION - ADDED
             var user = checkAuth();
-            if (!user) {
-                console.log('❌ No authenticated user, redirecting...');
-                return;
-            }
+            if (!user) return;
             
-            console.log('✅ User authenticated:', user.name);
-            
-            // Auto-load students table
             var select = document.getElementById('databaseTableSelect');
             if (select) {
                 select.value = 'students';
-                console.log('📊 Auto-loading students table...');
                 loadDatabaseTable();
             }
         });
@@ -553,7 +494,6 @@
         window.viewImage = viewImage;
         window.logoutWithConfirm = logoutWithConfirm;
         window.logout = logout;
-        console.log('✅ Database Manager page scripts loaded successfully');
     </script>
 </body>
 </html>
