@@ -2681,6 +2681,55 @@ function loadQRCodeList() {
     .catch(function () {});
 }
 
+// ============ NAVBAR AUTO-DIM ON SCROLL (mobile) ============
+(function () {
+  var navbar = document.querySelector(".floating-navbar");
+  if (!navbar) return;
+
+  var lastY = window.scrollY;
+  var dimTimer = null;
+  var hiddenAt = 0;
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (window.innerWidth > 768) return; // only on mobile
+
+      var y = window.scrollY;
+      var goingDown = y > lastY;
+      lastY = y;
+
+      if (goingDown && y > 60) {
+        if (!navbar.classList.contains("navbar-dimmed")) {
+          navbar.classList.add("navbar-dimmed");
+          hiddenAt = Date.now();
+        }
+      } else {
+        navbar.classList.remove("navbar-dimmed");
+        hiddenAt = 0;
+      }
+
+      if (dimTimer) clearTimeout(dimTimer);
+      dimTimer = setTimeout(function () {
+        // Auto-reveal after 4s of no scrolling
+        if (Date.now() - hiddenAt > 4000) {
+          navbar.classList.remove("navbar-dimmed");
+        }
+      }, 4000);
+    },
+    { passive: true },
+  );
+
+  // Reveal on tap anywhere (so user can always get it back)
+  document.addEventListener(
+    "touchstart",
+    function () {
+      navbar.classList.remove("navbar-dimmed");
+    },
+    { passive: true },
+  );
+})();
+
 // ============ EXPORTS ============
 window.loadDashboardData = loadDashboardData;
 window.loadLibraryData = loadLibraryData;
