@@ -1,6 +1,7 @@
 // ============================================
 // SRMS - Complete Application Logic
 // Full Version with REALTIME LIVE DATA + CHAT SYNC
+// + BULK ASSIGNMENT INPUT PRESERVATION
 // ============================================
 
 var currentChatUserEmail = null;
@@ -237,8 +238,6 @@ function loadPageData(page) {
 }
 
 // ============ REALTIME WATCHER ============
-// Subscribes to collections and calls pageLoader whenever data changes.
-// If the pageLoader expects data as its first argument, the raw data is passed.
 function watchLive(page, collections, pageLoader) {
   if (!window.API || !API.subscribe) return;
   var school = getCurrentSchool();
@@ -271,19 +270,15 @@ function watchLive(page, collections, pageLoader) {
 }
 
 // ============ CHAT LIVE HANDLER ============
-// Special chat handler — re-renders messages when chat collection changes
 function handleChatLiveUpdate(rawMessages, collection) {
-  // Store the raw list so we can filter it locally
   if (collection === "chat" && Array.isArray(rawMessages)) {
     _rawChatMessages = rawMessages;
   }
 
-  // Also refresh the user list when "users" changes
   if (collection === "users") {
     loadChatUsers();
   }
 
-  // Debounce the message re-render (bulk writes shouldn't cause N renders)
   if (_chatRenderTimer) clearTimeout(_chatRenderTimer);
   _chatRenderTimer = setTimeout(function () {
     if (currentChatUserEmail) {
@@ -293,7 +288,6 @@ function handleChatLiveUpdate(rawMessages, collection) {
   }, 80);
 }
 
-// Renders the current conversation from the raw realtime data
 function renderChatMessagesFromRaw() {
   var user = getCurrentUser();
   var container = document.getElementById("chatMessages");
@@ -369,10 +363,8 @@ function checkUnreadMessages() {
   var user = getCurrentUser();
   if (!school || !user) return;
 
-  // If we have raw chat data, count locally (instant)
-  var unread;
   if (_rawChatMessages.length > 0) {
-    unread = _rawChatMessages.filter(function (msg) {
+    var unread = _rawChatMessages.filter(function (msg) {
       return msg.toEmail === user.email && !msg.readStatus;
     }).length;
     unreadMessagesCount = unread;
@@ -380,7 +372,6 @@ function checkUnreadMessages() {
     return;
   }
 
-  // Fallback: fetch
   API.getChatMessages(school, user.email, user.email)
     .then(function (messages) {
       unreadMessagesCount = messages ? messages.length : 0;
@@ -746,8 +737,10 @@ function loadLibraryData() {
         }
       }
 
+      // Preserve bulk class selection on re-render
       var bulkClassSelect = document.getElementById("bulkBookClass");
       if (bulkClassSelect) {
+        var prevValue = bulkClassSelect.value;
         var classHtml = '<option value="">Select Class</option>';
         classes.forEach(function (c) {
           classHtml +=
@@ -762,6 +755,7 @@ function loadLibraryData() {
             ")</option>";
         });
         bulkClassSelect.innerHTML = classHtml;
+        if (prevValue) bulkClassSelect.value = prevValue;
       }
     })
     .catch(function (err) {
@@ -910,47 +904,76 @@ function deleteBook(bookId) {
   }
 }
 
+// ============ BULK BOOKS ============
+function resetBulkBookList() {
+  var container = document.getElementById("bulkBookStudents");
+  if (container) {
+    container.removeAttribute("data-class-id");
+    container.innerHTML = "";
+  }
+}
+
 function loadClassStudentsForBooks() {
   var school = getCurrentSchool();
   var classId = document.getElementById("bulkBookClass");
-  if (!classId || !classId.value) return;
+  if (!classId || !classId.value) {
+    resetBulkBookList();
+    return;
+  }
+
+  var container = document.getElementById("bulkBookStudents");
+  if (!container) return;
+
+  // Skip rebuild if same class already loaded — prevents losing typed values
+  var currentKey = container.getAttribute("data-class-id");
+  if (currentKey === classId.value && container.innerHTML.trim() !== "") {
+    return;
+  }
+
+  // Preserve any typed book numbers (safety net)
+  var preserved = {};
+  container.querySelectorAll(".book-number-input").forEach(function (inp) {
+    if (inp.value) preserved[inp.dataset.adm] = inp.value;
+  });
 
   API.getClasses(school).then(function (classes) {
     var selectedClass = null;
     classes.forEach(function (c) {
       if (c.id === classId.value) selectedClass = c;
     });
+    if (!selectedClass || !selectedClass.students) return;
 
-    if (selectedClass && selectedClass.students) {
-      bulkBookClass = selectedClass;
-      var container = document.getElementById("bulkBookStudents");
-      if (!container) return;
+    bulkBookClass = selectedClass;
 
-      var html =
-        '<h4 style="color:#d4af37;margin-bottom:15px;">Students (' +
-        selectedClass.students.length +
-        ")</h4>";
-      selectedClass.students.forEach(function (student) {
-        var name = extractName(student);
-        var adm = extractAdm(student);
-        html +=
-          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-          '<span style="flex:1;">' +
-          name +
-          " (" +
-          adm +
-          ")</span>" +
-          '<input type="text" class="book-number-input" placeholder="Book No" data-adm="' +
-          adm +
-          '" data-name="' +
-          name +
-          '" style="width:120px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;"></div>';
-      });
-
+    var html =
+      '<h4 style="color:#d4af37;margin-bottom:15px;">Students (' +
+      selectedClass.students.length +
+      ")</h4>";
+    selectedClass.students.forEach(function (student) {
+      var name = extractName(student);
+      var adm = extractAdm(student);
+      var savedValue = preserved[adm] || "";
       html +=
-        '<button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="issueBulkBooks()"><i class="fas fa-book"></i> Issue to All</button>';
-      container.innerHTML = html;
-    }
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+        '<span style="flex:1;">' +
+        name +
+        " (" +
+        adm +
+        ")</span>" +
+        '<input type="text" class="book-number-input" placeholder="Book No" data-adm="' +
+        adm +
+        '" data-name="' +
+        name +
+        '" value="' +
+        savedValue +
+        '" ' +
+        'style="width:120px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;"></div>';
+    });
+
+    html +=
+      '<button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="issueBulkBooks()"><i class="fas fa-book"></i> Issue to All</button>';
+    container.innerHTML = html;
+    container.setAttribute("data-class-id", classId.value);
   });
 }
 
@@ -982,12 +1005,16 @@ function issueBulkBooks() {
     }
   });
 
-  if (promises.length === 0) return;
+  if (promises.length === 0) {
+    showNotification("Enter at least one book number", "warning");
+    return;
+  }
 
   Promise.all(promises)
     .then(function () {
       showNotification("Issued " + issued + " books!", "success");
       closeModal("bulkBookModal");
+      resetBulkBookList();
       loadLibraryData();
     })
     .catch(function () {});
@@ -1282,8 +1309,10 @@ function loadFurnitureData() {
       var allList = document.getElementById("allFurnitureList");
       if (allList) allList.innerHTML = activeList ? activeList.innerHTML : "";
 
+      // Preserve bulk class selection on re-render
       var bulkClassSelect = document.getElementById("bulkFurnitureClass");
       if (bulkClassSelect) {
+        var prevValue = bulkClassSelect.value;
         var classHtml = '<option value="">Select Class</option>';
         classes.forEach(function (c) {
           classHtml +=
@@ -1298,6 +1327,7 @@ function loadFurnitureData() {
             ")</option>";
         });
         bulkClassSelect.innerHTML = classHtml;
+        if (prevValue) bulkClassSelect.value = prevValue;
       }
     })
     .catch(function (err) {
@@ -1376,48 +1406,85 @@ function returnFurnitureItem(furnitureId) {
   }
 }
 
+// ============ BULK FURNITURE ============
+function resetBulkFurnitureList() {
+  var container = document.getElementById("bulkFurnitureStudents");
+  if (container) {
+    container.removeAttribute("data-class-id");
+    container.innerHTML = "";
+  }
+}
+
 function loadClassStudentsForFurniture() {
   var school = getCurrentSchool();
   var classId = document.getElementById("bulkFurnitureClass");
-  if (!classId || !classId.value) return;
+  if (!classId || !classId.value) {
+    resetBulkFurnitureList();
+    return;
+  }
+
+  var container = document.getElementById("bulkFurnitureStudents");
+  if (!container) return;
+
+  // Skip rebuild if same class already loaded
+  var currentKey = container.getAttribute("data-class-id");
+  if (currentKey === classId.value && container.innerHTML.trim() !== "") {
+    return;
+  }
+
+  // Preserve typed values
+  var preservedChairs = {};
+  var preservedLockers = {};
+  container.querySelectorAll(".furniture-chair-input").forEach(function (inp) {
+    if (inp.value) preservedChairs[inp.dataset.adm] = inp.value;
+  });
+  container.querySelectorAll(".furniture-locker-input").forEach(function (inp) {
+    if (inp.value) preservedLockers[inp.dataset.adm] = inp.value;
+  });
 
   API.getClasses(school).then(function (classes) {
     var selectedClass = null;
     classes.forEach(function (c) {
       if (c.id === classId.value) selectedClass = c;
     });
+    if (!selectedClass || !selectedClass.students) return;
 
-    if (selectedClass && selectedClass.students) {
-      bulkFurnitureClass = selectedClass;
-      var container = document.getElementById("bulkFurnitureStudents");
-      if (!container) return;
+    bulkFurnitureClass = selectedClass;
 
-      var html =
-        '<h4 style="color:#d4af37;">Students (' +
-        selectedClass.students.length +
-        ")</h4>";
-      selectedClass.students.forEach(function (student) {
-        var name = extractName(student);
-        var adm = extractAdm(student);
-        html +=
-          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-          '<span style="flex:1;">' +
-          name +
-          " (" +
-          adm +
-          ")</span>" +
-          '<input type="text" class="furniture-chair-input" placeholder="Chair No" data-adm="' +
-          adm +
-          '" style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;">' +
-          '<input type="text" class="furniture-locker-input" placeholder="Locker No" data-adm="' +
-          adm +
-          '" style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;"></div>';
-      });
-
+    var html =
+      '<h4 style="color:#d4af37;">Students (' +
+      selectedClass.students.length +
+      ")</h4>";
+    selectedClass.students.forEach(function (student) {
+      var name = extractName(student);
+      var adm = extractAdm(student);
+      var chairVal = preservedChairs[adm] || "";
+      var lockerVal = preservedLockers[adm] || "";
       html +=
-        '<button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="allocateBulkFurniture()"><i class="fas fa-chair"></i> Allocate to All</button>';
-      container.innerHTML = html;
-    }
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+        '<span style="flex:1;">' +
+        name +
+        " (" +
+        adm +
+        ")</span>" +
+        '<input type="text" class="furniture-chair-input" placeholder="Chair No" data-adm="' +
+        adm +
+        '" value="' +
+        chairVal +
+        '" ' +
+        'style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;">' +
+        '<input type="text" class="furniture-locker-input" placeholder="Locker No" data-adm="' +
+        adm +
+        '" value="' +
+        lockerVal +
+        '" ' +
+        'style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;"></div>';
+    });
+
+    html +=
+      '<button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="allocateBulkFurniture()"><i class="fas fa-chair"></i> Allocate to All</button>';
+    container.innerHTML = html;
+    container.setAttribute("data-class-id", classId.value);
   });
 }
 
@@ -1458,12 +1525,16 @@ function allocateBulkFurniture() {
     }
   });
 
-  if (promises.length === 0) return;
+  if (promises.length === 0) {
+    showNotification("Enter at least one chair number", "warning");
+    return;
+  }
 
   Promise.all(promises)
     .then(function () {
       showNotification("Allocated to " + allocated + " students!", "success");
       closeModal("bulkFurnitureModal");
+      resetBulkFurnitureList();
       loadFurnitureData();
     })
     .catch(function () {});
@@ -1479,7 +1550,6 @@ function loadChatUsers() {
       var userList = document.getElementById("chatUserList");
       if (!userList) return;
 
-      // Preserve active highlight
       var activeEmail = currentChatUserEmail;
 
       var html = "";
@@ -1517,7 +1587,6 @@ function selectChatUser(email, name) {
   var header = document.getElementById("chatWithName");
   if (header) header.textContent = name;
 
-  // Highlight the active button
   document.querySelectorAll(".chat-user-btn").forEach(function (btn) {
     btn.classList.remove("active");
     var onclick = btn.getAttribute("onclick") || "";
@@ -1526,14 +1595,12 @@ function selectChatUser(email, name) {
     }
   });
 
-  // Render immediately from raw data if we have it
   if (_rawChatMessages.length > 0) {
     renderChatMessagesFromRaw();
   } else {
     loadChatMessages();
   }
 
-  // Mark as read
   var school = getCurrentSchool();
   var user = getCurrentUser();
   if (school && user) {
@@ -1551,13 +1618,11 @@ function loadChatMessages() {
   var user = getCurrentUser();
   if (!school || !user) return;
 
-  // If we already have raw realtime data, render immediately
   if (_rawChatMessages.length > 0) {
     renderChatMessagesFromRaw();
     return;
   }
 
-  // Fallback: fetch once, then render
   API.getChatMessages(school, user.email, currentChatUserEmail)
     .then(function (messages) {
       var container = document.getElementById("chatMessages");
@@ -1609,7 +1674,6 @@ function sendMessage(event) {
   var msgText = input.value.trim();
   input.value = "";
 
-  // Optimistic: append locally so it shows instantly
   var tempId = "tmp_" + Date.now();
   _rawChatMessages.push({
     id: tempId,
@@ -1622,19 +1686,15 @@ function sendMessage(event) {
   });
   renderChatMessagesFromRaw();
 
-  // Send to Firebase (realtime will replace this temp with confirmed)
   API.sendChatMessage(school, {
     fromEmail: user.email,
     fromName: user.name,
     toEmail: currentChatUserEmail,
     message: msgText,
   })
-    .then(function () {
-      // Subscription will re-render with server-confirmed message
-    })
+    .then(function () {})
     .catch(function (err) {
       showNotification("Failed to send: " + (err.message || "error"), "error");
-      // Remove optimistic message on failure
       _rawChatMessages = _rawChatMessages.filter(function (m) {
         return m.id !== tempId;
       });
@@ -1914,6 +1974,7 @@ function loadFeesData() {
 
       var select = document.getElementById("feeStudent");
       if (select) {
+        var prevValue = select.value;
         var selectHtml = '<option value="">Select Student</option>';
         students.forEach(function (s) {
           selectHtml +=
@@ -1926,6 +1987,7 @@ function loadFeesData() {
             ")</option>";
         });
         select.innerHTML = selectHtml;
+        if (prevValue) select.value = prevValue;
       }
 
       var tbody = document.getElementById("feesTableBody");
@@ -2098,6 +2160,7 @@ function loadTimetableData() {
 
       var classSelect = document.getElementById("ttClass");
       if (classSelect) {
+        var prevClass = classSelect.value;
         var classHtml = "";
         classes.forEach(function (c) {
           classHtml +=
@@ -2108,10 +2171,12 @@ function loadTimetableData() {
             "</option>";
         });
         classSelect.innerHTML = classHtml;
+        if (prevClass) classSelect.value = prevClass;
       }
 
       var teacherSelect = document.getElementById("ttTeacher");
       if (teacherSelect) {
+        var prevTeacher = teacherSelect.value;
         var teacherHtml = "";
         teachers.forEach(function (t) {
           teacherHtml +=
@@ -2122,6 +2187,7 @@ function loadTimetableData() {
             "</option>";
         });
         teacherSelect.innerHTML = teacherHtml;
+        if (prevTeacher) teacherSelect.value = prevTeacher;
       }
     })
     .catch(function () {});
@@ -3008,8 +3074,10 @@ window.animateNumber = animateNumber;
 window.renderOverdueReport = renderOverdueReport;
 window.renderMonthlySummary = renderMonthlySummary;
 window.loadClassStudentsForBooks = loadClassStudentsForBooks;
+window.resetBulkBookList = resetBulkBookList;
 window.issueBulkBooks = issueBulkBooks;
 window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
+window.resetBulkFurnitureList = resetBulkFurnitureList;
 window.allocateBulkFurniture = allocateBulkFurniture;
 window.updateStudentStats = updateStudentStats;
 window.watchLive = watchLive;
@@ -3090,4 +3158,6 @@ window.renderChatMessagesFromRaw = renderChatMessagesFromRaw;
   setTimeout(initMobileDropdowns, 1500);
 })();
 
-console.log("✅ SRMS App loaded — REALTIME LIVE DATA + CHAT SYNC");
+console.log(
+  "✅ SRMS App loaded — REALTIME LIVE DATA + CHAT SYNC + BULK PRESERVATION",
+);
