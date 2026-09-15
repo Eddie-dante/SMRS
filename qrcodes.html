@@ -174,6 +174,22 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
+        .search-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; margin-bottom: 15px;
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+        }
+        .search-bar i { color: rgba(255,255,255,0.5); }
+        .search-bar input {
+            flex: 1; background: none; border: none;
+            color: #fff; font-size: 13px; outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
+        
         .panel {
             background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
             border: 1px solid var(--glass-border);
@@ -489,6 +505,10 @@
         </div>
         
         <div id="listTab" class="tab-content">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchQRCodes" placeholder="Search by code, type, name, or ADM..." onkeyup="filterQRCodes()">
+            </div>
             <div class="panel qr-list-container" id="qrCodeList">
                 <div class="empty-state"><i class="fas fa-list"></i><p>No QR codes yet</p></div>
             </div>
@@ -957,6 +977,10 @@
                 });
                 html += '</tbody></table>';
                 container.innerHTML = html;
+                // Re-apply search if active
+                if (typeof filterQRCodes === 'function' && document.getElementById('searchQRCodes').value) {
+                    filterQRCodes();
+                }
             });
         }
         
@@ -982,17 +1006,21 @@
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
                 DialogSystem.confirm('Logout?', { title: 'Logout', type: 'info', confirmText: 'Logout', cancelText: 'Cancel' }).then(function(result) {
-                    if (result === 'confirm') logout();
+                    if (result === 'confirm') {
+                        if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
+                        localStorage.removeItem('srms_user');
+                        localStorage.removeItem('srms_school');
+                        window.location.href = 'index.html';
+                    }
                 });
             } else {
-                if (confirm('Logout?')) logout();
+                if (confirm('Logout?')) {
+                    if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
+                    localStorage.removeItem('srms_user');
+                    localStorage.removeItem('srms_school');
+                    window.location.href = 'index.html';
+                }
             }
-        }
-        
-        function logout() {
-            localStorage.removeItem('srms_user');
-            localStorage.removeItem('srms_school');
-            window.location.href = 'index.html';
         }
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -1002,7 +1030,6 @@
             var urlParams = new URLSearchParams(window.location.search);
             var admFromURL = urlParams.get('adm');
             if (admFromURL) {
-                var schoolFromURL = urlParams.get('school') || getCurrentSchool();
                 switchQRTab('scan');
                 var fullURL = window.location.href;
                 displayScanResult(fullURL);
@@ -1019,7 +1046,6 @@
         window.downloadQR = downloadQR;
         window.copyQRCode = copyQRCode;
         window.logoutWithConfirm = logoutWithConfirm;
-        window.logout = logout;
         console.log('✅ QR Codes page loaded');
     </script>
 </body>

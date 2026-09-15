@@ -235,8 +235,7 @@
         }
         .form-group select option { background: #1a1f4e; }
         .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--accent);
+            outline: none; border-color: var(--accent);
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
@@ -271,12 +270,80 @@
             transition: opacity 0.3s;
         }
         
+        .bulk-student-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .bulk-student-row:last-child { border-bottom: none; }
+        .bulk-student-row input[type="checkbox"] {
+            width: auto;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: #d4af37;
+        }
+        .bulk-student-row .student-name {
+            flex: 1;
+            font-size: 12px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .bulk-student-row .book-no-input {
+            width: 120px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+        }
+        .bulk-student-row .book-no-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .bulk-student-row .book-no-input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .bulk-student-scroll {
+            max-height: 340px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+        .bulk-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .bulk-toolbar h4 {
+            color: var(--accent);
+            margin: 0;
+            font-size: 14px;
+        }
+        .bulk-toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 10px; gap: 4px; }
             .classy-btn { padding: 8px 10px; font-size: 10px; }
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
             .page-header { flex-direction: column; align-items: stretch; }
+            .bulk-student-row .book-no-input { width: 90px; }
         }
     </style>
 </head>
@@ -330,79 +397,56 @@
             <div class="form-container">
                 <h3 style="color:var(--accent);margin-bottom:20px;"><i class="fas fa-book"></i> Issue Book</h3>
                 <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-                    <button class="btn btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
-                    <button class="btn btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
+                    <button type="button" class="btn btn-primary" id="individualBtn" onclick="showIndividualIssue()"><i class="fas fa-user"></i> Individual</button>
+                    <button type="button" class="btn btn-secondary" id="bulkBtn" onclick="showBulkIssue()"><i class="fas fa-users"></i> Bulk (Class)</button>
                 </div>
                 
                 <div id="individualIssueForm">
-                    <form onsubmit="return issueBook(event)">
+                    <div class="form-group">
+                        <label>Book Title *</label>
+                        <select id="issueBookTitle" required>
+                            <option value="">-- Select Book --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label>🎓 Class/Form *</label>
-                            <select id="issueClass" required onchange="loadStreamsForIssue()">
-                                <option value="">-- Select Class --</option>
-                            </select>
+                            <label>Student Name *</label>
+                            <input type="text" id="issueStudentName" placeholder="Student name">
                         </div>
-                        
                         <div class="form-group">
-                            <label>🏠 Stream</label>
-                            <select id="issueStream" onchange="loadStudentsForIssue()">
-                                <option value="">-- Select Stream --</option>
-                            </select>
+                            <label>ADM Number *</label>
+                            <input type="text" id="issueADM" placeholder="Admission number">
                         </div>
-                        
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label>👨‍🎓 Student *</label>
-                            <select id="issueStudent" required onchange="updateStudentDetails()">
-                                <option value="">-- Select Student --</option>
-                            </select>
+                            <label>Book Number *</label>
+                            <input type="text" id="issueBookNumber" placeholder="e.g., BK001">
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>👤 Student Name</label>
-                                <input type="text" id="issueStudentName" readonly style="background:rgba(255,255,255,0.02);">
-                            </div>
-                            <div class="form-group">
-                                <label>🔢 ADM Number</label>
-                                <input type="text" id="issueADM" readonly style="background:rgba(255,255,255,0.02);">
-                            </div>
+                        <div class="form-group">
+                            <label>Issued By</label>
+                            <input type="text" id="issueIssuedBy" placeholder="Staff name">
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>📚 Book Title *</label>
-                                <select id="issueBookTitle" required>
-                                    <option value="">-- Select Book --</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>🔢 Book Number *</label>
-                                <input type="text" id="issueBookNumber" required placeholder="e.g., BK001">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group"><label>📅 Borrow Date</label><input type="date" id="issueBorrowDate" required></div>
-                            <div class="form-group"><label>📅 Return Date</label><input type="date" id="issueReturnDate" required></div>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
-                            <i class="fas fa-book"></i> Issue Book
-                        </button>
-                    </form>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="issueBook(event)" style="width:100%;justify-content:center;">
+                        <i class="fas fa-book"></i> Issue Book
+                    </button>
                 </div>
                 
                 <div id="bulkIssueForm" style="display:none;">
-                    <div class="form-group"><label>📚 Book Title *</label><select id="bulkBookTitle"><option value="">-- Select Book --</option></select></div>
-                    <div class="form-group"><label>🏫 Select Class *</label><select id="bulkBookClass" onchange="loadClassStudentsForBooks()"><option value="">-- Select Class --</option></select></div>
-                    <div class="form-row">
-                        <div class="form-group"><label>📅 Borrow Date</label><input type="date" id="bulkBookBorrowDate"></div>
-                        <div class="form-group"><label>📅 Return Date</label><input type="date" id="bulkBookReturnDate"></div>
+                    <div class="form-group">
+                        <label>Book Title *</label>
+                        <select id="bulkBookTitle">
+                            <option value="">-- Select Book --</option>
+                        </select>
                     </div>
-                    <div id="bulkBookStudents"></div>
-                    <button class="btn btn-primary" onclick="issueBulkBooks()" style="width:100%;justify-content:center;margin-top:10px;">
-                        <i class="fas fa-users"></i> Issue to Selected Students
-                    </button>
+                    <div class="form-group">
+                        <label>Select Class *</label>
+                        <select id="bulkBookClass" onchange="resetBulkBookList(); loadClassStudentsForBooks()">
+                            <option value="">-- Select Class --</option>
+                        </select>
+                    </div>
+                    <div id="bulkBookStudents" style="margin-top:15px;"></div>
                 </div>
             </div>
         </div>
@@ -434,11 +478,12 @@
         </div>
     </div>
     
+    <!-- Add Book Modal -->
     <div class="modal" id="addBookModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-plus"></i> Add New Book</h3>
-                <button class="modal-close" onclick="closeModal('addBookModal')"><i class="fas fa-times"></i></button>
+                <button type="button" class="modal-close" onclick="closeModal('addBookModal')"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="return addBook(event)">
                 <div class="form-group"><label>Book Title *</label><input type="text" id="bookTitle" required></div>
@@ -452,6 +497,17 @@
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;"><i class="fas fa-plus"></i> Add Book</button>
             </form>
+        </div>
+    </div>
+    
+    <!-- Bulk Book Modal (legacy — kept for compatibility) -->
+    <div class="modal" id="bulkBookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-users"></i> Bulk Book Issue</h3>
+                <button type="button" class="modal-close" onclick="closeModal('bulkBookModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="bulkBookModalContent"></div>
         </div>
     </div>
     
@@ -522,37 +578,28 @@
     <script src="js/app.js"></script>
     
     <script>
-        var allClassesData = [];
-        var allStudentsData = [];
-        var allBooksData = [];
-        var allBorrowedData = [];
+        /* ============================================================
+           LIBRARY PAGE — page-specific helpers
+           All heavy data logic lives in app.js.
+           This block only handles page-only UI: modals, tabs, logout.
+           ============================================================ */
         
         function showNotification(message, type) {
             if (typeof window.showNotification === 'function' && window.showNotification !== showNotification) {
                 window.showNotification(message, type);
                 return;
             }
-            
             var existingToast = document.querySelector('.toast-notification');
             if (existingToast) existingToast.remove();
-            
             var toast = document.createElement('div');
             toast.className = 'toast-notification';
-            var colors = { 
-                success: '#28a745', 
-                error: '#dc3545', 
-                warning: '#ffc107', 
-                info: '#17a2b8' 
-            };
+            var colors = { success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8' };
             toast.style.background = colors[type] || colors.info;
             toast.textContent = message;
             document.body.appendChild(toast);
-            
-            setTimeout(function() {
+            setTimeout(function () {
                 toast.style.opacity = '0';
-                setTimeout(function() { 
-                    if (toast.parentNode) toast.remove(); 
-                }, 300);
+                setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
             }, 2500);
         }
         
@@ -572,198 +619,12 @@
             }
         }
         
-        function addBook(event) {
-            event.preventDefault();
-            
-            var school = getCurrentSchool();
-            if (!school) {
-                showNotification('School not found', 'error');
-                return false;
-            }
-            
-            var title = document.getElementById('bookTitle').value.trim();
-            var author = document.getElementById('bookAuthor').value.trim();
-            var type = document.getElementById('bookType').value;
-            var subject = document.getElementById('bookSubject').value.trim();
-            var quantity = parseInt(document.getElementById('bookQuantity').value) || 1;
-            
-            if (!title) {
-                showNotification('Book title is required', 'warning');
-                return false;
-            }
-            
-            var bookData = {
-                title: title,
-                name: title,
-                author: author,
-                type: type,
-                subject: subject,
-                quantity: quantity,
-                available: quantity,
-                addedDate: new Date().toISOString()
-            };
-            
-            API.addBook(school, bookData).then(function() {
-                showNotification('Book added successfully!', 'success');
-                closeModal('addBookModal');
-                document.getElementById('bookTitle').value = '';
-                document.getElementById('bookAuthor').value = '';
-                document.getElementById('bookSubject').value = '';
-                document.getElementById('bookQuantity').value = '1';
-                loadLibraryData();
-            }).catch(function(err) {
-                console.error('Add book error:', err);
-                showNotification('Failed to add book', 'error');
-            });
-            
-            return false;
-        }
-        
-        function loadLibraryData() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getBooks(school).then(function(books) {
-                allBooksData = books || [];
-                renderBooksTable(allBooksData);
-            }).catch(function(err) {
-                console.error('Error loading books:', err);
-                var tbody = document.getElementById('booksTableBody');
-                if (tbody) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ff4757;">Failed to load books</td></tr>';
-                }
-            });
-            
-            API.getBorrowed(school).then(function(borrowed) {
-                allBorrowedData = borrowed || [];
-                renderBorrowedTable(allBorrowedData);
-                renderReturnsTable(allBorrowedData);
-            }).catch(function(err) {
-                console.error('Error loading borrowed:', err);
-            });
-        }
-        
-        function renderBooksTable(books) {
-            var tbody = document.getElementById('booksTableBody');
-            if (!tbody) return;
-            
-            if (!books || books.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-book"></i><p>No books in library yet. Add your first book!</p></div></td></tr>';
-                return;
-            }
-            
-            var html = '';
-            books.forEach(function(book) {
-                var available = book.available !== undefined ? book.available : (book.quantity || 0);
-                var statusClass = available > 0 ? 'badge-success' : 'badge-danger';
-                var statusText = available > 0 ? 'Available' : 'Out of Stock';
-                
-                html += '<tr>' +
-                    '<td><strong>' + (book.title || book.name || '-') + '</strong></td>' +
-                    '<td>' + (book.author || '-') + '</td>' +
-                    '<td>' + (book.type || '-') + '</td>' +
-                    '<td>' + (book.subject || '-') + '</td>' +
-                    '<td>' + (book.quantity || 0) + '</td>' +
-                    '<td><span class="badge ' + statusClass + '">' + available + ' ' + statusText + '</span></td>' +
-                    '<td>' +
-                    '<button class="btn btn-sm btn-danger" onclick="deleteBook(\'' + (book.id || book.key || book.title) + '\')">' +
-                    '<i class="fas fa-trash"></i> Delete</button>' +
-                    '</td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
-        }
-        
-        function renderBorrowedTable(borrowed) {
-            var tbody = document.getElementById('borrowedTableBody');
-            if (!tbody) return;
-            
-            if (!borrowed || borrowed.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;"><div class="empty-state"><i class="fas fa-book-open"></i><p>No books borrowed yet</p></div></td></tr>';
-                return;
-            }
-            
-            var html = '';
-            borrowed.slice(0, 200).forEach(function(b) {
-                var status = b.returned ? 'badge-success' : 'badge-warning';
-                var statusText = b.returned ? 'Returned' : 'Borrowed';
-                
-                html += '<tr>' +
-                    '<td>' + (b.studentName || b.name || '-') + '</td>' +
-                    '<td>' + (b.bookTitle || '-') + '</td>' +
-                    '<td>' + (b.borrowDate || '-') + '</td>' +
-                    '<td>' + (b.returnDate || '-') + '</td>' +
-                    '<td><span class="badge ' + status + '">' + statusText + '</span></td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
-        }
-        
-        function renderReturnsTable(borrowed) {
-            var tbody = document.getElementById('returnsTableBody');
-            if (!tbody) return;
-            
-            var active = borrowed.filter(function(b) { return !b.returned; });
-            
-            if (!active || active.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-undo"></i><p>No books pending return</p></div></td></tr>';
-                return;
-            }
-            
-            var today = new Date();
-            var html = '';
-            active.slice(0, 200).forEach(function(b) {
-                var dueDate = b.returnDate ? new Date(b.returnDate) : null;
-                var isOverdue = dueDate && dueDate < today;
-                var statusClass = isOverdue ? 'badge-danger' : 'badge-warning';
-                var statusText = isOverdue ? 'Overdue' : 'Active';
-                
-                html += '<tr>' +
-                    '<td>' + (b.studentName || '-') + '</td>' +
-                    '<td>' + (b.adm || '-') + '</td>' +
-                    '<td>' + (b.bookTitle || '-') + '</td>' +
-                    '<td>' + (b.bookNo || '-') + '</td>' +
-                    '<td>' + (b.returnDate || '-') + '</td>' +
-                    '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>' +
-                    '<td><button class="btn btn-sm btn-success" onclick="returnBook(\'' + (b.id || b.key || '') + '\')">' +
-                    '<i class="fas fa-check"></i> Return</button></td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
-        }
-        
-        function deleteBook(bookId) {
-            if (!confirm('Delete this book?')) return;
-            
-            var school = getCurrentSchool();
-            API.deleteBook(school, bookId).then(function() {
-                showNotification('Book deleted', 'success');
-                loadLibraryData();
-            }).catch(function(err) {
-                console.error('Delete error:', err);
-                showNotification('Failed to delete book', 'error');
-            });
-        }
-        
-        function returnBook(borrowedId) {
-            if (!confirm('Mark this book as returned?')) return;
-            
-            var school = getCurrentSchool();
-            API.returnBook(school, borrowedId).then(function() {
-                showNotification('Book returned!', 'success');
-                loadLibraryData();
-            }).catch(function(err) {
-                console.error('Return error:', err);
-                showNotification('Failed to return book', 'error');
-            });
-        }
-        
         function switchLibraryTab(tabName) {
             var tabs = document.querySelectorAll('.tab');
             var contents = document.querySelectorAll('.tab-content');
             
-            tabs.forEach(function(t) { t.classList.remove('active'); });
-            contents.forEach(function(c) { c.classList.remove('active'); });
+            tabs.forEach(function (t) { t.classList.remove('active'); });
+            contents.forEach(function (c) { c.classList.remove('active'); });
             
             var tabNames = ['catalog', 'issue', 'returns', 'borrowed'];
             var index = tabNames.indexOf(tabName);
@@ -775,12 +636,8 @@
             }
             
             if (tabName === 'issue') {
-                loadClassesForIssue();
-                loadBooksForIssue();
-            }
-            
-            if (tabName === 'returns' || tabName === 'borrowed') {
-                loadLibraryData();
+                // Ensure the bulk class dropdown is populated
+                if (typeof loadLibraryData === 'function') loadLibraryData();
             }
         }
         
@@ -796,420 +653,49 @@
             document.getElementById('bulkIssueForm').style.display = 'block';
             document.getElementById('individualBtn').className = 'btn btn-secondary';
             document.getElementById('bulkBtn').className = 'btn btn-primary';
-            loadClassesForBulkIssue();
-            loadBooksForBulkIssue();
-        }
-        
-        function loadClassesForIssue() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getClasses(school).then(function(classes) {
-                allClassesData = classes || [];
-                var select = document.getElementById('issueClass');
-                if (select) {
-                    var html = '<option value="">-- Select Class --</option>';
-                    allClassesData.forEach(function(c) {
-                        html += '<option value="' + (c.name || '') + '">' + (c.name || '') + '</option>';
-                    });
-                    select.innerHTML = html;
-                }
-            }).catch(function(err) {
-                console.error('Error loading classes:', err);
-            });
-        }
-        
-        function loadStreamsForIssue() {
-            var selectedClass = document.getElementById('issueClass').value;
-            var streamSelect = document.getElementById('issueStream');
-            var studentSelect = document.getElementById('issueStudent');
-            
-            if (!selectedClass) {
-                streamSelect.innerHTML = '<option value="">-- Select Stream --</option>';
-                studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
-                return;
-            }
-            
-            var streams = [];
-            allClassesData.forEach(function(c) {
-                if (c.name === selectedClass) {
-                    if (c.stream) streams.push(c.stream);
-                    (c.students || []).forEach(function(st) {
-                        var stream = st.stream || st.Stream || '';
-                        if (stream && streams.indexOf(stream) === -1) {
-                            streams.push(stream);
-                        }
-                    });
-                }
-            });
-            
-            var html = '<option value="">-- Select Stream --</option>';
-            if (streams.length > 0) {
-                streams.forEach(function(s) {
-                    html += '<option value="' + s + '">' + s + '</option>';
-                });
-            } else {
-                html += '<option value="all">All Streams</option>';
-            }
-            streamSelect.innerHTML = html;
-            studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
-            
-            document.getElementById('issueStudentName').value = '';
-            document.getElementById('issueADM').value = '';
-        }
-        
-        function loadStudentsForIssue() {
-            var selectedClass = document.getElementById('issueClass').value;
-            var selectedStream = document.getElementById('issueStream').value;
-            var studentSelect = document.getElementById('issueStudent');
-            
-            if (!selectedClass) return;
-            
-            var students = [];
-            var seenAdms = {};
-            
-            allClassesData.forEach(function(c) {
-                if (c.name === selectedClass) {
-                    (c.students || []).forEach(function(st) {
-                        var adm = extractAdm(st);
-                        var name = extractName(st);
-                        var stream = st.stream || st.Stream || '';
-                        
-                        if (seenAdms[adm]) return;
-                        
-                        var matchesStream = !selectedStream || 
-                                          selectedStream === 'all' || 
-                                          selectedStream === 'none' || 
-                                          stream === selectedStream;
-                        
-                        if (matchesStream && adm) {
-                            seenAdms[adm] = true;
-                            students.push({
-                                name: name,
-                                adm: adm,
-                                stream: stream,
-                                studentId: st.studentId || st.StudentID || ''
-                            });
-                        }
-                    });
-                }
-            });
-            
-            students.sort(function(a, b) { return a.name.localeCompare(b.name); });
-            
-            var html = '<option value="">-- Select Student (' + students.length + ' available) --</option>';
-            students.forEach(function(s) {
-                html += '<option value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '" data-studentid="' + s.studentId + '">' + 
-                    s.name + ' (' + s.adm + ')' + '</option>';
-            });
-            studentSelect.innerHTML = html;
-            
-            document.getElementById('issueStudentName').value = '';
-            document.getElementById('issueADM').value = '';
-        }
-        
-        function updateStudentDetails() {
-            var studentSelect = document.getElementById('issueStudent');
-            var nameInput = document.getElementById('issueStudentName');
-            var admInput = document.getElementById('issueADM');
-            
-            if (!studentSelect.value) {
-                nameInput.value = '';
-                admInput.value = '';
-                return;
-            }
-            
-            var selectedOption = studentSelect.options[studentSelect.selectedIndex];
-            nameInput.value = selectedOption.getAttribute('data-name') || '';
-            admInput.value = studentSelect.value;
-        }
-        
-        function loadBooksForIssue() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getBooks(school).then(function(books) {
-                allBooksData = books || [];
-                var select = document.getElementById('issueBookTitle');
-                if (select) {
-                    var html = '<option value="">-- Select Book --</option>';
-                    allBooksData.forEach(function(b) {
-                        var available = b.available !== undefined ? b.available : (b.quantity || 0);
-                        if (available > 0) {
-                            html += '<option value="' + (b.title || b.name || '') + '">' + 
-                                (b.title || b.name || '') + ' (Available: ' + available + ')</option>';
-                        }
-                    });
-                    select.innerHTML = html;
-                }
-            }).catch(function(err) {
-                console.error('Error loading books:', err);
-            });
-        }
-        
-        function loadBooksForBulkIssue() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getBooks(school).then(function(books) {
-                allBooksData = books || [];
-                var select = document.getElementById('bulkBookTitle');
-                if (select) {
-                    var html = '<option value="">-- Select Book --</option>';
-                    allBooksData.forEach(function(b) {
-                        var available = b.available !== undefined ? b.available : (b.quantity || 0);
-                        if (available > 0) {
-                            html += '<option value="' + (b.title || b.name || '') + '">' + 
-                                (b.title || b.name || '') + ' (Available: ' + available + ')</option>';
-                        }
-                    });
-                    select.innerHTML = html;
-                }
-            });
-        }
-        
-        function loadClassesForBulkIssue() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getClasses(school).then(function(classes) {
-                allClassesData = classes || [];
-                var select = document.getElementById('bulkBookClass');
-                if (select) {
-                    var html = '<option value="">-- Select Class --</option>';
-                    allClassesData.forEach(function(c) {
-                        html += '<option value="' + (c.name || '') + '">' + (c.name || '') + '</option>';
-                    });
-                    select.innerHTML = html;
-                }
-            });
-        }
-        
-        function loadClassStudentsForBooks() {
-            var selectedClass = document.getElementById('bulkBookClass').value;
-            var container = document.getElementById('bulkBookStudents');
-            
-            if (!container) return;
-            
-            if (!selectedClass) {
-                container.innerHTML = '';
-                return;
-            }
-            
-            var students = [];
-            var seenAdms = {};
-            
-            allClassesData.forEach(function(c) {
-                if (c.name === selectedClass) {
-                    (c.students || []).forEach(function(st) {
-                        var adm = extractAdm(st);
-                        var name = extractName(st);
-                        if (adm && !seenAdms[adm]) {
-                            seenAdms[adm] = true;
-                            students.push({ name: name, adm: adm });
-                        }
-                    });
-                }
-            });
-            
-            if (students.length === 0) {
-                container.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:10px;">No students found in this class.</p>';
-                return;
-            }
-            
-            var html = '<div style="margin-top:15px;">';
-            html += '<h4 style="color:var(--accent);margin-bottom:10px;font-size:14px;">👥 Students in ' + selectedClass + ' (' + students.length + ')</h4>';
-            html += '<div style="max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
-            students.forEach(function(s) {
-                html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;">' +
-                    '<input type="checkbox" class="bulk-student-check" value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '" checked style="width:auto;">' +
-                    '<span style="font-size:12px;">' + s.name + ' (' + s.adm + ')</span>' +
-                    '</div>';
-            });
-            html += '</div></div>';
-            container.innerHTML = html;
-        }
-        
-        function issueBook(event) {
-            if (event) event.preventDefault();
-            
-            var school = getCurrentSchool();
-            var studentName = document.getElementById('issueStudentName').value;
-            var adm = document.getElementById('issueADM').value;
-            var bookTitle = document.getElementById('issueBookTitle').value;
-            var bookNumber = document.getElementById('issueBookNumber').value;
-            var borrowDate = document.getElementById('issueBorrowDate').value;
-            var returnDate = document.getElementById('issueReturnDate').value;
-            
-            if (!adm || !studentName) {
-                showNotification('Please select a student', 'warning');
-                return false;
-            }
-            if (!bookTitle || !bookNumber) {
-                showNotification('Please fill book details', 'warning');
-                return false;
-            }
-            
-            var borrowedData = {
-                adm: adm,
-                studentName: studentName,
-                bookTitle: bookTitle,
-                bookNo: bookNumber,
-                borrowDate: borrowDate,
-                returnDate: returnDate,
-                returned: false,
-                timestamp: new Date().toISOString()
-            };
-            
-            API.issueBook(school, borrowedData).then(function() {
-                showNotification('📚 Book issued to ' + studentName + '!', 'success');
-                
-                document.getElementById('issueStudent').value = '';
-                document.getElementById('issueStudentName').value = '';
-                document.getElementById('issueADM').value = '';
-                document.getElementById('issueBookNumber').value = '';
-                
-                loadBooksForIssue();
-                loadLibraryData();
-            }).catch(function(err) {
-                console.error('Issue error:', err);
-                showNotification('Failed to issue book', 'error');
-            });
-            
-            return false;
-        }
-        
-        function issueBulkBooks() {
-            var bookTitle = document.getElementById('bulkBookTitle').value;
-            var borrowDate = document.getElementById('bulkBookBorrowDate').value;
-            var returnDate = document.getElementById('bulkBookReturnDate').value;
-            var checkboxes = document.querySelectorAll('.bulk-student-check:checked');
-            
-            if (!bookTitle) { 
-                showNotification('Select a book first', 'warning'); 
-                return; 
-            }
-            if (checkboxes.length === 0) { 
-                showNotification('Select at least one student', 'warning'); 
-                return; 
-            }
-            
-            var school = getCurrentSchool();
-            var promises = [];
-            var uniqueNum = Date.now();
-            
-            checkboxes.forEach(function(cb, index) {
-                var borrowedData = {
-                    adm: cb.value,
-                    studentName: cb.getAttribute('data-name'),
-                    bookTitle: bookTitle,
-                    bookNo: 'BULK-' + uniqueNum + '-' + (index + 1),
-                    borrowDate: borrowDate,
-                    returnDate: returnDate,
-                    returned: false,
-                    timestamp: new Date().toISOString()
-                };
-                promises.push(API.issueBook(school, borrowedData));
-            });
-            
-            Promise.all(promises).then(function() {
-                showNotification('📚 Books issued to ' + checkboxes.length + ' students!', 'success');
-                document.getElementById('bulkBookTitle').value = '';
-                document.getElementById('bulkBookStudents').innerHTML = '';
-                loadBooksForBulkIssue();
-                loadLibraryData();
-            }).catch(function(err) {
-                console.error('Bulk issue error:', err);
-                showNotification('Failed to issue books', 'error');
-            });
-        }
-        
-        var filterBooksTimer = null;
-        function filterBooks() {
-            if (filterBooksTimer) clearTimeout(filterBooksTimer);
-            filterBooksTimer = setTimeout(function() {
-                var searchInput = document.getElementById('searchBooks');
-                var tbody = document.getElementById('booksTableBody');
-                
-                if (!searchInput || !tbody) return;
-                
-                var filter = searchInput.value.toLowerCase();
-                var rows = tbody.getElementsByTagName('tr');
-                
-                for (var i = 0; i < rows.length; i++) {
-                    var text = rows[i].textContent.toLowerCase();
-                    rows[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
-                }
-            }, 200);
+            // Refresh the class dropdown
+            if (typeof loadLibraryData === 'function') loadLibraryData();
         }
         
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Are you sure you want to logout?', { 
-                    title: 'Logout', 
-                    type: 'info', 
-                    confirmText: 'Logout', 
-                    cancelText: 'Cancel' 
-                }).then(function(result) {
-                    if (result === 'confirm') logout();
+                DialogSystem.confirm('Are you sure you want to logout?', {
+                    title: 'Logout',
+                    type: 'info',
+                    confirmText: 'Logout',
+                    cancelText: 'Cancel'
+                }).then(function (result) {
+                    if (result === 'confirm') {
+                        if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
+                        localStorage.removeItem('srms_user');
+                        localStorage.removeItem('srms_school');
+                        window.location.href = 'index.html';
+                    }
                 });
             } else {
-                if (confirm('Are you sure you want to logout?')) logout();
+                if (confirm('Are you sure you want to logout?')) {
+                    if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
+                    localStorage.removeItem('srms_user');
+                    localStorage.removeItem('srms_school');
+                    window.location.href = 'index.html';
+                }
             }
         }
         
-        function logout() {
-            localStorage.removeItem('srms_user');
-            localStorage.removeItem('srms_school');
-            window.location.href = 'index.html';
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
+        // Ensure page initializes
+        document.addEventListener('DOMContentLoaded', function () {
             var user = checkAuth();
             if (!user) return;
-            
-            var today = new Date().toISOString().split('T')[0];
-            var returnDate = new Date();
-            returnDate.setDate(returnDate.getDate() + 14);
-            var returnDateStr = returnDate.toISOString().split('T')[0];
-            
-            var ids = ['issueBorrowDate', 'bulkBookBorrowDate'];
-            ids.forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.value = today;
-            });
-            
-            ids = ['issueReturnDate', 'bulkBookReturnDate'];
-            ids.forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.value = returnDateStr;
-            });
-            
-            loadLibraryData();
+            console.log('✅ Library page ready');
         });
         
+        // Expose page helpers
         window.openModal = openModal;
         window.closeModal = closeModal;
-        window.addBook = addBook;
-        window.loadLibraryData = loadLibraryData;
-        window.deleteBook = deleteBook;
-        window.returnBook = returnBook;
         window.switchLibraryTab = switchLibraryTab;
         window.showIndividualIssue = showIndividualIssue;
         window.showBulkIssue = showBulkIssue;
-        window.filterBooks = filterBooks;
-        window.loadClassesForIssue = loadClassesForIssue;
-        window.loadStreamsForIssue = loadStreamsForIssue;
-        window.loadStudentsForIssue = loadStudentsForIssue;
-        window.updateStudentDetails = updateStudentDetails;
-        window.loadBooksForIssue = loadBooksForIssue;
-        window.loadBooksForBulkIssue = loadBooksForBulkIssue;
-        window.loadClassesForBulkIssue = loadClassesForBulkIssue;
-        window.loadClassStudentsForBooks = loadClassStudentsForBooks;
-        window.issueBook = issueBook;
-        window.issueBulkBooks = issueBulkBooks;
         window.logoutWithConfirm = logoutWithConfirm;
-        window.logout = logout;
         window.showNotification = showNotification;
     </script>
 </body>

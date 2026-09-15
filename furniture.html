@@ -181,7 +181,6 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
-            backdrop-filter: blur(15px);
         }
         .search-bar i { color: rgba(255,255,255,0.5); }
         .search-bar input {
@@ -189,7 +188,6 @@
             color: #fff; font-size: 14px; outline: none;
             font-family: 'Inter', sans-serif;
         }
-        .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
         
         .table-container {
             background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
@@ -259,10 +257,161 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
+        .modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1300;
+            justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex !important; }
+        .modal-content {
+            background: rgba(14, 20, 46, 0.85);
+            backdrop-filter: blur(26px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; padding: 30px;
+            width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--accent); }
+        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; }
+        
         .empty-state {
             text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);
         }
         .empty-state i { font-size: 36px; margin-bottom: 10px; opacity: 0.5; color: var(--accent); }
+        
+        /* Legacy furniture card view (kept for compatibility) */
+        .furniture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .furniture-card {
+            background: rgba(12, 18, 42, var(--glass-alpha, 0.18));
+            backdrop-filter: blur(18px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            transition: background 0.3s ease, transform 0.2s ease, border-color 0.2s ease;
+        }
+        .furniture-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-active {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+        }
+        .furniture-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 193, 7, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        .furniture-student-name {
+            font-weight: 700;
+            font-size: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        }
+        .furniture-adm {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .furniture-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .furniture-detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .furniture-detail-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+        }
+        .furniture-detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #d4af37;
+        }
+        .btn-return {
+            width: 100%;
+            padding: 10px;
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.4);
+            border-radius: 8px;
+            color: #34ce57;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+        .btn-return:hover {
+            background: rgba(40, 167, 69, 0.4);
+        }
+        
+        /* Bulk furniture input styling */
+        .bulk-furniture-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .bulk-furniture-row:last-child { border-bottom: none; }
+        .bulk-furniture-row input[type="checkbox"] {
+            width: auto;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: #d4af37;
+        }
+        .bulk-furniture-row .student-name {
+            flex: 1;
+            font-size: 12px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .bulk-furniture-row .chair-input,
+        .bulk-furniture-row .locker-input {
+            padding: 6px 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+        }
+        .bulk-furniture-row .chair-input { width: 90px; }
+        .bulk-furniture-row .locker-input { width: 90px; }
+        .bulk-furniture-row .chair-input:focus,
+        .bulk-furniture-row .locker-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
         
         @media (max-width: 768px) {
             .floating-navbar { padding: 8px 10px; gap: 4px; }
@@ -270,6 +419,8 @@
             .main-content { padding: 75px 15px 15px; }
             .form-row { grid-template-columns: 1fr; }
             .page-header { flex-direction: column; align-items: stretch; }
+            .bulk-furniture-row .chair-input { width: 70px; }
+            .bulk-furniture-row .locker-input { width: 70px; }
         }
     </style>
 </head>
@@ -290,27 +441,25 @@
                 <h1><i class="fas fa-chair" style="color:var(--accent);"></i> Furniture Management</h1>
                 <p>Allocate furniture to individual students or entire classes</p>
             </div>
-            <button class="btn btn-primary" onclick="openAllocateModal()">
+            <button class="btn btn-primary" onclick="openModal('allocateModal')">
                 <i class="fas fa-plus"></i> Allocate Furniture
             </button>
         </div>
         
         <div class="stats-grid">
-            <div class="stat-card"><div class="value" id="statTotal">0</div><div class="label">Total Allocations</div></div>
-            <div class="stat-card"><div class="value" id="statChairs">0</div><div class="label">Chairs Assigned</div></div>
-            <div class="stat-card"><div class="value" id="statLockers">0</div><div class="label">Lockers Assigned</div></div>
-            <div class="stat-card"><div class="value" id="statStudents">0</div><div class="label">Students with Furniture</div></div>
+            <div class="stat-card"><div class="value" id="totalFurnitureStat">0</div><div class="label">Total Allocations</div></div>
+            <div class="stat-card"><div class="value" id="activeFurnitureStat">0</div><div class="label">Active</div></div>
         </div>
         
         <div class="tabs">
-            <button class="tab active" onclick="switchFurnitureTab('active')"><i class="fas fa-chair"></i> Active Allocations</button>
+            <button class="tab active" onclick="switchFurnitureTab('active')"><i class="fas fa-chair"></i> Active</button>
             <button class="tab" onclick="switchFurnitureTab('all')"><i class="fas fa-list"></i> All Records</button>
         </div>
         
         <div id="activeTab" class="tab-content active">
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchActive" placeholder="Search by student name, ADM, chair or locker number..." onkeyup="filterActiveTable()">
+                <input type="text" id="searchActive" placeholder="Search by name, ADM, chair, locker..." onkeyup="filterActiveTable()">
             </div>
             <div class="table-container">
                 <table class="data-table">
@@ -318,7 +467,7 @@
                         <tr><th>Student</th><th>ADM</th><th>Chair No</th><th>Locker No</th><th>Date</th><th>Status</th><th>Action</th></tr>
                     </thead>
                     <tbody id="activeTableBody">
-                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading furniture...</p></div></td></tr>
+                        <tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -344,89 +493,65 @@
     
     <!-- Allocate Modal -->
     <div class="modal" id="allocateModal">
-        <div class="modal-content" style="max-width:700px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-chair"></i> Allocate Furniture</h3>
-                <button class="modal-close" onclick="closeModal('allocateModal')"><i class="fas fa-times"></i></button>
+                <button type="button" class="modal-close" onclick="closeModal('allocateModal')"><i class="fas fa-times"></i></button>
             </div>
             
             <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-                <button class="btn btn-primary" id="individualBtn" onclick="showIndividualForm()"><i class="fas fa-user"></i> Individual</button>
-                <button class="btn btn-secondary" id="bulkBtn" onclick="showBulkForm()"><i class="fas fa-users"></i> Bulk (Class)</button>
+                <button type="button" class="btn btn-primary" id="individualBtn" onclick="showIndividualForm()"><i class="fas fa-user"></i> Individual</button>
+                <button type="button" class="btn btn-secondary" id="bulkBtn" onclick="showBulkForm()"><i class="fas fa-users"></i> Bulk (Class)</button>
             </div>
             
             <!-- Individual Form -->
             <div id="individualForm">
-                <form onsubmit="return allocateIndividual(event)">
+                <div class="form-row">
                     <div class="form-group">
-                        <label>🎓 Class/Form *</label>
-                        <select id="allocClass" required onchange="loadStreamsForAlloc()">
-                            <option value="">-- Select Class --</option>
-                        </select>
+                        <label>Student Name *</label>
+                        <input type="text" id="furnitureStudentName" placeholder="Student name">
                     </div>
                     <div class="form-group">
-                        <label>🏠 Stream</label>
-                        <select id="allocStream" onchange="loadStudentsForAlloc()">
-                            <option value="">-- Select Stream --</option>
-                        </select>
+                        <label>ADM Number *</label>
+                        <input type="text" id="furnitureADM" placeholder="Admission number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Chair Number *</label>
+                        <input type="text" id="chairNumber" placeholder="e.g., CH-001">
                     </div>
                     <div class="form-group">
-                        <label>👨‍🎓 Student *</label>
-                        <select id="allocStudent" required onchange="updateAllocStudentDetails()">
-                            <option value="">-- Select Student --</option>
-                        </select>
+                        <label>Locker Number</label>
+                        <input type="text" id="lockerNumber" placeholder="e.g., LK-001">
                     </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>👤 Student Name</label><input type="text" id="allocStudentName" readonly style="background:rgba(255,255,255,0.02);"></div>
-                        <div class="form-group"><label>🔢 ADM Number</label><input type="text" id="allocADM" readonly style="background:rgba(255,255,255,0.02);"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>🪑 Chair Number *</label><input type="text" id="allocChair" placeholder="e.g., CH-001" required></div>
-                        <div class="form-group"><label>🔒 Locker Number</label><input type="text" id="allocLocker" placeholder="e.g., LK-001"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>📅 Allocation Date</label>
-                        <input type="date" id="allocDate" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
-                        <i class="fas fa-chair"></i> Allocate to Student
-                    </button>
-                </form>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="allocateFurniture(event)" style="width:100%;justify-content:center;">
+                    <i class="fas fa-chair"></i> Allocate to Student
+                </button>
             </div>
             
             <!-- Bulk Form -->
             <div id="bulkForm" style="display:none;">
                 <div class="form-group">
-                    <label>🏫 Select Class *</label>
-                    <select id="bulkClass" onchange="loadClassStudentsForBulk()">
+                    <label>Select Class *</label>
+                    <select id="bulkFurnitureClass" onchange="resetBulkFurnitureList(); loadClassStudentsForFurniture()">
                         <option value="">-- Select Class --</option>
                     </select>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🪑 Chair Prefix</label>
-                        <input type="text" id="bulkChairPrefix" value="CH" placeholder="e.g., CH">
-                    </div>
-                    <div class="form-group">
-                        <label>🔒 Locker Prefix</label>
-                        <input type="text" id="bulkLockerPrefix" value="LK" placeholder="e.g., LK">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🔢 Starting Chair Number</label>
-                        <input type="number" id="bulkChairStart" value="1" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>📅 Allocation Date</label>
-                        <input type="date" id="bulkDate">
-                    </div>
-                </div>
-                <div id="bulkStudentsList" style="margin-top:15px;max-height:300px;overflow-y:auto;"></div>
-                <button class="btn btn-primary" onclick="allocateBulk()" style="width:100%;justify-content:center;margin-top:15px;">
-                    <i class="fas fa-users"></i> Allocate to All Selected
-                </button>
+                <div id="bulkFurnitureStudents" style="margin-top:15px;"></div>
             </div>
+        </div>
+    </div>
+    
+    <!-- Bulk Furniture Modal (legacy — kept for compatibility) -->
+    <div class="modal" id="bulkFurnitureModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-users"></i> Bulk Furniture Allocation</h3>
+                <button type="button" class="modal-close" onclick="closeModal('bulkFurnitureModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="bulkFurnitureModalContent"></div>
         </div>
     </div>
     
@@ -435,6 +560,7 @@
             <button class="classy-btn" onclick="location.href='dashboard.html'">
                 <span class="btn-badge"><i class="fas fa-th-large"></i></span> <span class="btn-label">Dashboard</span>
             </button>
+            
             <div class="nav-group">
                 <button class="classy-btn active">
                     <span class="btn-badge"><i class="fas fa-layer-group"></i></span> <span class="btn-label">Resources</span> <i class="fas fa-chevron-up"></i>
@@ -445,6 +571,7 @@
                     <a class="dropdown-item" href="qrcodes.html"><i class="fas fa-qrcode"></i> QR Codes</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-user-friends"></i></span> <span class="btn-label">People</span> <i class="fas fa-chevron-up"></i>
@@ -457,6 +584,7 @@
                     <a class="dropdown-item" href="StudentsIDs.html"><i class="fas fa-id-card"></i> Student IDs</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-comments"></i></span> <span class="btn-label">Communication</span> <i class="fas fa-chevron-up"></i>
@@ -467,6 +595,7 @@
                     <a class="dropdown-item" href="notepad.html"><i class="fas fa-sticky-note"></i> Notepad</a>
                 </div>
             </div>
+            
             <div class="nav-group">
                 <button class="classy-btn">
                     <span class="btn-badge"><i class="fas fa-ellipsis-h"></i></span> <span class="btn-label">More</span> <i class="fas fa-chevron-up"></i>
@@ -493,159 +622,53 @@
     <script src="js/app.js"></script>
     
     <script>
-        var allFurnitureData = [];
-        var allClassesData = [];
+        /* ============================================================
+           FURNITURE PAGE — page-specific helpers
+           All heavy data logic lives in app.js.
+           ============================================================ */
         
-        document.addEventListener('DOMContentLoaded', function() {
-            var user = checkAuth();
-            if (!user) return;
-            
-            var today = new Date().toISOString().split('T')[0];
-            var allocDate = document.getElementById('allocDate');
-            var bulkDate = document.getElementById('bulkDate');
-            if (allocDate) allocDate.value = today;
-            if (bulkDate) bulkDate.value = today;
-            
-            loadFurnitureData();
-            loadClasses();
-        });
-        
-        /* ================================================================
-           DATA LOADING
-           ================================================================ */
-        function loadFurnitureData() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getFurniture(school).then(function(furniture) {
-                allFurnitureData = furniture || [];
-                renderActiveTable(allFurnitureData);
-                renderAllTable(allFurnitureData);
-                updateStats(allFurnitureData);
-            }).catch(function(err) {
-                console.error('Error loading furniture:', err);
-                document.getElementById('activeTableBody').innerHTML = 
-                    '<tr><td colspan="7" style="text-align:center;color:#ff4757;padding:20px;">Failed to load furniture</td></tr>';
-            });
-        }
-        
-        function loadClasses() {
-            var school = getCurrentSchool();
-            if (!school) return;
-            
-            API.getClasses(school).then(function(classes) {
-                allClassesData = classes || [];
-                populateClassDropdowns();
-            }).catch(function(err) {
-                console.error('Error loading classes:', err);
-            });
-        }
-        
-        function populateClassDropdowns() {
-            var allocClassSelect = document.getElementById('allocClass');
-            var bulkClassSelect = document.getElementById('bulkClass');
-            
-            if (allocClassSelect) {
-                var html = '<option value="">-- Select Class --</option>';
-                allClassesData.forEach(function(c) {
-                    html += '<option value="' + (c.name || '') + '">' + (c.name || '') + ' ' + (c.stream || '') + '</option>';
-                });
-                allocClassSelect.innerHTML = html;
-            }
-            
-            if (bulkClassSelect) {
-                var html2 = '<option value="">-- Select Class --</option>';
-                allClassesData.forEach(function(c) {
-                    var count = (c.students || []).length;
-                    html2 += '<option value="' + (c.name || '') + '">' + (c.name || '') + ' ' + (c.stream || '') + ' (' + count + ')</option>';
-                });
-                bulkClassSelect.innerHTML = html2;
-            }
-        }
-        
-        /* ================================================================
-           RENDERING
-           ================================================================ */
-        function renderActiveTable(furniture) {
-            var tbody = document.getElementById('activeTableBody');
-            if (!tbody) return;
-            
-            if (!furniture || furniture.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><div class="empty-state"><i class="fas fa-chair"></i><p>No furniture allocated yet</p></div></td></tr>';
+        function showNotification(message, type) {
+            if (typeof window.showNotification === 'function' && window.showNotification !== showNotification) {
+                window.showNotification(message, type);
                 return;
             }
-            
-            var html = '';
-            furniture.forEach(function(f) {
-                html += '<tr>' +
-                    '<td>' + (f.studentName || '-') + '</td>' +
-                    '<td>' + (f.adm || '-') + '</td>' +
-                    '<td><span class="badge badge-warning">' + (f.chairNo || '-') + '</span></td>' +
-                    '<td>' + (f.lockerNo || '-') + '</td>' +
-                    '<td>' + (f.allocationDate || '-') + '</td>' +
-                    '<td><span class="badge badge-success">Active</span></td>' +
-                    '<td>' +
-                    '<button class="btn btn-sm btn-success" onclick="returnFurnitureItem(\'' + (f.id || f.key || '') + '\')">' +
-                    '<i class="fas fa-undo"></i> Return</button>' +
-                    '</td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
+            var existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.cssText = 'position:fixed;top:80px;right:20px;padding:14px 20px;border-radius:10px;color:#fff;z-index:9999;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:opacity 0.3s;';
+            var colors = { success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8' };
+            toast.style.background = colors[type] || colors.info;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(function () {
+                toast.style.opacity = '0';
+                setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
+            }, 2500);
         }
         
-        function renderAllTable(furniture) {
-            var tbody = document.getElementById('allTableBody');
-            if (!tbody) return;
-            
-            if (!furniture || furniture.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><div class="empty-state"><i class="fas fa-list"></i><p>No records</p></div></td></tr>';
-                return;
+        function openModal(id) {
+            var m = document.getElementById(id);
+            if (m) {
+                m.classList.add('active');
+                m.style.display = 'flex';
             }
-            
-            var html = '';
-            furniture.forEach(function(f) {
-                html += '<tr>' +
-                    '<td>' + (f.studentName || '-') + '</td>' +
-                    '<td>' + (f.adm || '-') + '</td>' +
-                    '<td>' + (f.chairNo || '-') + '</td>' +
-                    '<td>' + (f.lockerNo || '-') + '</td>' +
-                    '<td>' + (f.allocationDate || '-') + '</td>' +
-                    '<td>' + (f.issuedBy || '-') + '</td>' +
-                    '</tr>';
-            });
-            tbody.innerHTML = html;
         }
         
-        function updateStats(furniture) {
-            var totalEl = document.getElementById('statTotal');
-            var chairsEl = document.getElementById('statChairs');
-            var lockersEl = document.getElementById('statLockers');
-            var studentsEl = document.getElementById('statStudents');
-            
-            var chairCount = 0, lockerCount = 0;
-            var uniqueStudents = {};
-            
-            furniture.forEach(function(f) {
-                if (f.chairNo) chairCount++;
-                if (f.lockerNo) lockerCount++;
-                if (f.adm) uniqueStudents[f.adm] = true;
-            });
-            
-            if (totalEl) totalEl.textContent = furniture.length;
-            if (chairsEl) chairsEl.textContent = chairCount;
-            if (lockersEl) lockersEl.textContent = lockerCount;
-            if (studentsEl) studentsEl.textContent = Object.keys(uniqueStudents).length;
+        function closeModal(id) {
+            var m = document.getElementById(id);
+            if (m) {
+                m.classList.remove('active');
+                m.style.display = 'none';
+            }
         }
         
-        /* ================================================================
-           TABS
-           ================================================================ */
         function switchFurnitureTab(tabName) {
             var tabs = document.querySelectorAll('.tab');
             var contents = document.querySelectorAll('.tab-content');
             
-            tabs.forEach(function(t) { t.classList.remove('active'); });
-            contents.forEach(function(c) { c.classList.remove('active'); });
+            tabs.forEach(function (t) { t.classList.remove('active'); });
+            contents.forEach(function (c) { c.classList.remove('active'); });
             
             if (tabName === 'active') {
                 tabs[0].classList.add('active');
@@ -654,24 +677,6 @@
                 tabs[1].classList.add('active');
                 document.getElementById('allTab').classList.add('active');
             }
-        }
-        
-        /* ================================================================
-           ALLOCATE MODAL
-           ================================================================ */
-        function openAllocateModal() {
-            closeModal('allocateModal');
-            setTimeout(function() { openModal('allocateModal'); }, 50);
-        }
-        
-        function openModal(id) {
-            var m = document.getElementById(id);
-            if (m) { m.classList.add('active'); m.style.display = 'flex'; }
-        }
-        
-        function closeModal(id) {
-            var m = document.getElementById(id);
-            if (m) { m.classList.remove('active'); m.style.display = 'none'; }
         }
         
         function showIndividualForm() {
@@ -686,331 +691,50 @@
             document.getElementById('bulkForm').style.display = 'block';
             document.getElementById('individualBtn').className = 'btn btn-secondary';
             document.getElementById('bulkBtn').className = 'btn btn-primary';
+            // Ensure the bulk class dropdown is populated
+            if (typeof loadFurnitureData === 'function') loadFurnitureData();
         }
         
-        /* ================================================================
-           INDIVIDUAL ALLOCATION
-           ================================================================ */
-        function loadStreamsForAlloc() {
-            var selectedClass = document.getElementById('allocClass').value;
-            var streamSelect = document.getElementById('allocStream');
-            var studentSelect = document.getElementById('allocStudent');
-            
-            if (!selectedClass) {
-                streamSelect.innerHTML = '<option value="">-- Select Stream --</option>';
-                studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
-                return;
-            }
-            
-            var streams = [];
-            allClassesData.forEach(function(c) {
-                if (c.name === selectedClass) {
-                    if (c.stream) streams.push(c.stream);
-                    (c.students || []).forEach(function(st) {
-                        var s = st.stream || st.Stream || '';
-                        if (s && streams.indexOf(s) === -1) streams.push(s);
-                    });
-                }
-            });
-            
-            var html = '<option value="">-- Select Stream --</option>';
-            if (streams.length > 0) {
-                streams.forEach(function(s) {
-                    html += '<option value="' + s + '">' + s + '</option>';
-                });
-            } else {
-                html += '<option value="all">All Streams</option>';
-            }
-            streamSelect.innerHTML = html;
-            studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
-        }
-        
-        function loadStudentsForAlloc() {
-            var selectedClass = document.getElementById('allocClass').value;
-            var selectedStream = document.getElementById('allocStream').value;
-            var studentSelect = document.getElementById('allocStudent');
-            
-            if (!selectedClass) return;
-            
-            var students = [];
-            var seenAdms = {};
-            
-            allClassesData.forEach(function(c) {
-                if (c.name === selectedClass) {
-                    (c.students || []).forEach(function(st) {
-                        var adm = extractAdm(st);
-                        var name = extractName(st);
-                        var stream = st.stream || st.Stream || '';
-                        
-                        if (seenAdms[adm]) return;
-                        
-                        var matchesStream = !selectedStream || 
-                                            selectedStream === 'all' || 
-                                            stream === selectedStream;
-                        
-                        if (matchesStream && adm) {
-                            seenAdms[adm] = true;
-                            students.push({ name: name, adm: adm });
-                        }
-                    });
-                }
-            });
-            
-            students.sort(function(a, b) { return a.name.localeCompare(b.name); });
-            
-            var html = '<option value="">-- Select Student (' + students.length + ') --</option>';
-            students.forEach(function(s) {
-                html += '<option value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '">' + s.name + ' (' + s.adm + ')</option>';
-            });
-            studentSelect.innerHTML = html;
-            
-            document.getElementById('allocStudentName').value = '';
-            document.getElementById('allocADM').value = '';
-        }
-        
-        function updateAllocStudentDetails() {
-            var studentSelect = document.getElementById('allocStudent');
-            var nameInput = document.getElementById('allocStudentName');
-            var admInput = document.getElementById('allocADM');
-            
-            if (!studentSelect.value) {
-                nameInput.value = '';
-                admInput.value = '';
-                return;
-            }
-            
-            var opt = studentSelect.options[studentSelect.selectedIndex];
-            nameInput.value = opt.getAttribute('data-name') || '';
-            admInput.value = studentSelect.value;
-        }
-        
-        function allocateIndividual(event) {
-            event.preventDefault();
-            var school = getCurrentSchool();
-            var user = getCurrentUser();
-            
-            var studentName = document.getElementById('allocStudentName').value;
-            var adm = document.getElementById('allocADM').value;
-            var chairNo = document.getElementById('allocChair').value.trim();
-            var lockerNo = document.getElementById('allocLocker').value.trim();
-            var allocDate = document.getElementById('allocDate').value;
-            
-            if (!adm || !studentName) { showNotification('Select a student', 'warning'); return false; }
-            if (!chairNo) { showNotification('Chair number required', 'warning'); return false; }
-            
-            API.allocateFurniture(school, {
-                studentName: studentName,
-                adm: adm,
-                chairNo: chairNo,
-                lockerNo: lockerNo,
-                allocationDate: allocDate,
-                issuedBy: user ? user.name : ''
-            }).then(function(result) {
-                if (result.success) {
-                    showNotification('Allocated ' + chairNo + ' to ' + studentName + '!', 'success');
-                    closeModal('allocateModal');
-                    
-                    // Reset form
-                    document.getElementById('allocChair').value = '';
-                    document.getElementById('allocLocker').value = '';
-                    document.getElementById('allocStudent').value = '';
-                    document.getElementById('allocStudentName').value = '';
-                    document.getElementById('allocADM').value = '';
-                    
-                    loadFurnitureData();
-                } else {
-                    showNotification(result.error || 'Failed', 'error');
-                }
-            }).catch(function(err) {
-                console.error('Allocate error:', err);
-                showNotification('Failed to allocate', 'error');
-            });
-            
-            return false;
-        }
-        
-        /* ================================================================
-           BULK ALLOCATION
-           ================================================================ */
-        function loadClassStudentsForBulk() {
-            var selectedClass = document.getElementById('bulkClass').value;
-            var container = document.getElementById('bulkStudentsList');
-            
-            if (!container) return;
-            if (!selectedClass) { container.innerHTML = ''; return; }
-            
-            var students = [];
-            var seenAdms = {};
-            
-            allClassesData.forEach(function(c) {
-                if (c.name === selectedClass) {
-                    (c.students || []).forEach(function(st) {
-                        var adm = extractAdm(st);
-                        var name = extractName(st);
-                        if (adm && !seenAdms[adm]) {
-                            seenAdms[adm] = true;
-                            students.push({ name: name, adm: adm });
-                        }
-                    });
-                }
-            });
-            
-            if (students.length === 0) {
-                container.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:12px;text-align:center;">No students in this class.</p>';
-                return;
-            }
-            
-            var html = '<h4 style="color:var(--accent);margin-bottom:10px;font-size:14px;">👥 Students (' + students.length + ')</h4>';
-            html += '<div style="max-height:260px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;background:rgba(0,0,0,0.2);">';
-            students.forEach(function(s, i) {
-                html += '<label style="display:flex;align-items:center;gap:10px;padding:6px 4px;cursor:pointer;">' +
-                    '<input type="checkbox" class="bulk-student-check" value="' + s.adm + '" data-name="' + s.name.replace(/"/g, '&quot;') + '" checked style="width:auto;">' +
-                    '<span style="font-size:12px;flex:1;">' + s.name + ' (' + s.adm + ')</span>' +
-                    '</label>';
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        }
-        
-        function allocateBulk() {
-            var chairPrefix = document.getElementById('bulkChairPrefix').value.trim() || 'CH';
-            var lockerPrefix = document.getElementById('bulkLockerPrefix').value.trim() || 'LK';
-            var chairStart = parseInt(document.getElementById('bulkChairStart').value) || 1;
-            var allocDate = document.getElementById('bulkDate').value;
-            var checkboxes = document.querySelectorAll('.bulk-student-check:checked');
-            
-            if (checkboxes.length === 0) {
-                showNotification('Select at least one student', 'warning');
-                return;
-            }
-            
-            var school = getCurrentSchool();
-            var user = getCurrentUser();
-            var promises = [];
-            var chairNum = chairStart;
-            var lockerNum = chairStart;
-            
-            checkboxes.forEach(function(cb) {
-                var chairNo = chairPrefix + '-' + String(chairNum).padStart(3, '0');
-                var lockerNo = lockerPrefix + '-' + String(lockerNum).padStart(3, '0');
-                chairNum++;
-                lockerNum++;
-                
-                promises.push(API.allocateFurniture(school, {
-                    studentName: cb.getAttribute('data-name'),
-                    adm: cb.value,
-                    chairNo: chairNo,
-                    lockerNo: lockerNo,
-                    allocationDate: allocDate,
-                    issuedBy: user ? user.name : ''
-                }));
-            });
-            
-            Promise.all(promises).then(function() {
-                showNotification('Allocated to ' + checkboxes.length + ' students!', 'success');
-                closeModal('allocateModal');
-                document.getElementById('bulkStudentsList').innerHTML = '';
-                loadFurnitureData();
-            }).catch(function(err) {
-                console.error('Bulk error:', err);
-                showNotification('Failed to allocate', 'error');
-            });
-        }
-        
-        /* ================================================================
-           RETURN / DELETE
-           ================================================================ */
-        function returnFurnitureItem(id) {
-            if (!id) {
-                showNotification('Invalid record', 'warning');
-                return;
-            }
-            
-            var doReturn = function() {
-                var school = getCurrentSchool();
-                API.returnFurniture(school, id).then(function() {
-                    showNotification('Furniture returned!', 'success');
-                    loadFurnitureData();
-                }).catch(function(err) {
-                    console.error('Return error:', err);
-                    showNotification('Failed to return', 'error');
-                });
-            };
-            
-            if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Return this furniture?', {
-                    title: 'Return Furniture',
-                    type: 'info',
-                    confirmText: 'Return',
-                    cancelText: 'Cancel'
-                }).then(function(r) { if (r === 'confirm') doReturn(); });
-            } else if (confirm('Return this furniture?')) {
-                doReturn();
-            }
-        }
-        
-        /* ================================================================
-           FILTERING
-           ================================================================ */
-        function filterActiveTable() {
-            var search = document.getElementById('searchActive').value.toLowerCase();
-            var rows = document.getElementById('activeTableBody').getElementsByTagName('tr');
-            for (var i = 0; i < rows.length; i++) {
-                var text = rows[i].textContent.toLowerCase();
-                rows[i].style.display = text.indexOf(search) > -1 ? '' : 'none';
-            }
-        }
-        
-        function filterAllTable() {
-            var search = document.getElementById('searchAll').value.toLowerCase();
-            var rows = document.getElementById('allTableBody').getElementsByTagName('tr');
-            for (var i = 0; i < rows.length; i++) {
-                var text = rows[i].textContent.toLowerCase();
-                rows[i].style.display = text.indexOf(search) > -1 ? '' : 'none';
-            }
-        }
-        
-        /* ================================================================
-           LOGOUT
-           ================================================================ */
         function logoutWithConfirm() {
             if (typeof DialogSystem !== 'undefined' && DialogSystem.confirm) {
-                DialogSystem.confirm('Logout?', {
-                    title: 'Logout', type: 'info',
-                    confirmText: 'Logout', cancelText: 'Cancel'
-                }).then(function(r) { if (r === 'confirm') logout(); });
-            } else if (confirm('Logout?')) logout();
+                DialogSystem.confirm('Are you sure you want to logout?', {
+                    title: 'Logout',
+                    type: 'info',
+                    confirmText: 'Logout',
+                    cancelText: 'Cancel'
+                }).then(function (result) {
+                    if (result === 'confirm') {
+                        if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
+                        localStorage.removeItem('srms_user');
+                        localStorage.removeItem('srms_school');
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                if (confirm('Are you sure you want to logout?')) {
+                    if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
+                    localStorage.removeItem('srms_user');
+                    localStorage.removeItem('srms_school');
+                    window.location.href = 'index.html';
+                }
+            }
         }
         
-        function logout() {
-            localStorage.removeItem('srms_user');
-            localStorage.removeItem('srms_school');
-            window.location.href = 'index.html';
-        }
+        // Ensure page initializes
+        document.addEventListener('DOMContentLoaded', function () {
+            var user = checkAuth();
+            if (!user) return;
+            console.log('✅ Furniture page ready');
+        });
         
-        /* ================================================================
-           EXPOSE
-           ================================================================ */
-        window.loadFurnitureData = loadFurnitureData;
-        window.switchFurnitureTab = switchFurnitureTab;
-        window.openAllocateModal = openAllocateModal;
+        // Expose page helpers
         window.openModal = openModal;
         window.closeModal = closeModal;
+        window.switchFurnitureTab = switchFurnitureTab;
         window.showIndividualForm = showIndividualForm;
         window.showBulkForm = showBulkForm;
-        window.loadStreamsForAlloc = loadStreamsForAlloc;
-        window.loadStudentsForAlloc = loadStudentsForAlloc;
-        window.updateAllocStudentDetails = updateAllocStudentDetails;
-        window.allocateIndividual = allocateIndividual;
-        window.loadClassStudentsForBulk = loadClassStudentsForBulk;
-        window.allocateBulk = allocateBulk;
-        window.returnFurnitureItem = returnFurnitureItem;
-        window.filterActiveTable = filterActiveTable;
-        window.filterAllTable = filterAllTable;
         window.logoutWithConfirm = logoutWithConfirm;
-        window.logout = logout;
-        
-        console.log('✅ Furniture page loaded');
+        window.showNotification = showNotification;
     </script>
 </body>
 </html>

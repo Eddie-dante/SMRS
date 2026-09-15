@@ -1,7 +1,9 @@
 // ============================================
 // SRMS - Complete Application Logic
-// Full Version with REALTIME LIVE DATA + CHAT SYNC
-// + BULK ASSIGNMENT INPUT PRESERVATION
+// Full Version - REALTIME + CHAT SYNC
+// + BULK INPUT FIELDS (Book No / Chair / Locker)
+// + WORKING SEARCH ON ALL PAGES
+// All original features preserved.
 // ============================================
 
 var currentChatUserEmail = null;
@@ -17,12 +19,25 @@ var isAppInitialized = false;
 var bulkBookClass = null;
 var bulkFurnitureClass = null;
 
-// Track live subscriptions for the current page
+// Realtime subscription tracking
 var _pageUnsubscribers = [];
-
-// Raw chat collection from realtime — used for instant filtering
 var _rawChatMessages = [];
 var _chatRenderTimer = null;
+
+// Active search terms — preserved across live updates
+var _searchTerms = {
+  books: "",
+  students: "",
+  fees: "",
+  auditLog: "",
+  auditAction: "",
+  furnitureActive: "",
+  furnitureAll: "",
+  qrcodes: "",
+  teachers: "",
+  classes: "",
+  events: "",
+};
 
 // ============ INITIALIZATION ============
 document.addEventListener("DOMContentLoaded", function () {
@@ -55,6 +70,7 @@ function initDropdownController() {
   navGroups.forEach(function (group) {
     var dropdown = group.querySelector(".dropdown-menu");
     var button = group.querySelector(".classy-btn");
+
     if (!dropdown || !button) return;
 
     var closeTimeout = null;
@@ -132,7 +148,6 @@ function initDropdownController() {
 
 // ============ PAGE ROUTER ============
 function loadPageData(page) {
-  // Clean up previous page's live subscriptions
   if (window.API && API.unsubscribeAll) API.unsubscribeAll();
   _pageUnsubscribers.forEach(function (u) {
     try {
@@ -248,11 +263,8 @@ function watchLive(page, collections, pageLoader) {
     if (renderTimer) clearTimeout(renderTimer);
     renderTimer = setTimeout(function () {
       try {
-        if (pageLoader.length >= 1) {
-          pageLoader(data, collection);
-        } else {
-          pageLoader();
-        }
+        if (pageLoader.length >= 1) pageLoader(data, collection);
+        else pageLoader();
       } catch (e) {
         console.error("Live render error:", e);
       }
@@ -274,16 +286,12 @@ function handleChatLiveUpdate(rawMessages, collection) {
   if (collection === "chat" && Array.isArray(rawMessages)) {
     _rawChatMessages = rawMessages;
   }
-
   if (collection === "users") {
     loadChatUsers();
   }
-
   if (_chatRenderTimer) clearTimeout(_chatRenderTimer);
   _chatRenderTimer = setTimeout(function () {
-    if (currentChatUserEmail) {
-      renderChatMessagesFromRaw();
-    }
+    if (currentChatUserEmail) renderChatMessagesFromRaw();
     checkUnreadMessages();
   }, 80);
 }
@@ -364,10 +372,9 @@ function checkUnreadMessages() {
   if (!school || !user) return;
 
   if (_rawChatMessages.length > 0) {
-    var unread = _rawChatMessages.filter(function (msg) {
+    unreadMessagesCount = _rawChatMessages.filter(function (msg) {
       return msg.toEmail === user.email && !msg.readStatus;
     }).length;
-    unreadMessagesCount = unread;
     applyUnreadBadge();
     return;
   }
@@ -637,40 +644,45 @@ function loadLibraryData() {
           });
           booksTbody.innerHTML = booksHtml;
         }
+        if (_searchTerms.books) filterBooks();
+      }
 
-        var select = document.getElementById("issueBookTitle");
-        if (select) {
-          var selectHtml = '<option value="">Select Book</option>';
-          books.forEach(function (b) {
-            if (b.available > 0)
-              selectHtml +=
-                '<option value="' +
-                b.title +
-                '">' +
-                b.title +
-                " (" +
-                b.available +
-                ")</option>";
-          });
-          select.innerHTML = selectHtml;
-        }
+      var select = document.getElementById("issueBookTitle");
+      if (select) {
+        var prevSelect = select.value;
+        var selectHtml = '<option value="">Select Book</option>';
+        books.forEach(function (b) {
+          if (b.available > 0)
+            selectHtml +=
+              '<option value="' +
+              b.title +
+              '">' +
+              b.title +
+              " (" +
+              b.available +
+              ")</option>";
+        });
+        select.innerHTML = selectHtml;
+        if (prevSelect) select.value = prevSelect;
+      }
 
-        var bulkSelect = document.getElementById("bulkBookTitle");
-        if (bulkSelect) {
-          var bulkHtml = '<option value="">Select Book</option>';
-          books.forEach(function (b) {
-            if (b.available > 0)
-              bulkHtml +=
-                '<option value="' +
-                b.title +
-                '">' +
-                b.title +
-                " (" +
-                b.available +
-                ")</option>";
-          });
-          bulkSelect.innerHTML = bulkHtml;
-        }
+      var bulkSelect = document.getElementById("bulkBookTitle");
+      if (bulkSelect) {
+        var prevBulk = bulkSelect.value;
+        var bulkHtml = '<option value="">Select Book</option>';
+        books.forEach(function (b) {
+          if (b.available > 0)
+            bulkHtml +=
+              '<option value="' +
+              b.title +
+              '">' +
+              b.title +
+              " (" +
+              b.available +
+              ")</option>";
+        });
+        bulkSelect.innerHTML = bulkHtml;
+        if (prevBulk) bulkSelect.value = prevBulk;
       }
 
       var returnsTbody = document.getElementById("returnsTableBody");
@@ -737,7 +749,6 @@ function loadLibraryData() {
         }
       }
 
-      // Preserve bulk class selection on re-render
       var bulkClassSelect = document.getElementById("bulkBookClass");
       if (bulkClassSelect) {
         var prevValue = bulkClassSelect.value;
@@ -904,7 +915,7 @@ function deleteBook(bookId) {
   }
 }
 
-// ============ BULK BOOKS ============
+// ============ BULK BOOKS (with per-student Book No input) ============
 function resetBulkBookList() {
   var container = document.getElementById("bulkBookStudents");
   if (container) {
@@ -924,13 +935,11 @@ function loadClassStudentsForBooks() {
   var container = document.getElementById("bulkBookStudents");
   if (!container) return;
 
-  // Skip rebuild if same class already loaded — prevents losing typed values
   var currentKey = container.getAttribute("data-class-id");
   if (currentKey === classId.value && container.innerHTML.trim() !== "") {
     return;
   }
 
-  // Preserve any typed book numbers (safety net)
   var preserved = {};
   container.querySelectorAll(".book-number-input").forEach(function (inp) {
     if (inp.value) preserved[inp.dataset.adm] = inp.value;
@@ -941,39 +950,71 @@ function loadClassStudentsForBooks() {
     classes.forEach(function (c) {
       if (c.id === classId.value) selectedClass = c;
     });
-    if (!selectedClass || !selectedClass.students) return;
 
-    bulkBookClass = selectedClass;
+    if (selectedClass && selectedClass.students) {
+      bulkBookClass = selectedClass;
 
-    var html =
-      '<h4 style="color:#d4af37;margin-bottom:15px;">Students (' +
-      selectedClass.students.length +
-      ")</h4>";
-    selectedClass.students.forEach(function (student) {
-      var name = extractName(student);
-      var adm = extractAdm(student);
-      var savedValue = preserved[adm] || "";
-      html +=
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-        '<span style="flex:1;">' +
-        name +
+      var html =
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
+        '<h4 style="color:#d4af37;margin:0;">Students in ' +
+        (selectedClass.name || "") +
         " (" +
-        adm +
-        ")</span>" +
-        '<input type="text" class="book-number-input" placeholder="Book No" data-adm="' +
-        adm +
-        '" data-name="' +
-        name +
-        '" value="' +
-        savedValue +
-        '" ' +
-        'style="width:120px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;"></div>';
-    });
+        selectedClass.students.length +
+        ")</h4>" +
+        '<div style="display:flex;gap:8px;">' +
+        '<button type="button" class="btn btn-sm btn-secondary" onclick="bulkToggleAll(true)">Select All</button>' +
+        '<button type="button" class="btn btn-sm btn-secondary" onclick="bulkToggleAll(false)">Deselect All</button>' +
+        "</div></div>";
 
-    html +=
-      '<button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="issueBulkBooks()"><i class="fas fa-book"></i> Issue to All</button>';
-    container.innerHTML = html;
-    container.setAttribute("data-class-id", classId.value);
+      html +=
+        '<div style="max-height:340px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;background:rgba(0,0,0,0.2);">';
+
+      selectedClass.students.forEach(function (student) {
+        var name = extractName(student);
+        var adm = extractAdm(student);
+        var savedValue = preserved[adm] || "";
+        var safeName = String(name)
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+        var safeAdm = String(adm)
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+        html +=
+          '<div style="display:flex;align-items:center;gap:10px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+          '<input type="checkbox" class="bulk-book-check" data-adm="' +
+          safeAdm +
+          '" data-name="' +
+          safeName +
+          '" style="width:auto;flex-shrink:0;">' +
+          '<span style="flex:1;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
+          name +
+          " (" +
+          adm +
+          ")</span>" +
+          '<input type="text" class="book-number-input" placeholder="Book No" data-adm="' +
+          safeAdm +
+          '" data-name="' +
+          safeName +
+          '" value="' +
+          savedValue +
+          '" ' +
+          'style="width:120px;padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;font-size:11px;flex-shrink:0;">' +
+          "</div>";
+      });
+
+      html += "</div>";
+      html +=
+        '<button type="button" class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="issueBulkBooks()"><i class="fas fa-book"></i> Issue to Selected Students</button>';
+      container.innerHTML = html;
+      container.setAttribute("data-class-id", classId.value);
+    }
+  });
+}
+
+function bulkToggleAll(checked) {
+  document.querySelectorAll(".bulk-book-check").forEach(function (cb) {
+    cb.checked = checked;
   });
 }
 
@@ -986,38 +1027,61 @@ function issueBulkBooks() {
     return;
   }
 
-  var bookInputs = document.querySelectorAll(".book-number-input");
-  var issued = 0;
-  var promises = [];
-
-  bookInputs.forEach(function (input) {
-    if (input.value) {
-      promises.push(
-        API.issueBook(school, {
-          studentName: input.dataset.name,
-          adm: input.dataset.adm,
-          bookTitle: bookTitle.value,
-          bookNo: input.value,
-          issuedBy: user ? user.name : "",
-        }),
-      );
-      issued++;
-    }
+  var checks = document.querySelectorAll(".bulk-book-check:checked");
+  var inputsByAdm = {};
+  document.querySelectorAll(".book-number-input").forEach(function (inp) {
+    if (inp.value) inputsByAdm[inp.dataset.adm] = inp.value;
   });
 
-  if (promises.length === 0) {
-    showNotification("Enter at least one book number", "warning");
+  var toIssue = [];
+  var missingBookNo = 0;
+
+  checks.forEach(function (cb) {
+    var adm = cb.dataset.adm;
+    var name = cb.dataset.name;
+    var bookNo = inputsByAdm[adm];
+    if (!bookNo || !bookNo.trim()) {
+      missingBookNo++;
+      return;
+    }
+    toIssue.push({ adm: adm, name: name, bookNo: bookNo.trim() });
+  });
+
+  if (checks.length === 0) {
+    showNotification("Select at least one student", "warning");
     return;
   }
+  if (toIssue.length === 0) {
+    showNotification("Enter book numbers for the selected students", "warning");
+    return;
+  }
+  if (missingBookNo > 0) {
+    showNotification(
+      missingBookNo + " student(s) skipped (no book number)",
+      "warning",
+    );
+  }
+
+  var promises = toIssue.map(function (item) {
+    return API.issueBook(school, {
+      studentName: item.name,
+      adm: item.adm,
+      bookTitle: bookTitle.value,
+      bookNo: item.bookNo,
+      issuedBy: user ? user.name : "",
+    });
+  });
 
   Promise.all(promises)
     .then(function () {
-      showNotification("Issued " + issued + " books!", "success");
+      showNotification("Issued " + toIssue.length + " books!", "success");
       closeModal("bulkBookModal");
       resetBulkBookList();
       loadLibraryData();
     })
-    .catch(function () {});
+    .catch(function () {
+      showNotification("Failed to issue some books", "error");
+    });
 }
 
 // ============ STUDENTS ============
@@ -1101,7 +1165,7 @@ function loadStudentsData() {
             '<tr><td colspan="8" style="text-align:center;">No students found.</td></tr>';
         } else {
           var html = "";
-          allStudents.slice(0, 200).forEach(function (s) {
+          allStudents.slice(0, 500).forEach(function (s) {
             var sourceBadge =
               s.source === "db"
                 ? '<span class="source-badge source-db">DB</span>'
@@ -1137,13 +1201,51 @@ function loadStudentsData() {
           });
           tbody.innerHTML = html;
         }
+        filterStudents();
       }
 
       updateStudentStats(allStudents, dbStudents, classes);
+      populateStudentFilters(allStudents);
     })
     .catch(function (err) {
       console.error("Students error:", err);
     });
+}
+
+function populateStudentFilters(allStudents) {
+  var formFilter = document.getElementById("filterForm");
+  var streamFilter = document.getElementById("filterStream");
+
+  var forms = {};
+  var streams = {};
+  allStudents.forEach(function (s) {
+    if (s.form) forms[s.form] = true;
+    if (s.stream) streams[s.stream] = true;
+  });
+
+  if (formFilter) {
+    var prevForm = formFilter.value;
+    var fHtml = '<option value="">All Forms</option>';
+    Object.keys(forms)
+      .sort()
+      .forEach(function (f) {
+        fHtml += '<option value="' + f + '">' + f + "</option>";
+      });
+    formFilter.innerHTML = fHtml;
+    if (prevForm) formFilter.value = prevForm;
+  }
+
+  if (streamFilter) {
+    var prevStream = streamFilter.value;
+    var sHtml = '<option value="">All Streams</option>';
+    Object.keys(streams)
+      .sort()
+      .forEach(function (s) {
+        sHtml += '<option value="' + s + '">' + s + "</option>";
+      });
+    streamFilter.innerHTML = sHtml;
+    if (prevStream) streamFilter.value = prevStream;
+  }
 }
 
 function updateStudentStats(allStudents, dbStudents, classes) {
@@ -1272,15 +1374,87 @@ function loadFurnitureData() {
       if (totalEl) totalEl.textContent = furniture.length;
       if (activeEl) activeEl.textContent = furniture.length;
 
+      // Active table
+      var activeTbody = document.getElementById("activeTableBody");
+      if (activeTbody) {
+        if (furniture.length === 0) {
+          activeTbody.innerHTML =
+            '<tr><td colspan="7" style="text-align:center;">No allocations</td></tr>';
+        } else {
+          var html = "";
+          furniture.forEach(function (f) {
+            html +=
+              "<tr>" +
+              "<td>" +
+              (f.studentName || "-") +
+              "</td>" +
+              "<td>" +
+              (f.adm || "-") +
+              "</td>" +
+              '<td><span class="badge badge-warning">' +
+              (f.chairNo || "-") +
+              "</span></td>" +
+              "<td>" +
+              (f.lockerNo || "-") +
+              "</td>" +
+              "<td>" +
+              (f.allocationDate || "-") +
+              "</td>" +
+              '<td><span class="badge badge-success">Active</span></td>' +
+              '<td><button class="btn btn-sm btn-success" onclick="returnFurnitureItem(\'' +
+              f.id +
+              '\')"><i class="fas fa-undo"></i> Return</button></td></tr>';
+          });
+          activeTbody.innerHTML = html;
+        }
+        if (_searchTerms.furnitureActive) filterActiveTable();
+      }
+
+      // All table
+      var allTbody = document.getElementById("allTableBody");
+      if (allTbody) {
+        if (furniture.length === 0) {
+          allTbody.innerHTML =
+            '<tr><td colspan="6" style="text-align:center;">No records</td></tr>';
+        } else {
+          var allHtml = "";
+          furniture.forEach(function (f) {
+            allHtml +=
+              "<tr>" +
+              "<td>" +
+              (f.studentName || "-") +
+              "</td>" +
+              "<td>" +
+              (f.adm || "-") +
+              "</td>" +
+              "<td>" +
+              (f.chairNo || "-") +
+              "</td>" +
+              "<td>" +
+              (f.lockerNo || "-") +
+              "</td>" +
+              "<td>" +
+              (f.allocationDate || "-") +
+              "</td>" +
+              "<td>" +
+              (f.issuedBy || "-") +
+              "</td></tr>";
+          });
+          allTbody.innerHTML = allHtml;
+        }
+        if (_searchTerms.furnitureAll) filterAllTable();
+      }
+
+      // Legacy furniture card view (if the page uses it)
       var activeList = document.getElementById("activeFurnitureList");
       if (activeList) {
         if (furniture.length === 0) {
           activeList.innerHTML =
             '<p style="text-align:center;">No active allocations</p>';
         } else {
-          var html = "";
+          var fHtml = "";
           furniture.slice(0, 50).forEach(function (f) {
-            html +=
+            fHtml +=
               '<div class="furniture-card">' +
               '<span class="status-badge status-active">Active</span>' +
               '<div class="furniture-icon"><i class="fas fa-chair"></i></div>' +
@@ -1302,14 +1476,14 @@ function loadFurnitureData() {
               f.id +
               '\')"><i class="fas fa-undo"></i> Return</button></div>';
           });
-          activeList.innerHTML = html;
+          activeList.innerHTML = fHtml;
         }
       }
 
       var allList = document.getElementById("allFurnitureList");
-      if (allList) allList.innerHTML = activeList ? activeList.innerHTML : "";
+      if (allList && activeList) allList.innerHTML = activeList.innerHTML;
 
-      // Preserve bulk class selection on re-render
+      // Preserve bulk class selection
       var bulkClassSelect = document.getElementById("bulkFurnitureClass");
       if (bulkClassSelect) {
         var prevValue = bulkClassSelect.value;
@@ -1406,7 +1580,7 @@ function returnFurnitureItem(furnitureId) {
   }
 }
 
-// ============ BULK FURNITURE ============
+// ============ BULK FURNITURE (with per-student Chair/Locker inputs) ============
 function resetBulkFurnitureList() {
   var container = document.getElementById("bulkFurnitureStudents");
   if (container) {
@@ -1426,13 +1600,11 @@ function loadClassStudentsForFurniture() {
   var container = document.getElementById("bulkFurnitureStudents");
   if (!container) return;
 
-  // Skip rebuild if same class already loaded
   var currentKey = container.getAttribute("data-class-id");
   if (currentKey === classId.value && container.innerHTML.trim() !== "") {
     return;
   }
 
-  // Preserve typed values
   var preservedChairs = {};
   var preservedLockers = {};
   container.querySelectorAll(".furniture-chair-input").forEach(function (inp) {
@@ -1447,97 +1619,150 @@ function loadClassStudentsForFurniture() {
     classes.forEach(function (c) {
       if (c.id === classId.value) selectedClass = c;
     });
-    if (!selectedClass || !selectedClass.students) return;
 
-    bulkFurnitureClass = selectedClass;
+    if (selectedClass && selectedClass.students) {
+      bulkFurnitureClass = selectedClass;
 
-    var html =
-      '<h4 style="color:#d4af37;">Students (' +
-      selectedClass.students.length +
-      ")</h4>";
-    selectedClass.students.forEach(function (student) {
-      var name = extractName(student);
-      var adm = extractAdm(student);
-      var chairVal = preservedChairs[adm] || "";
-      var lockerVal = preservedLockers[adm] || "";
-      html +=
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-        '<span style="flex:1;">' +
-        name +
+      var html =
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
+        '<h4 style="color:#d4af37;margin:0;">Students in ' +
+        (selectedClass.name || "") +
         " (" +
-        adm +
-        ")</span>" +
-        '<input type="text" class="furniture-chair-input" placeholder="Chair No" data-adm="' +
-        adm +
-        '" value="' +
-        chairVal +
-        '" ' +
-        'style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;">' +
-        '<input type="text" class="furniture-locker-input" placeholder="Locker No" data-adm="' +
-        adm +
-        '" value="' +
-        lockerVal +
-        '" ' +
-        'style="width:100px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;"></div>';
-    });
+        selectedClass.students.length +
+        ")</h4>" +
+        '<div style="display:flex;gap:8px;">' +
+        '<button type="button" class="btn btn-sm btn-secondary" onclick="bulkToggleAllFurniture(true)">Select All</button>' +
+        '<button type="button" class="btn btn-sm btn-secondary" onclick="bulkToggleAllFurniture(false)">Deselect All</button>' +
+        "</div></div>";
 
-    html +=
-      '<button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="allocateBulkFurniture()"><i class="fas fa-chair"></i> Allocate to All</button>';
-    container.innerHTML = html;
-    container.setAttribute("data-class-id", classId.value);
+      html +=
+        '<div style="max-height:340px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;background:rgba(0,0,0,0.2);">';
+
+      selectedClass.students.forEach(function (student) {
+        var name = extractName(student);
+        var adm = extractAdm(student);
+        var chairVal = preservedChairs[adm] || "";
+        var lockerVal = preservedLockers[adm] || "";
+        var safeName = String(name)
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+        var safeAdm = String(adm)
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+        html +=
+          '<div style="display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+          '<input type="checkbox" class="bulk-furniture-check" data-adm="' +
+          safeAdm +
+          '" data-name="' +
+          safeName +
+          '" style="width:auto;flex-shrink:0;">' +
+          '<span style="flex:1;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
+          name +
+          " (" +
+          adm +
+          ")</span>" +
+          '<input type="text" class="furniture-chair-input" placeholder="Chair No" data-adm="' +
+          safeAdm +
+          '" value="' +
+          chairVal +
+          '" ' +
+          'style="width:80px;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;font-size:11px;flex-shrink:0;">' +
+          '<input type="text" class="furniture-locker-input" placeholder="Locker No" data-adm="' +
+          safeAdm +
+          '" value="' +
+          lockerVal +
+          '" ' +
+          'style="width:80px;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;font-size:11px;flex-shrink:0;">' +
+          "</div>";
+      });
+
+      html += "</div>";
+      html +=
+        '<button type="button" class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="allocateBulkFurniture()"><i class="fas fa-chair"></i> Allocate to Selected Students</button>';
+      container.innerHTML = html;
+      container.setAttribute("data-class-id", classId.value);
+    }
+  });
+}
+
+function bulkToggleAllFurniture(checked) {
+  document.querySelectorAll(".bulk-furniture-check").forEach(function (cb) {
+    cb.checked = checked;
   });
 }
 
 function allocateBulkFurniture() {
   var school = getCurrentSchool();
   var user = getCurrentUser();
-  var chairInputs = document.querySelectorAll(".furniture-chair-input");
-  var lockerInputs = document.querySelectorAll(".furniture-locker-input");
-  var allocated = 0;
-  var promises = [];
 
-  chairInputs.forEach(function (chairInput, index) {
-    if (chairInput.value) {
-      var adm = chairInput.dataset.adm;
-      var lockerNo = lockerInputs[index] ? lockerInputs[index].value : "";
-      var student = null;
-
-      if (bulkFurnitureClass && bulkFurnitureClass.students) {
-        bulkFurnitureClass.students.forEach(function (s) {
-          var sAdm = extractAdm(s);
-          if (sAdm === adm) student = s;
-        });
-      }
-
-      if (student) {
-        var name = extractName(student);
-        promises.push(
-          API.allocateFurniture(school, {
-            studentName: name,
-            adm: adm,
-            chairNo: chairInput.value,
-            lockerNo: lockerNo,
-            issuedBy: user ? user.name : "",
-          }),
-        );
-        allocated++;
-      }
-    }
+  var checks = document.querySelectorAll(".bulk-furniture-check:checked");
+  var chairsByAdm = {};
+  var lockersByAdm = {};
+  document.querySelectorAll(".furniture-chair-input").forEach(function (inp) {
+    if (inp.value) chairsByAdm[inp.dataset.adm] = inp.value;
+  });
+  document.querySelectorAll(".furniture-locker-input").forEach(function (inp) {
+    if (inp.value) lockersByAdm[inp.dataset.adm] = inp.value;
   });
 
-  if (promises.length === 0) {
-    showNotification("Enter at least one chair number", "warning");
+  var toAllocate = [];
+  var skipped = 0;
+
+  checks.forEach(function (cb) {
+    var adm = cb.dataset.adm;
+    var name = cb.dataset.name;
+    var chairNo = chairsByAdm[adm];
+    if (!chairNo || !chairNo.trim()) {
+      skipped++;
+      return;
+    }
+    toAllocate.push({
+      adm: adm,
+      name: name,
+      chairNo: chairNo.trim(),
+      lockerNo: (lockersByAdm[adm] || "").trim(),
+    });
+  });
+
+  if (checks.length === 0) {
+    showNotification("Select at least one student", "warning");
     return;
   }
+  if (toAllocate.length === 0) {
+    showNotification("Enter chair numbers for selected students", "warning");
+    return;
+  }
+  if (skipped > 0) {
+    showNotification(
+      skipped + " student(s) skipped (no chair number)",
+      "warning",
+    );
+  }
+
+  var promises = toAllocate.map(function (item) {
+    return API.allocateFurniture(school, {
+      studentName: item.name,
+      adm: item.adm,
+      chairNo: item.chairNo,
+      lockerNo: item.lockerNo,
+      issuedBy: user ? user.name : "",
+    });
+  });
 
   Promise.all(promises)
     .then(function () {
-      showNotification("Allocated to " + allocated + " students!", "success");
+      showNotification(
+        "Allocated to " + toAllocate.length + " students!",
+        "success",
+      );
       closeModal("bulkFurnitureModal");
       resetBulkFurnitureList();
       loadFurnitureData();
     })
-    .catch(function () {});
+    .catch(function () {
+      showNotification("Failed to allocate some", "error");
+    });
 }
 
 // ============ CHAT ============
@@ -1590,9 +1815,7 @@ function selectChatUser(email, name) {
   document.querySelectorAll(".chat-user-btn").forEach(function (btn) {
     btn.classList.remove("active");
     var onclick = btn.getAttribute("onclick") || "";
-    if (onclick.indexOf(email) > -1) {
-      btn.classList.add("active");
-    }
+    if (onclick.indexOf(email) > -1) btn.classList.add("active");
   });
 
   if (_rawChatMessages.length > 0) {
@@ -1693,8 +1916,8 @@ function sendMessage(event) {
     message: msgText,
   })
     .then(function () {})
-    .catch(function (err) {
-      showNotification("Failed to send: " + (err.message || "error"), "error");
+    .catch(function () {
+      showNotification("Failed to send", "error");
       _rawChatMessages = _rawChatMessages.filter(function (m) {
         return m.id !== tempId;
       });
@@ -1927,6 +2150,7 @@ function loadEvents() {
           "</small></div>";
       });
       container.innerHTML = html;
+      if (_searchTerms.events) filterEvents();
     })
     .catch(function () {});
 }
@@ -2026,6 +2250,7 @@ function loadFeesData() {
           });
           tbody.innerHTML = html;
         }
+        if (_searchTerms.fees) filterFees();
       }
 
       var totalEl = document.getElementById("totalFeesAmount");
@@ -2261,6 +2486,7 @@ function loadTeachersData() {
           '\')"><i class="fas fa-trash"></i></button></td></tr>';
       });
       tbody.innerHTML = html;
+      if (_searchTerms.teachers) filterTeachers();
     })
     .catch(function () {});
 }
@@ -2348,6 +2574,7 @@ function loadClassesData() {
           '\')"><i class="fas fa-trash"></i> Delete</button></div></div>';
       });
       container.innerHTML = html;
+      if (_searchTerms.classes) filterClasses();
     })
     .catch(function () {});
 }
@@ -2597,6 +2824,7 @@ function loadAuditLog() {
           "</td></tr>";
       });
       tbody.innerHTML = html;
+      if (_searchTerms.auditLog || _searchTerms.auditAction) filterAuditLog();
     })
     .catch(function () {});
 }
@@ -2965,8 +3193,192 @@ function loadQRCodeList() {
       });
       html += "</tbody></table>";
       container.innerHTML = html;
+      if (_searchTerms.qrcodes) filterQRCodes();
     })
     .catch(function () {});
+}
+
+// ============ SEARCH FUNCTIONS ============
+function applyFilterToTable(tbody, term, extraFilter) {
+  if (!tbody) return;
+  var lowerTerm = (term || "").toLowerCase().trim();
+  var rows = tbody.querySelectorAll("tr");
+  rows.forEach(function (row) {
+    var matchMain =
+      !lowerTerm || row.textContent.toLowerCase().indexOf(lowerTerm) !== -1;
+    var matchExtra = true;
+    if (extraFilter && typeof extraFilter === "function") {
+      matchExtra = extraFilter(row);
+    }
+    row.style.display = matchMain && matchExtra ? "" : "none";
+  });
+}
+
+function filterBooks() {
+  var input = document.getElementById("searchBooks");
+  if (input) _searchTerms.books = input.value;
+  applyFilterToTable(
+    document.getElementById("booksTableBody"),
+    _searchTerms.books,
+  );
+}
+
+function filterStudents() {
+  var searchInput = document.getElementById("searchStudents");
+  var formFilter = document.getElementById("filterForm");
+  var streamFilter = document.getElementById("filterStream");
+  var sourceFilter = document.getElementById("filterSource");
+
+  if (searchInput) _searchTerms.students = searchInput.value;
+
+  var term = (_searchTerms.students || "").toLowerCase().trim();
+  var formVal = formFilter ? formFilter.value : "";
+  var streamVal = streamFilter ? streamFilter.value : "";
+  var sourceVal = sourceFilter ? sourceFilter.value : "";
+
+  var clearBtn = document.getElementById("clearSearchBtn");
+  if (clearBtn) clearBtn.style.display = term ? "block" : "none";
+
+  var tbody = document.getElementById("studentsTableBody");
+  if (!tbody) return;
+
+  var rows = tbody.querySelectorAll("tr");
+  rows.forEach(function (row) {
+    var cells = row.cells;
+    if (cells.length < 8) return;
+
+    var name = (cells[0].textContent || "").toLowerCase();
+    var adm = (cells[1].textContent || "").toLowerCase();
+    var sid = (cells[2].textContent || "").toLowerCase();
+    var form = (cells[3].textContent || "").trim();
+    var stream = (cells[4].textContent || "").trim();
+    var source = (cells[6].textContent || "").trim().toLowerCase();
+
+    var matchesSearch =
+      !term ||
+      name.indexOf(term) > -1 ||
+      adm.indexOf(term) > -1 ||
+      sid.indexOf(term) > -1 ||
+      form.toLowerCase().indexOf(term) > -1 ||
+      stream.toLowerCase().indexOf(term) > -1;
+
+    var matchesForm = !formVal || form === formVal;
+    var matchesStream = !streamVal || stream === streamVal;
+    var matchesSource = true;
+    if (sourceVal === "db") matchesSource = source.indexOf("db") > -1;
+    if (sourceVal === "class") matchesSource = source.indexOf("class") > -1;
+
+    row.style.display =
+      matchesSearch && matchesForm && matchesStream && matchesSource
+        ? ""
+        : "none";
+  });
+}
+
+function clearSearch() {
+  var input = document.getElementById("searchStudents");
+  if (input) input.value = "";
+  _searchTerms.students = "";
+  var clearBtn = document.getElementById("clearSearchBtn");
+  if (clearBtn) clearBtn.style.display = "none";
+  filterStudents();
+}
+
+function filterFees() {
+  var input = document.getElementById("searchFees");
+  if (input) _searchTerms.fees = input.value;
+  applyFilterToTable(
+    document.getElementById("feesTableBody"),
+    _searchTerms.fees,
+  );
+}
+
+function filterAuditLog() {
+  var searchInput = document.getElementById("searchAuditLog");
+  var actionFilter = document.getElementById("filterAction");
+  if (searchInput) _searchTerms.auditLog = searchInput.value;
+  if (actionFilter) _searchTerms.auditAction = actionFilter.value;
+
+  var term = (_searchTerms.auditLog || "").toLowerCase().trim();
+  var actionVal = (_searchTerms.auditAction || "").trim();
+
+  var tbody = document.getElementById("auditLogBody");
+  if (!tbody) return;
+
+  var rows = tbody.querySelectorAll("tr");
+  rows.forEach(function (row) {
+    var cells = row.cells;
+    if (cells.length < 5) return;
+    var action = (cells[2].textContent || "").trim();
+    var matchSearch = !term || row.textContent.toLowerCase().indexOf(term) > -1;
+    var matchAction = !actionVal || action.indexOf(actionVal) > -1;
+    row.style.display = matchSearch && matchAction ? "" : "none";
+  });
+}
+
+function filterActiveTable() {
+  var input = document.getElementById("searchActive");
+  if (input) _searchTerms.furnitureActive = input.value;
+  applyFilterToTable(
+    document.getElementById("activeTableBody"),
+    _searchTerms.furnitureActive,
+  );
+}
+
+function filterAllTable() {
+  var input = document.getElementById("searchAll");
+  if (input) _searchTerms.furnitureAll = input.value;
+  applyFilterToTable(
+    document.getElementById("allTableBody"),
+    _searchTerms.furnitureAll,
+  );
+}
+
+function filterQRCodes() {
+  var input = document.getElementById("searchQRCodes");
+  if (input) _searchTerms.qrcodes = input.value;
+  var table = document.querySelector("#qrCodeList table");
+  if (!table) return;
+  var tbody = table.querySelector("tbody");
+  if (!tbody) return;
+  applyFilterToTable(tbody, _searchTerms.qrcodes);
+}
+
+function filterTeachers() {
+  var input = document.getElementById("searchTeachers");
+  if (input) _searchTerms.teachers = input.value;
+  applyFilterToTable(
+    document.getElementById("teachersTableBody"),
+    _searchTerms.teachers,
+  );
+}
+
+function filterClasses() {
+  var input = document.getElementById("searchClasses");
+  if (input) _searchTerms.classes = input.value;
+  var term = (_searchTerms.classes || "").toLowerCase().trim();
+  var container = document.getElementById("classesList");
+  if (!container) return;
+  var cards = container.querySelectorAll(".class-card");
+  cards.forEach(function (card) {
+    var text = card.textContent.toLowerCase();
+    card.style.display = !term || text.indexOf(term) > -1 ? "" : "none";
+  });
+}
+
+function filterEvents() {
+  var input = document.getElementById("searchEvents");
+  if (input) _searchTerms.events = input.value;
+  var term = (_searchTerms.events || "").toLowerCase().trim();
+  var container = document.getElementById("eventsList");
+  if (!container) return;
+  var items = container.children;
+  for (var i = 0; i < items.length; i++) {
+    var el = items[i];
+    if (el.tagName === "P" || el.classList.contains("empty-state")) continue;
+    var text = el.textContent.toLowerCase();
+    el.style.display = !term || text.indexOf(term) > -1 ? "" : "none";
+  }
 }
 
 // ============ NAVBAR AUTO-DIM ON SCROLL (mobile) ============
@@ -3076,13 +3488,28 @@ window.renderMonthlySummary = renderMonthlySummary;
 window.loadClassStudentsForBooks = loadClassStudentsForBooks;
 window.resetBulkBookList = resetBulkBookList;
 window.issueBulkBooks = issueBulkBooks;
+window.bulkToggleAll = bulkToggleAll;
 window.loadClassStudentsForFurniture = loadClassStudentsForFurniture;
 window.resetBulkFurnitureList = resetBulkFurnitureList;
 window.allocateBulkFurniture = allocateBulkFurniture;
+window.bulkToggleAllFurniture = bulkToggleAllFurniture;
 window.updateStudentStats = updateStudentStats;
 window.watchLive = watchLive;
 window.handleChatLiveUpdate = handleChatLiveUpdate;
 window.renderChatMessagesFromRaw = renderChatMessagesFromRaw;
+
+// Search function exports
+window.filterBooks = filterBooks;
+window.filterStudents = filterStudents;
+window.clearSearch = clearSearch;
+window.filterFees = filterFees;
+window.filterAuditLog = filterAuditLog;
+window.filterActiveTable = filterActiveTable;
+window.filterAllTable = filterAllTable;
+window.filterQRCodes = filterQRCodes;
+window.filterTeachers = filterTeachers;
+window.filterClasses = filterClasses;
+window.filterEvents = filterEvents;
 
 // ============================================
 // MOBILE DROPDOWN FIX
@@ -3104,10 +3531,12 @@ window.renderChatMessagesFromRaw = renderChatMessagesFromRaw;
 
   function initMobileDropdowns() {
     var navGroups = document.querySelectorAll(".floating-navbar .nav-group");
+
     navGroups.forEach(function (group) {
       var button = group.querySelector(".classy-btn");
       var dropdown = group.querySelector(".dropdown-menu");
       if (!button || !dropdown) return;
+
       if (button.dataset.mobileInit === "1") return;
       button.dataset.mobileInit = "1";
 
@@ -3115,10 +3544,15 @@ window.renderChatMessagesFromRaw = renderChatMessagesFromRaw;
         if (!isTouchDevice()) return;
         e.preventDefault();
         e.stopPropagation();
+
         var isOpen = dropdown.classList.contains("open");
         closeAllDropdowns(dropdown);
-        if (isOpen) dropdown.classList.remove("open");
-        else dropdown.classList.add("open");
+
+        if (isOpen) {
+          dropdown.classList.remove("open");
+        } else {
+          dropdown.classList.add("open");
+        }
       });
 
       dropdown.querySelectorAll(".dropdown-item").forEach(function (item) {
@@ -3158,6 +3592,4 @@ window.renderChatMessagesFromRaw = renderChatMessagesFromRaw;
   setTimeout(initMobileDropdowns, 1500);
 })();
 
-console.log(
-  "✅ SRMS App loaded — REALTIME LIVE DATA + CHAT SYNC + BULK PRESERVATION",
-);
+console.log("✅ SRMS App loaded — REALTIME + CHAT SYNC + SEARCH + BULK INPUTS");
