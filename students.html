@@ -231,35 +231,139 @@
         .source-db { background: rgba(23,162,184,0.2); color: #17a2b8; }
         .source-class { background: rgba(212,175,55,0.2); color: var(--gold); }
         
+        /* ============ MODAL — scroll-friendly + larger ============ */
         .modal {
-            display: none; position: fixed; top: 0; left: 0;
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1300;
-            justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1300;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .modal.active { display: flex; }
+        
         .modal-content {
-            background: rgba(14, 20, 46, 0.85);
+            background: rgba(14, 20, 46, 0.96);
             backdrop-filter: blur(26px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 16px; padding: 25px;
-            width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
+            -webkit-backdrop-filter: blur(26px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 18px;
+            padding: 32px 36px;
+            width: 100%;
+            max-width: 720px;
+            margin: 20px auto;
+            box-sizing: border-box;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            animation: modalSlide 0.25s ease;
         }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 18px; }
-        .modal-header h3 { color: var(--accent); font-size: 1em; }
-        .modal-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 16px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 4px; font-size: 11px; color: rgba(255,255,255,0.7); }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 9px 12px;
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-header h3 {
+            color: var(--accent);
+            font-size: 1.35em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-header h3 i { font-size: 1em; }
+        .modal-close {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px; color: #fff;
-            font-family: 'Inter', sans-serif; font-size: 13px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .modal-close:hover {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: rgba(220, 53, 69, 0.5);
+            transform: rotate(90deg);
+        }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 0.3px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            transition: var(--transition);
+            outline: none;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
         }
         .form-group select option { background: #1a1f4e; }
-        .form-group textarea { resize: vertical; min-height: 50px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .section-heading {
+            color: var(--accent);
+            font-size: 1em;
+            font-weight: 700;
+            margin: 20px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-submit-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            justify-content: center;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
         
         .empty-state {
             text-align: center; padding: 30px 15px; color: rgba(255,255,255,0.4);
@@ -273,6 +377,17 @@
             .form-row { grid-template-columns: 1fr; }
             .page-header { flex-direction: column; align-items: stretch; }
             .stats-row { grid-template-columns: 1fr 1fr; }
+            .modal { padding: 10px; }
+            .modal-content {
+                padding: 20px 18px;
+                margin: 10px auto;
+                border-radius: 14px;
+                max-width: 100%;
+            }
+            .modal-header h3 { font-size: 1.15em; }
+            .form-group input,
+            .form-group select { padding: 11px 14px; font-size: 14px; }
+            .modal-submit-btn { padding: 14px; font-size: 14px; }
         }
     </style>
 </head>
@@ -344,12 +459,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-user-plus"></i> Add Student</h3>
-                <button class="modal-close" onclick="closeModal('addStudentModal')"><i class="fas fa-times"></i></button>
+                <button type="button" class="modal-close" onclick="closeModal('addStudentModal')"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="return addStudent(event)">
                 <div class="form-row">
-                    <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" required></div>
-                    <div class="form-group"><label>ADM Number *</label><input type="text" id="studentADM" required></div>
+                    <div class="form-group"><label>Full Name *</label><input type="text" id="studentName" required placeholder="e.g., John Doe"></div>
+                    <div class="form-group"><label>ADM Number *</label><input type="text" id="studentADM" required placeholder="e.g., 1234"></div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -362,16 +477,27 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Gender</label><select id="studentGender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="studentGender">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Date of Birth</label><input type="date" id="studentDOB"></div>
                 </div>
-                <h4 style="color:var(--accent);margin:12px 0 8px;font-size:0.85em;">Parent Information</h4>
+                
+                <div class="section-heading"><i class="fas fa-users"></i> Parent Information</div>
                 <div class="form-row">
-                    <div class="form-group"><label>Parent Name</label><input type="text" id="studentParentName"></div>
-                    <div class="form-group"><label>Parent Phone</label><input type="tel" id="studentParentPhone"></div>
+                    <div class="form-group"><label>Parent Name</label><input type="text" id="studentParentName" placeholder="Parent/Guardian name"></div>
+                    <div class="form-group"><label>Parent Phone</label><input type="tel" id="studentParentPhone" placeholder="Phone number"></div>
                 </div>
-                <div class="form-group"><label>Parent Email</label><input type="email" id="studentParentEmail"></div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-plus"></i> Add Student</button>
+                <div class="form-group"><label>Parent Email</label><input type="email" id="studentParentEmail" placeholder="email@example.com"></div>
+                
+                <button type="submit" class="btn btn-primary modal-submit-btn">
+                    <i class="fas fa-plus"></i> Add Student
+                </button>
             </form>
         </div>
     </div>
@@ -439,11 +565,50 @@
     <script src="js/app.js"></script>
     
     <script>
+        /* ============================================================
+           STUDENTS PAGE — page-level state and helpers
+           ============================================================ */
         var allStudentsMerged = [];
         var studentsFromDB = [];
         var studentsFromClasses = [];
         var allForms = [];
         var allStreams = [];
+        
+        // ===== Modal helpers (defined here so they always exist) =====
+        function openModal(modalId) {
+            var modal = document.getElementById(modalId);
+            if (!modal) return;
+            modal.classList.add("active");
+            modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+        
+        function closeModal(modalId) {
+            var modal = document.getElementById(modalId);
+            if (!modal) return;
+            modal.classList.remove("active");
+            modal.style.display = "none";
+            document.body.style.overflow = "";
+        }
+        
+        // Close modal on overlay click or ESC
+        document.addEventListener("click", function (e) {
+            if (e.target.classList && e.target.classList.contains("modal")) {
+                e.target.classList.remove("active");
+                e.target.style.display = "none";
+                document.body.style.overflow = "";
+            }
+        });
+        
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                document.querySelectorAll(".modal.active").forEach(function (m) {
+                    m.classList.remove("active");
+                    m.style.display = "none";
+                });
+                document.body.style.overflow = "";
+            }
+        });
         
         document.addEventListener('DOMContentLoaded', function() {
             loadAllStudents();
@@ -669,6 +834,7 @@
             modal.innerHTML = '<div class="modal-content"><div class="modal-header"><h3>Student Details</h3>' +
                 '<button class="modal-close" onclick="closeModal(\'viewStudentModal\')"><i class="fas fa-times"></i></button></div>' + html + '</div>';
             document.body.appendChild(modal);
+            document.body.style.overflow = "hidden";
         }
         
         function deleteStudent(adm) {
@@ -704,11 +870,15 @@
         }
         
         function logout() {
+            if (typeof window.wipeAllCache === 'function') window.wipeAllCache();
             localStorage.removeItem('srms_user');
             localStorage.removeItem('srms_school');
             window.location.href = 'index.html';
         }
         
+        // Expose everything
+        window.openModal = openModal;
+        window.closeModal = closeModal;
         window.filterStudents = filterStudents;
         window.clearSearch = clearSearch;
         window.refreshStudents = refreshStudents;
