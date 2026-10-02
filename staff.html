@@ -8,823 +8,1049 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
-    /* ==========================================
-       STAFF PAGE — SLEEK STYLES
-       Scoped with .staff-page so nothing else breaks
-       ========================================== */
+    /* ================================================================
+       STAFF PAGE — PREMIUM EDITION
+       Scoped under .staff-page so nothing leaks.
+       ================================================================ */
 
     .staff-page {
-      --accent: #d4af37;
-      --accent-soft: rgba(212, 175, 55, 0.15);
-      --danger: #e94560;
-      --success: #22c55e;
-      --info: #38bdf8;
-      --purple: #a855f7;
-      --card-radius: 18px;
-      --glass: rgba(255, 255, 255, calc(var(--glass-alpha, 0.18) * 0.55));
-      --glass-border: rgba(255, 255, 255, 0.12);
+      --gold: #d4af37;
+      --gold-light: #f4d76b;
+      --gold-glow: rgba(212, 175, 55, 0.4);
+      --rose: #e94560;
+      --teal: #2dd4bf;
+      --sky: #38bdf8;
+      --violet: #a855f7;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --ink-0: #05070f;
+      --ink-1: #0a0e27;
+      --ink-2: #141a3d;
+      --panel: rgba(20, 26, 61, 0.55);
+      --panel-2: rgba(20, 26, 61, 0.85);
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.14);
+      --text: #ffffff;
+      --muted: rgba(255, 255, 255, 0.55);
+      --muted-2: rgba(255, 255, 255, 0.35);
+      --radius-xl: 22px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 9px;
     }
 
-    /* ---- Page Header ---- */
-    .staff-page .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 28px;
+    /* ---------- Page Shell ---------- */
+    .staff-page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8px 4px 60px;
+      animation: staffFadeUp 0.5s ease both;
     }
 
-    .staff-page .page-header h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #fff;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      letter-spacing: -0.02em;
+    @keyframes staffFadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .staff-page .page-header h1 i {
-      width: 44px;
-      height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), #f0d060);
-      color: #0a0e27;
-      font-size: 18px;
-      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
-    }
-
-    .staff-page .page-header p {
-      color: rgba(255, 255, 255, 0.55);
-      margin: 4px 0 0 56px;
-      font-size: 13px;
-    }
-
-    /* ---- Stat Cards ---- */
-    .staff-page .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .staff-page .stat-card {
+    /* ---------- Hero Header ---------- */
+    .staff-hero {
       position: relative;
-      padding: 20px;
-      border-radius: var(--card-radius);
-      background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 255, 255, 0.02)
-      );
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      padding: 26px 28px;
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(120% 140% at 0% 0%, rgba(212, 175, 55, 0.18), transparent 55%),
+        radial-gradient(120% 140% at 100% 100%, rgba(168, 85, 247, 0.18), transparent 55%),
+        linear-gradient(135deg, rgba(20, 26, 61, 0.85), rgba(10, 14, 39, 0.75));
+      border: 1px solid var(--line-strong);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
       overflow: hidden;
-      transition: transform 0.25s ease, border-color 0.25s ease;
+      margin-bottom: 22px;
     }
 
-    .staff-page .stat-card::before {
+    .staff-hero::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), transparent);
-      opacity: 0.7;
+      inset: 0;
+      background-image:
+        radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+      background-size: 22px 22px;
+      opacity: 0.55;
+      pointer-events: none;
     }
 
-    .staff-page .stat-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(212, 175, 55, 0.35);
+    .staff-hero-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
     }
 
-    .staff-page .stat-icon {
-      width: 42px;
-      height: 42px;
+    .staff-hero-icon {
+      width: 66px;
+      height: 66px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: var(--ink-0);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow:
+        0 14px 34px var(--gold-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      flex-shrink: 0;
+      animation: staffIconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes staffIconPulse {
+      0%, 100% { box-shadow: 0 14px 34px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.45); }
+      50%      { box-shadow: 0 14px 46px rgba(212, 175, 55, 0.6), inset 0 1px 0 rgba(255,255,255,0.5); }
+    }
+
+    .staff-hero-text {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .staff-hero-text h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .staff-hero-text h1 .badge-live {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(45, 212, 191, 0.15);
+      color: var(--teal);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .staff-hero-text h1 .badge-live::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 8px var(--teal);
+      animation: livePulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.35; }
+    }
+
+    .staff-hero-text p {
+      margin: 6px 0 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ---------- Stat Tiles ---------- */
+    .staff-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .staff-stat {
+      position: relative;
+      padding: 18px 18px 16px;
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 0.25s ease,
+                  background 0.25s ease;
+    }
+
+    .staff-stat:hover {
+      transform: translateY(-4px);
+      border-color: var(--line-strong);
+      background: rgba(20, 26, 61, 0.7);
+    }
+
+    .staff-stat::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--tile-accent, var(--gold)), transparent);
+      opacity: 0.85;
+    }
+
+    .staff-stat-icon {
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 17px;
-      margin-bottom: 14px;
-      background: var(--accent-soft);
-      color: var(--accent);
+      font-size: 16px;
+      margin-bottom: 12px;
+      background: color-mix(in srgb, var(--tile-accent, var(--gold)) 18%, transparent);
+      color: var(--tile-accent, var(--gold));
+      border: 1px solid color-mix(in srgb, var(--tile-accent, var(--gold)) 35%, transparent);
     }
 
-    .staff-page .stat-card.teachers .stat-icon {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--info);
-    }
-
-    .staff-page .stat-card.admins .stat-icon {
-      background: rgba(168, 85, 247, 0.15);
-      color: var(--purple);
-    }
-
-    .staff-page .stat-value {
-      font-size: 1.9rem;
+    .staff-stat-value {
+      font-size: 2rem;
       font-weight: 800;
-      color: #fff;
+      letter-spacing: -0.035em;
       line-height: 1;
-      letter-spacing: -0.03em;
+      color: var(--text);
     }
 
-    .staff-page .stat-label {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
+    .staff-stat-label {
       margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 600;
+      color: var(--muted-2);
     }
 
-    /* ---- Toolbar Card ---- */
-    .staff-page .staff-card {
-      background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.07),
-        rgba(255, 255, 255, 0.02)
-      );
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+    /* ---------- Toolbar Card ---------- */
+    .staff-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
       overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
     }
 
-    .staff-page .staff-toolbar {
+    .staff-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      padding: 18px 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
       flex-wrap: wrap;
+      background: rgba(0, 0, 0, 0.15);
     }
 
-    .staff-page .staff-toolbar h3 {
+    .staff-toolbar-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .staff-toolbar-title h3 {
       margin: 0;
-      color: #fff;
-      font-size: 1rem;
+      color: var(--text);
+      font-size: 15px;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
+      letter-spacing: -0.005em;
     }
 
-    .staff-page .staff-toolbar h3 i {
-      color: var(--accent);
-      font-size: 15px;
+    .staff-toolbar-title h3 i {
+      color: var(--gold);
+      font-size: 14px;
     }
 
-    .staff-page .toolbar-actions {
+    .staff-count-pill {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+    }
+
+    .staff-toolbar-actions {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }
 
-    /* ---- Search Input ---- */
-    .staff-page .search-wrap {
+    /* Search */
+    .staff-search {
       position: relative;
+      min-width: 240px;
     }
 
-    .staff-page .search-wrap i {
+    .staff-search i {
       position: absolute;
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--muted-2);
       font-size: 13px;
       pointer-events: none;
     }
 
-    .staff-page .search-wrap input {
-      padding: 10px 14px 10px 38px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      color: #fff;
+    .staff-search input {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      border-radius: var(--radius-md);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--line);
+      color: var(--text);
       font-size: 13px;
       font-family: inherit;
-      min-width: 220px;
-      transition: border-color 0.2s ease, background 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .staff-page .search-wrap input:focus {
+    .staff-search input:focus {
       outline: none;
-      border-color: rgba(212, 175, 55, 0.5);
-      background: rgba(0, 0, 0, 0.35);
+      border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
     }
 
-    .staff-page .search-wrap input::placeholder {
-      color: rgba(255, 255, 255, 0.35);
+    .staff-search input::placeholder {
+      color: var(--muted-2);
     }
 
-    /* ---- Sleek Add Button ---- */
-    .staff-page .btn-add {
+    /* Primary button */
+    .staff-btn-primary {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 18px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #f0d060);
-      color: #0a0e27;
+      padding: 11px 18px;
+      border-radius: var(--radius-md);
       border: none;
+      font-family: inherit;
       font-weight: 700;
       font-size: 13px;
       cursor: pointer;
-      font-family: inherit;
-      transition: transform 0.15s ease, box-shadow 0.2s ease;
-      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
-    }
-
-    .staff-page .btn-add:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 26px rgba(212, 175, 55, 0.45);
-    }
-
-    .staff-page .btn-add:active {
-      transform: translateY(0);
-    }
-
-    /* ---- Table ---- */
-    .staff-page .table-responsive {
-      overflow-x: auto;
-    }
-
-    .staff-page table.staff-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-
-    .staff-page table.staff-table thead th {
-      text-align: left;
-      padding: 14px 18px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.4);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(0, 0, 0, 0.15);
+      color: var(--ink-0);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 8px 24px var(--gold-glow);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
       white-space: nowrap;
     }
 
-    .staff-page table.staff-table tbody td {
-      padding: 14px 18px;
-      color: rgba(255, 255, 255, 0.85);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      vertical-align: middle;
+    .staff-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(212, 175, 55, 0.55);
+      filter: brightness(1.05);
     }
 
-    .staff-page table.staff-table tbody tr {
-      transition: background 0.15s ease;
+    .staff-btn-primary:active {
+      transform: translateY(0);
     }
 
-    .staff-page table.staff-table tbody tr:hover {
-      background: rgba(212, 175, 55, 0.06);
+    /* ---------- Card Grid (Replaces the ugly table) ---------- */
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 22px;
     }
 
-    .staff-page table.staff-table tbody tr:last-child td {
-      border-bottom: none;
+    .staff-card {
+      position: relative;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.055),
+        rgba(255, 255, 255, 0.015)
+      );
+      border: 1px solid var(--line);
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 0.25s ease,
+                  background 0.25s ease;
+      animation: staffCardIn 0.45s ease both;
     }
 
-    /* ---- Avatar + Name Cell ---- */
-    .staff-page .name-cell {
+    @keyframes staffCardIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .staff-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        var(--card-accent, var(--gold)),
+        transparent 65%
+      );
+      opacity: 0.85;
+      transition: opacity 0.25s ease;
+    }
+
+    .staff-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--line-strong);
+      background: linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.075),
+        rgba(255, 255, 255, 0.025)
+      );
+    }
+
+    .staff-card:hover::before {
+      opacity: 1;
+    }
+
+    .staff-card-head {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
-    .staff-page .avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+    .staff-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      color: #0a0e27;
-      background: linear-gradient(135deg, var(--accent), #f0d060);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink-0);
+      background: linear-gradient(
+        135deg,
+        var(--card-accent, var(--gold)),
+        color-mix(in srgb, var(--card-accent, var(--gold)) 60%, white)
+      );
+      box-shadow: 0 8px 22px color-mix(in srgb, var(--card-accent, var(--gold)) 35%, transparent);
       flex-shrink: 0;
       letter-spacing: 0.02em;
+      position: relative;
     }
 
-    .staff-page .avatar.role-admin {
-      background: linear-gradient(135deg, var(--purple), #d8b4fe);
+    .staff-avatar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35), transparent 55%);
+      pointer-events: none;
     }
 
-    .staff-page .avatar.role-librarian {
-      background: linear-gradient(135deg, var(--info), #7dd3fc);
-    }
-
-    .staff-page .avatar.role-accountant {
-      background: linear-gradient(135deg, #22c55e, #86efac);
-    }
-
-    .staff-page .avatar.role-support {
-      background: linear-gradient(135deg, #f97316, #fdba74);
-    }
-
-    .staff-page .name-cell .meta {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.3;
+    .staff-card-meta {
+      flex: 1;
       min-width: 0;
     }
 
-    .staff-page .name-cell .meta strong {
-      color: #fff;
-      font-weight: 600;
-      font-size: 13.5px;
+    .staff-card-meta h4 {
+      margin: 0 0 3px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .staff-page .name-cell .meta small {
-      color: rgba(255, 255, 255, 0.4);
+    .staff-card-meta .staff-id {
       font-size: 11px;
       font-family: "SF Mono", Consolas, monospace;
+      color: var(--muted-2);
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    /* ---- Role Badges ---- */
-    .staff-page .role-badge {
+    .staff-card-meta .staff-id i {
+      font-size: 9px;
+      opacity: 0.7;
+    }
+
+    /* Role badge */
+    .staff-role {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 5px 11px;
       border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: color-mix(in srgb, var(--card-accent, var(--gold)) 15%, transparent);
+      color: var(--card-accent, var(--gold));
+      border: 1px solid color-mix(in srgb, var(--card-accent, var(--gold)) 40%, transparent);
+      margin-bottom: 14px;
+    }
+
+    .staff-role i {
+      font-size: 8px;
+    }
+
+    /* Info rows */
+    .staff-info {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 16px;
+    }
+
+    .staff-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      color: var(--muted);
+      min-width: 0;
+    }
+
+    .staff-info-row i {
+      width: 16px;
+      text-align: center;
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      color: var(--muted-2);
+      flex-shrink: 0;
+    }
+
+    .staff-info-row span {
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .staff-page .role-badge.role-Teacher {
-      background: rgba(56, 189, 248, 0.14);
-      color: var(--info);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+    .staff-info-row .empty {
+      opacity: 0.35;
+      font-style: italic;
     }
 
-    .staff-page .role-badge.role-Admin {
-      background: rgba(168, 85, 247, 0.14);
-      color: var(--purple);
-      border: 1px solid rgba(168, 85, 247, 0.25);
+    /* Footer */
+    .staff-card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
     }
 
-    .staff-page .role-badge.role-Librarian {
-      background: rgba(212, 175, 55, 0.14);
-      color: var(--accent);
-      border: 1px solid rgba(212, 175, 55, 0.28);
-    }
-
-    .staff-page .role-badge.role-Accountant {
-      background: rgba(34, 197, 94, 0.14);
-      color: var(--success);
-      border: 1px solid rgba(34, 197, 94, 0.25);
-    }
-
-    .staff-page .role-badge.role-Support {
-      background: rgba(249, 115, 22, 0.14);
-      color: #fb923c;
-      border: 1px solid rgba(249, 115, 22, 0.25);
-    }
-
-    /* ---- Status Pill ---- */
-    .staff-page .status-pill {
+    .staff-status {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       font-size: 11.5px;
-      font-weight: 600;
-      color: var(--success);
+      font-weight: 700;
+      color: var(--emerald);
+      letter-spacing: 0.02em;
     }
 
-    .staff-page .status-pill::before {
+    .staff-status::before {
       content: "";
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: livePulse 2s ease-in-out infinite;
     }
 
-    .staff-page .status-pill.inactive {
-      color: rgba(255, 255, 255, 0.4);
+    .staff-status.inactive {
+      color: var(--muted-2);
     }
 
-    .staff-page .status-pill.inactive::before {
-      background: rgba(255, 255, 255, 0.3);
+    .staff-status.inactive::before {
+      background: var(--muted-2);
       box-shadow: none;
+      animation: none;
     }
 
-    /* ---- Action Buttons ---- */
-    .staff-page .icon-btn {
+    .staff-delete {
       width: 32px;
       height: 32px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.6);
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted-2);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
-      transition: all 0.15s ease;
+      transition: all 0.18s ease;
       font-family: inherit;
     }
 
-    .staff-page .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .staff-page .icon-btn.danger:hover {
+    .staff-delete:hover {
       background: rgba(233, 69, 96, 0.15);
       border-color: rgba(233, 69, 96, 0.4);
-      color: var(--danger);
+      color: var(--rose);
+      transform: scale(1.05);
     }
 
-    /* ---- Empty State ---- */
-    .staff-page .empty-state {
-      padding: 60px 20px;
+    /* ---------- Empty State ---------- */
+    .staff-empty {
+      padding: 70px 24px;
       text-align: center;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--muted);
     }
 
-    .staff-page .empty-state i {
-      font-size: 42px;
-      color: rgba(212, 175, 55, 0.3);
-      margin-bottom: 14px;
-      display: block;
+    .staff-empty-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 38px;
+      color: var(--gold);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.03));
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      box-shadow: 0 20px 50px rgba(212, 175, 55, 0.15);
     }
 
-    .staff-page .empty-state h4 {
-      color: rgba(255, 255, 255, 0.7);
-      margin: 0 0 6px;
-      font-weight: 600;
+    .staff-empty h4 {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 700;
     }
 
-    .staff-page .empty-state p {
+    .staff-empty p {
+      margin: 0 0 20px;
       font-size: 13px;
-      margin: 0;
+      color: var(--muted);
     }
 
-    /* ---- Sleek Modal ---- */
-    .staff-page .staff-modal {
+    /* ---------- Modal ---------- */
+    .staff-modal {
       position: fixed;
       inset: 0;
-      background: rgba(4, 6, 18, 0.75);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      z-index: 1300;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      z-index: 1200;
+      background: rgba(3, 5, 15, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       opacity: 0;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.22s ease;
     }
 
-    .staff-page .staff-modal.active {
+    .staff-modal.active {
       display: flex;
       opacity: 1;
     }
 
-    .staff-page .staff-modal .modal-panel {
-      background: linear-gradient(160deg, #161b3d, #0d1130);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 20px;
+    .staff-modal-panel {
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       max-height: 92vh;
       overflow-y: auto;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-      transform: scale(0.94) translateY(10px);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(160deg, var(--ink-2), var(--ink-1));
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+      transform: scale(0.94) translateY(14px);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
     }
 
-    .staff-page .staff-modal.active .modal-panel {
+    .staff-modal.active .staff-modal-panel {
       transform: scale(1) translateY(0);
     }
 
-    .staff-page .modal-panel::before {
+    .staff-modal-panel::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      border-radius: 20px 20px 0 0;
-      background: linear-gradient(90deg, var(--accent), var(--danger), var(--purple));
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      background: linear-gradient(90deg, var(--gold), var(--rose), var(--violet), var(--sky));
+      background-size: 300% 100%;
+      animation: modalGradient 6s linear infinite;
     }
 
-    .staff-page .modal-head {
-      padding: 22px 24px 16px;
+    @keyframes modalGradient {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    .staff-modal-head {
+      padding: 24px 26px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .staff-page .modal-head h3 {
-      margin: 0;
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 700;
+    .staff-modal-head-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 14px;
     }
 
-    .staff-page .modal-head h3 i {
-      color: var(--accent);
+    .staff-modal-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--ink-0);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 8px 22px var(--gold-glow);
     }
 
-    .staff-page .modal-head button {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .staff-modal-head h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .staff-modal-head p {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .staff-modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--muted);
       cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.15s ease;
+      font-family: inherit;
     }
 
-    .staff-page .modal-head button:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+    .staff-modal-close:hover {
+      background: rgba(233, 69, 96, 0.15);
+      border-color: rgba(233, 69, 96, 0.4);
+      color: var(--rose);
+      transform: rotate(90deg);
     }
 
-    .staff-page .modal-body {
-      padding: 22px 24px;
+    .staff-modal-body {
+      padding: 22px 26px;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
 
-    .staff-page .modal-body .full {
+    .staff-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .staff-field.full {
       grid-column: 1 / -1;
     }
 
-    .staff-page .field label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
+    .staff-field label {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.45);
-      margin-bottom: 7px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .staff-page .field input,
-    .staff-page .field select {
+    .staff-field label i {
+      color: var(--gold);
+      font-size: 11px;
+    }
+
+    .staff-field label .req {
+      color: var(--rose);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .staff-field input,
+    .staff-field select {
       width: 100%;
-      padding: 11px 14px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      color: #fff;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid var(--line);
+      color: var(--text);
       font-size: 13.5px;
       font-family: inherit;
-      transition: border-color 0.2s ease, background 0.2s ease;
+      transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .staff-page .field input:focus,
-    .staff-page .field select:focus {
+    .staff-field input::placeholder {
+      color: var(--muted-2);
+    }
+
+    .staff-field input:focus,
+    .staff-field select:focus {
       outline: none;
-      border-color: rgba(212, 175, 55, 0.55);
-      background: rgba(0, 0, 0, 0.4);
+      border-color: color-mix(in srgb, var(--gold) 60%, transparent);
+      background: rgba(0, 0, 0, 0.45);
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
     }
 
-    .staff-page .field select {
+    .staff-field select {
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(212,175,55,0.8)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
       background-repeat: no-repeat;
       background-position: right 12px center;
-      background-size: 16px;
-      padding-right: 38px;
+      background-size: 15px;
+      padding-right: 40px;
+      cursor: pointer;
     }
 
-    .staff-page .field select option {
-      background: #161b3d;
-      color: #fff;
+    .staff-field select option {
+      background: var(--ink-2);
+      color: var(--text);
     }
 
-    .staff-page .modal-foot {
-      padding: 16px 24px 22px;
+    .staff-modal-foot {
+      padding: 18px 26px 24px;
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: 1px solid var(--line);
     }
 
-    .staff-page .btn-secondary {
-      padding: 10px 18px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.8);
-      font-weight: 600;
+    .staff-btn-secondary {
+      padding: 11px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
       font-size: 13px;
       cursor: pointer;
       font-family: inherit;
-      transition: background 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .staff-page .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.12);
+    .staff-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
     }
 
-    .staff-page .btn-save {
-      padding: 10px 20px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #f0d060);
-      color: #0a0e27;
+    .staff-btn-save {
+      padding: 11px 22px;
+      border-radius: var(--radius-md);
       border: none;
-      font-weight: 700;
+      color: var(--ink-0);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      font-weight: 800;
       font-size: 13px;
       cursor: pointer;
       font-family: inherit;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+      gap: 8px;
+      box-shadow: 0 8px 24px var(--gold-glow);
       transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
 
-    .staff-page .btn-save:hover {
+    .staff-btn-save:hover {
       transform: translateY(-1px);
-      box-shadow: 0 10px 26px rgba(212, 175, 55, 0.45);
+      box-shadow: 0 12px 30px rgba(212, 175, 55, 0.55);
     }
 
-    /* ---- Mobile ---- */
-    @media (max-width: 640px) {
-      .staff-page .page-header h1 {
-        font-size: 1.4rem;
-      }
-      .staff-page .page-header p {
-        margin-left: 0;
-      }
-      .staff-page .modal-body {
-        grid-template-columns: 1fr;
-      }
-      .staff-page .search-wrap input {
-        min-width: 0;
-        width: 100%;
-      }
-      .staff-page .toolbar-actions {
-        width: 100%;
-      }
-      .staff-page .toolbar-actions > * {
-        flex: 1;
-      }
-      .staff-page table.staff-table thead th,
-      .staff-page table.staff-table tbody td {
-        padding: 12px 12px;
-      }
+    /* Floating action button (mobile) */
+    .staff-fab {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      border: none;
+      color: var(--ink-0);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 14px 34px var(--gold-glow);
+      cursor: pointer;
+      font-size: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: transform 0.15s ease;
     }
 
-    /* ---- Fade-in animation ---- */
-    @keyframes staffRowIn {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .staff-fab:hover {
+      transform: scale(1.06);
     }
 
-    .staff-page table.staff-table tbody tr {
-      animation: staffRowIn 0.3s ease both;
+    /* ---------- Responsive ---------- */
+    @media (max-width: 780px) {
+      .staff-hero { padding: 20px; }
+      .staff-hero-icon { width: 56px; height: 56px; font-size: 22px; }
+      .staff-hero-text h1 { font-size: 1.4rem; }
+      .staff-grid { padding: 16px; gap: 12px; }
+      .staff-modal-body { grid-template-columns: 1fr; padding: 18px 20px; }
+      .staff-modal-head { padding: 18px 20px 14px; }
+      .staff-modal-foot { padding: 14px 20px 20px; }
+      .staff-search { min-width: 0; width: 100%; }
+      .staff-toolbar-actions { width: 100%; }
+      .staff-toolbar-actions > .staff-btn-primary { display: none; }
+      .staff-fab { display: flex; }
     }
-
-    .staff-page table.staff-table tbody tr:nth-child(1) { animation-delay: 0.02s; }
-    .staff-page table.staff-table tbody tr:nth-child(2) { animation-delay: 0.04s; }
-    .staff-page table.staff-table tbody tr:nth-child(3) { animation-delay: 0.06s; }
-    .staff-page table.staff-table tbody tr:nth-child(4) { animation-delay: 0.08s; }
-    .staff-page table.staff-table tbody tr:nth-child(5) { animation-delay: 0.10s; }
-    .staff-page table.staff-table tbody tr:nth-child(n+6) { animation-delay: 0.12s; }
   </style>
 </head>
 <body>
 
-  <!-- Floating Navbar (same as your other pages, with Staff link) -->
-  <!-- ... your existing navbar HTML ... -->
+  <!-- ── Floating Navbar (keep your existing nav markup, but the Staff link must point to staff.html) ── -->
+  <!-- (Paste your existing floating navbar HTML here) -->
 
-  <div class="main-content staff-page">
+  <div class="main-content">
+    <div class="staff-page">
 
-    <!-- Page Header -->
-    <div class="page-header">
-      <div>
-        <h1><i class="fas fa-user-tie"></i> Staff</h1>
-        <p>Manage teachers, admins, librarians and support staff.</p>
-      </div>
-    </div>
-
-    <!-- Stat Cards -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-users"></i></div>
-        <div class="stat-value" id="totalStaffStat">0</div>
-        <div class="stat-label">Total Staff</div>
-      </div>
-      <div class="stat-card teachers">
-        <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-        <div class="stat-value" id="teacherCountStat">0</div>
-        <div class="stat-label">Teachers</div>
-      </div>
-      <div class="stat-card admins">
-        <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
-        <div class="stat-value" id="adminCountStat">0</div>
-        <div class="stat-label">Admins</div>
-      </div>
-    </div>
-
-    <!-- Staff Directory Card -->
-    <div class="staff-card">
-
-      <div class="staff-toolbar">
-        <h3><i class="fas fa-list"></i> Staff Directory</h3>
-
-        <div class="toolbar-actions">
-          <div class="search-wrap">
-            <i class="fas fa-search"></i>
-            <input
-              type="text"
-              id="searchStaff"
-              placeholder="Search by name, role, ID…"
-              oninput="filterStaff()"
-              autocomplete="off"
-            />
+      <!-- ── Hero ── -->
+      <div class="staff-hero">
+        <div class="staff-hero-inner">
+          <div class="staff-hero-icon">
+            <i class="fas fa-user-tie"></i>
           </div>
-
-          <button class="btn-add" onclick="openStaffModal()">
-            <i class="fas fa-plus"></i> Add Staff
-          </button>
+          <div class="staff-hero-text">
+            <h1>
+              Staff
+              <span class="badge-live">Live</span>
+            </h1>
+            <p>Manage teachers, admins, librarians and support staff — all in one place.</p>
+          </div>
         </div>
       </div>
 
-      <div class="table-responsive">
-        <table class="staff-table">
-          <thead>
-            <tr>
-              <th>Staff</th>
-              <th>Role</th>
-              <th>Contact</th>
-              <th>Subjects</th>
-              <th>Status</th>
-              <th style="text-align:right;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="staffTableBody">
-            <tr>
-              <td colspan="6">
-                <div class="empty-state">
-                  <i class="fas fa-spinner fa-spin"></i>
-                  <p>Loading staff…</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- ── Stats ── -->
+      <div class="staff-stats">
+        <div class="staff-stat" style="--tile-accent: var(--gold);">
+          <div class="staff-stat-icon"><i class="fas fa-users"></i></div>
+          <div class="staff-stat-value" id="totalStaffStat">0</div>
+          <div class="staff-stat-label">Total Staff</div>
+        </div>
+        <div class="staff-stat" style="--tile-accent: var(--sky);">
+          <div class="staff-stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+          <div class="staff-stat-value" id="teacherCountStat">0</div>
+          <div class="staff-stat-label">Teachers</div>
+        </div>
+        <div class="staff-stat" style="--tile-accent: var(--violet);">
+          <div class="staff-stat-icon"><i class="fas fa-user-shield"></i></div>
+          <div class="staff-stat-value" id="adminCountStat">0</div>
+          <div class="staff-stat-label">Admins</div>
+        </div>
+        <div class="staff-stat" style="--tile-accent: var(--emerald);">
+          <div class="staff-stat-icon"><i class="fas fa-user-check"></i></div>
+          <div class="staff-stat-value" id="activeStaffStat">0</div>
+          <div class="staff-stat-label">Active</div>
+        </div>
+      </div>
+
+      <!-- ── Directory Panel ── -->
+      <div class="staff-panel">
+
+        <div class="staff-toolbar">
+          <div class="staff-toolbar-title">
+            <h3><i class="fas fa-address-book"></i> Staff Directory</h3>
+            <span class="staff-count-pill" id="staffCountPill">0 members</span>
+          </div>
+
+          <div class="staff-toolbar-actions">
+            <div class="staff-search">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="searchStaff"
+                placeholder="Search by name, role, ID…"
+                oninput="filterStaff()"
+                autocomplete="off"
+              />
+            </div>
+            <button class="staff-btn-primary" onclick="openStaffModal()">
+              <i class="fas fa-plus"></i> Add Staff
+            </button>
+          </div>
+        </div>
+
+        <div class="staff-grid" id="staffGrid">
+          <!-- Populated by loadStaffData() -->
+          <div style="grid-column:1/-1;">
+            <div class="staff-empty">
+              <div class="staff-empty-icon"><i class="fas fa-spinner fa-spin"></i></div>
+              <h4>Loading staff…</h4>
+              <p>Fetching from your school database.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Sleek Add Staff Modal -->
+  <!-- ── Mobile FAB ── -->
+  <button class="staff-fab" onclick="openStaffModal()" aria-label="Add Staff">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- ── Modal ── -->
   <div class="staff-modal" id="addStaffModal">
-    <div class="modal-panel">
-      <div class="modal-head">
-        <h3><i class="fas fa-user-plus"></i> Add Staff Member</h3>
-        <button onclick="closeStaffModal()" aria-label="Close">
+    <div class="staff-modal-panel">
+
+      <div class="staff-modal-head">
+        <div class="staff-modal-head-left">
+          <div class="staff-modal-icon"><i class="fas fa-user-plus"></i></div>
+          <div>
+            <h3>Add Staff Member</h3>
+            <p>Fill in the details below</p>
+          </div>
+        </div>
+        <button class="staff-modal-close" onclick="closeStaffModal()" aria-label="Close">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
       <form onsubmit="return addStaff(event)">
-        <div class="modal-body">
-          <div class="field full">
-            <label>Full Name *</label>
+        <div class="staff-modal-body">
+
+          <div class="staff-field full">
+            <label><i class="fas fa-user"></i> Full Name <span class="req">*</span></label>
             <input type="text" id="staffName" required placeholder="e.g. Jane Wanjiru" />
           </div>
 
-          <div class="field">
-            <label>Role</label>
+          <div class="staff-field">
+            <label><i class="fas fa-briefcase"></i> Role</label>
             <select id="staffRole">
               <option value="Teacher">Teacher</option>
               <option value="Admin">Admin</option>
@@ -834,37 +1060,38 @@
             </select>
           </div>
 
-          <div class="field">
-            <label>Department</label>
+          <div class="staff-field">
+            <label><i class="fas fa-building"></i> Department</label>
             <input type="text" id="staffDepartment" placeholder="e.g. Sciences" />
           </div>
 
-          <div class="field">
-            <label>Email</label>
+          <div class="staff-field">
+            <label><i class="fas fa-envelope"></i> Email</label>
             <input type="email" id="staffEmail" placeholder="jane@school.ac.ke" />
           </div>
 
-          <div class="field">
-            <label>Phone</label>
-            <input type="tel" id="staffPhone" placeholder="+254 …" />
+          <div class="staff-field">
+            <label><i class="fas fa-phone"></i> Phone</label>
+            <input type="tel" id="staffPhone" placeholder="+254 700 000 000" />
           </div>
 
-          <div class="field full">
-            <label>Subjects Taught</label>
+          <div class="staff-field full">
+            <label><i class="fas fa-book"></i> Subjects Taught</label>
             <input type="text" id="staffSubjects" placeholder="e.g. Mathematics, Physics" />
           </div>
 
-          <div class="field full">
-            <label>Assigned Classes</label>
+          <div class="staff-field full">
+            <label><i class="fas fa-chalkboard"></i> Assigned Classes</label>
             <input type="text" id="staffClasses" placeholder="e.g. Form 1A, Form 3B" />
           </div>
+
         </div>
 
-        <div class="modal-foot">
-          <button type="button" class="btn-secondary" onclick="closeStaffModal()">
+        <div class="staff-modal-foot">
+          <button type="button" class="staff-btn-secondary" onclick="closeStaffModal()">
             Cancel
           </button>
-          <button type="submit" class="btn-save">
+          <button type="submit" class="staff-btn-save">
             <i class="fas fa-check"></i> Save Staff
           </button>
         </div>
@@ -872,7 +1099,7 @@
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- ── Scripts ── -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
