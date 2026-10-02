@@ -42,7 +42,7 @@
     .staff-page {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 8px 4px 60px;
+      padding: 100px 16px 60px;
       animation: staffFadeUp 0.5s ease both;
     }
 
@@ -485,7 +485,6 @@
       opacity: 0.7;
     }
 
-    /* Signed-up badge */
     .staff-source-badge {
       margin-left: 8px;
       padding: 2px 8px;
@@ -925,8 +924,17 @@
       transform: scale(1.06);
     }
 
+    /* ---------- Navbar safety ---------- */
+    .floating-navbar-container,
+    .floating-navbar,
+    .taskbar {
+      position: relative;
+      z-index: 1000;
+    }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 780px) {
+      .staff-page { padding-top: 90px; }
       .staff-hero { padding: 20px; }
       .staff-hero-icon { width: 56px; height: 56px; font-size: 22px; }
       .staff-hero-text h1 { font-size: 1.4rem; }
@@ -944,159 +952,160 @@
 <body>
 
   <!-- ═══════════════ FLOATING NAVBAR ═══════════════ -->
-<nav class="floating-navbar-container">
-  <div class="floating-navbar">
-    <div class="navbar-inner">
+  <nav class="floating-navbar-container">
+    <div class="floating-navbar">
+      <div class="navbar-inner">
 
-      <!-- Brand -->
-      <a href="dashboard.html" class="navbar-brand">
-        <i class="fas fa-graduation-cap"></i>
-        <span>SRMS</span>
-      </a>
-
-      <!-- Nav Groups -->
-      <div class="navbar-links">
-
-        <!-- Dashboard -->
-        <a href="dashboard.html" class="classy-btn">
-          <i class="fas fa-tachometer-alt"></i>
-          <span>Dashboard</span>
+        <!-- Brand -->
+        <a href="dashboard.html" class="navbar-brand">
+          <i class="fas fa-graduation-cap"></i>
+          <span>SRMS</span>
         </a>
 
-        <!-- Academics -->
-        <div class="nav-group">
-          <button class="classy-btn">
-            <i class="fas fa-book-open"></i>
-            <span>Academics</span>
-            <i class="fas fa-chevron-down caret"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a href="classes.html" class="dropdown-item">
-              <i class="fas fa-school"></i> Classes
-            </a>
-            <a href="students.html" class="dropdown-item">
-              <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a href="staff.html" class="dropdown-item">
-              <i class="fas fa-user-tie"></i> Staff
-            </a>
-            <a href="timetable.html" class="dropdown-item">
-              <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a href="terms.html" class="dropdown-item">
-              <i class="fas fa-calendar-check"></i> Terms
-            </a>
-            <a href="events.html" class="dropdown-item">
-              <i class="fas fa-calendar-star"></i> Events
-            </a>
-          </div>
-        </div>
+        <!-- Nav Links -->
+        <div class="navbar-links">
 
-        <!-- Library -->
-        <div class="nav-group">
-          <button class="classy-btn">
-            <i class="fas fa-book"></i>
-            <span>Library</span>
-            <i class="fas fa-chevron-down caret"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a href="library.html" class="dropdown-item">
-              <i class="fas fa-book"></i> Books
-            </a>
-            <a href="qrcodes.html" class="dropdown-item">
-              <i class="fas fa-qrcode"></i> QR Codes
-            </a>
-          </div>
-        </div>
+          <!-- Dashboard -->
+          <a href="dashboard.html" class="classy-btn">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
 
-        <!-- Resources -->
-        <div class="nav-group">
-          <button class="classy-btn">
-            <i class="fas fa-chair"></i>
-            <span>Resources</span>
-            <i class="fas fa-chevron-down caret"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a href="furniture.html" class="dropdown-item">
-              <i class="fas fa-chair"></i> Furniture
-            </a>
-            <a href="fees.html" class="dropdown-item">
-              <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
+          <!-- Academics -->
+          <div class="nav-group">
+            <button class="classy-btn">
+              <i class="fas fa-book-open"></i>
+              <span>Academics</span>
+              <i class="fas fa-chevron-down caret"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a href="classes.html" class="dropdown-item">
+                <i class="fas fa-school"></i> Classes
+              </a>
+              <a href="students.html" class="dropdown-item">
+                <i class="fas fa-user-graduate"></i> Students
+              </a>
+              <a href="staff.html" class="dropdown-item">
+                <i class="fas fa-user-tie"></i> Staff
+              </a>
+              <a href="timetable.html" class="dropdown-item">
+                <i class="fas fa-calendar-alt"></i> Timetable
+              </a>
+              <a href="terms.html" class="dropdown-item">
+                <i class="fas fa-calendar-check"></i> Terms
+              </a>
+              <a href="events.html" class="dropdown-item">
+                <i class="fas fa-calendar-star"></i> Events
+              </a>
+            </div>
           </div>
-        </div>
 
-        <!-- Communication -->
-        <div class="nav-group">
-          <button class="classy-btn">
-            <i class="fas fa-comments"></i>
-            <span>Communication</span>
-            <i class="fas fa-chevron-down caret"></i>
-            <span class="message-badge" style="display:none;">0</span>
-          </button>
-          <div class="dropdown-menu">
-            <a href="chat.html" class="dropdown-item">
-              <i class="fas fa-comment-dots"></i> Chat
-              <span class="message-badge" id="communicationBadge" style="display:none;">0</span>
-            </a>
-            <a href="forum.html" class="dropdown-item">
-              <i class="fas fa-comments"></i> Forum
-            </a>
+          <!-- Library -->
+          <div class="nav-group">
+            <button class="classy-btn">
+              <i class="fas fa-book"></i>
+              <span>Library</span>
+              <i class="fas fa-chevron-down caret"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a href="library.html" class="dropdown-item">
+                <i class="fas fa-book"></i> Books
+              </a>
+              <a href="qrcodes.html" class="dropdown-item">
+                <i class="fas fa-qrcode"></i> QR Codes
+              </a>
+            </div>
           </div>
-        </div>
 
-        <!-- Tools -->
-        <div class="nav-group">
-          <button class="classy-btn">
-            <i class="fas fa-tools"></i>
-            <span>Tools</span>
-            <i class="fas fa-chevron-down caret"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a href="reports.html" class="dropdown-item">
-              <i class="fas fa-chart-bar"></i> Reports
-            </a>
-            <a href="notepad.html" class="dropdown-item">
-              <i class="fas fa-sticky-note"></i> Notepad
-            </a>
-            <a href="database.html" class="dropdown-item">
-              <i class="fas fa-database"></i> Database
-            </a>
-            <a href="auditlog.html" class="dropdown-item">
-              <i class="fas fa-history"></i> Audit Log
-            </a>
-            <a href="wallpaper.html" class="dropdown-item">
-              <i class="fas fa-image"></i> Wallpapers
-            </a>
+          <!-- Resources -->
+          <div class="nav-group">
+            <button class="classy-btn">
+              <i class="fas fa-chair"></i>
+              <span>Resources</span>
+              <i class="fas fa-chevron-down caret"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a href="furniture.html" class="dropdown-item">
+                <i class="fas fa-chair"></i> Furniture
+              </a>
+              <a href="fees.html" class="dropdown-item">
+                <i class="fas fa-money-bill-wave"></i> Fees
+              </a>
+            </div>
           </div>
-        </div>
 
-        <!-- Settings / Profile -->
-        <div class="nav-group">
-          <button class="classy-btn">
-            <i class="fas fa-user-circle"></i>
-            <span id="navbarUserName">User</span>
-            <i class="fas fa-chevron-down caret"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a href="settings.html" class="dropdown-item">
-              <i class="fas fa-cog"></i> Settings
-            </a>
-            <a href="#" onclick="logout(); return false;" class="dropdown-item">
-              <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+          <!-- Communication -->
+          <div class="nav-group">
+            <button class="classy-btn">
+              <i class="fas fa-comments"></i>
+              <span>Communication</span>
+              <i class="fas fa-chevron-down caret"></i>
+              <span class="message-badge" style="display:none;">0</span>
+            </button>
+            <div class="dropdown-menu">
+              <a href="chat.html" class="dropdown-item">
+                <i class="fas fa-comment-dots"></i> Chat
+                <span class="message-badge" id="communicationBadge" style="display:none;">0</span>
+              </a>
+              <a href="forum.html" class="dropdown-item">
+                <i class="fas fa-comments"></i> Forum
+              </a>
+            </div>
           </div>
-        </div>
 
+          <!-- Tools -->
+          <div class="nav-group">
+            <button class="classy-btn">
+              <i class="fas fa-tools"></i>
+              <span>Tools</span>
+              <i class="fas fa-chevron-down caret"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a href="reports.html" class="dropdown-item">
+                <i class="fas fa-chart-bar"></i> Reports
+              </a>
+              <a href="notepad.html" class="dropdown-item">
+                <i class="fas fa-sticky-note"></i> Notepad
+              </a>
+              <a href="database.html" class="dropdown-item">
+                <i class="fas fa-database"></i> Database
+              </a>
+              <a href="auditlog.html" class="dropdown-item">
+                <i class="fas fa-history"></i> Audit Log
+              </a>
+              <a href="wallpaper.html" class="dropdown-item">
+                <i class="fas fa-image"></i> Wallpapers
+              </a>
+            </div>
+          </div>
+
+          <!-- Profile -->
+          <div class="nav-group">
+            <button class="classy-btn">
+              <i class="fas fa-user-circle"></i>
+              <span id="navbarUserName">User</span>
+              <i class="fas fa-chevron-down caret"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a href="settings.html" class="dropdown-item">
+                <i class="fas fa-cog"></i> Settings
+              </a>
+              <a href="#" onclick="logout(); return false;" class="dropdown-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
+  <!-- ═══════════════ PAGE CONTENT ═══════════════ -->
   <div class="main-content">
     <div class="staff-page">
 
-      <!-- ── Hero ── -->
+      <!-- Hero -->
       <div class="staff-hero">
         <div class="staff-hero-inner">
           <div class="staff-hero-icon">
@@ -1112,7 +1121,7 @@
         </div>
       </div>
 
-      <!-- ── Stats ── -->
+      <!-- Stats -->
       <div class="staff-stats">
         <div class="staff-stat" style="--tile-accent: var(--gold);">
           <div class="staff-stat-icon"><i class="fas fa-users"></i></div>
@@ -1136,7 +1145,7 @@
         </div>
       </div>
 
-      <!-- ── Directory Panel ── -->
+      <!-- Directory Panel -->
       <div class="staff-panel">
 
         <div class="staff-toolbar">
@@ -1163,7 +1172,6 @@
         </div>
 
         <div class="staff-grid" id="staffGrid">
-          <!-- Populated by loadStaffData() -->
           <div style="grid-column:1/-1;">
             <div class="staff-empty">
               <div class="staff-empty-icon"><i class="fas fa-spinner fa-spin"></i></div>
@@ -1177,12 +1185,12 @@
     </div>
   </div>
 
-  <!-- ── Mobile FAB ── -->
+  <!-- Mobile FAB -->
   <button class="staff-fab" onclick="openStaffModal()" aria-label="Add Staff">
     <i class="fas fa-plus"></i>
   </button>
 
-  <!-- ── Modal ── -->
+  <!-- Modal -->
   <div class="staff-modal" id="addStaffModal">
     <div class="staff-modal-panel">
 
@@ -1257,7 +1265,7 @@
     </div>
   </div>
 
-  <!-- ── Scripts ── -->
+  <!-- Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1266,5 +1274,19 @@
   <script src="js/dialog.js"></script>
   <script src="js/app.js"></script>
   <script src="js/wallpaper-loader.js"></script>
+
+  <!-- Populate navbar username -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      try {
+        var user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+        var nameEl = document.getElementById("navbarUserName");
+        if (user && nameEl) {
+          var first = (user.name || "User").split(" ")[0];
+          nameEl.textContent = first;
+        }
+      } catch (e) {}
+    });
+  </script>
 </body>
 </html>
