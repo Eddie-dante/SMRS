@@ -3,7 +3,7 @@
 // Full Version - REALTIME + CHAT SYNC
 // + BULK INPUT FIELDS (Book No / Chair / Locker)
 // + WORKING SEARCH ON ALL PAGES
-// + STAFF PAGE (renamed from Teachers)
+// + STAFF PAGE (reads from users + staff)
 // All original features preserved.
 // ============================================
 
@@ -168,6 +168,7 @@ function loadPageData(page) {
           "borrowed",
           "furniture",
           "staff",
+          "users",
           "classes",
           "events",
           "fees",
@@ -208,11 +209,11 @@ function loadPageData(page) {
       break;
     case "timetable.html":
       loadTimetableData();
-      watchLive(page, ["timetable", "staff"], loadTimetableData);
+      watchLive(page, ["timetable", "staff", "users"], loadTimetableData);
       break;
     case "staff.html":
       loadStaffData();
-      watchLive(page, ["staff"], loadStaffData);
+      watchLive(page, ["staff", "users"], loadStaffData);
       break;
     case "classes.html":
       loadClassesData();
@@ -435,7 +436,7 @@ function loadDashboardData() {
     API.getStudents(school),
     API.getBorrowed(school),
     API.getFurniture(school),
-    API.getStaff(school),
+    API.getUsers(school),
     API.getClasses(school),
     API.getEvents(school),
     API.getFees(school),
@@ -445,7 +446,7 @@ function loadDashboardData() {
       var students = results[1] || [];
       var borrowed = results[2] || [];
       var furniture = results[3] || [];
-      var staff = results[4] || [];
+      var users = results[4] || [];
       var classes = results[5] || [];
       var events = results[6] || [];
       var fees = results[7] || [];
@@ -486,8 +487,9 @@ function loadDashboardData() {
       animateNumber("activeFurniture", furniture.length);
 
       var staffStat = document.getElementById("totalStaffStat");
+      if (staffStat) staffStat.textContent = users.length;
+
       var classesStat = document.getElementById("totalClassesStat");
-      if (staffStat) staffStat.textContent = staff.length;
       if (classesStat) classesStat.textContent = classes.length;
 
       var today = new Date().toISOString().split("T")[0];
@@ -916,7 +918,7 @@ function deleteBook(bookId) {
   }
 }
 
-// ============ BULK BOOKS (with per-student Book No input) ============
+// ============ BULK BOOKS ============
 function resetBulkBookList() {
   var container = document.getElementById("bulkBookStudents");
   if (container) {
@@ -1375,7 +1377,6 @@ function loadFurnitureData() {
       if (totalEl) totalEl.textContent = furniture.length;
       if (activeEl) activeEl.textContent = furniture.length;
 
-      // Active table
       var activeTbody = document.getElementById("activeTableBody");
       if (activeTbody) {
         if (furniture.length === 0) {
@@ -1411,7 +1412,6 @@ function loadFurnitureData() {
         if (_searchTerms.furnitureActive) filterActiveTable();
       }
 
-      // All table
       var allTbody = document.getElementById("allTableBody");
       if (allTbody) {
         if (furniture.length === 0) {
@@ -1446,7 +1446,6 @@ function loadFurnitureData() {
         if (_searchTerms.furnitureAll) filterAllTable();
       }
 
-      // Legacy furniture card view (if the page uses it)
       var activeList = document.getElementById("activeFurnitureList");
       if (activeList) {
         if (furniture.length === 0) {
@@ -1484,7 +1483,6 @@ function loadFurnitureData() {
       var allList = document.getElementById("allFurnitureList");
       if (allList && activeList) allList.innerHTML = activeList.innerHTML;
 
-      // Preserve bulk class selection
       var bulkClassSelect = document.getElementById("bulkFurnitureClass");
       if (bulkClassSelect) {
         var prevValue = bulkClassSelect.value;
@@ -1581,7 +1579,7 @@ function returnFurnitureItem(furnitureId) {
   }
 }
 
-// ============ BULK FURNITURE (with per-student Chair/Locker inputs) ============
+// ============ BULK FURNITURE ============
 function resetBulkFurnitureList() {
   var container = document.getElementById("bulkFurnitureStudents");
   if (container) {
@@ -2350,12 +2348,12 @@ function loadTimetableData() {
   Promise.all([
     API.getTimetable(school),
     API.getClasses(school),
-    API.getStaff(school),
+    API.getUsers(school),
   ])
     .then(function (results) {
       var timetable = results[0] || [];
       var classes = results[1] || [];
-      var staff = results[2] || [];
+      var users = results[2] || [];
 
       var tbody = document.getElementById("timetableBody");
       if (tbody) {
@@ -2404,12 +2402,12 @@ function loadTimetableData() {
       if (teacherSelect) {
         var prevTeacher = teacherSelect.value;
         var teacherHtml = "";
-        staff.forEach(function (s) {
+        users.forEach(function (u) {
           teacherHtml +=
             '<option value="' +
-            (s.name || "") +
+            (u.name || "") +
             '">' +
-            (s.name || "") +
+            (u.name || "") +
             "</option>";
         });
         teacherSelect.innerHTML = teacherHtml;
@@ -2458,16 +2456,115 @@ function addTimetableEntry(event) {
 function loadStaffData() {
   var school = getCurrentSchool();
   if (!school) return;
-  API.getStaff(school)
-    .then(function (staff) {
-      staff = staff || [];
 
-      // ---- Stats ----
-      var total = staff.length;
+  var grid = document.getElementById("staffGrid");
+  if (!grid) return;
+
+  var safety = setTimeout(function () {
+    if (grid.querySelector(".fa-spinner")) {
+      grid.innerHTML =
+        '<div style="grid-column:1/-1;">' +
+        '<div class="staff-empty">' +
+        '<div class="staff-empty-icon"><i class="fas fa-exclamation-triangle" style="color:#e94560;"></i></div>' +
+        "<h4>Couldn't load staff</h4>" +
+        "<p>Check the console for errors and confirm Firebase is reachable.</p>" +
+        '<button class="staff-btn-primary" onclick="loadStaffData()">' +
+        '<i class="fas fa-redo"></i> Retry</button>' +
+        "</div></div>";
+    }
+  }, 8000);
+
+  Promise.all([API.getUsers(school), API.getStaff(school)])
+    .then(function (results) {
+      clearTimeout(safety);
+
+      var users = results[0] || [];
+      var staff = results[1] || [];
+
+      var byEmail = {};
+      var anonymous = [];
+
+      users.forEach(function (u) {
+        if (!u || !u.email) return;
+        var key = String(u.email).toLowerCase();
+        byEmail[key] = {
+          id: u.id,
+          source: "user",
+          name: u.name || "Unnamed",
+          email: u.email,
+          phone: u.phone || "",
+          role: normalizeRole(u.role),
+          staffId: u.staffId || "",
+          department: "",
+          subjects: "",
+          classes: "",
+          isActive: u.isActive !== false,
+          createdAt: u.createdAt || "",
+        };
+      });
+
+      staff.forEach(function (s) {
+        if (!s) return;
+        var key = s.email ? String(s.email).toLowerCase() : null;
+        if (key && byEmail[key]) {
+          var merged = byEmail[key];
+          merged.staffRecordId = s.id;
+          merged.name = s.name || merged.name;
+          merged.phone = s.phone || merged.phone;
+          merged.role = normalizeRole(s.role || merged.role);
+          merged.staffId = s.staffId || merged.staffId;
+          merged.department = s.department || merged.department;
+          merged.subjects = s.subjects || merged.subjects;
+          merged.classes = s.classes || merged.classes;
+          if (s.isActive === false) merged.isActive = false;
+        } else if (key) {
+          byEmail[key] = {
+            id: s.id,
+            source: "staff",
+            name: s.name || "Unnamed",
+            email: s.email,
+            phone: s.phone || "",
+            role: normalizeRole(s.role),
+            staffId: s.staffId || "",
+            department: s.department || "",
+            subjects: s.subjects || "",
+            classes: s.classes || "",
+            isActive: s.isActive !== false,
+            createdAt: s.createdAt || "",
+          };
+        } else {
+          anonymous.push({
+            id: s.id,
+            source: "staff",
+            name: s.name || "Unnamed",
+            email: "",
+            phone: s.phone || "",
+            role: normalizeRole(s.role),
+            staffId: s.staffId || "",
+            department: s.department || "",
+            subjects: s.subjects || "",
+            classes: s.classes || "",
+            isActive: s.isActive !== false,
+            createdAt: s.createdAt || "",
+          });
+        }
+      });
+
+      var combined = Object.keys(byEmail)
+        .map(function (k) {
+          return byEmail[k];
+        })
+        .concat(anonymous)
+        .sort(function (a, b) {
+          if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
+          return (a.name || "").localeCompare(b.name || "");
+        });
+
+      var total = combined.length;
       var teachers = 0;
       var admins = 0;
       var active = 0;
-      staff.forEach(function (s) {
+      combined.forEach(function (s) {
         if (s.role === "Admin") admins++;
         else if (s.role === "Teacher" || !s.role) teachers++;
         if (s.isActive !== false) active++;
@@ -2482,11 +2579,6 @@ function loadStaffData() {
       if (pill)
         pill.textContent = total + (total === 1 ? " member" : " members");
 
-      // ---- Grid ----
-      var grid = document.getElementById("staffGrid");
-      if (!grid) return;
-
-      // ---- Empty ----
       if (total === 0) {
         grid.innerHTML =
           '<div style="grid-column:1/-1;">' +
@@ -2500,15 +2592,16 @@ function loadStaffData() {
         return;
       }
 
-      // ---- Cards ----
       var html = "";
-      staff.forEach(function (s, index) {
+      combined.forEach(function (s, index) {
         var name = s.name || "Unnamed";
         var initials = getInitials(name);
         var role = s.role || "Teacher";
         var accent = getRoleAccent(role);
-
-        var contact = s.email || s.phone || '<span class="empty">—</span>';
+        var sourceBadge =
+          s.source === "user"
+            ? '<span class="staff-source-badge">Signed up</span>'
+            : "";
 
         html +=
           '<div class="staff-card" style="--card-accent: ' +
@@ -2516,7 +2609,6 @@ function loadStaffData() {
           "; animation-delay: " +
           Math.min(index * 0.03, 0.4) +
           's;">' +
-          // Head
           '<div class="staff-card-head">' +
           '<div class="staff-avatar">' +
           initials +
@@ -2527,15 +2619,14 @@ function loadStaffData() {
           "</h4>" +
           '<div class="staff-id"><i class="fas fa-hashtag"></i>' +
           escapeHtml(s.staffId || "—") +
+          sourceBadge +
           "</div></div></div>" +
-          // Role
           '<div class="staff-role">' +
           '<i class="fas ' +
           getRoleIcon(role) +
           '"></i> ' +
           escapeHtml(role) +
           "</div>" +
-          // Info rows
           '<div class="staff-info">' +
           '<div class="staff-info-row">' +
           '<i class="fas fa-envelope"></i>' +
@@ -2562,15 +2653,16 @@ function loadStaffData() {
           "</span>" +
           "</div>" +
           "</div>" +
-          // Footer
           '<div class="staff-card-foot">' +
           '<span class="staff-status' +
           (s.isActive === false ? " inactive" : "") +
           '">' +
           (s.isActive === false ? "Inactive" : "Active") +
           "</span>" +
-          '<button class="staff-delete" title="Delete" onclick="deleteStaff(\'' +
+          '<button class="staff-delete" title="Remove" onclick="deleteStaffEntry(\'' +
           s.id +
+          "', '" +
+          s.source +
           '\')"><i class="fas fa-trash"></i></button>' +
           "</div>" +
           "</div>";
@@ -2579,69 +2671,67 @@ function loadStaffData() {
       if (_searchTerms.staff) filterStaff();
     })
     .catch(function (err) {
+      clearTimeout(safety);
       console.error("Staff load error:", err);
     });
 }
 
-/* -------- Small helpers -------- */
-function setStaffStat(id, value) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var current = parseInt(el.textContent) || 0;
-  if (current === value) {
-    el.textContent = value;
-    return;
-  }
-  var start = current;
-  var startTime = performance.now();
-  var duration = 500;
-  function step(t) {
-    var p = Math.min((t - startTime) / duration, 1);
-    var eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(start + (value - start) * eased);
-    if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
+function normalizeRole(role) {
+  if (!role) return "Teacher";
+  var r = String(role).toLowerCase();
+  if (r === "admin") return "Admin";
+  if (r === "librarian") return "Librarian";
+  if (r === "accountant") return "Accountant";
+  if (r === "support" || r === "support staff") return "Support";
+  return "Teacher";
 }
 
-function getRoleAccent(role) {
-  switch (role) {
-    case "Admin":
-      return "#a855f7"; // violet
-    case "Librarian":
-      return "#d4af37"; // gold
-    case "Accountant":
-      return "#10b981"; // emerald
-    case "Support":
-      return "#f59e0b"; // amber
-    default:
-      return "#38bdf8"; // sky (Teacher)
-  }
-}
+function deleteStaffEntry(id, source) {
+  if (!id) return;
+  var school = getCurrentSchool();
+  if (!school) return;
 
-function getRoleIcon(role) {
-  switch (role) {
-    case "Admin":
-      return "fa-user-shield";
-    case "Librarian":
-      return "fa-book-reader";
-    case "Accountant":
-      return "fa-calculator";
-    case "Support":
-      return "fa-hands-helping";
-    default:
-      return "fa-chalkboard-teacher";
-  }
-}
+  var msg =
+    source === "user"
+      ? "Deactivate this signed-up user?"
+      : "Delete this staff member?";
 
-function escapeHtml(str) {
-  if (str === undefined || str === null) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  var run = function () {
+    if (source === "user") {
+      API.getUsers(school).then(function (users) {
+        var target = null;
+        users.forEach(function (u) {
+          if (u.id === id) target = u;
+        });
+        if (!target || !target.email) {
+          showNotification("User not found", "error");
+          return;
+        }
+        API.deleteUser(school, target.email).then(function () {
+          showNotification("User deactivated!", "success");
+          loadStaffData();
+        });
+      });
+    } else {
+      API.deleteStaff(school, id).then(function () {
+        showNotification("Staff deleted!", "success");
+        loadStaffData();
+      });
+    }
+  };
+
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm(msg, {
+      title: source === "user" ? "Deactivate" : "Delete",
+      type: "danger",
+      confirmText: source === "user" ? "Deactivate" : "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed === "confirm") run();
+    });
+  } else {
+    if (confirm(msg)) run();
+  }
 }
 
 function addStaff(event) {
@@ -2687,37 +2777,6 @@ function addStaff(event) {
   return false;
 }
 
-function deleteStaff(staffId) {
-  if (!staffId) return;
-  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
-    DialogSystem.confirm("Delete this staff member?", {
-      title: "Delete Staff",
-      type: "danger",
-      confirmText: "Delete",
-      cancelText: "Cancel",
-    }).then(function (confirmed) {
-      if (confirmed !== "confirm") return;
-      var school = getCurrentSchool();
-      API.deleteStaff(school, staffId)
-        .then(function () {
-          showNotification("Staff deleted!", "success");
-          loadStaffData();
-        })
-        .catch(function () {});
-    });
-  } else {
-    if (confirm("Delete this staff member?")) {
-      var school = getCurrentSchool();
-      API.deleteStaff(school, staffId)
-        .then(function () {
-          showNotification("Staff deleted!", "success");
-          loadStaffData();
-        })
-        .catch(function () {});
-    }
-  }
-}
-
 function filterStaff() {
   var input = document.getElementById("searchStaff");
   if (input) _searchTerms.staff = input.value;
@@ -2751,7 +2810,67 @@ function closeStaffModal() {
   if (form) form.reset();
 }
 
-// Close modal on outside click / Escape
+function setStaffStat(id, value) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var current = parseInt(el.textContent) || 0;
+  if (current === value) {
+    el.textContent = value;
+    return;
+  }
+  var start = current;
+  var startTime = performance.now();
+  var duration = 500;
+  function step(t) {
+    var p = Math.min((t - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(start + (value - start) * eased);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function getRoleAccent(role) {
+  switch (role) {
+    case "Admin":
+      return "#a855f7";
+    case "Librarian":
+      return "#d4af37";
+    case "Accountant":
+      return "#10b981";
+    case "Support":
+      return "#f59e0b";
+    default:
+      return "#38bdf8";
+  }
+}
+
+function getRoleIcon(role) {
+  switch (role) {
+    case "Admin":
+      return "fa-user-shield";
+    case "Librarian":
+      return "fa-book-reader";
+    case "Accountant":
+      return "fa-calculator";
+    case "Support":
+      return "fa-hands-helping";
+    default:
+      return "fa-chalkboard-teacher";
+  }
+}
+
+function escapeHtml(str) {
+  if (str === undefined || str === null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Modal close on outside / Escape
 document.addEventListener("click", function (e) {
   var modal = document.getElementById("addStaffModal");
   if (modal && e.target === modal) closeStaffModal();
@@ -3689,7 +3808,8 @@ window.editFee = editFee;
 window.deleteFee = deleteFee;
 window.addTimetableEntry = addTimetableEntry;
 window.addStaff = addStaff;
-window.deleteStaff = deleteStaff;
+window.deleteStaffEntry = deleteStaffEntry;
+window.normalizeRole = normalizeRole;
 window.openStaffModal = openStaffModal;
 window.closeStaffModal = closeStaffModal;
 window.addClassWithExcel = addClassWithExcel;

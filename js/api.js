@@ -2178,14 +2178,6 @@ var API = {
 
 /* ============================================================
    REALTIME SUBSCRIPTIONS
-   ------------------------------------------------------------
-   Firebase `.on("value")` pushes updates instantly — no polling.
-
-   Usage:
-     var unsub = API.subscribe("SchoolName", "books", function(data) {
-       console.log("Books changed:", data);
-     });
-     unsub();
    ============================================================ */
 
 var _subscriptions = {};
@@ -2197,7 +2189,6 @@ function _subKey(school, collection) {
 function _subscribeOne(school, collection, onChange) {
   var key = _subKey(school, collection);
 
-  // Already subscribed — add another callback
   if (_subscriptions[key]) {
     _subscriptions[key].callbacks.push(onChange);
     var cached = dataCache[collection + "_" + school];
@@ -2241,7 +2232,6 @@ function _subscribeOne(school, collection, onChange) {
         });
       }
 
-      // Strip heavy blobs for list views
       if (collection === "students" || collection === "classes") {
         arr = JSON.parse(
           JSON.stringify(arr, function (k, v) {
@@ -2251,7 +2241,6 @@ function _subscribeOne(school, collection, onChange) {
         );
       }
 
-      // Update cache so getCachedData() sees fresh data
       dataCache[collection + "_" + school] = {
         timestamp: Date.now(),
         data: arr,
@@ -2261,7 +2250,6 @@ function _subscribeOne(school, collection, onChange) {
         dataCache[collection + "_" + school],
       );
 
-      // Notify all callbacks
       var entry = _subscriptions[key];
       if (entry) {
         entry.callbacks.slice().forEach(function (cb) {
@@ -2275,7 +2263,6 @@ function _subscribeOne(school, collection, onChange) {
     },
     function (err) {
       console.warn("⚠️ Realtime error for " + collection + ":", err.message);
-      // Auto-retry after 3s
       setTimeout(function () {
         var entry = _subscriptions[key];
         if (!entry) return;

@@ -27,7 +27,6 @@
       --ink-1: #0a0e27;
       --ink-2: #141a3d;
       --panel: rgba(20, 26, 61, 0.55);
-      --panel-2: rgba(20, 26, 61, 0.85);
       --line: rgba(255, 255, 255, 0.08);
       --line-strong: rgba(255, 255, 255, 0.14);
       --text: #ffffff;
@@ -293,7 +292,6 @@
       flex-wrap: wrap;
     }
 
-    /* Search */
     .staff-search {
       position: relative;
       min-width: 240px;
@@ -332,7 +330,6 @@
       color: var(--muted-2);
     }
 
-    /* Primary button */
     .staff-btn-primary {
       display: inline-flex;
       align-items: center;
@@ -361,7 +358,7 @@
       transform: translateY(0);
     }
 
-    /* ---------- Card Grid (Replaces the ugly table) ---------- */
+    /* ---------- Card Grid ---------- */
     .staff-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -480,6 +477,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      flex-wrap: wrap;
     }
 
     .staff-card-meta .staff-id i {
@@ -487,7 +485,22 @@
       opacity: 0.7;
     }
 
-    /* Role badge */
+    /* Signed-up badge */
+    .staff-source-badge {
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--sky);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      vertical-align: middle;
+      display: inline-block;
+    }
+
     .staff-role {
       display: inline-flex;
       align-items: center;
@@ -508,7 +521,6 @@
       font-size: 8px;
     }
 
-    /* Info rows */
     .staff-info {
       display: flex;
       flex-direction: column;
@@ -544,7 +556,6 @@
       font-style: italic;
     }
 
-    /* Footer */
     .staff-card-foot {
       display: flex;
       align-items: center;
@@ -932,8 +943,19 @@
 </head>
 <body>
 
-  <!-- ── Floating Navbar (keep your existing nav markup, but the Staff link must point to staff.html) ── -->
-  <!-- (Paste your existing floating navbar HTML here) -->
+  <!-- ═══════════════════════════════════════════════════════════════
+       ⬇️⬇️⬇️  PASTE YOUR FLOATING NAVBAR HTML HERE  ⬇️⬇️⬇️
+       Copy the entire <nav class="floating-navbar-container">…</nav>
+       (or <div class="taskbar">…</div>) block from library.html or
+       dashboard.html and paste it right here.
+
+       Make sure the "Staff" dropdown item inside it points to:
+         <a href="staff.html" class="dropdown-item">
+           <i class="fas fa-users-tie"></i> Staff
+         </a>
+
+       This is what fixes the missing taskbar.
+       ═══════════════════════════════════════════════════════════════ -->
 
   <div class="main-content">
     <div class="staff-page">
