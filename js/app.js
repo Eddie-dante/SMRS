@@ -3,6 +3,7 @@
 // Full Version - REALTIME + CHAT SYNC
 // + BULK INPUT FIELDS (Book No / Chair / Locker)
 // + WORKING SEARCH ON ALL PAGES
+// + STAFF PAGE (renamed from Teachers)
 // All original features preserved.
 // ============================================
 
@@ -34,7 +35,7 @@ var _searchTerms = {
   furnitureActive: "",
   furnitureAll: "",
   qrcodes: "",
-  teachers: "",
+  staff: "",
   classes: "",
   events: "",
 };
@@ -166,7 +167,7 @@ function loadPageData(page) {
           "students",
           "borrowed",
           "furniture",
-          "teachers",
+          "staff",
           "classes",
           "events",
           "fees",
@@ -207,11 +208,11 @@ function loadPageData(page) {
       break;
     case "timetable.html":
       loadTimetableData();
-      watchLive(page, ["timetable"], loadTimetableData);
+      watchLive(page, ["timetable", "staff"], loadTimetableData);
       break;
-    case "teachers.html":
-      loadTeachersData();
-      watchLive(page, ["teachers"], loadTeachersData);
+    case "staff.html":
+      loadStaffData();
+      watchLive(page, ["staff"], loadStaffData);
       break;
     case "classes.html":
       loadClassesData();
@@ -434,7 +435,7 @@ function loadDashboardData() {
     API.getStudents(school),
     API.getBorrowed(school),
     API.getFurniture(school),
-    API.getTeachers(school),
+    API.getStaff(school),
     API.getClasses(school),
     API.getEvents(school),
     API.getFees(school),
@@ -444,7 +445,7 @@ function loadDashboardData() {
       var students = results[1] || [];
       var borrowed = results[2] || [];
       var furniture = results[3] || [];
-      var teachers = results[4] || [];
+      var staff = results[4] || [];
       var classes = results[5] || [];
       var events = results[6] || [];
       var fees = results[7] || [];
@@ -484,9 +485,9 @@ function loadDashboardData() {
       animateNumber("overdueBooks", overdue.length);
       animateNumber("activeFurniture", furniture.length);
 
-      var teachersStat = document.getElementById("totalTeachersStat");
+      var staffStat = document.getElementById("totalStaffStat");
       var classesStat = document.getElementById("totalClassesStat");
-      if (teachersStat) teachersStat.textContent = teachers.length;
+      if (staffStat) staffStat.textContent = staff.length;
       if (classesStat) classesStat.textContent = classes.length;
 
       var today = new Date().toISOString().split("T")[0];
@@ -2349,12 +2350,12 @@ function loadTimetableData() {
   Promise.all([
     API.getTimetable(school),
     API.getClasses(school),
-    API.getTeachers(school),
+    API.getStaff(school),
   ])
     .then(function (results) {
       var timetable = results[0] || [];
       var classes = results[1] || [];
-      var teachers = results[2] || [];
+      var staff = results[2] || [];
 
       var tbody = document.getElementById("timetableBody");
       if (tbody) {
@@ -2403,12 +2404,12 @@ function loadTimetableData() {
       if (teacherSelect) {
         var prevTeacher = teacherSelect.value;
         var teacherHtml = "";
-        teachers.forEach(function (t) {
+        staff.forEach(function (s) {
           teacherHtml +=
             '<option value="' +
-            (t.name || "") +
+            (s.name || "") +
             '">' +
-            (t.name || "") +
+            (s.name || "") +
             "</option>";
         });
         teacherSelect.innerHTML = teacherHtml;
@@ -2453,89 +2454,233 @@ function addTimetableEntry(event) {
   return false;
 }
 
-// ============ TEACHERS ============
-function loadTeachersData() {
+// ============ STAFF ============
+function loadStaffData() {
   var school = getCurrentSchool();
   if (!school) return;
-  API.getTeachers(school)
-    .then(function (teachers) {
-      var tbody = document.getElementById("teachersTableBody");
+  API.getStaff(school)
+    .then(function (staff) {
+      var tbody = document.getElementById("staffTableBody");
       if (!tbody) return;
 
-      if (!teachers || teachers.length === 0) {
+      // ---- Stats ----
+      var total = staff ? staff.length : 0;
+      var teachers = 0;
+      var admins = 0;
+      (staff || []).forEach(function (s) {
+        if (s.role === "Admin") admins++;
+        else if (s.role === "Teacher" || !s.role) teachers++;
+      });
+      var tEl = document.getElementById("totalStaffStat");
+      var teEl = document.getElementById("teacherCountStat");
+      var aEl = document.getElementById("adminCountStat");
+      if (tEl) tEl.textContent = total;
+      if (teEl) teEl.textContent = teachers;
+      if (aEl) aEl.textContent = admins;
+
+      // ---- Empty ----
+      if (!staff || staff.length === 0) {
         tbody.innerHTML =
-          '<tr><td colspan="6" style="text-align:center;">No teachers</td></tr>';
+          '<tr><td colspan="6">' +
+          '<div class="empty-state">' +
+          '<i class="fas fa-user-tie"></i>' +
+          "<h4>No staff yet</h4>" +
+          "<p>Click <strong>Add Staff</strong> to get started.</p>" +
+          "</div></td></tr>";
         return;
       }
 
+      // ---- Rows ----
       var html = "";
-      teachers.forEach(function (t) {
+      staff.forEach(function (s) {
+        var name = s.name || "Unnamed";
+        var initials = getInitials(name);
+        var role = s.role || "Teacher";
+        var roleClass = "role-" + role.replace(/\s+/g, "").split("-")[0];
+        var avatarClass = "";
+        if (role === "Admin") avatarClass = "role-admin";
+        else if (role === "Librarian") avatarClass = "role-librarian";
+        else if (role === "Accountant") avatarClass = "role-accountant";
+        else if (role === "Support") avatarClass = "role-support";
+
+        var contactParts = [];
+        if (s.email) contactParts.push(s.email);
+        if (s.phone) contactParts.push(s.phone);
+        var contact = contactParts.length
+          ? contactParts.join(" · ")
+          : '<span style="opacity:0.4;">—</span>';
+
+        var statusClass = s.isActive === false ? " inactive" : "";
+        var statusText = s.isActive === false ? "Inactive" : "Active";
+
         html +=
-          "<tr><td>" +
-          (t.name || "-") +
-          "</td><td>" +
-          (t.email || "-") +
-          "</td><td>" +
-          (t.phone || "-") +
-          "</td><td>" +
-          (t.subjects || "-") +
-          "</td><td>" +
-          (t.classes || "-") +
-          '</td><td><button class="btn btn-sm btn-danger" onclick="deleteTeacher(\'' +
-          t.id +
-          '\')"><i class="fas fa-trash"></i></button></td></tr>';
+          "<tr>" +
+          // Staff (avatar + name + id)
+          '<td><div class="name-cell">' +
+          '<div class="avatar ' +
+          avatarClass +
+          '">' +
+          initials +
+          "</div>" +
+          '<div class="meta">' +
+          "<strong>" +
+          name +
+          "</strong>" +
+          "<small>" +
+          (s.staffId || "—") +
+          "</small>" +
+          "</div></div></td>" +
+          // Role badge
+          '<td><span class="role-badge ' +
+          roleClass +
+          '">' +
+          '<i class="fas fa-circle" style="font-size:6px;"></i> ' +
+          role +
+          "</span></td>" +
+          // Contact
+          "<td>" +
+          contact +
+          "</td>" +
+          // Subjects
+          "<td>" +
+          (s.subjects || '<span style="opacity:0.4;">—</span>') +
+          "</td>" +
+          // Status
+          '<td><span class="status-pill' +
+          statusClass +
+          '">' +
+          statusText +
+          "</span></td>" +
+          // Actions
+          '<td style="text-align:right;">' +
+          '<button class="icon-btn danger" onclick="deleteStaff(\'' +
+          s.id +
+          '\')" title="Delete"><i class="fas fa-trash"></i></button>' +
+          "</td></tr>";
       });
       tbody.innerHTML = html;
-      if (_searchTerms.teachers) filterTeachers();
+      if (_searchTerms.staff) filterStaff();
     })
     .catch(function () {});
 }
 
-function addTeacher(event) {
+function addStaff(event) {
   event.preventDefault();
   var school = getCurrentSchool();
-  var name = document.getElementById("teacherName").value;
-  if (!name) {
-    showNotification("Teacher name required", "warning");
+  var nameEl = document.getElementById("staffName");
+  if (!nameEl || !nameEl.value.trim()) {
+    showNotification("Staff name required", "warning");
     return false;
   }
 
-  API.addTeacher(school, {
-    name: name,
-    email: document.getElementById("teacherEmail")
-      ? document.getElementById("teacherEmail").value
+  API.addStaff(school, {
+    name: nameEl.value.trim(),
+    role: document.getElementById("staffRole")
+      ? document.getElementById("staffRole").value
+      : "Teacher",
+    email: document.getElementById("staffEmail")
+      ? document.getElementById("staffEmail").value
       : "",
-    phone: document.getElementById("teacherPhone")
-      ? document.getElementById("teacherPhone").value
+    phone: document.getElementById("staffPhone")
+      ? document.getElementById("staffPhone").value
       : "",
-    subjects: document.getElementById("teacherSubjects")
-      ? document.getElementById("teacherSubjects").value
+    department: document.getElementById("staffDepartment")
+      ? document.getElementById("staffDepartment").value
       : "",
-    classes: document.getElementById("teacherClasses")
-      ? document.getElementById("teacherClasses").value
+    subjects: document.getElementById("staffSubjects")
+      ? document.getElementById("staffSubjects").value
+      : "",
+    classes: document.getElementById("staffClasses")
+      ? document.getElementById("staffClasses").value
       : "",
   })
-    .then(function () {
-      showNotification("Teacher added!", "success");
-      closeModal("addTeacherModal");
-      loadTeachersData();
+    .then(function (result) {
+      if (result.success) {
+        showNotification("Staff added!", "success");
+        closeStaffModal();
+        loadStaffData();
+      } else {
+        showNotification(result.error || "Failed", "error");
+      }
     })
     .catch(function () {});
   return false;
 }
 
-function deleteTeacher(teacherId) {
-  if (!teacherId) return;
-  if (confirm("Delete this teacher?")) {
-    var school = getCurrentSchool();
-    API.deleteTeacher(school, teacherId)
-      .then(function () {
-        showNotification("Teacher deleted!", "success");
-        loadTeachersData();
-      })
-      .catch(function () {});
+function deleteStaff(staffId) {
+  if (!staffId) return;
+  if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
+    DialogSystem.confirm("Delete this staff member?", {
+      title: "Delete",
+      type: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    }).then(function (confirmed) {
+      if (confirmed !== "confirm") return;
+      var school = getCurrentSchool();
+      API.deleteStaff(school, staffId)
+        .then(function () {
+          showNotification("Staff deleted!", "success");
+          loadStaffData();
+        })
+        .catch(function () {});
+    });
+  } else {
+    if (confirm("Delete this staff member?")) {
+      var school = getCurrentSchool();
+      API.deleteStaff(school, staffId)
+        .then(function () {
+          showNotification("Staff deleted!", "success");
+          loadStaffData();
+        })
+        .catch(function () {});
+    }
   }
 }
+
+function filterStaff() {
+  var input = document.getElementById("searchStaff");
+  if (input) _searchTerms.staff = input.value;
+  applyFilterToTable(
+    document.getElementById("staffTableBody"),
+    _searchTerms.staff,
+  );
+}
+
+// Staff modal open/close helpers (used by the sleek HTML)
+function openStaffModal() {
+  var modal = document.getElementById("addStaffModal");
+  if (!modal) return;
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  setTimeout(function () {
+    var nameInput = document.getElementById("staffName");
+    if (nameInput) nameInput.focus();
+  }, 100);
+}
+
+function closeStaffModal() {
+  var modal = document.getElementById("addStaffModal");
+  if (!modal) return;
+  modal.classList.remove("active");
+  document.body.style.overflow = "auto";
+  // Reset form
+  var form = modal.querySelector("form");
+  if (form) form.reset();
+}
+
+// Close staff modal on outside click or Escape
+document.addEventListener("click", function (e) {
+  var modal = document.getElementById("addStaffModal");
+  if (modal && e.target === modal) closeStaffModal();
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    var modal = document.getElementById("addStaffModal");
+    if (modal && modal.classList.contains("active")) closeStaffModal();
+  }
+});
 
 // ============ CLASSES ============
 function loadClassesData() {
@@ -3081,7 +3226,7 @@ function loadDatabaseTables() {
     "borrowed",
     "students",
     "furniture",
-    "teachers",
+    "staff",
     "classes",
     "terms",
     "events",
@@ -3344,15 +3489,6 @@ function filterQRCodes() {
   applyFilterToTable(tbody, _searchTerms.qrcodes);
 }
 
-function filterTeachers() {
-  var input = document.getElementById("searchTeachers");
-  if (input) _searchTerms.teachers = input.value;
-  applyFilterToTable(
-    document.getElementById("teachersTableBody"),
-    _searchTerms.teachers,
-  );
-}
-
 function filterClasses() {
   var input = document.getElementById("searchClasses");
   if (input) _searchTerms.classes = input.value;
@@ -3439,7 +3575,7 @@ window.loadNotes = loadNotes;
 window.loadEvents = loadEvents;
 window.loadFeesData = loadFeesData;
 window.loadTimetableData = loadTimetableData;
-window.loadTeachersData = loadTeachersData;
+window.loadStaffData = loadStaffData;
 window.loadClassesData = loadClassesData;
 window.loadTerms = loadTerms;
 window.loadAuditLog = loadAuditLog;
@@ -3470,8 +3606,10 @@ window.saveFee = saveFee;
 window.editFee = editFee;
 window.deleteFee = deleteFee;
 window.addTimetableEntry = addTimetableEntry;
-window.addTeacher = addTeacher;
-window.deleteTeacher = deleteTeacher;
+window.addStaff = addStaff;
+window.deleteStaff = deleteStaff;
+window.openStaffModal = openStaffModal;
+window.closeStaffModal = closeStaffModal;
 window.addClassWithExcel = addClassWithExcel;
 window.handleExcelUpload = handleExcelUpload;
 window.viewClassStudents = viewClassStudents;
@@ -3507,7 +3645,7 @@ window.filterAuditLog = filterAuditLog;
 window.filterActiveTable = filterActiveTable;
 window.filterAllTable = filterAllTable;
 window.filterQRCodes = filterQRCodes;
-window.filterTeachers = filterTeachers;
+window.filterStaff = filterStaff;
 window.filterClasses = filterClasses;
 window.filterEvents = filterEvents;
 
@@ -3592,4 +3730,6 @@ window.filterEvents = filterEvents;
   setTimeout(initMobileDropdowns, 1500);
 })();
 
-console.log("✅ SRMS App loaded — REALTIME + CHAT SYNC + SEARCH + BULK INPUTS");
+console.log(
+  "✅ SRMS App loaded — REALTIME + CHAT SYNC + SEARCH + BULK INPUTS + STAFF",
+);

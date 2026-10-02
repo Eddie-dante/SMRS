@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff — SRMS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    /* ==========================================
+       STAFF PAGE — SLEEK STYLES
+       Scoped with .staff-page so nothing else breaks
+       ========================================== */
+
+    .staff-page {
+      --accent: #d4af37;
+      --accent-soft: rgba(212, 175, 55, 0.15);
+      --danger: #e94560;
+      --success: #22c55e;
+      --info: #38bdf8;
+      --purple: #a855f7;
+      --card-radius: 18px;
+      --glass: rgba(255, 255, 255, calc(var(--glass-alpha, 0.18) * 0.55));
+      --glass-border: rgba(255, 255, 255, 0.12);
+    }
+
+    /* ---- Page Header ---- */
+    .staff-page .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .staff-page .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .staff-page .page-header h1 i {
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #f0d060);
+      color: #0a0e27;
+      font-size: 18px;
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+    }
+
+    .staff-page .page-header p {
+      color: rgba(255, 255, 255, 0.55);
+      margin: 4px 0 0 56px;
+      font-size: 13px;
+    }
+
+    /* ---- Stat Cards ---- */
+    .staff-page .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .staff-page .stat-card {
+      position: relative;
+      padding: 20px;
+      border-radius: var(--card-radius);
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02)
+      );
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .staff-page .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.7;
+    }
+
+    .staff-page .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(212, 175, 55, 0.35);
+    }
+
+    .staff-page .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      margin-bottom: 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .staff-page .stat-card.teachers .stat-icon {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--info);
+    }
+
+    .staff-page .stat-card.admins .stat-icon {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--purple);
+    }
+
+    .staff-page .stat-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .staff-page .stat-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    /* ---- Toolbar Card ---- */
+    .staff-page .staff-card {
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.07),
+        rgba(255, 255, 255, 0.02)
+      );
+      border: 1px solid var(--glass-border);
+      border-radius: var(--card-radius);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+
+    .staff-page .staff-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+    }
+
+    .staff-page .staff-toolbar h3 {
+      margin: 0;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .staff-page .staff-toolbar h3 i {
+      color: var(--accent);
+      font-size: 15px;
+    }
+
+    .staff-page .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ---- Search Input ---- */
+    .staff-page .search-wrap {
+      position: relative;
+    }
+
+    .staff-page .search-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .staff-page .search-wrap input {
+      padding: 10px 14px 10px 38px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      min-width: 220px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .staff-page .search-wrap input:focus {
+      outline: none;
+      border-color: rgba(212, 175, 55, 0.5);
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .staff-page .search-wrap input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* ---- Sleek Add Button ---- */
+    .staff-page .btn-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #f0d060);
+      color: #0a0e27;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+    }
+
+    .staff-page .btn-add:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(212, 175, 55, 0.45);
+    }
+
+    .staff-page .btn-add:active {
+      transform: translateY(0);
+    }
+
+    /* ---- Table ---- */
+    .staff-page .table-responsive {
+      overflow-x: auto;
+    }
+
+    .staff-page table.staff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .staff-page table.staff-table thead th {
+      text-align: left;
+      padding: 14px 18px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.15);
+      white-space: nowrap;
+    }
+
+    .staff-page table.staff-table tbody td {
+      padding: 14px 18px;
+      color: rgba(255, 255, 255, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+    }
+
+    .staff-page table.staff-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .staff-page table.staff-table tbody tr:hover {
+      background: rgba(212, 175, 55, 0.06);
+    }
+
+    .staff-page table.staff-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ---- Avatar + Name Cell ---- */
+    .staff-page .name-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .staff-page .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #0a0e27;
+      background: linear-gradient(135deg, var(--accent), #f0d060);
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .staff-page .avatar.role-admin {
+      background: linear-gradient(135deg, var(--purple), #d8b4fe);
+    }
+
+    .staff-page .avatar.role-librarian {
+      background: linear-gradient(135deg, var(--info), #7dd3fc);
+    }
+
+    .staff-page .avatar.role-accountant {
+      background: linear-gradient(135deg, #22c55e, #86efac);
+    }
+
+    .staff-page .avatar.role-support {
+      background: linear-gradient(135deg, #f97316, #fdba74);
+    }
+
+    .staff-page .name-cell .meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.3;
+      min-width: 0;
+    }
+
+    .staff-page .name-cell .meta strong {
+      color: #fff;
+      font-weight: 600;
+      font-size: 13.5px;
+    }
+
+    .staff-page .name-cell .meta small {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      font-family: "SF Mono", Consolas, monospace;
+    }
+
+    /* ---- Role Badges ---- */
+    .staff-page .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .staff-page .role-badge.role-Teacher {
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--info);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .staff-page .role-badge.role-Admin {
+      background: rgba(168, 85, 247, 0.14);
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+    }
+
+    .staff-page .role-badge.role-Librarian {
+      background: rgba(212, 175, 55, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(212, 175, 55, 0.28);
+    }
+
+    .staff-page .role-badge.role-Accountant {
+      background: rgba(34, 197, 94, 0.14);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .staff-page .role-badge.role-Support {
+      background: rgba(249, 115, 22, 0.14);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.25);
+    }
+
+    /* ---- Status Pill ---- */
+    .staff-page .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .staff-page .status-pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+
+    .staff-page .status-pill.inactive {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .staff-page .status-pill.inactive::before {
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: none;
+    }
+
+    /* ---- Action Buttons ---- */
+    .staff-page .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .staff-page .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .staff-page .icon-btn.danger:hover {
+      background: rgba(233, 69, 96, 0.15);
+      border-color: rgba(233, 69, 96, 0.4);
+      color: var(--danger);
+    }
+
+    /* ---- Empty State ---- */
+    .staff-page .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .staff-page .empty-state i {
+      font-size: 42px;
+      color: rgba(212, 175, 55, 0.3);
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .staff-page .empty-state h4 {
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0 0 6px;
+      font-weight: 600;
+    }
+
+    .staff-page .empty-state p {
+      font-size: 13px;
+      margin: 0;
+    }
+
+    /* ---- Sleek Modal ---- */
+    .staff-page .staff-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 18, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1200;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .staff-page .staff-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .staff-page .staff-modal .modal-panel {
+      background: linear-gradient(160deg, #161b3d, #0d1130);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      transform: scale(0.94) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .staff-page .staff-modal.active .modal-panel {
+      transform: scale(1) translateY(0);
+    }
+
+    .staff-page .modal-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: 20px 20px 0 0;
+      background: linear-gradient(90deg, var(--accent), var(--danger), var(--purple));
+    }
+
+    .staff-page .modal-head {
+      padding: 22px 24px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .staff-page .modal-head h3 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .staff-page .modal-head h3 i {
+      color: var(--accent);
+    }
+
+    .staff-page .modal-head button {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .staff-page .modal-head button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .staff-page .modal-body {
+      padding: 22px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .staff-page .modal-body .full {
+      grid-column: 1 / -1;
+    }
+
+    .staff-page .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 7px;
+    }
+
+    .staff-page .field input,
+    .staff-page .field select {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13.5px;
+      font-family: inherit;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .staff-page .field input:focus,
+    .staff-page .field select:focus {
+      outline: none;
+      border-color: rgba(212, 175, 55, 0.55);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .staff-page .field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 38px;
+    }
+
+    .staff-page .field select option {
+      background: #161b3d;
+      color: #fff;
+    }
+
+    .staff-page .modal-foot {
+      padding: 16px 24px 22px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .staff-page .btn-secondary {
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .staff-page .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .staff-page .btn-save {
+      padding: 10px 20px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #f0d060);
+      color: #0a0e27;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .staff-page .btn-save:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(212, 175, 55, 0.45);
+    }
+
+    /* ---- Mobile ---- */
+    @media (max-width: 640px) {
+      .staff-page .page-header h1 {
+        font-size: 1.4rem;
+      }
+      .staff-page .page-header p {
+        margin-left: 0;
+      }
+      .staff-page .modal-body {
+        grid-template-columns: 1fr;
+      }
+      .staff-page .search-wrap input {
+        min-width: 0;
+        width: 100%;
+      }
+      .staff-page .toolbar-actions {
+        width: 100%;
+      }
+      .staff-page .toolbar-actions > * {
+        flex: 1;
+      }
+      .staff-page table.staff-table thead th,
+      .staff-page table.staff-table tbody td {
+        padding: 12px 12px;
+      }
+    }
+
+    /* ---- Fade-in animation ---- */
+    @keyframes staffRowIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .staff-page table.staff-table tbody tr {
+      animation: staffRowIn 0.3s ease both;
+    }
+
+    .staff-page table.staff-table tbody tr:nth-child(1) { animation-delay: 0.02s; }
+    .staff-page table.staff-table tbody tr:nth-child(2) { animation-delay: 0.04s; }
+    .staff-page table.staff-table tbody tr:nth-child(3) { animation-delay: 0.06s; }
+    .staff-page table.staff-table tbody tr:nth-child(4) { animation-delay: 0.08s; }
+    .staff-page table.staff-table tbody tr:nth-child(5) { animation-delay: 0.10s; }
+    .staff-page table.staff-table tbody tr:nth-child(n+6) { animation-delay: 0.12s; }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Navbar (same as your other pages, with Staff link) -->
+  <!-- ... your existing navbar HTML ... -->
+
+  <div class="main-content staff-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1><i class="fas fa-user-tie"></i> Staff</h1>
+        <p>Manage teachers, admins, librarians and support staff.</p>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-value" id="totalStaffStat">0</div>
+        <div class="stat-label">Total Staff</div>
+      </div>
+      <div class="stat-card teachers">
+        <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="stat-value" id="teacherCountStat">0</div>
+        <div class="stat-label">Teachers</div>
+      </div>
+      <div class="stat-card admins">
+        <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+        <div class="stat-value" id="adminCountStat">0</div>
+        <div class="stat-label">Admins</div>
+      </div>
+    </div>
+
+    <!-- Staff Directory Card -->
+    <div class="staff-card">
+
+      <div class="staff-toolbar">
+        <h3><i class="fas fa-list"></i> Staff Directory</h3>
+
+        <div class="toolbar-actions">
+          <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="searchStaff"
+              placeholder="Search by name, role, ID…"
+              oninput="filterStaff()"
+              autocomplete="off"
+            />
+          </div>
+
+          <button class="btn-add" onclick="openStaffModal()">
+            <i class="fas fa-plus"></i> Add Staff
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="staff-table">
+          <thead>
+            <tr>
+              <th>Staff</th>
+              <th>Role</th>
+              <th>Contact</th>
+              <th>Subjects</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="fas fa-spinner fa-spin"></i>
+                  <p>Loading staff…</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sleek Add Staff Modal -->
+  <div class="staff-modal" id="addStaffModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3><i class="fas fa-user-plus"></i> Add Staff Member</h3>
+        <button onclick="closeStaffModal()" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form onsubmit="return addStaff(event)">
+        <div class="modal-body">
+          <div class="field full">
+            <label>Full Name *</label>
+            <input type="text" id="staffName" required placeholder="e.g. Jane Wanjiru" />
+          </div>
+
+          <div class="field">
+            <label>Role</label>
+            <select id="staffRole">
+              <option value="Teacher">Teacher</option>
+              <option value="Admin">Admin</option>
+              <option value="Librarian">Librarian</option>
+              <option value="Accountant">Accountant</option>
+              <option value="Support">Support Staff</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Department</label>
+            <input type="text" id="staffDepartment" placeholder="e.g. Sciences" />
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="staffEmail" placeholder="jane@school.ac.ke" />
+          </div>
+
+          <div class="field">
+            <label>Phone</label>
+            <input type="tel" id="staffPhone" placeholder="+254 …" />
+          </div>
+
+          <div class="field full">
+            <label>Subjects Taught</label>
+            <input type="text" id="staffSubjects" placeholder="e.g. Mathematics, Physics" />
+          </div>
+
+          <div class="field full">
+            <label>Assigned Classes</label>
+            <input type="text" id="staffClasses" placeholder="e.g. Form 1A, Form 3B" />
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn-secondary" onclick="closeStaffModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-save">
+            <i class="fas fa-check"></i> Save Staff
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dialog.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/wallpaper-loader.js"></script>
+</body>
+</html>
