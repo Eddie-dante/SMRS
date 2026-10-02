@@ -2460,108 +2460,188 @@ function loadStaffData() {
   if (!school) return;
   API.getStaff(school)
     .then(function (staff) {
-      var tbody = document.getElementById("staffTableBody");
-      if (!tbody) return;
+      staff = staff || [];
 
       // ---- Stats ----
-      var total = staff ? staff.length : 0;
+      var total = staff.length;
       var teachers = 0;
       var admins = 0;
-      (staff || []).forEach(function (s) {
+      var active = 0;
+      staff.forEach(function (s) {
         if (s.role === "Admin") admins++;
         else if (s.role === "Teacher" || !s.role) teachers++;
+        if (s.isActive !== false) active++;
       });
-      var tEl = document.getElementById("totalStaffStat");
-      var teEl = document.getElementById("teacherCountStat");
-      var aEl = document.getElementById("adminCountStat");
-      if (tEl) tEl.textContent = total;
-      if (teEl) teEl.textContent = teachers;
-      if (aEl) aEl.textContent = admins;
+
+      setStaffStat("totalStaffStat", total);
+      setStaffStat("teacherCountStat", teachers);
+      setStaffStat("adminCountStat", admins);
+      setStaffStat("activeStaffStat", active);
+
+      var pill = document.getElementById("staffCountPill");
+      if (pill)
+        pill.textContent = total + (total === 1 ? " member" : " members");
+
+      // ---- Grid ----
+      var grid = document.getElementById("staffGrid");
+      if (!grid) return;
 
       // ---- Empty ----
-      if (!staff || staff.length === 0) {
-        tbody.innerHTML =
-          '<tr><td colspan="6">' +
-          '<div class="empty-state">' +
-          '<i class="fas fa-user-tie"></i>' +
+      if (total === 0) {
+        grid.innerHTML =
+          '<div style="grid-column:1/-1;">' +
+          '<div class="staff-empty">' +
+          '<div class="staff-empty-icon"><i class="fas fa-user-tie"></i></div>' +
           "<h4>No staff yet</h4>" +
-          "<p>Click <strong>Add Staff</strong> to get started.</p>" +
-          "</div></td></tr>";
+          "<p>Add your first staff member to get started.</p>" +
+          '<button class="staff-btn-primary" onclick="openStaffModal()">' +
+          '<i class="fas fa-plus"></i> Add First Staff</button>' +
+          "</div></div>";
         return;
       }
 
-      // ---- Rows ----
+      // ---- Cards ----
       var html = "";
-      staff.forEach(function (s) {
+      staff.forEach(function (s, index) {
         var name = s.name || "Unnamed";
         var initials = getInitials(name);
         var role = s.role || "Teacher";
-        var roleClass = "role-" + role.replace(/\s+/g, "").split("-")[0];
-        var avatarClass = "";
-        if (role === "Admin") avatarClass = "role-admin";
-        else if (role === "Librarian") avatarClass = "role-librarian";
-        else if (role === "Accountant") avatarClass = "role-accountant";
-        else if (role === "Support") avatarClass = "role-support";
+        var accent = getRoleAccent(role);
 
-        var contactParts = [];
-        if (s.email) contactParts.push(s.email);
-        if (s.phone) contactParts.push(s.phone);
-        var contact = contactParts.length
-          ? contactParts.join(" · ")
-          : '<span style="opacity:0.4;">—</span>';
-
-        var statusClass = s.isActive === false ? " inactive" : "";
-        var statusText = s.isActive === false ? "Inactive" : "Active";
+        var contact = s.email || s.phone || '<span class="empty">—</span>';
 
         html +=
-          "<tr>" +
-          // Staff (avatar + name + id)
-          '<td><div class="name-cell">' +
-          '<div class="avatar ' +
-          avatarClass +
-          '">' +
+          '<div class="staff-card" style="--card-accent: ' +
+          accent +
+          "; animation-delay: " +
+          Math.min(index * 0.03, 0.4) +
+          's;">' +
+          // Head
+          '<div class="staff-card-head">' +
+          '<div class="staff-avatar">' +
           initials +
           "</div>" +
-          '<div class="meta">' +
-          "<strong>" +
-          name +
-          "</strong>" +
-          "<small>" +
-          (s.staffId || "—") +
-          "</small>" +
-          "</div></div></td>" +
-          // Role badge
-          '<td><span class="role-badge ' +
-          roleClass +
+          '<div class="staff-card-meta">' +
+          "<h4>" +
+          escapeHtml(name) +
+          "</h4>" +
+          '<div class="staff-id"><i class="fas fa-hashtag"></i>' +
+          escapeHtml(s.staffId || "—") +
+          "</div></div></div>" +
+          // Role
+          '<div class="staff-role">' +
+          '<i class="fas ' +
+          getRoleIcon(role) +
+          '"></i> ' +
+          escapeHtml(role) +
+          "</div>" +
+          // Info rows
+          '<div class="staff-info">' +
+          '<div class="staff-info-row">' +
+          '<i class="fas fa-envelope"></i>' +
+          "<span>" +
+          (s.email
+            ? escapeHtml(s.email)
+            : '<span class="empty">No email</span>') +
+          "</span>" +
+          "</div>" +
+          '<div class="staff-info-row">' +
+          '<i class="fas fa-phone"></i>' +
+          "<span>" +
+          (s.phone
+            ? escapeHtml(s.phone)
+            : '<span class="empty">No phone</span>') +
+          "</span>" +
+          "</div>" +
+          '<div class="staff-info-row">' +
+          '<i class="fas fa-book"></i>' +
+          "<span>" +
+          (s.subjects
+            ? escapeHtml(s.subjects)
+            : '<span class="empty">No subjects</span>') +
+          "</span>" +
+          "</div>" +
+          "</div>" +
+          // Footer
+          '<div class="staff-card-foot">' +
+          '<span class="staff-status' +
+          (s.isActive === false ? " inactive" : "") +
           '">' +
-          '<i class="fas fa-circle" style="font-size:6px;"></i> ' +
-          role +
-          "</span></td>" +
-          // Contact
-          "<td>" +
-          contact +
-          "</td>" +
-          // Subjects
-          "<td>" +
-          (s.subjects || '<span style="opacity:0.4;">—</span>') +
-          "</td>" +
-          // Status
-          '<td><span class="status-pill' +
-          statusClass +
-          '">' +
-          statusText +
-          "</span></td>" +
-          // Actions
-          '<td style="text-align:right;">' +
-          '<button class="icon-btn danger" onclick="deleteStaff(\'' +
+          (s.isActive === false ? "Inactive" : "Active") +
+          "</span>" +
+          '<button class="staff-delete" title="Delete" onclick="deleteStaff(\'' +
           s.id +
-          '\')" title="Delete"><i class="fas fa-trash"></i></button>' +
-          "</td></tr>";
+          '\')"><i class="fas fa-trash"></i></button>' +
+          "</div>" +
+          "</div>";
       });
-      tbody.innerHTML = html;
+      grid.innerHTML = html;
       if (_searchTerms.staff) filterStaff();
     })
-    .catch(function () {});
+    .catch(function (err) {
+      console.error("Staff load error:", err);
+    });
+}
+
+/* -------- Small helpers -------- */
+function setStaffStat(id, value) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var current = parseInt(el.textContent) || 0;
+  if (current === value) {
+    el.textContent = value;
+    return;
+  }
+  var start = current;
+  var startTime = performance.now();
+  var duration = 500;
+  function step(t) {
+    var p = Math.min((t - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(start + (value - start) * eased);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function getRoleAccent(role) {
+  switch (role) {
+    case "Admin":
+      return "#a855f7"; // violet
+    case "Librarian":
+      return "#d4af37"; // gold
+    case "Accountant":
+      return "#10b981"; // emerald
+    case "Support":
+      return "#f59e0b"; // amber
+    default:
+      return "#38bdf8"; // sky (Teacher)
+  }
+}
+
+function getRoleIcon(role) {
+  switch (role) {
+    case "Admin":
+      return "fa-user-shield";
+    case "Librarian":
+      return "fa-book-reader";
+    case "Accountant":
+      return "fa-calculator";
+    case "Support":
+      return "fa-hands-helping";
+    default:
+      return "fa-chalkboard-teacher";
+  }
+}
+
+function escapeHtml(str) {
+  if (str === undefined || str === null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function addStaff(event) {
@@ -2611,7 +2691,7 @@ function deleteStaff(staffId) {
   if (!staffId) return;
   if (typeof DialogSystem !== "undefined" && DialogSystem.confirm) {
     DialogSystem.confirm("Delete this staff member?", {
-      title: "Delete",
+      title: "Delete Staff",
       type: "danger",
       confirmText: "Delete",
       cancelText: "Cancel",
@@ -2641,13 +2721,16 @@ function deleteStaff(staffId) {
 function filterStaff() {
   var input = document.getElementById("searchStaff");
   if (input) _searchTerms.staff = input.value;
-  applyFilterToTable(
-    document.getElementById("staffTableBody"),
-    _searchTerms.staff,
-  );
+  var term = (_searchTerms.staff || "").toLowerCase().trim();
+  var grid = document.getElementById("staffGrid");
+  if (!grid) return;
+  var cards = grid.querySelectorAll(".staff-card");
+  cards.forEach(function (card) {
+    var text = card.textContent.toLowerCase();
+    card.style.display = !term || text.indexOf(term) > -1 ? "" : "none";
+  });
 }
 
-// Staff modal open/close helpers (used by the sleek HTML)
 function openStaffModal() {
   var modal = document.getElementById("addStaffModal");
   if (!modal) return;
@@ -2656,7 +2739,7 @@ function openStaffModal() {
   setTimeout(function () {
     var nameInput = document.getElementById("staffName");
     if (nameInput) nameInput.focus();
-  }, 100);
+  }, 120);
 }
 
 function closeStaffModal() {
@@ -2664,12 +2747,11 @@ function closeStaffModal() {
   if (!modal) return;
   modal.classList.remove("active");
   document.body.style.overflow = "auto";
-  // Reset form
   var form = modal.querySelector("form");
   if (form) form.reset();
 }
 
-// Close staff modal on outside click or Escape
+// Close modal on outside click / Escape
 document.addEventListener("click", function (e) {
   var modal = document.getElementById("addStaffModal");
   if (modal && e.target === modal) closeStaffModal();
