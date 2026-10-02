@@ -943,19 +943,155 @@
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       ⬇️⬇️⬇️  PASTE YOUR FLOATING NAVBAR HTML HERE  ⬇️⬇️⬇️
-       Copy the entire <nav class="floating-navbar-container">…</nav>
-       (or <div class="taskbar">…</div>) block from library.html or
-       dashboard.html and paste it right here.
+  <!-- ═══════════════ FLOATING NAVBAR ═══════════════ -->
+<nav class="floating-navbar-container">
+  <div class="floating-navbar">
+    <div class="navbar-inner">
 
-       Make sure the "Staff" dropdown item inside it points to:
-         <a href="staff.html" class="dropdown-item">
-           <i class="fas fa-users-tie"></i> Staff
-         </a>
+      <!-- Brand -->
+      <a href="dashboard.html" class="navbar-brand">
+        <i class="fas fa-graduation-cap"></i>
+        <span>SRMS</span>
+      </a>
 
-       This is what fixes the missing taskbar.
-       ═══════════════════════════════════════════════════════════════ -->
+      <!-- Nav Groups -->
+      <div class="navbar-links">
+
+        <!-- Dashboard -->
+        <a href="dashboard.html" class="classy-btn">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <!-- Academics -->
+        <div class="nav-group">
+          <button class="classy-btn">
+            <i class="fas fa-book-open"></i>
+            <span>Academics</span>
+            <i class="fas fa-chevron-down caret"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="classes.html" class="dropdown-item">
+              <i class="fas fa-school"></i> Classes
+            </a>
+            <a href="students.html" class="dropdown-item">
+              <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a href="staff.html" class="dropdown-item">
+              <i class="fas fa-user-tie"></i> Staff
+            </a>
+            <a href="timetable.html" class="dropdown-item">
+              <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
+            <a href="terms.html" class="dropdown-item">
+              <i class="fas fa-calendar-check"></i> Terms
+            </a>
+            <a href="events.html" class="dropdown-item">
+              <i class="fas fa-calendar-star"></i> Events
+            </a>
+          </div>
+        </div>
+
+        <!-- Library -->
+        <div class="nav-group">
+          <button class="classy-btn">
+            <i class="fas fa-book"></i>
+            <span>Library</span>
+            <i class="fas fa-chevron-down caret"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="library.html" class="dropdown-item">
+              <i class="fas fa-book"></i> Books
+            </a>
+            <a href="qrcodes.html" class="dropdown-item">
+              <i class="fas fa-qrcode"></i> QR Codes
+            </a>
+          </div>
+        </div>
+
+        <!-- Resources -->
+        <div class="nav-group">
+          <button class="classy-btn">
+            <i class="fas fa-chair"></i>
+            <span>Resources</span>
+            <i class="fas fa-chevron-down caret"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="furniture.html" class="dropdown-item">
+              <i class="fas fa-chair"></i> Furniture
+            </a>
+            <a href="fees.html" class="dropdown-item">
+              <i class="fas fa-money-bill-wave"></i> Fees
+            </a>
+          </div>
+        </div>
+
+        <!-- Communication -->
+        <div class="nav-group">
+          <button class="classy-btn">
+            <i class="fas fa-comments"></i>
+            <span>Communication</span>
+            <i class="fas fa-chevron-down caret"></i>
+            <span class="message-badge" style="display:none;">0</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="chat.html" class="dropdown-item">
+              <i class="fas fa-comment-dots"></i> Chat
+              <span class="message-badge" id="communicationBadge" style="display:none;">0</span>
+            </a>
+            <a href="forum.html" class="dropdown-item">
+              <i class="fas fa-comments"></i> Forum
+            </a>
+          </div>
+        </div>
+
+        <!-- Tools -->
+        <div class="nav-group">
+          <button class="classy-btn">
+            <i class="fas fa-tools"></i>
+            <span>Tools</span>
+            <i class="fas fa-chevron-down caret"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="reports.html" class="dropdown-item">
+              <i class="fas fa-chart-bar"></i> Reports
+            </a>
+            <a href="notepad.html" class="dropdown-item">
+              <i class="fas fa-sticky-note"></i> Notepad
+            </a>
+            <a href="database.html" class="dropdown-item">
+              <i class="fas fa-database"></i> Database
+            </a>
+            <a href="auditlog.html" class="dropdown-item">
+              <i class="fas fa-history"></i> Audit Log
+            </a>
+            <a href="wallpaper.html" class="dropdown-item">
+              <i class="fas fa-image"></i> Wallpapers
+            </a>
+          </div>
+        </div>
+
+        <!-- Settings / Profile -->
+        <div class="nav-group">
+          <button class="classy-btn">
+            <i class="fas fa-user-circle"></i>
+            <span id="navbarUserName">User</span>
+            <i class="fas fa-chevron-down caret"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="settings.html" class="dropdown-item">
+              <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="#" onclick="logout(); return false;" class="dropdown-item">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</nav>
 
   <div class="main-content">
     <div class="staff-page">
