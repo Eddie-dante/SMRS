@@ -4,6 +4,7 @@
 // + UNIQUE INVITE CODE per school (8 chars, safe alphabet)
 // + 15s timeout — rules allow reads
 // + REALTIME SUBSCRIPTIONS (instant live updates)
+// + STAFF (renamed from Teachers)
 // ============================================
 
 var firebaseConfig = {
@@ -350,7 +351,7 @@ function backgroundSync() {
       "borrowed_" + school,
       "students_" + school,
       "furniture_" + school,
-      "teachers_" + school,
+      "staff_" + school,
       "classes_" + school,
       "events_" + school,
       "fees_" + school,
@@ -1569,20 +1570,24 @@ var API = {
       });
   },
 
-  // ============ TEACHERS ============
-  addTeacher: function (schoolName, teacherData) {
-    var teacherRef = database.ref("schools/" + schoolName + "/teachers").push();
-    return teacherRef
+  // ============ STAFF ============
+  addStaff: function (schoolName, staffData) {
+    var staffRef = database.ref("schools/" + schoolName + "/staff").push();
+    return staffRef
       .set({
-        name: teacherData.name,
-        email: teacherData.email || "",
-        phone: teacherData.phone || "",
-        subjects: teacherData.subjects || "",
-        classes: teacherData.classes || "",
+        name: staffData.name,
+        email: staffData.email || "",
+        phone: staffData.phone || "",
+        role: staffData.role || "Teacher",
+        department: staffData.department || "",
+        subjects: staffData.subjects || "",
+        classes: staffData.classes || "",
+        staffId: staffData.staffId || generateStaffId(),
+        isActive: true,
         createdAt: new Date().toISOString(),
       })
       .then(function () {
-        clearCache("teachers_" + schoolName);
+        clearCache("staff_" + schoolName);
         bumpServerMarker(schoolName);
         return { success: true };
       })
@@ -1591,23 +1596,72 @@ var API = {
       });
   },
 
-  getTeachers: function (schoolName) {
-    return getCachedData("teachers_" + schoolName, function () {
+  getStaff: function (schoolName) {
+    return getCachedData("staff_" + schoolName, function () {
       return database
-        .ref("schools/" + schoolName + "/teachers")
+        .ref("schools/" + schoolName + "/staff")
         .once("value")
         .then(snapshotToArray);
     });
   },
 
-  deleteTeacher: function (schoolName, teacherId) {
+  updateStaff: function (schoolName, staffId, staffData) {
     return database
-      .ref("schools/" + schoolName + "/teachers/" + teacherId)
-      .remove()
+      .ref("schools/" + schoolName + "/staff/" + staffId)
+      .update(staffData)
       .then(function () {
-        clearCache("teachers_" + schoolName);
+        clearCache("staff_" + schoolName);
         bumpServerMarker(schoolName);
         return { success: true };
+      })
+      .catch(function (error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  deleteStaff: function (schoolName, staffId) {
+    return database
+      .ref("schools/" + schoolName + "/staff/" + staffId)
+      .remove()
+      .then(function () {
+        clearCache("staff_" + schoolName);
+        bumpServerMarker(schoolName);
+        return { success: true };
+      })
+      .catch(function (error) {
+        return { success: false, error: error.message };
+      });
+  },
+
+  // ============ ONE-TIME MIGRATION: teachers → staff ============
+  migrateTeachersToStaff: function (schoolName) {
+    return database
+      .ref("schools/" + schoolName + "/teachers")
+      .once("value")
+      .then(function (snap) {
+        var old = snap.val();
+        if (!old) return { success: true, migrated: 0 };
+        var updates = {};
+        Object.keys(old).forEach(function (key) {
+          updates["schools/" + schoolName + "/staff/" + key] = Object.assign(
+            { role: "Teacher", isActive: true },
+            old[key],
+          );
+        });
+        return database
+          .ref()
+          .update(updates)
+          .then(function () {
+            return database
+              .ref("schools/" + schoolName + "/teachers")
+              .remove()
+              .then(function () {
+                clearCache("staff_" + schoolName);
+                clearCache("teachers_" + schoolName);
+                bumpServerMarker(schoolName);
+                return { success: true, migrated: Object.keys(old).length };
+              });
+          });
       })
       .catch(function (error) {
         return { success: false, error: error.message };
@@ -2309,7 +2363,7 @@ window.generateInviteCode = generateInviteCode;
 window.extractAdm = extractAdm;
 window.extractName = extractName;
 
-console.log("✅ API loaded — CACHE-FIRST + REALTIME SUBSCRIPTIONS");
+console.log("✅ API loaded — CACHE-FIRST + REALTIME SUBSCRIPTIONS + STAFF");
 console.log("📦 Cache version: v" + CACHE_VERSION);
 console.log("⏱️ Firebase timeout: " + FIREBASE_TIMEOUT_MS + "ms");
 console.log("🔴 Realtime subscriptions enabled — instant live updates");
